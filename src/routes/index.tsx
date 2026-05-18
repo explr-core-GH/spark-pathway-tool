@@ -123,37 +123,6 @@ function Landing() {
           </div>
         </section>
 
-        {/* Pathways */}
-        <section className="mx-auto max-w-6xl px-6 py-24">
-          <p className="eyebrow">Get started</p>
-          <h3 className="mt-3 text-2xl font-light">Pick your pathway.</h3>
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
-            <div className="r-md border border-charcoal-100 p-8">
-              <p className="eyebrow">For students</p>
-              <h4 className="mt-3 text-xl font-light text-charcoal-700">A starting point you actually own.</h4>
-              <p className="mt-3 text-sm text-charcoal-500">
-                Take the survey. See your Holland code. Use it to ask better questions about
-                what comes after high school.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link to="/sign-up" className="btn-ink">Create student account</Link>
-                <Link to="/sign-in" className="btn-ghost">Sign in</Link>
-              </div>
-            </div>
-            <div className="r-md border border-charcoal-100 p-8">
-              <p className="eyebrow">For educators</p>
-              <h4 className="mt-3 text-xl font-light text-charcoal-700">Curriculum and rosters in one place.</h4>
-              <p className="mt-3 text-sm text-charcoal-500">
-                STEM, CS, robotics coaches (FLL/FTC/FRC), camp instructors, and internship
-                supervisors — manage assignments and student lists per program.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link to="/educator/sign-up" className="btn-ink">Request educator access</Link>
-                <Link to="/educator/sign-in" className="btn-ghost">Sign in</Link>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
 
       <SiteFooter />
