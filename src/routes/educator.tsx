@@ -26,6 +26,18 @@ function EducatorLayout() {
             )}
           </nav>
         </div>
+        {educator?.role === "admin" && (
+          <div className="border-t border-charcoal-100 bg-charcoal-50">
+            <div className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-2 text-xs">
+              <span className="eyebrow" style={{ margin: 0 }}>View as</span>
+              <Link to="/educator/admin" className="text-charcoal-500 hover:text-ink">Admin</Link>
+              <span className="text-charcoal-200">·</span>
+              <Link to="/educator/dashboard" className="text-charcoal-500 hover:text-ink">Educator</Link>
+              <span className="text-charcoal-200">·</span>
+              <Link to="/assessment" className="text-charcoal-500 hover:text-ink">Student</Link>
+            </div>
+          </div>
+        )}
       </header>
       <Outlet />
     </div>
