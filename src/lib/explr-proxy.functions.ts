@@ -24,9 +24,24 @@ async function assertAdmin(userId: string) {
   if (!data || data.role !== "admin") throw new Error("Admin access required");
 }
 
-async function callExplr(action: Action, campId?: string) {
-  const apiKey = process.env.EXPLR_API_KEY;
+function getExplrApiKey(): string {
+  const apiKey = process.env.EXPLR_API_KEY?.trim();
   if (!apiKey) throw new Error("EXPLR_API_KEY is not configured");
+
+  const invalidIndex = Array.from(apiKey).findIndex((char) => char.codePointAt(0)! > 255);
+  if (invalidIndex >= 0) {
+    const invalidChar = Array.from(apiKey)[invalidIndex]!;
+    const codePoint = invalidChar.codePointAt(0)!.toString(16).toUpperCase();
+    throw new Error(
+      `EXPLR_API_KEY contains unsupported smart punctuation or other non-ASCII text at character ${invalidIndex + 1} (U+${codePoint}). Re-save that backend secret using only the raw API key value.`,
+    );
+  }
+
+  return apiKey;
+}
+
+async function callExplr(action: Action, campId?: string) {
+  const apiKey = getExplrApiKey();
 
   const url = new URL(EXPLR_ENDPOINT);
   url.searchParams.set("action", action);
