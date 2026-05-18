@@ -244,14 +244,34 @@ function StudentDashboard() {
                         <p className="mt-4 text-sm text-charcoal-500 line-clamp-3">
                           {i.deliverables}
                         </p>
-                        <a
-                          href={i.externalUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="ink-link mt-4 inline-block text-sm"
-                        >
-                          Visit site →
-                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            )}
+
+            {placedInternship && (
+              <section className="mt-12 border-t border-charcoal-100 pt-10">
+                <p className="eyebrow" style={{ color: "var(--explr)" }}>Your placement</p>
+                <h2 className="mt-3 text-2xl font-light">
+                  You've been accepted to{" "}
+                  <span className="font-medium text-ink">{placedInternship.name}</span>
+                </h2>
+                <p className="mt-2 text-sm text-charcoal-500">
+                  Approved {new Date(placement!.approved_at).toLocaleDateString()}. Use the link
+                  below to access your internship's program site.
+                </p>
+                <a
+                  href={placedInternship.externalUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-ink mt-5 inline-block"
+                >
+                  Open {placedInternship.name} site →
+                </a>
+              </section>
+            )}
                       </li>
                     ))}
                   </ul>
