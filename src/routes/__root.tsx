@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { AdminViewBar } from "@/components/AdminViewBar";
 
 import appCss from "../styles.css?url";
 
@@ -86,6 +87,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AdminViewBar />
       <Outlet />
     </QueryClientProvider>
   );
