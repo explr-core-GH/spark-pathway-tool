@@ -11,17 +11,10 @@ export type EducatorRow = {
   email: string;
   organization: string | null;
   program_type: string | null;
-  role: "educator" | "admin"; // legacy column — admin flag now lives in public.admins
+  role: "educator" | "admin";
   approved: boolean;
   school_irn: string | null;
   school_name: string | null;
-};
-
-export type AdminRow = {
-  id: string;
-  full_name: string;
-  email: string;
-  created_at: string;
 };
 
 export function useSession() {
@@ -45,35 +38,32 @@ export function useSession() {
 export function useEducator() {
   const { user, loading: authLoading } = useSession();
   const [educator, setEducator] = useState<EducatorRow | null>(null);
-  const [admin, setAdmin] = useState<AdminRow | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     if (!user) {
       setEducator(null);
-      setAdmin(null);
       setLoading(authLoading);
       return;
     }
     setLoading(true);
-    // Fetch educator and admin rows in parallel — a user can be in one,
-    // the other, both, or neither.
-    Promise.all([
-      supabase.from("educators").select("*").eq("id", user.id).maybeSingle(),
-      supabase.from("admins").select("*").eq("id", user.id).maybeSingle(),
-    ]).then(([ed, ad]) => {
-      if (cancelled) return;
-      setEducator((ed.data as EducatorRow) ?? null);
-      setAdmin((ad.data as AdminRow) ?? null);
-      setLoading(false);
-    });
+    supabase
+      .from("educators")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled) return;
+        setEducator((data as EducatorRow) ?? null);
+        setLoading(false);
+      });
     return () => {
       cancelled = true;
     };
   }, [user, authLoading]);
 
-  const isAdmin = !!admin;
+  const isAdmin = educator?.role === "admin";
 
-  return { user, educator, admin, isAdmin, loading };
+  return { user, educator, admin: isAdmin ? educator : null, isAdmin, loading };
 }
