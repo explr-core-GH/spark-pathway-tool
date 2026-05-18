@@ -91,11 +91,14 @@ function AssessmentRunner() {
       .from("assessment_responses")
       .select("item_id, response_value, response_time_ms")
       .eq("session_id", sessionId);
-    const responses = (rows ?? []).map((r: { item_id: string; response_value: { likert?: number } | null; response_time_ms: number }) => ({
-      item_id: r.item_id,
-      value: Number(r.response_value?.likert ?? 0),
-      response_time_ms: r.response_time_ms,
-    }));
+    const responses = (rows ?? []).map((r) => {
+      const rv = r.response_value as { likert?: number } | null;
+      return {
+        item_id: r.item_id,
+        value: Number(rv?.likert ?? 0),
+        response_time_ms: r.response_time_ms,
+      };
+    });
     const { scale_scores, holland_code, flag_uniform, flag_speeding } = scoreResponses(responses);
     const { error: upErr } = await supabase.from("assessment_sessions").update({
       completed_at: new Date().toISOString(),
