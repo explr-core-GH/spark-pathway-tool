@@ -30,11 +30,12 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    // Single Invites page handles both educators and admins via a role
+    // toggle. Assigning educators to a camp / internship / program is done
+    // inline on those pages now, so there's no separate Assign entry.
     label: "People",
     items: [
-      { to: "/educator/admin/invites", label: "Educator invites" },
-      { to: "/educator/admin/admin-invites", label: "Admin invites" },
-      { to: "/educator/admin/assign", label: "Assign educators" },
+      { to: "/educator/admin/invites", label: "Invites" },
     ],
   },
   {

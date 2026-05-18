@@ -10,6 +10,8 @@ import {
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminViewBar } from "@/components/AdminViewBar";
+import { AccessibilityProvider } from "@/components/AccessibilityProvider";
+import { AccessibilityToolbar } from "@/components/AccessibilityToolbar";
 
 import appCss from "../styles.css?url";
 
@@ -95,8 +97,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AdminViewBar />
-      <Outlet />
+      <AccessibilityProvider>
+        <AdminViewBar />
+        <Outlet />
+        <AccessibilityToolbar />
+      </AccessibilityProvider>
     </QueryClientProvider>
   );
 }
