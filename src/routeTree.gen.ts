@@ -32,7 +32,7 @@ import { Route as EducatorCurriculumSlugRouteImport } from './routes/educator.cu
 import { Route as EducatorAdminProgramRiasecRouteImport } from './routes/educator.admin.program-riasec'
 import { Route as EducatorAdminInternshipTagsRouteImport } from './routes/educator.admin.internship-tags'
 import { Route as EducatorAdminCurriculumTagsRouteImport } from './routes/educator.admin.curriculum-tags'
-import { Route as AssessmentSessionIdResultsRouteImport } from './routes/assessment.$sessionId.results'
+import { Route as AssessmentSessionIdResultsRouteImport } from './routes/assessment.$sessionId_.results'
 import { Route as EducatorAdminEducatorsIdRouteImport } from './routes/educator.admin.educators.$id'
 
 const SignUpRoute = SignUpRouteImport.update({
@@ -156,9 +156,9 @@ const EducatorAdminCurriculumTagsRoute =
   } as any)
 const AssessmentSessionIdResultsRoute =
   AssessmentSessionIdResultsRouteImport.update({
-    id: '/results',
-    path: '/results',
-    getParentRoute: () => AssessmentSessionIdRoute,
+    id: '/assessment/$sessionId_/results',
+    path: '/assessment/$sessionId/results',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const EducatorAdminEducatorsIdRoute =
   EducatorAdminEducatorsIdRouteImport.update({
@@ -175,7 +175,7 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
   '/sign-up': typeof SignUpRoute
-  '/assessment/$sessionId': typeof AssessmentSessionIdRouteWithChildren
+  '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/educator/admin': typeof EducatorAdminRouteWithChildren
   '/educator/dashboard': typeof EducatorDashboardRoute
   '/educator/sign-in': typeof EducatorSignInRoute
@@ -201,7 +201,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
   '/sign-up': typeof SignUpRoute
-  '/assessment/$sessionId': typeof AssessmentSessionIdRouteWithChildren
+  '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/educator/dashboard': typeof EducatorDashboardRoute
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
@@ -228,14 +228,14 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
   '/sign-up': typeof SignUpRoute
-  '/assessment/$sessionId': typeof AssessmentSessionIdRouteWithChildren
+  '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/educator/admin': typeof EducatorAdminRouteWithChildren
   '/educator/dashboard': typeof EducatorDashboardRoute
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
   '/assessment/': typeof AssessmentIndexRoute
   '/educator/': typeof EducatorIndexRoute
-  '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
+  '/assessment/$sessionId_/results': typeof AssessmentSessionIdResultsRoute
   '/educator/admin/curriculum-tags': typeof EducatorAdminCurriculumTagsRoute
   '/educator/admin/internship-tags': typeof EducatorAdminInternshipTagsRoute
   '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
@@ -316,7 +316,7 @@ export interface FileRouteTypes {
     | '/educator/sign-up'
     | '/assessment/'
     | '/educator/'
-    | '/assessment/$sessionId/results'
+    | '/assessment/$sessionId_/results'
     | '/educator/admin/curriculum-tags'
     | '/educator/admin/internship-tags'
     | '/educator/admin/program-riasec'
@@ -337,8 +337,9 @@ export interface RootRouteChildren {
   SignInRoute: typeof SignInRoute
   SignOutRoute: typeof SignOutRoute
   SignUpRoute: typeof SignUpRoute
-  AssessmentSessionIdRoute: typeof AssessmentSessionIdRouteWithChildren
+  AssessmentSessionIdRoute: typeof AssessmentSessionIdRoute
   AssessmentIndexRoute: typeof AssessmentIndexRoute
+  AssessmentSessionIdResultsRoute: typeof AssessmentSessionIdResultsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -504,12 +505,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EducatorAdminCurriculumTagsRouteImport
       parentRoute: typeof EducatorAdminRoute
     }
-    '/assessment/$sessionId/results': {
-      id: '/assessment/$sessionId/results'
-      path: '/results'
+    '/assessment/$sessionId_/results': {
+      id: '/assessment/$sessionId_/results'
+      path: '/assessment/$sessionId/results'
       fullPath: '/assessment/$sessionId/results'
       preLoaderRoute: typeof AssessmentSessionIdResultsRouteImport
-      parentRoute: typeof AssessmentSessionIdRoute
+      parentRoute: typeof rootRouteImport
     }
     '/educator/admin/educators/$id': {
       id: '/educator/admin/educators/$id'
@@ -571,17 +572,6 @@ const EducatorRouteWithChildren = EducatorRoute._addFileChildren(
   EducatorRouteChildren,
 )
 
-interface AssessmentSessionIdRouteChildren {
-  AssessmentSessionIdResultsRoute: typeof AssessmentSessionIdResultsRoute
-}
-
-const AssessmentSessionIdRouteChildren: AssessmentSessionIdRouteChildren = {
-  AssessmentSessionIdResultsRoute: AssessmentSessionIdResultsRoute,
-}
-
-const AssessmentSessionIdRouteWithChildren =
-  AssessmentSessionIdRoute._addFileChildren(AssessmentSessionIdRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -590,9 +580,20 @@ const rootRouteChildren: RootRouteChildren = {
   SignInRoute: SignInRoute,
   SignOutRoute: SignOutRoute,
   SignUpRoute: SignUpRoute,
-  AssessmentSessionIdRoute: AssessmentSessionIdRouteWithChildren,
+  AssessmentSessionIdRoute: AssessmentSessionIdRoute,
   AssessmentIndexRoute: AssessmentIndexRoute,
+  AssessmentSessionIdResultsRoute: AssessmentSessionIdResultsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
