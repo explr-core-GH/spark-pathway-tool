@@ -89,8 +89,14 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      router.invalidate();
+    // Only invalidate route loaders when the *identity* actually changes —
+    // SIGNED_IN / SIGNED_OUT / USER_UPDATED. Invalidating on TOKEN_REFRESHED
+    // or INITIAL_SESSION fires refetches every ~hour and on tab focus, which
+    // shows up to the user as "the page kicks me out for a second."
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+        router.invalidate();
+      }
     });
     return () => subscription.unsubscribe();
   }, [router]);
