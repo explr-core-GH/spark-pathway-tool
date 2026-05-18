@@ -66,10 +66,9 @@ function ApplicationsPage() {
   }, [apps]);
 
   async function setStatus(app: Application, status: "approved" | "rejected", placementSlug?: string) {
-    const updates: Record<string, unknown> = { status, decided_at: new Date().toISOString() };
     const { error: upErr } = await supabase
       .from("internship_applications")
-      .update(updates)
+      .update({ status, decided_at: new Date().toISOString() })
       .eq("id", app.id);
     if (upErr) return alert(upErr.message);
 

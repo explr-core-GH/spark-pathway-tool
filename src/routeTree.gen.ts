@@ -35,6 +35,7 @@ import { Route as EducatorCurriculumSlugRouteImport } from './routes/educator.cu
 import { Route as EducatorAdminProgramRiasecRouteImport } from './routes/educator.admin.program-riasec'
 import { Route as EducatorAdminInternshipTagsRouteImport } from './routes/educator.admin.internship-tags'
 import { Route as EducatorAdminCurriculumTagsRouteImport } from './routes/educator.admin.curriculum-tags'
+import { Route as EducatorAdminApplicationsRouteImport } from './routes/educator.admin.applications'
 import { Route as AssessmentSessionIdResultsRouteImport } from './routes/assessment.$sessionId_.results'
 import { Route as EducatorAdminEducatorsIdRouteImport } from './routes/educator.admin.educators.$id'
 import { Route as DemoAptitudeBandTakeRouteImport } from './routes/demo.aptitude.$band.take'
@@ -174,6 +175,12 @@ const EducatorAdminCurriculumTagsRoute =
     path: '/curriculum-tags',
     getParentRoute: () => EducatorAdminRoute,
   } as any)
+const EducatorAdminApplicationsRoute =
+  EducatorAdminApplicationsRouteImport.update({
+    id: '/applications',
+    path: '/applications',
+    getParentRoute: () => EducatorAdminRoute,
+  } as any)
 const AssessmentSessionIdResultsRoute =
   AssessmentSessionIdResultsRouteImport.update({
     id: '/assessment/$sessionId_/results',
@@ -211,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/assessment/': typeof AssessmentIndexRoute
   '/educator/': typeof EducatorIndexRoute
   '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
+  '/educator/admin/applications': typeof EducatorAdminApplicationsRoute
   '/educator/admin/curriculum-tags': typeof EducatorAdminCurriculumTagsRoute
   '/educator/admin/internship-tags': typeof EducatorAdminInternshipTagsRoute
   '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
@@ -240,6 +248,7 @@ export interface FileRoutesByTo {
   '/assessment': typeof AssessmentIndexRoute
   '/educator': typeof EducatorIndexRoute
   '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
+  '/educator/admin/applications': typeof EducatorAdminApplicationsRoute
   '/educator/admin/curriculum-tags': typeof EducatorAdminCurriculumTagsRoute
   '/educator/admin/internship-tags': typeof EducatorAdminInternshipTagsRoute
   '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
@@ -272,6 +281,7 @@ export interface FileRoutesById {
   '/assessment/': typeof AssessmentIndexRoute
   '/educator/': typeof EducatorIndexRoute
   '/assessment/$sessionId_/results': typeof AssessmentSessionIdResultsRoute
+  '/educator/admin/applications': typeof EducatorAdminApplicationsRoute
   '/educator/admin/curriculum-tags': typeof EducatorAdminCurriculumTagsRoute
   '/educator/admin/internship-tags': typeof EducatorAdminInternshipTagsRoute
   '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
@@ -305,6 +315,7 @@ export interface FileRouteTypes {
     | '/assessment/'
     | '/educator/'
     | '/assessment/$sessionId/results'
+    | '/educator/admin/applications'
     | '/educator/admin/curriculum-tags'
     | '/educator/admin/internship-tags'
     | '/educator/admin/program-riasec'
@@ -334,6 +345,7 @@ export interface FileRouteTypes {
     | '/assessment'
     | '/educator'
     | '/assessment/$sessionId/results'
+    | '/educator/admin/applications'
     | '/educator/admin/curriculum-tags'
     | '/educator/admin/internship-tags'
     | '/educator/admin/program-riasec'
@@ -365,6 +377,7 @@ export interface FileRouteTypes {
     | '/assessment/'
     | '/educator/'
     | '/assessment/$sessionId_/results'
+    | '/educator/admin/applications'
     | '/educator/admin/curriculum-tags'
     | '/educator/admin/internship-tags'
     | '/educator/admin/program-riasec'
@@ -579,6 +592,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EducatorAdminCurriculumTagsRouteImport
       parentRoute: typeof EducatorAdminRoute
     }
+    '/educator/admin/applications': {
+      id: '/educator/admin/applications'
+      path: '/applications'
+      fullPath: '/educator/admin/applications'
+      preLoaderRoute: typeof EducatorAdminApplicationsRouteImport
+      parentRoute: typeof EducatorAdminRoute
+    }
     '/assessment/$sessionId_/results': {
       id: '/assessment/$sessionId_/results'
       path: '/assessment/$sessionId/results'
@@ -604,6 +624,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface EducatorAdminRouteChildren {
+  EducatorAdminApplicationsRoute: typeof EducatorAdminApplicationsRoute
   EducatorAdminCurriculumTagsRoute: typeof EducatorAdminCurriculumTagsRoute
   EducatorAdminInternshipTagsRoute: typeof EducatorAdminInternshipTagsRoute
   EducatorAdminProgramRiasecRoute: typeof EducatorAdminProgramRiasecRoute
@@ -612,6 +633,7 @@ interface EducatorAdminRouteChildren {
 }
 
 const EducatorAdminRouteChildren: EducatorAdminRouteChildren = {
+  EducatorAdminApplicationsRoute: EducatorAdminApplicationsRoute,
   EducatorAdminCurriculumTagsRoute: EducatorAdminCurriculumTagsRoute,
   EducatorAdminInternshipTagsRoute: EducatorAdminInternshipTagsRoute,
   EducatorAdminProgramRiasecRoute: EducatorAdminProgramRiasecRoute,
