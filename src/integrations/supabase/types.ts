@@ -208,6 +208,78 @@ export type Database = {
           },
         ]
       }
+      camps: {
+        Row: {
+          age_range: string
+          created_at: string
+          days: Json
+          duration: string
+          emoji: string
+          name: string
+          overview: string
+          resources: Json
+          slides: string | null
+          slug: string
+          sort_order: number
+          tagline: string
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          age_range?: string
+          created_at?: string
+          days?: Json
+          duration?: string
+          emoji?: string
+          name: string
+          overview?: string
+          resources?: Json
+          slides?: string | null
+          slug: string
+          sort_order?: number
+          tagline?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          age_range?: string
+          created_at?: string
+          days?: Json
+          duration?: string
+          emoji?: string
+          name?: string
+          overview?: string
+          resources?: Json
+          slides?: string | null
+          slug?: string
+          sort_order?: number
+          tagline?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
+      career_clusters: {
+        Row: {
+          description: string
+          id: string
+          label: string
+          sort_order: number
+        }
+        Insert: {
+          description?: string
+          id: string
+          label: string
+          sort_order?: number
+        }
+        Update: {
+          description?: string
+          id?: string
+          label?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       curriculum_tags: {
         Row: {
           camp_slug: string
@@ -434,6 +506,35 @@ export type Database = {
         }
         Relationships: []
       }
+      internship_occupations: {
+        Row: {
+          internship_slug: string
+          occupation_id: string
+          tagged_at: string
+          tagged_by: string | null
+        }
+        Insert: {
+          internship_slug: string
+          occupation_id: string
+          tagged_at?: string
+          tagged_by?: string | null
+        }
+        Update: {
+          internship_slug?: string
+          occupation_id?: string
+          tagged_at?: string
+          tagged_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internship_occupations_occupation_id_fkey"
+            columns: ["occupation_id"]
+            isOneToOne: false
+            referencedRelation: "occupations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       internship_placements: {
         Row: {
           application_id: string
@@ -536,6 +637,54 @@ export type Database = {
         }
         Relationships: []
       }
+      internships: {
+        Row: {
+          created_at: string
+          deliverables: string
+          emoji: string
+          external_url: string
+          lead: string | null
+          name: string
+          outside_partners: string
+          riasec: string[]
+          slug: string
+          sort_order: number
+          theme: string
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          deliverables?: string
+          emoji?: string
+          external_url?: string
+          lead?: string | null
+          name: string
+          outside_partners?: string
+          riasec?: string[]
+          slug: string
+          sort_order?: number
+          theme?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          created_at?: string
+          deliverables?: string
+          emoji?: string
+          external_url?: string
+          lead?: string | null
+          name?: string
+          outside_partners?: string
+          riasec?: string[]
+          slug?: string
+          sort_order?: number
+          theme?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       module_progress: {
         Row: {
           completed_at: string | null
@@ -564,6 +713,94 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      occupation_programs: {
+        Row: {
+          credential: string | null
+          id: string
+          occupation_id: string
+          program_name: string
+          school: string
+          sort_order: number
+          url: string | null
+        }
+        Insert: {
+          credential?: string | null
+          id?: string
+          occupation_id: string
+          program_name: string
+          school: string
+          sort_order?: number
+          url?: string | null
+        }
+        Update: {
+          credential?: string | null
+          id?: string
+          occupation_id?: string
+          program_name?: string
+          school?: string
+          sort_order?: number
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "occupation_programs_occupation_id_fkey"
+            columns: ["occupation_id"]
+            isOneToOne: false
+            referencedRelation: "occupations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      occupations: {
+        Row: {
+          annual_openings: number | null
+          cluster_id: string
+          created_at: string
+          description: string
+          education: string | null
+          growth_pct: number | null
+          id: string
+          median_wage: number | null
+          soc_code: string | null
+          sort_order: number
+          title: string
+        }
+        Insert: {
+          annual_openings?: number | null
+          cluster_id: string
+          created_at?: string
+          description?: string
+          education?: string | null
+          growth_pct?: number | null
+          id?: string
+          median_wage?: number | null
+          soc_code?: string | null
+          sort_order?: number
+          title: string
+        }
+        Update: {
+          annual_openings?: number | null
+          cluster_id?: string
+          created_at?: string
+          description?: string
+          education?: string | null
+          growth_pct?: number | null
+          id?: string
+          median_wage?: number | null
+          soc_code?: string | null
+          sort_order?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "occupations_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: false
+            referencedRelation: "career_clusters"
             referencedColumns: ["id"]
           },
         ]
