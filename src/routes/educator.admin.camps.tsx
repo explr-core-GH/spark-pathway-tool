@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { CurriculumFilesPanel } from "@/components/CurriculumFilesPanel";
 
 export const Route = createFileRoute("/educator/admin/camps")({
   head: () => ({ meta: [{ title: "Curriculum — Admin" }] }),
@@ -133,6 +134,22 @@ function CampsAdmin() {
               </div>
               <Labeled label="Overview"><textarea className="field" rows={4} value={editing.overview} onChange={(e) => setEditing({ ...editing, overview: e.target.value })} /></Labeled>
               <Labeled label="Slide deck filename (optional)"><input className="field" value={editing.slides ?? ""} onChange={(e) => setEditing({ ...editing, slides: e.target.value })} placeholder="MyCamp_Slides.pptx" /></Labeled>
+              {/* Storage-backed uploader. Only useful for camps that already
+                  exist — creating mode has no slug yet, so show a hint. */}
+              {creating ? (
+                <p className="border border-dashed border-charcoal-200 bg-charcoal-50 px-4 py-3 text-xs text-charcoal-500">
+                  Save the camp first, then re-open it to upload slide decks
+                  and resources.
+                </p>
+              ) : (
+                <CurriculumFilesPanel
+                  slug={editing.slug}
+                  primaryDeck={editing.slides}
+                  onPrimaryChange={(name) =>
+                    setEditing((cur) => (cur ? { ...cur, slides: name } : cur))
+                  }
+                />
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <Labeled label="Sort order"><input className="field" type="number" value={editing.sort_order} onChange={(e) => setEditing({ ...editing, sort_order: Number(e.target.value) || 0 })} /></Labeled>
                 <Labeled label="Visible">
