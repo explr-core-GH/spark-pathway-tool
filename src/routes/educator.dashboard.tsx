@@ -22,6 +22,7 @@ function Dashboard() {
   const [campTags, setCampTags] = useState<Record<string, string[]>>({});
   const [internTags, setInternTags] = useState<Record<string, string[]>>({});
   const [assignments, setAssignments] = useState<Array<{ id: string; assessment_kind: string; due_at: string | null; notes: string | null }>>([]);
+  const [myPrograms, setMyPrograms] = useState<Array<{ id: string; name: string; program_type: string; grade_band: string | null; description: string | null }>>([]);
 
   useEffect(() => {
     if (!educator) return;
@@ -38,6 +39,16 @@ function Dashboard() {
     supabase.from("assessment_assignments").select("id, assessment_kind, due_at, notes").then(({ data }) => {
       setAssignments((data as never) ?? []);
     });
+    supabase
+      .from("program_educators")
+      .select("program_id, programs(id, name, program_type, grade_band, description)")
+      .eq("educator_id", educator.id)
+      .then(({ data }) => {
+        const rows = (data ?? [])
+          .map((r: { programs: unknown }) => r.programs as { id: string; name: string; program_type: string; grade_band: string | null; description: string | null } | null)
+          .filter((p): p is NonNullable<typeof p> => !!p);
+        setMyPrograms(rows);
+      });
   }, [educator]);
 
   if (loading || !educator) return <main className="mx-auto max-w-6xl px-6 py-24 text-sm text-charcoal-400">Loading…</main>;
@@ -74,6 +85,27 @@ function Dashboard() {
             );
           })}
         </div>
+      </section>
+
+      {/* My programs */}
+      <section className="mt-16">
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-xs uppercase tracking-wider text-charcoal-400">My programs</h2>
+          <Link to="/educator/students" className="ink-link text-sm">View students →</Link>
+        </div>
+        {myPrograms.length === 0 ? (
+          <p className="mt-4 py-6 text-sm text-charcoal-400">You haven't been added to any program cohorts yet. Ask an admin to assign you.</p>
+        ) : (
+          <div className="mt-4 grid gap-px bg-charcoal-100 sm:grid-cols-2 lg:grid-cols-3">
+            {myPrograms.map((p) => (
+              <div key={p.id} className="tile">
+                <div className="text-xs uppercase tracking-wider text-charcoal-400">{p.program_type}{p.grade_band ? ` · ${p.grade_band}` : ""}</div>
+                <div className="mt-2 font-medium">{p.name}</div>
+                {p.description && <div className="mt-1 text-xs text-charcoal-500 line-clamp-2">{p.description}</div>}
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Curriculum tiles */}

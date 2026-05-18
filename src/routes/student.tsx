@@ -128,6 +128,27 @@ function StudentDashboard() {
         <p className="eyebrow">Student dashboard</p>
         <h1 className="display mt-3">Your pathway</h1>
 
+        {/* Placement banner — top priority when present */}
+        {placedInternship && (
+          <section className="mt-10 border border-ink bg-ink p-6 text-canvas">
+            <p className="eyebrow" style={{ color: "var(--explr)" }}>You're in</p>
+            <h2 className="mt-2 text-3xl font-light">
+              Accepted to <span className="font-medium">{placedInternship.name}</span> {placedInternship.emoji}
+            </h2>
+            <p className="mt-2 text-sm opacity-70">
+              Approved {new Date(placement!.approved_at).toLocaleDateString()}.
+            </p>
+            <a
+              href={placedInternship.externalUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-5 inline-block border border-canvas px-5 py-2 text-sm hover:bg-canvas hover:text-ink transition-colors"
+            >
+              Open {placedInternship.name} site →
+            </a>
+          </section>
+        )}
+
         {/* Assessment status */}
         <section className="mt-12 border-t border-charcoal-100 pt-10">
           <div className="flex items-baseline justify-between gap-6">
@@ -294,27 +315,6 @@ function StudentDashboard() {
               </section>
             )}
 
-            {placedInternship && (
-              <section className="mt-12 border-t border-charcoal-100 pt-10">
-                <p className="eyebrow" style={{ color: "var(--explr)" }}>Your placement</p>
-                <h2 className="mt-3 text-2xl font-light">
-                  You've been accepted to{" "}
-                  <span className="font-medium text-ink">{placedInternship.name}</span>
-                </h2>
-                <p className="mt-2 text-sm text-charcoal-500">
-                  Approved {new Date(placement!.approved_at).toLocaleDateString()}. Use the link
-                  below to access your internship's program site.
-                </p>
-                <a
-                  href={placedInternship.externalUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-ink mt-5 inline-block"
-                >
-                  Open {placedInternship.name} site →
-                </a>
-              </section>
-            )}
           </>
         )}
       </main>
