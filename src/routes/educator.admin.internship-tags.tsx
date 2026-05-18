@@ -11,6 +11,7 @@ export const Route = createFileRoute("/educator/admin/internship-tags")({
 
 function InternshipTags() {
   const [tags, setTags] = useState<Set<string>>(new Set());
+  const [hidden, setHidden] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     supabase
@@ -18,6 +19,14 @@ function InternshipTags() {
       .select("internship_slug, career_sector")
       .then(({ data }) => {
         setTags(new Set((data ?? []).map((r) => `${r.internship_slug}|${r.career_sector}`)));
+      });
+    supabase
+      .from("internship_visibility")
+      .select("internship_slug, visible")
+      .then(({ data }) => {
+        setHidden(
+          new Set((data ?? []).filter((r) => r.visible === false).map((r) => r.internship_slug)),
+        );
       });
   }, []);
 
@@ -39,6 +48,20 @@ function InternshipTags() {
         .from("internship_career_tags")
         .insert({ internship_slug: slug, career_sector: sector });
     }
+  }
+
+  async function toggleVisible(slug: string) {
+    const isHidden = hidden.has(slug);
+    const nextVisible = isHidden; // flip
+    const next = new Set(hidden);
+    if (nextVisible) next.delete(slug); else next.add(slug);
+    setHidden(next);
+    await supabase
+      .from("internship_visibility")
+      .upsert(
+        { internship_slug: slug, visible: nextVisible, updated_at: new Date().toISOString() },
+        { onConflict: "internship_slug" },
+      );
   }
 
   return (
