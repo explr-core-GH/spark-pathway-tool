@@ -29,6 +29,76 @@ type ExplrRegistration = {
   created_at: string | null;
 };
 
+// Fetch rosters via the EXPLR external-data proxy (admin API key). The
+// previous direct PostgREST call against `registrations` failed because the
+// EXPLR_SERVICE_ROLE_KEY secret is actually the anon key — rosters are not
+// reachable that way. external-data with x-api-key bypasses RLS server-side.
+const EXPLR_EXTERNAL_DATA =
+  "https://ovmmlbpaaadzgxxrbmdl.supabase.co/functions/v1/external-data";
+
+async function callExplrExternal(action: string, campId?: string): Promise<unknown> {
+  const apiKey = process.env.EXPLR_API_KEY;
+  if (!apiKey) throw new Error("EXPLR_API_KEY not configured");
+  const url = new URL(EXPLR_EXTERNAL_DATA);
+  url.searchParams.set("action", action);
+  if (campId) url.searchParams.set("camp_id", campId);
+  const res = await fetch(url.toString(), {
+    headers: { "x-api-key": apiKey, Accept: "application/json" },
+  });
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error(`EXPLR ${action} failed [${res.status}]: ${text.slice(0, 300)}`);
+  }
+  try { return JSON.parse(text); } catch { return text; }
+}
+
+function unwrapList(payload: unknown): Record<string, unknown>[] {
+  if (Array.isArray(payload)) return payload as Record<string, unknown>[];
+  if (payload && typeof payload === "object") {
+    const p = payload as Record<string, unknown>;
+    for (const key of ["data", "items", "results", "rows", "roster", "registrations"]) {
+      const v = p[key];
+      if (Array.isArray(v)) return v as Record<string, unknown>[];
+    }
+  }
+  return [];
+}
+
+function pickStr(row: Record<string, unknown>, ...keys: string[]): string | null {
+  for (const k of keys) {
+    const v = row[k];
+    if (typeof v === "string" && v.trim()) return v;
+    if (typeof v === "number") return String(v);
+  }
+  return null;
+}
+function pickNum(row: Record<string, unknown>, ...keys: string[]): number | null {
+  for (const k of keys) {
+    const v = row[k];
+    if (typeof v === "number" && Number.isFinite(v)) return v;
+    if (typeof v === "string" && v.trim() && !isNaN(Number(v))) return Number(v);
+  }
+  return null;
+}
+
+function mapRosterRow(row: Record<string, unknown>, campId: string): ExplrRegistration | null {
+  const id = pickStr(row, "id", "registration_id", "uuid");
+  const childName =
+    pickStr(row, "child_name", "student_name", "name", "full_name", "first_name") ?? null;
+  if (!id || !childName) return null;
+  return {
+    id,
+    camp_id: pickStr(row, "camp_id", "campId") ?? campId,
+    child_name: childName,
+    child_age: pickNum(row, "child_age", "age", "student_age"),
+    parent_name: pickStr(row, "parent_name", "guardian_name", "parent"),
+    parent_email: pickStr(row, "parent_email", "email", "guardian_email"),
+    parent_phone: pickStr(row, "parent_phone", "phone", "guardian_phone"),
+    status: pickStr(row, "status", "registration_status"),
+    created_at: pickStr(row, "created_at", "registered_at", "signup_date"),
+  };
+}
+
 async function fetchAllFromExplr<T>(table: string, columns: string): Promise<T[]> {
   const url = process.env.EXPLR_SUPABASE_URL;
   const key = process.env.EXPLR_SERVICE_ROLE_KEY;
@@ -79,10 +149,42 @@ export const syncExplrMore = createServerFn({ method: "POST" })
       "camps",
       "id,title,description,date,end_date,time,location,age_range,capacity,image,category,updated_at",
     );
-    const regs = await fetchAllFromExplr<ExplrRegistration>(
-      "registrations",
-      "id,camp_id,child_name,child_age,parent_name,parent_email,parent_phone,status,created_at",
-    );
+    // Pull rosters via external-data per camp (one request each). Try
+    // all_rosters first — if EXPLR returns it as a flat list we save N calls.
+    const regs: ExplrRegistration[] = [];
+    const rosterErrors: { campId: string; error: string }[] = [];
+    let allRostersWorked = false;
+    try {
+      const all = await callExplrExternal("all_rosters");
+      const rows = unwrapList(all);
+      if (rows.length > 0) {
+        for (const row of rows) {
+          const campId = pickStr(row, "camp_id", "campId") ?? "";
+          if (!campId) continue;
+          const mapped = mapRosterRow(row, campId);
+          if (mapped) regs.push(mapped);
+        }
+        allRostersWorked = regs.length > 0;
+      }
+    } catch (e) {
+      // Fall back to per-camp roster calls below.
+      rosterErrors.push({ campId: "all_rosters", error: (e as Error).message });
+    }
+
+    if (!allRostersWorked) {
+      for (const c of camps) {
+        try {
+          const roster = await callExplrExternal("roster", c.id);
+          for (const row of unwrapList(roster)) {
+            const mapped = mapRosterRow(row, c.id);
+            if (mapped) regs.push(mapped);
+          }
+        } catch (e) {
+          rosterErrors.push({ campId: c.id, error: (e as Error).message });
+        }
+      }
+    }
+
 
     if (camps.length > 0) {
       const { error } = await supabaseAdmin.from("explr_camps").upsert(
@@ -141,6 +243,7 @@ export const syncExplrMore = createServerFn({ method: "POST" })
       registrationsFetched: regs.length,
       registrationsImported: matchedRegs.length,
       registrationsOrphaned: orphanedRegs,
+      rosterErrors,
       syncedAt: new Date().toISOString(),
     };
   });
