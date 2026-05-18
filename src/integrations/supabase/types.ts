@@ -429,6 +429,35 @@ export type Database = {
         }
         Relationships: []
       }
+      explr_camp_educators: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          educator_id: string
+          explr_camp_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          educator_id: string
+          explr_camp_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          educator_id?: string
+          explr_camp_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "explr_camp_educators_explr_camp_id_fkey"
+            columns: ["explr_camp_id"]
+            isOneToOne: false
+            referencedRelation: "explr_camps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       explr_camps: {
         Row: {
           age_range: string | null
