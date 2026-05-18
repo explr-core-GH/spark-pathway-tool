@@ -141,6 +141,7 @@ function InternshipInterest() {
                   );
                 })}
               </div>
+              <CareerPathwaysDropdown internshipSlug={i.slug} />
             </li>
           ))}
         </ul>
