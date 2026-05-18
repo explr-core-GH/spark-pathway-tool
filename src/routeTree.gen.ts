@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudentRouteImport } from './routes/student'
+import { Route as StemLabRouteImport } from './routes/stem-lab'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignOutRouteImport } from './routes/sign-out'
 import { Route as SignInRouteImport } from './routes/sign-in'
@@ -20,6 +21,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as EducatorIndexRouteImport } from './routes/educator.index'
 import { Route as AssessmentIndexRouteImport } from './routes/assessment.index'
 import { Route as StudentApplyRouteImport } from './routes/student_.apply'
+import { Route as LabSplatRouteImport } from './routes/lab.$'
 import { Route as EducatorStudentsRouteImport } from './routes/educator.students'
 import { Route as EducatorSignUpRouteImport } from './routes/educator.sign-up'
 import { Route as EducatorSignInRouteImport } from './routes/educator.sign-in'
@@ -50,6 +52,11 @@ import { Route as DemoAptitudeBandTakeRouteImport } from './routes/demo.aptitude
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StemLabRoute = StemLabRouteImport.update({
+  id: '/stem-lab',
+  path: '/stem-lab',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignUpRoute = SignUpRouteImport.update({
@@ -100,6 +107,11 @@ const AssessmentIndexRoute = AssessmentIndexRouteImport.update({
 const StudentApplyRoute = StudentApplyRouteImport.update({
   id: '/student_/apply',
   path: '/student/apply',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabSplatRoute = LabSplatRouteImport.update({
+  id: '/lab/$',
+  path: '/lab/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EducatorStudentsRoute = EducatorStudentsRouteImport.update({
@@ -250,6 +262,7 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
   '/sign-up': typeof SignUpRoute
+  '/stem-lab': typeof StemLabRoute
   '/student': typeof StudentRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
@@ -258,6 +271,7 @@ export interface FileRoutesByFullPath {
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
   '/educator/students': typeof EducatorStudentsRoute
+  '/lab/$': typeof LabSplatRoute
   '/student/apply': typeof StudentApplyRoute
   '/assessment/': typeof AssessmentIndexRoute
   '/educator/': typeof EducatorIndexRoute
@@ -288,6 +302,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
   '/sign-up': typeof SignUpRoute
+  '/stem-lab': typeof StemLabRoute
   '/student': typeof StudentRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
@@ -295,6 +310,7 @@ export interface FileRoutesByTo {
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
   '/educator/students': typeof EducatorStudentsRoute
+  '/lab/$': typeof LabSplatRoute
   '/student/apply': typeof StudentApplyRoute
   '/assessment': typeof AssessmentIndexRoute
   '/educator': typeof EducatorIndexRoute
@@ -327,6 +343,7 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
   '/sign-up': typeof SignUpRoute
+  '/stem-lab': typeof StemLabRoute
   '/student': typeof StudentRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
@@ -335,6 +352,7 @@ export interface FileRoutesById {
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
   '/educator/students': typeof EducatorStudentsRoute
+  '/lab/$': typeof LabSplatRoute
   '/student_/apply': typeof StudentApplyRoute
   '/assessment/': typeof AssessmentIndexRoute
   '/educator/': typeof EducatorIndexRoute
@@ -368,6 +386,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-out'
     | '/sign-up'
+    | '/stem-lab'
     | '/student'
     | '/assessment/$sessionId'
     | '/assessment/internship-interest'
@@ -376,6 +395,7 @@ export interface FileRouteTypes {
     | '/educator/sign-in'
     | '/educator/sign-up'
     | '/educator/students'
+    | '/lab/$'
     | '/student/apply'
     | '/assessment/'
     | '/educator/'
@@ -406,6 +426,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-out'
     | '/sign-up'
+    | '/stem-lab'
     | '/student'
     | '/assessment/$sessionId'
     | '/assessment/internship-interest'
@@ -413,6 +434,7 @@ export interface FileRouteTypes {
     | '/educator/sign-in'
     | '/educator/sign-up'
     | '/educator/students'
+    | '/lab/$'
     | '/student/apply'
     | '/assessment'
     | '/educator'
@@ -444,6 +466,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-out'
     | '/sign-up'
+    | '/stem-lab'
     | '/student'
     | '/assessment/$sessionId'
     | '/assessment/internship-interest'
@@ -452,6 +475,7 @@ export interface FileRouteTypes {
     | '/educator/sign-in'
     | '/educator/sign-up'
     | '/educator/students'
+    | '/lab/$'
     | '/student_/apply'
     | '/assessment/'
     | '/educator/'
@@ -484,9 +508,11 @@ export interface RootRouteChildren {
   SignInRoute: typeof SignInRoute
   SignOutRoute: typeof SignOutRoute
   SignUpRoute: typeof SignUpRoute
+  StemLabRoute: typeof StemLabRoute
   StudentRoute: typeof StudentRoute
   AssessmentSessionIdRoute: typeof AssessmentSessionIdRoute
   AssessmentInternshipInterestRoute: typeof AssessmentInternshipInterestRoute
+  LabSplatRoute: typeof LabSplatRoute
   StudentApplyRoute: typeof StudentApplyRoute
   AssessmentIndexRoute: typeof AssessmentIndexRoute
   AssessmentSessionIdResultsRoute: typeof AssessmentSessionIdResultsRoute
@@ -500,6 +526,13 @@ declare module '@tanstack/react-router' {
       path: '/student'
       fullPath: '/student'
       preLoaderRoute: typeof StudentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stem-lab': {
+      id: '/stem-lab'
+      path: '/stem-lab'
+      fullPath: '/stem-lab'
+      preLoaderRoute: typeof StemLabRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sign-up': {
@@ -570,6 +603,13 @@ declare module '@tanstack/react-router' {
       path: '/student/apply'
       fullPath: '/student/apply'
       preLoaderRoute: typeof StudentApplyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab/$': {
+      id: '/lab/$'
+      path: '/lab/$'
+      fullPath: '/lab/$'
+      preLoaderRoute: typeof LabSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/educator/students': {
@@ -831,9 +871,11 @@ const rootRouteChildren: RootRouteChildren = {
   SignInRoute: SignInRoute,
   SignOutRoute: SignOutRoute,
   SignUpRoute: SignUpRoute,
+  StemLabRoute: StemLabRoute,
   StudentRoute: StudentRoute,
   AssessmentSessionIdRoute: AssessmentSessionIdRoute,
   AssessmentInternshipInterestRoute: AssessmentInternshipInterestRoute,
+  LabSplatRoute: LabSplatRoute,
   StudentApplyRoute: StudentApplyRoute,
   AssessmentIndexRoute: AssessmentIndexRoute,
   AssessmentSessionIdResultsRoute: AssessmentSessionIdResultsRoute,

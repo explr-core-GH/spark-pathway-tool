@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/lab/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>STEM Lab — EXPLR Assessment</title>
+    <meta name="description" content="Hands-on interactive science tools for grades 3–8, aligned to Ohio Science Standards and NGSS." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap">
+    <style>
+      /* EXPLR site chrome injected into the standalone STEM Lab. Sticky strip
+         that gives students a clear way back to the assessment site. */
+      #explr-chrome {
+        position: sticky;
+        top: 0;
+        z-index: 99999;
+        background: #1A1D1F;
+        color: white;
+        border-bottom: 1px solid rgba(43, 237, 161, 0.25);
+        font-family: 'Lexend', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      #explr-chrome-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      #explr-chrome a {
+        text-decoration: none;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 13px;
+        font-weight: 500;
+        transition: color 0.15s ease;
+      }
+      #explr-chrome a:hover { color: #2BEDA1; }
+      #explr-chrome-brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+      #explr-chrome-brand img {
+        height: 22px;
+        width: auto;
+        filter: brightness(0) invert(1);
+      }
+      #explr-chrome-brand .divider {
+        color: rgba(255, 255, 255, 0.25);
+        font-size: 14px;
+        font-weight: 300;
+      }
+      #explr-chrome-brand .label {
+        color: #2BEDA1;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      #explr-chrome-links {
+        display: inline-flex;
+        align-items: center;
+        gap: 18px;
+        font-size: 13px;
+      }
+      #explr-chrome-links .back {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: rgba(255, 255, 255, 0.85);
+      }
+      #explr-chrome-links .cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: #2BEDA1;
+        font-weight: 600;
+      }
+      @media (max-width: 640px) {
+        #explr-chrome-inner { padding: 8px 14px; gap: 10px; }
+        #explr-chrome-brand img { height: 18px; }
+        #explr-chrome-brand .divider { display: none; }
+        #explr-chrome-links { gap: 12px; font-size: 12px; }
+        #explr-chrome-links .cta-label-long { display: none; }
+      }
+    </style>
+    <script type="module" crossorigin src="/lab/assets/index-dvgehet5.js"></script>
+    <link rel="stylesheet" crossorigin href="/lab/assets/index-bpumzs5r.css">
+  </head>
+  <body>
+    <div id="explr-chrome">
+      <div id="explr-chrome-inner">
+        <a href="/" id="explr-chrome-brand" aria-label="EXPLR Assessment home">
+          <img src="/explr-wordmark.png" alt="EXPLR">
+          <span class="divider">/</span>
+          <span class="label">STEM Lab</span>
+        </a>
+        <div id="explr-chrome-links">
+          <a href="/stem-lab" class="back">← <span>All 45 activities</span></a>
+          <a href="/demo" class="cta">Take the assessment <span class="cta-label-long">→</span></a>
+        </div>
+      </div>
+    </div>
+    <div id="root"></div>
+  </body>
+</html>
