@@ -40,6 +40,11 @@ function Dashboard() {
   const [internships, setInternships] = useState<Internship[]>([]);
   const [campTags, setCampTags] = useState<Record<string, string[]>>({});
   const [internTags, setInternTags] = useState<Record<string, string[]>>({});
+  // Direct educator-to-item assignments from camp_educators / internship_educators.
+  // Surfaces a camp/internship on this educator's dashboard regardless of
+  // whether it's also program-type-tagged.
+  const [assignedCampSlugs, setAssignedCampSlugs] = useState<Set<string>>(new Set());
+  const [assignedInternshipSlugs, setAssignedInternshipSlugs] = useState<Set<string>>(new Set());
   const [assignments, setAssignments] = useState<
     Array<{ id: string; assessment_kind: string; due_at: string | null; notes: string | null }>
   >([]);
@@ -94,6 +99,25 @@ function Dashboard() {
       .then(({ data }) => {
         setAssignments((data as never) ?? []);
       });
+    // Direct assignments — admin picks "this educator runs that camp" from
+    // /educator/admin/assign. These should show even if the camp isn't
+    // tagged for the educator's program_type.
+    supabase
+      .from("camp_educators")
+      .select("camp_slug")
+      .eq("educator_id", educator.id)
+      .then(({ data }) => {
+        setAssignedCampSlugs(new Set((data ?? []).map((r) => r.camp_slug)));
+      });
+    supabase
+      .from("internship_educators")
+      .select("internship_slug")
+      .eq("educator_id", educator.id)
+      .then(({ data }) => {
+        setAssignedInternshipSlugs(
+          new Set((data ?? []).map((r) => r.internship_slug)),
+        );
+      });
     supabase
       .from("program_educators")
       .select("program_id, programs(id, name, program_type, grade_band, description)")
@@ -125,11 +149,19 @@ function Dashboard() {
     );
 
   const programType = educator.program_type as string;
-  const visibleCamps = camps.filter((c) =>
-    (campTags[c.slug] ?? []).includes(programType),
+  // Show a camp/internship if either (a) it's tagged for the educator's
+  // program_type, or (b) the admin directly assigned this educator to it
+  // via /educator/admin/assign. Direct assignments win even when tagging
+  // hasn't been set up yet.
+  const visibleCamps = camps.filter(
+    (c) =>
+      (campTags[c.slug] ?? []).includes(programType) ||
+      assignedCampSlugs.has(c.slug),
   );
-  const visibleInternships = internships.filter((i) =>
-    (internTags[i.slug] ?? []).includes(programType),
+  const visibleInternships = internships.filter(
+    (i) =>
+      (internTags[i.slug] ?? []).includes(programType) ||
+      assignedInternshipSlugs.has(i.slug),
   );
   const meta = PROGRAM_META[programType as keyof typeof PROGRAM_META];
 
@@ -236,15 +268,10 @@ function Dashboard() {
 
       {/* Curriculum tiles */}
       <section className="mt-16">
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-xs uppercase tracking-wider text-charcoal-400">Curriculum</h2>
-          <Link to="/educator/curriculum" className="ink-link text-sm">
-            Browse all →
-          </Link>
-        </div>
+        <h2 className="text-xs uppercase tracking-wider text-charcoal-400">Curriculum</h2>
         {visibleCamps.length === 0 ? (
           <p className="mt-4 py-6 text-sm text-charcoal-400">
-            No curriculum tagged for your program type yet.
+            No curriculum assigned to you yet.
           </p>
         ) : (
           <div className="mt-4 grid gap-px bg-charcoal-100 sm:grid-cols-2 lg:grid-cols-3">
@@ -269,15 +296,10 @@ function Dashboard() {
 
       {/* Internship tiles */}
       <section className="mt-16">
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-xs uppercase tracking-wider text-charcoal-400">Internships</h2>
-          <Link to="/educator/internships" className="ink-link text-sm">
-            Browse all →
-          </Link>
-        </div>
+        <h2 className="text-xs uppercase tracking-wider text-charcoal-400">Internships</h2>
         {visibleInternships.length === 0 ? (
           <p className="mt-4 py-6 text-sm text-charcoal-400">
-            No internships tagged for your program type yet.
+            No internships assigned to you yet.
           </p>
         ) : (
           <div className="mt-4 grid gap-px bg-charcoal-100 sm:grid-cols-2 lg:grid-cols-3">
