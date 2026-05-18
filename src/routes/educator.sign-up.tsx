@@ -84,11 +84,6 @@ function EducatorSignUp() {
         An EXPLR admin reviews new accounts and assigns your program type. If
         you have an invite link, use that instead — it activates instantly.
       </p>
-      <p className="mt-3 text-xs text-charcoal-400">
-        EXPLR admin? You don&apos;t need an educator account — admins are invited
-        separately and sign in at{" "}
-        <Link to="/admin/sign-in" className="ink-link">/admin/sign-in</Link>.
-      </p>
       <form onSubmit={submit} className="mt-10 space-y-5">
         <div>
           <label className="label">Full name</label>
