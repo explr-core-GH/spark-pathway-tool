@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { PROGRAM_TYPES, PROGRAM_META, newInviteToken, type ProgramType } from "@/lib/educator";
+import { newInviteToken } from "@/lib/educator";
 
 export const Route = createFileRoute("/educator/admin/invites")({
   head: () => ({ meta: [{ title: "Invites — Admin" }] }),
@@ -15,7 +15,6 @@ type Invite = {
   id: string;
   email: string;
   organization: string | null;
-  program_type: ProgramType | null;
   role: InviteRole;
   token: string;
   invited_at: string;
@@ -29,7 +28,6 @@ function InvitesAdmin() {
   const [rows, setRows] = useState<Invite[]>([]);
   const [email, setEmail] = useState("");
   const [org, setOrg] = useState("");
-  const [pt, setPt] = useState<ProgramType>("stem");
   const [role, setRole] = useState<InviteRole>("educator");
   const [busy, setBusy] = useState(false);
 
@@ -46,13 +44,14 @@ function InvitesAdmin() {
     e.preventDefault();
     if (!email.trim()) return;
     setBusy(true);
-    // Admins don't need a program_type; educators do. Cast through unknown
-    // because the generated Database type may not yet include the role column
-    // (added in migration 20260518080038).
+    // Cast through unknown because the generated Database type may not
+    // yet include the role column (added in migration 20260518080038).
+    // program_type is no longer required on educator invites — teacher
+    // tagging by program type was removed.
     const payload = {
       email: email.trim().toLowerCase(),
       organization: org.trim() || null,
-      program_type: role === "admin" ? null : pt,
+      program_type: null,
       role,
       token: newInviteToken(),
       invited_by: user?.id ?? null,
@@ -88,10 +87,10 @@ function InvitesAdmin() {
 
       <form
         onSubmit={create}
-        className="mt-10 grid gap-4 border border-charcoal-100 p-6 md:grid-cols-[2fr_2fr_1fr_auto]"
+        className="mt-10 grid gap-4 border border-charcoal-100 p-6 md:grid-cols-[2fr_2fr_auto]"
       >
         {/* Role picker spans the full width on top */}
-        <div className="md:col-span-4">
+        <div className="md:col-span-3">
           <label className="label">Role</label>
           <div className="mt-1 inline-flex border border-charcoal-200">
             {(["educator", "admin"] as InviteRole[]).map((r) => {
@@ -115,8 +114,8 @@ function InvitesAdmin() {
           </div>
           <p className="mt-2 text-xs text-charcoal-500">
             {role === "educator"
-              ? "An educator account gets approved automatically on activation and shows up under their assigned program type."
-              : "An admin account has full access to the admin tools. They don't need a program type."}
+              ? "Educator accounts auto-approve on activation. Admins assign them to camp sessions afterwards."
+              : "Admin accounts have full access to the admin tools."}
           </p>
         </div>
 
@@ -141,30 +140,6 @@ function InvitesAdmin() {
             placeholder="School, district, team #, etc."
           />
         </div>
-
-        {role === "educator" ? (
-          <div>
-            <label className="label">Program type</label>
-            <select
-              className="field mt-1"
-              value={pt}
-              onChange={(e) => setPt(e.target.value as ProgramType)}
-            >
-              {PROGRAM_TYPES.map((p) => (
-                <option key={p} value={p}>{PROGRAM_META[p].label}</option>
-              ))}
-            </select>
-          </div>
-        ) : (
-          <div>
-            <label className="label">Program type</label>
-            <input
-              className="field mt-1 bg-charcoal-50 text-charcoal-400"
-              value="n/a (admin)"
-              readOnly
-            />
-          </div>
-        )}
 
         <div className="flex items-end">
           <button type="submit" disabled={busy} className="btn-ink w-full">
@@ -194,11 +169,7 @@ function InvitesAdmin() {
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium truncate">{r.email}</p>
                 <p className="text-xs text-charcoal-500 truncate">
-                  {r.role === "admin"
-                    ? "Admin"
-                    : r.program_type
-                      ? PROGRAM_META[r.program_type]?.label ?? r.program_type
-                      : "—"}
+                  {r.role === "admin" ? "Admin" : "Educator"}
                   {r.organization ? ` · ${r.organization}` : ""}
                   {" · invited "}{new Date(r.invited_at).toLocaleDateString()}
                 </p>

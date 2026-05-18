@@ -2,14 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { EducatorSchoolEditor } from "@/components/EducatorSchoolEditor";
-import { PROGRAM_META, PROGRAM_TYPES, type ProgramType } from "@/lib/educator";
 
 export const Route = createFileRoute("/educator/admin/educators/$id")({
   head: () => ({ meta: [{ title: "Manage educator — Admin" }] }),
   component: ManageEducator,
 });
 
-type Ed = { id: string; full_name: string; email: string; organization: string | null; program_type: ProgramType; role: "educator" | "admin"; approved: boolean; school_irn: string | null; school_name: string | null };
+type Ed = { id: string; full_name: string; email: string; organization: string | null; role: "educator" | "admin"; approved: boolean; school_irn: string | null; school_name: string | null };
 
 function ManageEducator() {
   const { id } = Route.useParams();
@@ -36,16 +35,10 @@ function ManageEducator() {
       <p className="mt-1 text-sm text-charcoal-500">{ed.email}</p>
 
       <section className="mt-10 grid gap-6 sm:grid-cols-2">
-        <div>
-          <label className="label">Program type</label>
-          <select className="field" value={ed.program_type} onChange={(e) => update({ program_type: e.target.value as ProgramType })}>
-            {PROGRAM_TYPES.map((pt) => <option key={pt} value={pt}>{PROGRAM_META[pt].label}</option>)}
-          </select>
-        </div>
         {/* Role is always 'educator' here — admins live in public.admins,
             not in this table. The field is shown read-only so the admin
-            doesn't expect to be able to promote an educator from here.
-            To make someone an admin, invite them as an admin from
+            doesn't expect to be able to promote from here. To make
+            someone an admin, invite them as an admin from
             /educator/admin/invites. */}
         <div>
           <label className="label">Role</label>
@@ -59,7 +52,7 @@ function ManageEducator() {
           <label className="label">Approved</label>
           <button onClick={() => update({ approved: !ed.approved })} className="btn-ghost">{ed.approved ? "✓ approved · revoke" : "approve"}</button>
         </div>
-        <div>
+        <div className="sm:col-span-2">
           <label className="label">Organization</label>
           <input className="field" value={ed.organization ?? ""} onChange={(e) => setEd({ ...ed, organization: e.target.value })} onBlur={() => update({ organization: ed.organization })} />
         </div>

@@ -60,10 +60,9 @@ export function RoleGuard({ requires, children }: Props) {
   }
 
   const isEducator = !!educator;
-  // An approved educator has both program_type and approved=true. Admins
-  // are NOT auto-approved as educators — they're admins, separately.
-  const isApprovedEducator =
-    !!educator && educator.approved && !!educator.program_type;
+  // An educator is approved once an admin sets approved=true. Program-type
+  // tagging (STEM / FTC / etc.) was removed — we no longer require it.
+  const isApprovedEducator = !!educator && educator.approved;
 
   // Student-only pages — admins allowed (view-as-student); plain educators not.
   if (requires === "student" && isEducator && !isAdmin) {

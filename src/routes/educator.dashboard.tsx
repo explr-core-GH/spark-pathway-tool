@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useEducator } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { ASSESSMENT_META, PROGRAM_META } from "@/lib/educator";
+import { ASSESSMENT_META } from "@/lib/educator";
 import { EducatorGate } from "@/components/EducatorGate";
 import { MySessionsPanel } from "@/components/MySessionsPanel";
 
@@ -25,7 +25,7 @@ type Internship = {
 };
 
 function Dashboard() {
-  const { educator, loading } = useEducator();
+  const { educator, isAdmin, loading } = useEducator();
   const [internships, setInternships] = useState<Internship[]>([]);
   // Direct internship assignments still happen at the slug level — internships
   // aren't multi-week like camps. Camps moved to sessions (explr_camps) and
@@ -94,18 +94,36 @@ function Dashboard() {
       });
   }, [educator]);
 
-  if (loading || !educator)
+  if (loading)
     return (
       <main className="mx-auto max-w-6xl px-6 py-24 text-sm text-charcoal-400">
         Loading…
       </main>
     );
 
-  const programType = educator.program_type as string;
+  // Admins land here via the educator nav for preview/support. They have no
+  // educators row, so we show them a short pointer instead of trying to
+  // render educator-specific content with null data.
+  if (!educator) {
+    return (
+      <main className="mx-auto max-w-md px-6 py-24 text-center">
+        <p className="eyebrow">Admin</p>
+        <h1 className="mt-3 text-2xl font-light">
+          You&apos;re signed in as an admin.
+        </h1>
+        <p className="mt-3 text-sm text-charcoal-500">
+          Use the admin tools to manage sessions, curriculum, and educators.
+        </p>
+        <Link to="/educator/admin" className="btn-ink mt-6 inline-block">
+          Open admin tools
+        </Link>
+      </main>
+    );
+  }
+
   const visibleInternships = internships.filter((i) =>
     assignedInternshipSlugs.has(i.slug),
   );
-  const meta = PROGRAM_META[programType as keyof typeof PROGRAM_META];
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-16">
@@ -113,13 +131,6 @@ function Dashboard() {
       <h1 className="mt-3 text-4xl font-light">
         Welcome, {educator.full_name.split(" ")[0]}.
       </h1>
-      <p className="mt-2 text-sm text-charcoal-500">
-        <span
-          className="inline-block h-2 w-2 rounded-full align-middle"
-          style={{ background: meta.accent }}
-        />{" "}
-        {meta.full}
-      </p>
 
       {/* Assignments */}
       <section className="mt-16">
@@ -165,35 +176,17 @@ function Dashboard() {
         ) : (
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {myPrograms.map((p) => {
-              const pmeta = PROGRAM_META[p.program_type as keyof typeof PROGRAM_META];
-              const accent = pmeta?.accent ?? "var(--color-charcoal-300)";
               return (
                 <article
                   key={p.id}
-                  className="relative overflow-hidden border border-charcoal-100 bg-white p-5 transition-colors hover:border-ink"
+                  className="border border-charcoal-100 bg-white p-5 transition-colors hover:border-ink"
                 >
-                  {/* Left accent stripe in the program-type brand color */}
-                  <span
-                    aria-hidden
-                    className="absolute left-0 top-0 h-full w-1"
-                    style={{ background: accent }}
-                  />
-                  <div className="flex items-center gap-2 pl-1">
-                    <span
-                      className="inline-block h-2 w-2 rounded-full"
-                      style={{ background: accent }}
-                      aria-hidden
-                    />
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-charcoal-500">
-                      {pmeta?.label ?? p.program_type}
-                    </span>
-                    {p.grade_band && (
-                      <span className="text-[10px] uppercase tracking-wider text-charcoal-400">
-                        · {p.grade_band}
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-3 pl-1 text-base font-medium leading-tight text-ink">
+                  {p.grade_band && (
+                    <p className="text-[10px] uppercase tracking-wider text-charcoal-400">
+                      {p.grade_band}
+                    </p>
+                  )}
+                  <p className="mt-2 text-base font-medium leading-tight text-ink">
                     {p.name}
                   </p>
                   {p.description && (

@@ -76,7 +76,7 @@ function InviteAccept() {
         full_name: fullName,
         email: invite.email,
         organization: invite.organization,
-        program_type: invite.program_type as never,
+        program_type: null as never,
         role: "educator", // always educator; admins live in public.admins
         approved: true,
       };
@@ -106,11 +106,7 @@ function InviteAccept() {
       <h1 className="mt-3 text-3xl font-light">Activate your account</h1>
       <p className="mt-3 text-sm text-charcoal-500">
         For {invite.email}
-        {invite.role === "admin"
-          ? " · Admin"
-          : invite.program_type
-            ? ` · ${invite.program_type}`
-            : ""}
+        {invite.role === "admin" ? " · Admin" : ""}
       </p>
       <form onSubmit={accept} className="mt-10 space-y-5">
         <div><label className="label">Full name</label><input className="field" required value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>

@@ -74,11 +74,23 @@ export function useSession() {
       // genuine SIGNED_OUT event.
       apply(data.session?.user ?? null);
     }).catch(() => {
-      apply(null);
+      // Network/CORS error fetching the session — only clear loading
+      // if we haven't already resolved. Don't overwrite a known user.
+      if (!resolved) {
+        resolved = true;
+        setLoading(false);
+      }
     });
 
-    // Hard timeout — never leave the UI spinning forever.
-    const t = setTimeout(() => apply(null), 4000);
+    // Hard timeout — never leave the UI spinning forever. Only kicks in
+    // if neither the listener nor getSession() has resolved by now;
+    // never clears an already-set user.
+    const t = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        setLoading(false);
+      }
+    }, 4000);
     return () => {
       clearTimeout(t);
       sub.subscription.unsubscribe();

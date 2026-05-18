@@ -3,12 +3,34 @@ import { useEducator } from "@/lib/auth";
 
 type Props = { children: React.ReactNode };
 
+/**
+ * EducatorGate — guards educator surfaces. Admins are let through
+ * because they have legitimate reasons to preview the educator UI even
+ * though they don't carry an educators row themselves (post admins-split).
+ *
+ * The decision points:
+ *   loading            → "Loading…"
+ *   !user              → "Sign in required" (Request access)
+ *   admin              → render children  (no educators row needed)
+ *   !educator          → "Finish your sign-up"
+ *   educator.approved  → render children
+ *   !educator.approved → "Awaiting admin approval"
+ *
+ * We deliberately do NOT require educator.program_type anymore. Teacher
+ * tagging by program type (STEM / FTC / etc.) was removed — an educator
+ * is just an educator now.
+ */
 export function EducatorGate({ children }: Props) {
-  const { user, educator, loading } = useEducator();
+  const { user, educator, isAdmin, loading } = useEducator();
 
   if (loading) {
-    return <main className="mx-auto max-w-md px-6 py-24 text-sm text-charcoal-400">Loading…</main>;
+    return (
+      <main className="mx-auto max-w-md px-6 py-24 text-sm text-charcoal-400">
+        Loading…
+      </main>
+    );
   }
+
   if (!user) {
     return (
       <main className="mx-auto max-w-md px-6 py-24 text-center">
@@ -24,6 +46,11 @@ export function EducatorGate({ children }: Props) {
       </main>
     );
   }
+
+  // Admins are signed in but won't have an educators row. Let them through
+  // so they can preview / support the educator experience.
+  if (isAdmin) return <>{children}</>;
+
   if (!educator) {
     return (
       <main className="mx-auto max-w-md px-6 py-24 text-center">
@@ -32,22 +59,28 @@ export function EducatorGate({ children }: Props) {
         <p className="mt-3 text-sm text-charcoal-500">
           No educator profile is linked to {user.email}.
         </p>
-        <Link to="/educator/sign-up" className="btn-ink mt-6 inline-block">Complete sign-up</Link>
+        <Link to="/educator/sign-up" className="btn-ink mt-6 inline-block">
+          Complete sign-up
+        </Link>
       </main>
     );
   }
-  if (!educator.approved || !educator.program_type) {
+
+  if (!educator.approved) {
     return (
       <main className="mx-auto max-w-md px-6 py-24 text-center">
         <p className="eyebrow">Pending review</p>
         <h1 className="mt-3 text-2xl font-light">Awaiting admin approval</h1>
         <p className="mt-4 text-sm text-charcoal-500">
-          Thanks, {educator.full_name.split(" ")[0]}. An EXPLR admin will review your request and assign your
-          program type. You'll get access here once that's done.
+          Thanks, {educator.full_name.split(" ")[0]}. An EXPLR admin will
+          review your request and approve your account.
         </p>
-        <p className="mt-6 text-xs text-charcoal-400">Signed in as {educator.email}</p>
+        <p className="mt-6 text-xs text-charcoal-400">
+          Signed in as {educator.email}
+        </p>
       </main>
     );
   }
+
   return <>{children}</>;
 }
