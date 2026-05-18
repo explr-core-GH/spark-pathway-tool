@@ -125,11 +125,9 @@ function ImportExplrPage() {
         `Camps: ${res.campsImported} imported. Registrations: ${res.registrationsImported} imported of ${res.registrationsFetched} fetched from ExplrMore${orphanedNote}.`,
       );
       setDebugInfo(
-        JSON.stringify(
-          { debug: res.debug, rosterErrors: res.rosterErrors },
-          null,
-          2,
-        ),
+        res.rosterErrors.length > 0
+          ? JSON.stringify({ rosterErrors: res.rosterErrors }, null, 2)
+          : null,
       );
       await load();
     } catch (e) {
