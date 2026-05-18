@@ -19,6 +19,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EducatorIndexRouteImport } from './routes/educator.index'
 import { Route as AssessmentIndexRouteImport } from './routes/assessment.index'
+import { Route as StudentApplyRouteImport } from './routes/student_.apply'
 import { Route as EducatorSignUpRouteImport } from './routes/educator.sign-up'
 import { Route as EducatorSignInRouteImport } from './routes/educator.sign-in'
 import { Route as EducatorDashboardRouteImport } from './routes/educator.dashboard'
@@ -85,6 +86,11 @@ const EducatorIndexRoute = EducatorIndexRouteImport.update({
 const AssessmentIndexRoute = AssessmentIndexRouteImport.update({
   id: '/assessment/',
   path: '/assessment/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentApplyRoute = StudentApplyRouteImport.update({
+  id: '/student_/apply',
+  path: '/student/apply',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EducatorSignUpRoute = EducatorSignUpRouteImport.update({
@@ -195,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/educator/dashboard': typeof EducatorDashboardRoute
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
+  '/student/apply': typeof StudentApplyRoute
   '/assessment/': typeof AssessmentIndexRoute
   '/educator/': typeof EducatorIndexRoute
   '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
@@ -222,6 +229,7 @@ export interface FileRoutesByTo {
   '/educator/dashboard': typeof EducatorDashboardRoute
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
+  '/student/apply': typeof StudentApplyRoute
   '/assessment': typeof AssessmentIndexRoute
   '/educator': typeof EducatorIndexRoute
   '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
@@ -252,6 +260,7 @@ export interface FileRoutesById {
   '/educator/dashboard': typeof EducatorDashboardRoute
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
+  '/student_/apply': typeof StudentApplyRoute
   '/assessment/': typeof AssessmentIndexRoute
   '/educator/': typeof EducatorIndexRoute
   '/assessment/$sessionId_/results': typeof AssessmentSessionIdResultsRoute
@@ -283,6 +292,7 @@ export interface FileRouteTypes {
     | '/educator/dashboard'
     | '/educator/sign-in'
     | '/educator/sign-up'
+    | '/student/apply'
     | '/assessment/'
     | '/educator/'
     | '/assessment/$sessionId/results'
@@ -310,6 +320,7 @@ export interface FileRouteTypes {
     | '/educator/dashboard'
     | '/educator/sign-in'
     | '/educator/sign-up'
+    | '/student/apply'
     | '/assessment'
     | '/educator'
     | '/assessment/$sessionId/results'
@@ -339,6 +350,7 @@ export interface FileRouteTypes {
     | '/educator/dashboard'
     | '/educator/sign-in'
     | '/educator/sign-up'
+    | '/student_/apply'
     | '/assessment/'
     | '/educator/'
     | '/assessment/$sessionId_/results'
@@ -365,6 +377,7 @@ export interface RootRouteChildren {
   StudentRoute: typeof StudentRoute
   AssessmentSessionIdRoute: typeof AssessmentSessionIdRoute
   AssessmentInternshipInterestRoute: typeof AssessmentInternshipInterestRoute
+  StudentApplyRoute: typeof StudentApplyRoute
   AssessmentIndexRoute: typeof AssessmentIndexRoute
   AssessmentSessionIdResultsRoute: typeof AssessmentSessionIdResultsRoute
 }
@@ -439,6 +452,13 @@ declare module '@tanstack/react-router' {
       path: '/assessment'
       fullPath: '/assessment/'
       preLoaderRoute: typeof AssessmentIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/student_/apply': {
+      id: '/student_/apply'
+      path: '/student/apply'
+      fullPath: '/student/apply'
+      preLoaderRoute: typeof StudentApplyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/educator/sign-up': {
@@ -624,19 +644,10 @@ const rootRouteChildren: RootRouteChildren = {
   StudentRoute: StudentRoute,
   AssessmentSessionIdRoute: AssessmentSessionIdRoute,
   AssessmentInternshipInterestRoute: AssessmentInternshipInterestRoute,
+  StudentApplyRoute: StudentApplyRoute,
   AssessmentIndexRoute: AssessmentIndexRoute,
   AssessmentSessionIdResultsRoute: AssessmentSessionIdResultsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

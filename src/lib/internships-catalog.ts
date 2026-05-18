@@ -11,11 +11,13 @@ export type Internship = {
   deliverables: string;      // what students produce
   externalUrl: string;       // each internship has its own deployed site
   emoji: string;
+  riasec: ("R" | "I" | "A" | "S" | "E" | "C")[]; // 1-3 dominant Holland codes for matching
 };
 
 export const INTERNSHIPS: Internship[] = [
   {
     slug: "adaptive-design",
+    riasec: ["I","R"],
     name: "Adaptive Design",
     theme: "BioMed",
     lead: "Zachary Wenz",
@@ -28,6 +30,7 @@ export const INTERNSHIPS: Internship[] = [
   },
   {
     slug: "nextgen-educators",
+    riasec: ["S","A"],
     name: "NextGen Educators",
     theme: "STEM CSU Camps",
     lead: "Angela Powell",
@@ -38,6 +41,7 @@ export const INTERNSHIPS: Internship[] = [
   },
   {
     slug: "webdevai",
+    riasec: ["I","A"],
     name: "WebDevAI",
     theme: "Two cohorts · Lead TBD",
     lead: null,
@@ -48,6 +52,7 @@ export const INTERNSHIPS: Internship[] = [
   },
   {
     slug: "games-for-change",
+    riasec: ["A","I"],
     name: "Games for Change",
     theme: "Video Game Design",
     lead: "Julien Medina",
@@ -58,6 +63,7 @@ export const INTERNSHIPS: Internship[] = [
   },
   {
     slug: "envsci",
+    riasec: ["I","R"],
     name: "EnvSci",
     theme: "Environmental Science Field Data",
     lead: "Yulisa Alvarado",
@@ -68,6 +74,7 @@ export const INTERNSHIPS: Internship[] = [
   },
   {
     slug: "civic-journalism",
+    riasec: ["A","S"],
     name: "Civic Journalism",
     theme: "Civic Journalism",
     lead: "Sarah Spinelli",
