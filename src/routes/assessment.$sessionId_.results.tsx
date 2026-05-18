@@ -5,7 +5,7 @@ import { HollandHexagon } from "@/components/HollandHexagon";
 import { RIASEC, RIASEC_ORDER, type RIASECCode } from "@/lib/riasec";
 import { RoleGuard } from "@/components/RoleGuard";
 
-export const Route = createFileRoute("/assessment/$sessionId/results")({
+export const Route = createFileRoute("/assessment/$sessionId_/results")({
   head: () => ({ meta: [{ title: "Your results — EXPLR" }] }),
   component: () => (
     <RoleGuard requires="student">
