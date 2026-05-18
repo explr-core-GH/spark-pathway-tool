@@ -2,211 +2,299 @@
 @source "../src";
 @import "tw-animate-css";
 
-/*
- * EXPLR design system.
- * Brand: mint accent (#2BEDA1) on charcoal ink, paper background.
- * Type: Lexend 300–700 (loaded via Google Fonts in __root.tsx).
- * Tone: editorial, generous spacing, one accent. No gradients/glass.
- */
-
+/* Tailwind v4 theme — mirrors tailwind.config.ts (colors, fonts, font sizes). */
 @theme inline {
-  --font-sans: "Lexend", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Lexend", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-lexend), system-ui, sans-serif;
+  --font-lexend: "Lexend", system-ui, sans-serif;
 
-  --radius-sm: 2px;
-  --radius-md: 3px;
-  --radius-lg: 4px;
-  --radius-xl: 8px;
-
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-
-  --color-ink: var(--ink);
-  --color-paper: var(--paper);
-
-  /* explr mint */
-  --color-explr-50:  #ECFEF6;
-  --color-explr-100: #D5FBE9;
-  --color-explr-200: #A8F6D2;
-  --color-explr-300: #7BF0BC;
-  --color-explr-400: #42EDA5;
-  --color-explr-500: #2BEDA1;
-  --color-explr-600: #15CD86;
-  --color-explr-700: #0FA66B;
-  --color-explr-800: #0B7F52;
-  --color-explr-900: #075638;
-
-  /* charcoal */
-  --color-charcoal-50:  #F5F6F7;
-  --color-charcoal-100: #E8EAEC;
-  --color-charcoal-200: #CFD3D8;
+  --color-charcoal: #1A1D1F;
+  --color-charcoal-50:  #F4F5F6;
+  --color-charcoal-100: #E6E8EA;
+  --color-charcoal-200: #C8CCD0;
   --color-charcoal-300: #A0A6AD;
   --color-charcoal-400: #6E767F;
-  --color-charcoal-500: #3F484F;
-  --color-charcoal-600: #2A3036;
+  --color-charcoal-500: #3F4549;
+  --color-charcoal-600: #2A2E31;
   --color-charcoal-700: #1A1D1F;
-  --color-charcoal-800: #0F1011;
-  --color-charcoal-900: #000000;
+  --color-charcoal-800: #101214;
+  --color-charcoal-900: #08090A;
+
+  --color-explr: #2BEDA1;
+  --color-explr-50:  #E8FFF6;
+  --color-explr-100: #C6FCE6;
+  --color-explr-200: #8FF7CD;
+  --color-explr-300: #5DF1B7;
+  --color-explr-400: #2BEDA1;
+  --color-explr-500: #15CD86;
+  --color-explr-600: #0FA66C;
+  --color-explr-700: #0B7E52;
+  --color-explr-800: #085739;
+  --color-explr-900: #042E1E;
+
+  --color-riasec-r: #D86B3C;
+  --color-riasec-i: #4D5BAE;
+  --color-riasec-a: #D9417A;
+  --color-riasec-s: #E5A82F;
+  --color-riasec-e: #B8364D;
+  --color-riasec-c: #3F7BA8;
+
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.65;
+  --text-lg: 1.1875rem;
+  --text-lg--line-height: 1.6;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.5;
+  --text-2xl: 1.625rem;
+  --text-2xl--line-height: 1.4;
+  --text-3xl: 2rem;
+  --text-3xl--line-height: 1.3;
+  --text-4xl: 2.5rem;
+  --text-4xl--line-height: 1.2;
+  --text-5xl: 3.25rem;
+  --text-5xl--line-height: 1.1;
+
+  /* shadcn-compatible tokens (some primitives still read these) */
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-border: var(--border);
+  --color-ring: var(--focus-ring);
+  --color-muted-foreground: var(--fg-muted);
 }
+
+/* ============================================================
+ * globals.css — dropped in verbatim from the canonical upload.
+ * (Tailwind v3 @tailwind directives replaced by v4 @import above.)
+ * ============================================================ */
 
 :root {
-  --paper: #FAFAF7;
-  --ink: #1A1D1F;
+  --bg: #FAFAF8;
+  --bg-elevated: #FFFFFF;
+  --fg: #1A1D1F;
+  --fg-muted: #6E767F;
+  --border: #E6E8EA;
+  --explr: #2BEDA1;
+  --focus-ring: #2BEDA1;
 
-  --background: #FAFAF7;
-  --foreground: #1A1D1F;
-  --card: #FFFFFF;
-  --card-foreground: #1A1D1F;
-  --popover: #FFFFFF;
-  --popover-foreground: #1A1D1F;
-  --primary: #1A1D1F;
-  --primary-foreground: #FAFAF7;
-  --secondary: #F5F6F7;
-  --secondary-foreground: #1A1D1F;
-  --muted: #F5F6F7;
-  --muted-foreground: #6E767F;
-  --accent: #2BEDA1;
-  --accent-foreground: #075638;
-  --destructive: #B23A2A;
-  --destructive-foreground: #FAFAF7;
-  --border: #E8EAEC;
-  --input: #E8EAEC;
-  --ring: #15CD86;
+  /* Accessibility scale (set by AccessibilityProvider) */
+  --a11y-text-scale: 1;
+  --a11y-letter-spacing: 0;
+  --a11y-line-height: 1;
+  --a11y-motion: 1;
 }
 
-@layer base {
-  * { border-color: var(--color-border); }
-
-  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-
-  body {
-    background-color: var(--paper);
-    color: var(--ink);
-    font-family: var(--font-sans);
-    font-weight: 400;
-    letter-spacing: -0.005em;
-    line-height: 1.55;
-  }
-
-  h1, h2, h3, h4 {
-    font-family: var(--font-display);
-    font-weight: 500;
-    letter-spacing: -0.022em;
-    line-height: 1.1;
-    color: var(--ink);
-  }
-
-  h1 { font-weight: 300; }
-
-  ::selection { background: var(--color-explr-500); color: var(--color-charcoal-900); }
+html {
+  background: var(--bg);
+  color: var(--fg);
+  font-size: calc(16px * var(--a11y-text-scale));
+  letter-spacing: var(--a11y-letter-spacing);
 }
 
-/* Editorial primitives */
+body {
+  font-family: var(--font-lexend), system-ui, -apple-system, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* High-contrast mode */
+[data-contrast="high"] {
+  --bg: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --fg: #000000;
+  --fg-muted: #1A1D1F;
+  --border: #000000;
+}
+[data-contrast="high"] body {
+  font-weight: 500;
+}
+[data-contrast="high"] button,
+[data-contrast="high"] a {
+  outline-width: 2px;
+}
+
+/* Dyslexia-friendly spacing toggle */
+[data-spacing="loose"] {
+  --a11y-letter-spacing: 0.04em;
+  --a11y-line-height: 1.15;
+  word-spacing: 0.16em;
+}
+[data-spacing="loose"] p,
+[data-spacing="loose"] li,
+[data-spacing="loose"] h1,
+[data-spacing="loose"] h2,
+[data-spacing="loose"] h3,
+[data-spacing="loose"] h4 {
+  line-height: calc(1.7 * var(--a11y-line-height));
+}
+
+/* Reduced motion */
+[data-motion="reduced"] *,
+[data-motion="reduced"] *::before,
+[data-motion="reduced"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Focus ring — always visible for keyboard users */
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Mode-driven shape language */
+[data-mode="ms"] {
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+}
+[data-mode="hs"] {
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+}
+
+.r-sm { border-radius: var(--radius-sm); }
+.r-md { border-radius: var(--radius-md); }
+.r-lg { border-radius: var(--radius-lg); }
+.r-xl { border-radius: var(--radius-xl); }
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--fg);
+  color: var(--explr);
+  padding: 0.75rem 1rem;
+  z-index: 9999;
+  font-weight: 600;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+}
+
+/* Geometric background utility */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(26,29,31,0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(26,29,31,0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Headings — slightly tighter than body, but still Lexend */
+h1, h2, h3, h4 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Print styles — used by the unified PDF report */
+@media print {
+  header.sticky,
+  footer,
+  .skip-link,
+  button[aria-label="Accessibility settings"],
+  [role="dialog"][aria-label="Accessibility settings"] {
+    display: none !important;
+  }
+  .print\:hidden { display: none !important; }
+  .print\:block { display: block !important; }
+  .print\:break-after-page { break-after: page; page-break-after: always; }
+  body, html { background: white !important; }
+  main { padding-top: 0 !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* ============================================================
+ * Editorial primitives used by route/component files.
+ * Built on the canonical tokens above — no new colors.
+ * ============================================================ */
 @layer components {
-  .rule { border-top: 1px solid var(--color-charcoal-200); }
+  .rule { border-top: 1px solid var(--border); }
   .eyebrow {
     font-size: 0.6875rem;
     text-transform: uppercase;
     letter-spacing: 0.18em;
-    font-weight: 500;
-    color: var(--color-charcoal-400);
+    font-weight: 600;
+    color: var(--fg-muted);
   }
   .display {
     font-size: clamp(2.5rem, 6vw, 5rem);
-    font-weight: 300;
-    letter-spacing: -0.03em;
-    line-height: 1.02;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
   }
   .lead {
-    font-size: 1.125rem;
-    line-height: 1.5;
-    color: var(--color-charcoal-500);
+    font-size: 1.1875rem;
+    line-height: 1.55;
+    color: var(--fg-muted);
   }
   .ink-link {
-    color: var(--ink);
+    color: var(--fg);
     text-decoration: underline;
-    text-decoration-color: var(--color-charcoal-300);
+    text-decoration-color: #C8CCD0;
     text-underline-offset: 4px;
     transition: text-decoration-color 0.15s;
   }
-  .ink-link:hover { text-decoration-color: var(--color-explr-600); }
+  .ink-link:hover { text-decoration-color: var(--explr); }
 
   .btn-ink {
     display: inline-flex; align-items: center; gap: 0.5rem;
     padding: 0.75rem 1.25rem;
-    background: var(--ink); color: var(--paper);
-    font-weight: 500; font-size: 0.9375rem;
-    border-radius: 2px;
-    transition: background 0.15s;
+    background: var(--fg); color: var(--bg);
+    font-weight: 600; font-size: 0.9375rem;
   }
-  .btn-ink:hover { background: var(--color-charcoal-600); }
+  .btn-ink:hover { background: #2A2E31; }
 
   .btn-mint {
     display: inline-flex; align-items: center; gap: 0.5rem;
     padding: 0.75rem 1.25rem;
-    background: var(--color-explr-500); color: var(--color-charcoal-800);
-    font-weight: 500; font-size: 0.9375rem;
-    border-radius: 2px;
-    transition: background 0.15s;
+    background: var(--explr); color: #08090A;
+    font-weight: 600; font-size: 0.9375rem;
   }
-  .btn-mint:hover { background: var(--color-explr-400); }
+  .btn-mint:hover { background: #5DF1B7; }
 
   .btn-ghost {
     display: inline-flex; align-items: center; gap: 0.5rem;
     padding: 0.75rem 1.25rem;
-    background: transparent; color: var(--ink);
-    border: 1px solid var(--color-charcoal-200);
-    font-weight: 500; font-size: 0.9375rem;
-    border-radius: 2px;
-    transition: border-color 0.15s;
+    background: transparent; color: var(--fg);
+    border: 1px solid var(--border);
+    font-weight: 600; font-size: 0.9375rem;
   }
-  .btn-ghost:hover { border-color: var(--ink); }
+  .btn-ghost:hover { border-color: var(--fg); }
 
   .field {
     width: 100%;
-    background: white;
-    border: 1px solid var(--color-charcoal-200);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
     padding: 0.625rem 0.875rem;
     font-size: 0.9375rem;
-    border-radius: 2px;
-    color: var(--ink);
-    font-family: var(--font-sans);
+    color: var(--fg);
+    font-family: inherit;
   }
-  .field:focus { outline: none; border-color: var(--ink); }
+  .field:focus { outline: none; border-color: var(--fg); }
 
   .label {
     display: block;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: var(--color-charcoal-500);
+    color: var(--fg-muted);
     margin-bottom: 0.4rem;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .tile {
     display: block;
     padding: 1.5rem;
-    background: white;
-    border: 1px solid var(--color-charcoal-100);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
     transition: border-color 0.15s;
   }
-  .tile:hover { border-color: var(--ink); }
+  .tile:hover { border-color: var(--fg); }
 }
