@@ -20,6 +20,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as EducatorIndexRouteImport } from './routes/educator.index'
 import { Route as AssessmentIndexRouteImport } from './routes/assessment.index'
 import { Route as StudentApplyRouteImport } from './routes/student_.apply'
+import { Route as EducatorStudentsRouteImport } from './routes/educator.students'
 import { Route as EducatorSignUpRouteImport } from './routes/educator.sign-up'
 import { Route as EducatorSignInRouteImport } from './routes/educator.sign-in'
 import { Route as EducatorDashboardRouteImport } from './routes/educator.dashboard'
@@ -99,6 +100,11 @@ const StudentApplyRoute = StudentApplyRouteImport.update({
   id: '/student_/apply',
   path: '/student/apply',
   getParentRoute: () => rootRouteImport,
+} as any)
+const EducatorStudentsRoute = EducatorStudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => EducatorRoute,
 } as any)
 const EducatorSignUpRoute = EducatorSignUpRouteImport.update({
   id: '/sign-up',
@@ -245,6 +251,7 @@ export interface FileRoutesByFullPath {
   '/educator/dashboard': typeof EducatorDashboardRoute
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
+  '/educator/students': typeof EducatorStudentsRoute
   '/student/apply': typeof StudentApplyRoute
   '/assessment/': typeof AssessmentIndexRoute
   '/educator/': typeof EducatorIndexRoute
@@ -280,6 +287,7 @@ export interface FileRoutesByTo {
   '/educator/dashboard': typeof EducatorDashboardRoute
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
+  '/educator/students': typeof EducatorStudentsRoute
   '/student/apply': typeof StudentApplyRoute
   '/assessment': typeof AssessmentIndexRoute
   '/educator': typeof EducatorIndexRoute
@@ -318,6 +326,7 @@ export interface FileRoutesById {
   '/educator/dashboard': typeof EducatorDashboardRoute
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
+  '/educator/students': typeof EducatorStudentsRoute
   '/student_/apply': typeof StudentApplyRoute
   '/assessment/': typeof AssessmentIndexRoute
   '/educator/': typeof EducatorIndexRoute
@@ -357,6 +366,7 @@ export interface FileRouteTypes {
     | '/educator/dashboard'
     | '/educator/sign-in'
     | '/educator/sign-up'
+    | '/educator/students'
     | '/student/apply'
     | '/assessment/'
     | '/educator/'
@@ -392,6 +402,7 @@ export interface FileRouteTypes {
     | '/educator/dashboard'
     | '/educator/sign-in'
     | '/educator/sign-up'
+    | '/educator/students'
     | '/student/apply'
     | '/assessment'
     | '/educator'
@@ -429,6 +440,7 @@ export interface FileRouteTypes {
     | '/educator/dashboard'
     | '/educator/sign-in'
     | '/educator/sign-up'
+    | '/educator/students'
     | '/student_/apply'
     | '/assessment/'
     | '/educator/'
@@ -547,6 +559,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/student/apply'
       preLoaderRoute: typeof StudentApplyRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/educator/students': {
+      id: '/educator/students'
+      path: '/students'
+      fullPath: '/educator/students'
+      preLoaderRoute: typeof EducatorStudentsRouteImport
+      parentRoute: typeof EducatorRoute
     }
     '/educator/sign-up': {
       id: '/educator/sign-up'
@@ -756,6 +775,7 @@ interface EducatorRouteChildren {
   EducatorDashboardRoute: typeof EducatorDashboardRoute
   EducatorSignInRoute: typeof EducatorSignInRoute
   EducatorSignUpRoute: typeof EducatorSignUpRoute
+  EducatorStudentsRoute: typeof EducatorStudentsRoute
   EducatorIndexRoute: typeof EducatorIndexRoute
   EducatorCurriculumSlugRoute: typeof EducatorCurriculumSlugRoute
   EducatorInternshipsSlugRoute: typeof EducatorInternshipsSlugRoute
@@ -769,6 +789,7 @@ const EducatorRouteChildren: EducatorRouteChildren = {
   EducatorDashboardRoute: EducatorDashboardRoute,
   EducatorSignInRoute: EducatorSignInRoute,
   EducatorSignUpRoute: EducatorSignUpRoute,
+  EducatorStudentsRoute: EducatorStudentsRoute,
   EducatorIndexRoute: EducatorIndexRoute,
   EducatorCurriculumSlugRoute: EducatorCurriculumSlugRoute,
   EducatorInternshipsSlugRoute: EducatorInternshipsSlugRoute,
