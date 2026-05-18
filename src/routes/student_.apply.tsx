@@ -210,6 +210,7 @@ function ApplyPage() {
                 const r = interest[i.slug];
                 const tag = r === "yes" ? "Interested" : r === "maybe" ? "Maybe" : r === "no" ? "Not for me" : "Unrated";
                 const checked = selected.has(i.slug);
+                const why = buildWhyFits(i, r, scaleScores, hollandCode);
                 return (
                   <li key={i.slug}>
                     <label className={`flex cursor-pointer items-start gap-4 border p-4 transition-colors ${checked ? "border-ink bg-charcoal-50" : "border-charcoal-100 hover:border-charcoal-300"}`}>
@@ -229,6 +230,11 @@ function ApplyPage() {
                         </span>
                         <span className="mt-1 block text-sm text-charcoal-500">{i.deliverables}</span>
                         <span className="mt-1 block text-xs text-charcoal-400">Holland fit: {i.riasec.join(" · ")}</span>
+                        {why && (
+                          <span className="mt-2 block text-sm italic" style={{ color: "var(--explr)" }}>
+                            Why this fits you: {why}
+                          </span>
+                        )}
                       </span>
                     </label>
                   </li>
