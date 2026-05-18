@@ -5,6 +5,7 @@ import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
 import { INTERNSHIPS } from "@/lib/internships-catalog";
 import { RIASEC, type RIASECCode } from "@/lib/riasec";
+import { StemActivitiesMarquee } from "@/components/StemActivitiesMarquee";
 
 export const Route = createFileRoute("/student")({
   head: () => ({ meta: [{ title: "Your dashboard — EXPLR" }] }),
@@ -168,6 +169,23 @@ function StudentDashboard() {
             ) : (
               <Link to="/assessment" className="btn-ink shrink-0">Take the assessment</Link>
             )}
+          </div>
+        </section>
+
+        {/* STEM Lab activities — animated scroll filtered by Holland code */}
+        <section className="mt-12 border-t border-charcoal-100 pt-10">
+          <div className="flex items-baseline justify-between gap-6">
+            <div>
+              <p className="eyebrow">STEM Lab activities</p>
+              <p className="mt-3 text-2xl font-light text-charcoal-500">
+                {hasResults
+                  ? <>Hands-on activities ranked by your <span style={{ color: primary!.color }} className="font-medium">{session!.holland_code}</span> code.</>
+                  : "Explore hands-on activities across every interest area. Take the assessment to see which fit you best."}
+              </p>
+            </div>
+          </div>
+          <div className="mt-6">
+            <StemActivitiesMarquee hollandCode={session?.holland_code ?? null} />
           </div>
         </section>
 
