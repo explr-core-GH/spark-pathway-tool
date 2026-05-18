@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { HollandHexagon } from "@/components/HollandHexagon";
 import { RIASEC, type RIASECCode } from "@/lib/riasec";
+import { INTERNSHIPS } from "@/lib/internships-catalog";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -117,6 +118,63 @@ function Landing() {
                   <p className="mt-4 text-sm text-charcoal-500">
                     Example careers: {dim.examples.join(" · ")}
                   </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Student preview — what happens after the assessment */}
+        <section className="border-b border-charcoal-100 bg-charcoal-50">
+          <div className="mx-auto max-w-6xl px-6 py-24">
+            <div className="grid gap-10 lg:grid-cols-[260px_1fr]">
+              <div>
+                <p className="eyebrow" style={{ color: "var(--explr)" }}>For students</p>
+                <h2 className="mt-3 text-3xl font-light tracking-tight">After you finish.</h2>
+                <p className="mt-3 text-sm text-charcoal-500">
+                  Your results aren't the end. Your interest profile becomes a shortlist
+                  of internships you can actually apply to.
+                </p>
+              </div>
+
+              <div>
+                <ol className="grid gap-4 md:grid-cols-4">
+                  {[
+                    { n: "01", t: "Take the assessment", d: "~15 minutes. Six interest dimensions, one Holland code." },
+                    { n: "02", t: "See your matches", d: "Internships ranked by how well they fit your top RIASEC themes." },
+                    { n: "03", t: "Apply", d: "Pick the ones you want. One short application covers them all." },
+                    { n: "04", t: "Review & placement", d: "EXPLR staff review applications and confirm your placement." },
+                  ].map((s) => (
+                    <li key={s.n} className="border border-charcoal-100 bg-white p-5">
+                      <p className="text-xs font-medium tracking-wider text-charcoal-400">{s.n}</p>
+                      <p className="mt-3 font-medium">{s.t}</p>
+                      <p className="mt-2 text-sm text-charcoal-500">{s.d}</p>
+                    </li>
+                  ))}
+                </ol>
+
+                <div className="mt-10">
+                  <p className="eyebrow">A peek at the catalog</p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {INTERNSHIPS.slice(0, 6).map((i) => (
+                      <div key={i.slug} className="flex items-start gap-3 border border-charcoal-100 bg-white p-4">
+                        <span aria-hidden className="text-2xl leading-none">{i.emoji}</span>
+                        <div className="min-w-0">
+                          <p className="truncate font-medium">{i.name}</p>
+                          <p className="truncate text-xs text-charcoal-500">{i.theme}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-4 text-xs text-charcoal-400">
+                    Your top matches depend on your Holland code. Applications route to
+                    the EXPLR internship lead, who reviews and confirms your placement.
+                  </p>
+                </div>
+
+                <div className="mt-8 flex gap-3">
+                  <Link to="/assessment" className="btn-mint">Start the assessment</Link>
+                  <Link to="/about" className="btn-ghost">How matching works</Link>
                 </div>
               </div>
             </div>
