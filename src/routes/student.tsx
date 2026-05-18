@@ -117,7 +117,7 @@ function StudentDashboard() {
     <div className="min-h-screen">
       <header className="border-b border-charcoal-100">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
-          <Link to="/" className="text-sm tracking-tight">
+          <Link to="/" className="text-xl font-medium tracking-tight">
             EXPLR <span style={{ color: "var(--explr)" }}>Pathways</span>
           </Link>
           <Link to="/sign-out" className="text-sm text-charcoal-500 hover:text-ink">Sign out</Link>

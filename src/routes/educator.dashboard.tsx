@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useEducator } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { ASSESSMENT_META, PROGRAM_META } from "@/lib/educator";
-import { EducatorSchoolEditor } from "@/components/EducatorSchoolEditor";
 import { EducatorGate } from "@/components/EducatorGate";
 
 export const Route = createFileRoute("/educator/dashboard")({
@@ -298,17 +297,6 @@ function Dashboard() {
         )}
       </section>
 
-      {/* School panel */}
-      <section className="mt-16">
-        <h2 className="text-xs uppercase tracking-wider text-charcoal-400">School</h2>
-        <div className="mt-4">
-          <EducatorSchoolEditor
-            educatorId={educator.id}
-            initialIrn={educator.school_irn}
-            initialName={educator.school_name}
-          />
-        </div>
-      </section>
     </main>
   );
 }

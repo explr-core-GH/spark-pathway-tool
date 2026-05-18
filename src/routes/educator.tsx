@@ -15,7 +15,7 @@ function EducatorLayout() {
     <div className="min-h-screen">
       <header className="border-b border-charcoal-100">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-          <Link to="/" className="text-base font-medium">EXPLR <span style={{ color: "var(--explr)" }}>Pathways</span> <span className="text-charcoal-400">/ {isAdmin ? "Admin" : "Educators"}</span></Link>
+          <Link to="/" className="text-xl font-medium">EXPLR <span style={{ color: "var(--explr)" }}>Pathways</span> <span className="text-base text-charcoal-400">/ {isAdmin ? "Admin" : "Educators"}</span></Link>
           <nav className="flex items-center gap-6 text-sm">
             {approved && (
               <>

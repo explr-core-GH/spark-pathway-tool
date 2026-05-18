@@ -89,7 +89,7 @@ function SiteHeader() {
         }}
       />
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <Link to="/" className="explr-brand text-base font-medium tracking-tight">
+        <Link to="/" className="explr-brand text-xl font-medium tracking-tight">
           <span className="explr-brand__shoot" aria-hidden>
             <span className="explr-speck explr-speck--a" />
             <span className="explr-speck explr-speck--b" />

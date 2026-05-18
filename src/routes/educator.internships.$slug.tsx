@@ -124,8 +124,8 @@ function InternshipDetail() {
   const i = internship;
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
-      <Link to="/educator/internships" className="ink-link text-sm">
-        ← Internships
+      <Link to="/educator/dashboard" className="ink-link text-sm">
+        ← Dashboard
       </Link>
       <div className="mt-6 flex items-baseline gap-3">
         <span className="text-3xl">{i.emoji}</span>

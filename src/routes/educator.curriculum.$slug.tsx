@@ -157,8 +157,8 @@ function CurriculumDetail() {
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-16">
-      <Link to="/educator/curriculum" className="ink-link text-sm">
-        ← Curriculum
+      <Link to="/educator/dashboard" className="ink-link text-sm">
+        ← Dashboard
       </Link>
       <div className="mt-6 flex items-baseline gap-3">
         <span className="text-3xl">{item.emoji}</span>
