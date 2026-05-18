@@ -64,6 +64,11 @@
   --color-border: var(--border);
   --color-ring: var(--focus-ring);
   --color-muted-foreground: var(--fg-muted);
+
+  /* Editorial alias — bg-ink / text-ink / border-ink utilities resolve here.
+     Without this, every `bg-ink` (e.g. the Sync now button) generates no
+     rule and renders transparent. Keeps the rest of the codebase honest. */
+  --color-ink: var(--fg);
 }
 
 /* ============================================================
