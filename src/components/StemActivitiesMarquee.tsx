@@ -135,32 +135,34 @@ function MarqueeRow({
   items,
   hollandCode,
   direction,
+  onSelect,
 }: {
   items: StemActivity[];
   hollandCode: string | null;
   direction: "left" | "right";
+  onSelect: (a: StemActivity) => void;
 }) {
   if (items.length === 0) return null;
-  // Duplicate the list so the scroll loops seamlessly.
   const loop = [...items, ...items];
   const top = (hollandCode?.[0] as RIASECCode | undefined) ?? null;
+  const duration = Math.max(60, items.length * 10);
 
   return (
     <div className="group relative overflow-hidden">
       <div
         className="flex w-max gap-3 py-1"
-        style={{
-          animation: `stem-marquee-${direction} ${Math.max(20, items.length * 4)}s linear infinite`,
-        }}
+        style={{ animation: `stem-marquee-${direction} ${duration}s linear infinite` }}
       >
         {loop.map((a, idx) => {
           const code = dominantCode(a);
           const dim = RIASEC[code];
           const fits = top ? (a.scores[top] ?? 0) >= 2 : true;
           return (
-            <div
+            <button
+              type="button"
               key={`${a.id}-${idx}`}
-              className="w-64 shrink-0 border p-4 transition-transform hover:-translate-y-0.5"
+              onClick={() => onSelect(a)}
+              className="w-64 shrink-0 cursor-pointer border p-4 text-left transition-transform hover:-translate-y-0.5 hover:shadow-md"
               style={{
                 borderColor: fits ? dim.color : "var(--color-charcoal-100)",
                 background: fits ? dim.colorSoft : "white",
@@ -178,7 +180,7 @@ function MarqueeRow({
               </div>
               <h4 className="mt-2 text-sm font-medium leading-snug text-ink">{a.name}</h4>
               <p className="mt-1 text-xs text-charcoal-500">{a.program}</p>
-            </div>
+            </button>
           );
         })}
       </div>
