@@ -149,10 +149,42 @@ export const syncExplrMore = createServerFn({ method: "POST" })
       "camps",
       "id,title,description,date,end_date,time,location,age_range,capacity,image,category,updated_at",
     );
-    const regs = await fetchAllFromExplr<ExplrRegistration>(
-      "registrations",
-      "id,camp_id,child_name,child_age,parent_name,parent_email,parent_phone,status,created_at",
-    );
+    // Pull rosters via external-data per camp (one request each). Try
+    // all_rosters first — if EXPLR returns it as a flat list we save N calls.
+    const regs: ExplrRegistration[] = [];
+    const rosterErrors: { campId: string; error: string }[] = [];
+    let allRostersWorked = false;
+    try {
+      const all = await callExplrExternal("all_rosters");
+      const rows = unwrapList(all);
+      if (rows.length > 0) {
+        for (const row of rows) {
+          const campId = pickStr(row, "camp_id", "campId") ?? "";
+          if (!campId) continue;
+          const mapped = mapRosterRow(row, campId);
+          if (mapped) regs.push(mapped);
+        }
+        allRostersWorked = regs.length > 0;
+      }
+    } catch (e) {
+      // Fall back to per-camp roster calls below.
+      rosterErrors.push({ campId: "all_rosters", error: (e as Error).message });
+    }
+
+    if (!allRostersWorked) {
+      for (const c of camps) {
+        try {
+          const roster = await callExplrExternal("roster", c.id);
+          for (const row of unwrapList(roster)) {
+            const mapped = mapRosterRow(row, c.id);
+            if (mapped) regs.push(mapped);
+          }
+        } catch (e) {
+          rosterErrors.push({ campId: c.id, error: (e as Error).message });
+        }
+      }
+    }
+
 
     if (camps.length > 0) {
       const { error } = await supabaseAdmin.from("explr_camps").upsert(
