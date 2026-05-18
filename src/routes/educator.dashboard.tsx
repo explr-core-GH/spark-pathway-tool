@@ -87,6 +87,27 @@ function Dashboard() {
         </div>
       </section>
 
+      {/* My programs */}
+      <section className="mt-16">
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-xs uppercase tracking-wider text-charcoal-400">My programs</h2>
+          <Link to="/educator/students" className="ink-link text-sm">View students →</Link>
+        </div>
+        {myPrograms.length === 0 ? (
+          <p className="mt-4 py-6 text-sm text-charcoal-400">You haven't been added to any program cohorts yet. Ask an admin to assign you.</p>
+        ) : (
+          <div className="mt-4 grid gap-px bg-charcoal-100 sm:grid-cols-2 lg:grid-cols-3">
+            {myPrograms.map((p) => (
+              <div key={p.id} className="tile">
+                <div className="text-xs uppercase tracking-wider text-charcoal-400">{p.program_type}{p.grade_band ? ` · ${p.grade_band}` : ""}</div>
+                <div className="mt-2 font-medium">{p.name}</div>
+                {p.description && <div className="mt-1 text-xs text-charcoal-500 line-clamp-2">{p.description}</div>}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* Curriculum tiles */}
       <section className="mt-16">
         <div className="flex items-baseline justify-between">
