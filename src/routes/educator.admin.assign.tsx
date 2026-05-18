@@ -25,13 +25,14 @@ type Mode = "camp" | "internship";
 
 function AssignAdmin() {
   const { user } = useSession();
-  const [mode, setMode] = useState<Mode>("camp");
+  const search = Route.useSearch();
+  const [mode, setMode] = useState<Mode>(search.mode ?? "camp");
   const [educators, setEducators] = useState<Educator[]>([]);
   const [camps, setCamps] = useState<Camp[]>([]);
   const [internships, setInternships] = useState<Internship[]>([]);
   const [campAssigns, setCampAssigns] = useState<CampAssign[]>([]);
   const [intAssigns, setIntAssigns] = useState<IntAssign[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(search.slug ?? null);
   const [filter, setFilter] = useState("");
 
   async function load() {
