@@ -18,6 +18,45 @@ export const Route = createFileRoute("/student_/apply")({
 type InterestMap = Record<string, "yes" | "maybe" | "no">;
 type ScaleScores = Partial<Record<RIASECCode, number>>;
 
+const RIASEC_LABELS: Record<RIASECCode, string> = {
+  R: "hands-on, building things (Realistic)",
+  I: "investigating and analyzing (Investigative)",
+  A: "creative and expressive work (Artistic)",
+  S: "helping and working with people (Social)",
+  E: "leading and persuading (Enterprising)",
+  C: "organizing and detail work (Conventional)",
+};
+
+function buildWhyFits(
+  i: Internship,
+  interest: "yes" | "maybe" | "no" | undefined,
+  scaleScores: ScaleScores,
+  hollandCode: string | null,
+): string | null {
+  const studentLetters = new Set<string>(
+    Object.keys(scaleScores).length > 0
+      ? Object.entries(scaleScores)
+          .sort((a, b) => (b[1] ?? 0) - (a[1] ?? 0))
+          .slice(0, 3)
+          .map(([k]) => k)
+      : (hollandCode ?? "").split(""),
+  );
+  const matches = i.riasec.filter((c) => studentLetters.has(c));
+  const parts: string[] = [];
+  if (interest === "yes") parts.push("you marked it Interested");
+  else if (interest === "maybe") parts.push("you marked it Maybe");
+  if (matches.length > 0) {
+    const phrases = matches.map((c) => RIASEC_LABELS[c]).join(" and ");
+    parts.push(`it leans on ${phrases}, which matches your Holland profile`);
+  } else if (i.riasec.length > 0 && studentLetters.size > 0) {
+    parts.push(
+      `it stretches you toward ${i.riasec.map((c) => RIASEC_LABELS[c]).join(" and ")} — outside your top Holland letters but worth exploring`,
+    );
+  }
+  if (parts.length === 0) return null;
+  return parts.join("; ") + ".";
+}
+
 type Resume = {
   // contact (retained so staff can reach the student about the application)
   fullName: string;
@@ -210,6 +249,7 @@ function ApplyPage() {
                 const r = interest[i.slug];
                 const tag = r === "yes" ? "Interested" : r === "maybe" ? "Maybe" : r === "no" ? "Not for me" : "Unrated";
                 const checked = selected.has(i.slug);
+                const why = buildWhyFits(i, r, scaleScores, hollandCode);
                 return (
                   <li key={i.slug}>
                     <label className={`flex cursor-pointer items-start gap-4 border p-4 transition-colors ${checked ? "border-ink bg-charcoal-50" : "border-charcoal-100 hover:border-charcoal-300"}`}>
@@ -229,6 +269,11 @@ function ApplyPage() {
                         </span>
                         <span className="mt-1 block text-sm text-charcoal-500">{i.deliverables}</span>
                         <span className="mt-1 block text-xs text-charcoal-400">Holland fit: {i.riasec.join(" · ")}</span>
+                        {why && (
+                          <span className="mt-2 block text-sm italic" style={{ color: "var(--explr)" }}>
+                            Why this fits you: {why}
+                          </span>
+                        )}
                       </span>
                     </label>
                   </li>
