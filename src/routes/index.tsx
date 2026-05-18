@@ -27,64 +27,61 @@ function SiteHeader() {
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           __html: `
-            /* Falling-star streak: idles most of the cycle, then a fast top-to-bottom
-               drop. The shoot container extends well above + below the wordmark so
-               the streak has runway; overflow:hidden clips it at the wordmark's
-               own visible band. */
-            @keyframes explr-shooting-star {
-              0%, 95% {
-                opacity: 0;
-                transform: translateY(-100%) translateX(0) rotate(-78deg);
-              }
-              96% {
-                opacity: 1;
-                transform: translateY(-30%) translateX(2px) rotate(-78deg);
-              }
-              98% {
-                opacity: 0.7;
-                transform: translateY(60%) translateX(5px) rotate(-78deg);
-              }
-              99%, 100% {
-                opacity: 0;
-                transform: translateY(140%) translateX(8px) rotate(-78deg);
-              }
+            /* Yellow specks fall diagonally top-right → bottom-left in a quick
+               shower, staggered so they read as a spray, not a single trail.
+               Each speck has its own keyframe with slightly different start
+               and end offsets for natural variance. */
+            @keyframes explr-speck-a {
+              0%, 92% { opacity: 0; transform: translate(70px, -55px); }
+              93% { opacity: 1; transform: translate(45px, -30px); }
+              97% { opacity: 0.7; transform: translate(-35px, 20px); }
+              98%, 100% { opacity: 0; transform: translate(-65px, 45px); }
+            }
+            @keyframes explr-speck-b {
+              0%, 93% { opacity: 0; transform: translate(80px, -40px); }
+              94% { opacity: 1; transform: translate(50px, -20px); }
+              98% { opacity: 0.6; transform: translate(-50px, 30px); }
+              99%, 100% { opacity: 0; transform: translate(-80px, 50px); }
+            }
+            @keyframes explr-speck-c {
+              0%, 94% { opacity: 0; transform: translate(60px, -65px); }
+              95% { opacity: 1; transform: translate(35px, -35px); }
+              99% { opacity: 0.5; transform: translate(-55px, 35px); }
+              100% { opacity: 0; transform: translate(-70px, 55px); }
             }
             .explr-brand { position: relative; display: inline-block; isolation: isolate; }
             .explr-brand__text { position: relative; z-index: 1; }
             .explr-brand__shoot {
               position: absolute;
-              top: -60px;
-              right: -8px;
-              bottom: -60px;
-              left: -8px;
+              top: -70px;
+              right: -20px;
+              bottom: -70px;
+              left: -20px;
               z-index: 0;
               overflow: hidden;
               pointer-events: none;
             }
-            .explr-brand__shoot::before {
-              content: "";
+            .explr-speck {
               position: absolute;
-              top: 0;
-              left: 62%;
-              width: 1.5px;
-              height: 28px;
-              background: linear-gradient(
-                180deg,
-                transparent 0%,
-                rgba(250, 204, 21, 0) 5%,
-                rgba(250, 204, 21, 1) 50%,
-                rgba(250, 204, 21, 0) 95%,
-                transparent 100%
-              );
-              filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.7));
+              top: 50%;
+              left: 50%;
+              margin-top: -1.5px;
+              margin-left: -1.5px;
+              width: 3px;
+              height: 3px;
+              border-radius: 50%;
+              background: #FACC15;
+              box-shadow: 0 0 4px rgba(250, 204, 21, 0.9);
               opacity: 0;
-              transform: translateY(-100%) rotate(-78deg);
-              animation: explr-shooting-star 7s linear infinite;
             }
+            .explr-speck--a { animation: explr-speck-a 6s linear infinite; }
+            .explr-speck--b { animation: explr-speck-b 6s linear infinite; animation-delay: 80ms; }
+            .explr-speck--c { animation: explr-speck-c 6s linear infinite; animation-delay: 160ms; }
+
             @media (prefers-reduced-motion: reduce) {
-              .explr-brand__shoot::before { animation: none; opacity: 0; }
+              .explr-speck { animation: none; opacity: 0; }
             }
-            [data-motion="reduced"] .explr-brand__shoot::before {
+            [data-motion="reduced"] .explr-speck {
               animation: none;
               opacity: 0;
             }
@@ -93,7 +90,11 @@ function SiteHeader() {
       />
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <Link to="/" className="explr-brand text-base font-medium tracking-tight">
-          <span className="explr-brand__shoot" aria-hidden />
+          <span className="explr-brand__shoot" aria-hidden>
+            <span className="explr-speck explr-speck--a" />
+            <span className="explr-speck explr-speck--b" />
+            <span className="explr-speck explr-speck--c" />
+          </span>
           <span className="explr-brand__text">
             EXPLR <span style={{ color: "var(--explr)" }}>Pathways</span>
           </span>
