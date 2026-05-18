@@ -98,14 +98,31 @@ function pickNum(row: Record<string, unknown>, ...keys: string[]): number | null
 
 function mapRosterRow(row: Record<string, unknown>, campId: string): ExplrRegistration | null {
   const id = pickStr(row, "id", "registration_id", "uuid");
+  const child = (row.child && typeof row.child === "object" ? row.child : {}) as Record<string, unknown>;
+  const firstName = pickStr(child, "first_name") ?? pickStr(row, "first_name");
+  const lastName = pickStr(child, "last_name") ?? pickStr(row, "last_name");
+  const composed = [firstName, lastName].filter(Boolean).join(" ").trim();
   const childName =
-    pickStr(row, "child_name", "student_name", "name", "full_name", "first_name") ?? null;
+    pickStr(row, "child_name", "student_name", "name", "full_name") ??
+    (composed || null);
   if (!id || !childName) return null;
+  let age: number | null = pickNum(row, "child_age", "age", "student_age") ?? pickNum(child, "age");
+  const dob = pickStr(child, "date_of_birth");
+  if (age == null && dob) {
+    const d = new Date(dob);
+    if (!isNaN(d.getTime())) {
+      const now = new Date();
+      let a = now.getFullYear() - d.getFullYear();
+      const m = now.getMonth() - d.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < d.getDate())) a--;
+      age = a;
+    }
+  }
   return {
     id,
     camp_id: pickStr(row, "camp_id", "campId") ?? campId,
     child_name: childName,
-    child_age: pickNum(row, "child_age", "age", "student_age"),
+    child_age: age,
     parent_name: pickStr(row, "parent_name", "guardian_name", "parent"),
     parent_email: pickStr(row, "parent_email", "email", "guardian_email"),
     parent_phone: pickStr(row, "parent_phone", "phone", "guardian_phone"),
