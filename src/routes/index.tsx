@@ -22,7 +22,7 @@ function SiteHeader() {
         <Link to="/" className="text-base font-medium tracking-tight">EXPLR <span style={{ color: "var(--explr)" }}>Pathways</span></Link>
         <nav className="flex items-center gap-7 text-sm">
           <Link to="/about" className="text-charcoal-500 hover:text-ink">About</Link>
-          <Link to="/educator" className="text-charcoal-500 hover:text-ink">Educators</Link>
+          
           <Link to="/assessment" className="btn-mint">Start</Link>
         </nav>
       </div>
@@ -38,7 +38,7 @@ function SiteFooter() {
         <div className="flex gap-6">
           <Link to="/about" className="hover:text-ink">About</Link>
           <Link to="/privacy" className="hover:text-ink">Privacy</Link>
-          <Link to="/educator" className="hover:text-ink">Educators</Link>
+          
         </div>
       </div>
     </footer>
