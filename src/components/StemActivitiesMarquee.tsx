@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RIASEC, type RIASECCode } from "@/lib/riasec";
 import {
   STEM_ACTIVITIES,
@@ -17,7 +16,6 @@ const CODES: RIASECCode[] = ["R", "I", "A", "S", "E", "C"];
 export function StemActivitiesMarquee({ hollandCode }: Props) {
   const top = (hollandCode?.[0] as RIASECCode | undefined) ?? null;
   const [filter, setFilter] = useState<RIASECCode | "ALL">(top ?? "ALL");
-  const [selected, setSelected] = useState<StemActivity | null>(null);
 
   const ranked = useMemo(
     () => rankByHollandCode(STEM_ACTIVITIES, hollandCode),
@@ -51,56 +49,11 @@ export function StemActivitiesMarquee({ hollandCode }: Props) {
       </div>
 
       <div className="mt-6 space-y-4 overflow-hidden">
-        <MarqueeRow items={rowA} hollandCode={hollandCode} direction="left" onSelect={setSelected} />
+        <MarqueeRow items={rowA} hollandCode={hollandCode} direction="left" />
         {rowB.length > 0 && (
-          <MarqueeRow items={rowB} hollandCode={hollandCode} direction="right" onSelect={setSelected} />
+          <MarqueeRow items={rowB} hollandCode={hollandCode} direction="right" />
         )}
       </div>
-
-      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
-        <DialogContent>
-          {selected && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <span aria-hidden className="text-2xl">{selected.emoji}</span>
-                  <span>{selected.name}</span>
-                </DialogTitle>
-              </DialogHeader>
-              <p className="text-sm text-charcoal-500">{selected.program}</p>
-              <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-charcoal-500">
-                <span className="border border-charcoal-100 px-2 py-0.5">{selected.duration}</span>
-                <span className="border border-charcoal-100 px-2 py-0.5">{selected.ageRange}</span>
-                {selected.dayCount > 0 && (
-                  <span className="border border-charcoal-100 px-2 py-0.5">
-                    {selected.dayCount} days
-                  </span>
-                )}
-              </div>
-              <p className="mt-3 text-sm leading-relaxed text-ink/80">{selected.overview}</p>
-              <div className="mt-4 space-y-2">
-                {CODES.map((c) => {
-                  const v = selected.scores[c] ?? 0;
-                  return (
-                    <div key={c} className="flex items-center gap-3">
-                      <span className="w-28 text-xs font-medium" style={{ color: RIASEC[c].color }}>
-                        {c} · {RIASEC[c].name}
-                      </span>
-                      <div className="h-2 flex-1 rounded bg-charcoal-50">
-                        <div
-                          className="h-2 rounded"
-                          style={{ width: `${(v / 3) * 100}%`, background: RIASEC[c].color }}
-                        />
-                      </div>
-                      <span className="w-6 text-right text-xs text-charcoal-500">{v}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
 
       {filtered.length === 0 && (
         <p className="mt-8 text-sm text-charcoal-500">
@@ -145,33 +98,41 @@ function MarqueeRow({
   items,
   hollandCode,
   direction,
-  onSelect,
 }: {
   items: StemActivity[];
   hollandCode: string | null;
   direction: "left" | "right";
-  onSelect: (a: StemActivity) => void;
 }) {
+  const [paused, setPaused] = useState(false);
   if (items.length === 0) return null;
   const loop = [...items, ...items];
   const top = (hollandCode?.[0] as RIASECCode | undefined) ?? null;
-  const duration = Math.max(60, items.length * 10);
+  // Much slower than before so cards are easy to click.
+  const duration = Math.max(120, items.length * 18);
 
   return (
-    <div className="group relative overflow-hidden">
+    <div
+      className="relative overflow-hidden"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
       <div
         className="flex w-max gap-3 py-1"
-        style={{ animation: `stem-marquee-${direction} ${duration}s linear infinite` }}
+        style={{
+          animation: `stem-marquee-${direction} ${duration}s linear infinite`,
+          animationPlayState: paused ? "paused" : "running",
+        }}
       >
         {loop.map((a, idx) => {
           const code = dominantCode(a);
           const dim = RIASEC[code];
           const fits = top ? (a.scores[top] ?? 0) >= 2 : true;
           return (
-            <button
-              type="button"
+            <a
               key={`${a.id}-${idx}`}
-              onClick={() => onSelect(a)}
+              href={a.href}
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-64 shrink-0 cursor-pointer border p-4 text-left transition-transform hover:-translate-y-0.5 hover:shadow-md"
               style={{
                 borderColor: fits ? dim.color : "var(--color-charcoal-100)",
@@ -186,11 +147,14 @@ function MarqueeRow({
                 >
                   {dim.code} · {dim.name}
                 </span>
-                <span aria-hidden className="text-xl leading-none">{a.emoji}</span>
+                <span className="text-[10px] text-charcoal-400">{a.gradeBand}</span>
               </div>
               <h4 className="mt-2 text-sm font-medium leading-snug text-ink">{a.name}</h4>
-              <p className="mt-1 text-xs text-charcoal-500">{a.program}</p>
-            </button>
+              <p className="mt-1 text-xs text-charcoal-500 line-clamp-2">{a.blurb}</p>
+              <p className="mt-2 text-[10px] uppercase tracking-wider text-charcoal-400">
+                {a.category}
+              </p>
+            </a>
           );
         })}
       </div>
@@ -204,7 +168,6 @@ function MarqueeRow({
           from { transform: translateX(-50%); }
           to { transform: translateX(0); }
         }
-        .group:hover > div { animation-play-state: paused; }
       `}</style>
     </div>
   );
