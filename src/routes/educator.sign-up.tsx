@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { SchoolSearch, type SchoolPick } from "@/components/SchoolSearch";
 
 export const Route = createFileRoute("/educator/sign-up")({
   head: () => ({ meta: [{ title: "Educator sign up — EXPLR" }] }),
