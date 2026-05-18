@@ -29,7 +29,7 @@ function InternshipDetail() {
     supabase.from("internship_tags")
       .select("program_type")
       .eq("internship_slug", slug)
-      .eq("program_type", educator.program_type)
+      .eq("program_type", educator.program_type as never)
       .maybeSingle()
       .then(({ data }) => setAllowed(!!data));
   }, [educator, slug]);

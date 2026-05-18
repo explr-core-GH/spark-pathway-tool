@@ -31,7 +31,7 @@ function CurriculumDetail() {
     supabase.from("curriculum_tags")
       .select("program_type")
       .eq("camp_slug", slug)
-      .eq("program_type", educator.program_type)
+      .eq("program_type", educator.program_type as never)
       .maybeSingle()
       .then(({ data }) => setAllowed(!!data));
   }, [educator, slug]);
