@@ -31,7 +31,7 @@ type ApplicationRow = {
 
 function StudentDashboard() {
   const { user, loading: authLoading } = useSession();
-  const navigate = useNavigate();
+  
   const [session, setSession] = useState<SessionSummary | null>(null);
   const [application, setApplication] = useState<ApplicationRow | null>(null);
   const [loading, setLoading] = useState(true);
