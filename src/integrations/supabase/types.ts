@@ -344,6 +344,27 @@ export type Database = {
           },
         ]
       }
+      internship_career_tags: {
+        Row: {
+          career_sector: string
+          internship_slug: string
+          tagged_at: string
+          tagged_by: string | null
+        }
+        Insert: {
+          career_sector: string
+          internship_slug: string
+          tagged_at?: string
+          tagged_by?: string | null
+        }
+        Update: {
+          career_sector?: string
+          internship_slug?: string
+          tagged_at?: string
+          tagged_by?: string | null
+        }
+        Relationships: []
+      }
       internship_placements: {
         Row: {
           application_id: string
