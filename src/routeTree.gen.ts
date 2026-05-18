@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StudentRouteImport } from './routes/student'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignOutRouteImport } from './routes/sign-out'
 import { Route as SignInRouteImport } from './routes/sign-in'
@@ -35,6 +36,11 @@ import { Route as EducatorAdminCurriculumTagsRouteImport } from './routes/educat
 import { Route as AssessmentSessionIdResultsRouteImport } from './routes/assessment.$sessionId_.results'
 import { Route as EducatorAdminEducatorsIdRouteImport } from './routes/educator.admin.educators.$id'
 
+const StudentRoute = StudentRouteImport.update({
+  id: '/student',
+  path: '/student',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
@@ -175,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
   '/sign-up': typeof SignUpRoute
+  '/student': typeof StudentRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/educator/admin': typeof EducatorAdminRouteWithChildren
   '/educator/dashboard': typeof EducatorDashboardRoute
@@ -201,6 +208,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
   '/sign-up': typeof SignUpRoute
+  '/student': typeof StudentRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/educator/dashboard': typeof EducatorDashboardRoute
   '/educator/sign-in': typeof EducatorSignInRoute
@@ -228,6 +236,7 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
   '/sign-up': typeof SignUpRoute
+  '/student': typeof StudentRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/educator/admin': typeof EducatorAdminRouteWithChildren
   '/educator/dashboard': typeof EducatorDashboardRoute
@@ -257,6 +266,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-out'
     | '/sign-up'
+    | '/student'
     | '/assessment/$sessionId'
     | '/educator/admin'
     | '/educator/dashboard'
@@ -283,6 +293,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-out'
     | '/sign-up'
+    | '/student'
     | '/assessment/$sessionId'
     | '/educator/dashboard'
     | '/educator/sign-in'
@@ -309,6 +320,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-out'
     | '/sign-up'
+    | '/student'
     | '/assessment/$sessionId'
     | '/educator/admin'
     | '/educator/dashboard'
@@ -337,6 +349,7 @@ export interface RootRouteChildren {
   SignInRoute: typeof SignInRoute
   SignOutRoute: typeof SignOutRoute
   SignUpRoute: typeof SignUpRoute
+  StudentRoute: typeof StudentRoute
   AssessmentSessionIdRoute: typeof AssessmentSessionIdRoute
   AssessmentIndexRoute: typeof AssessmentIndexRoute
   AssessmentSessionIdResultsRoute: typeof AssessmentSessionIdResultsRoute
@@ -344,6 +357,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/student': {
+      id: '/student'
+      path: '/student'
+      fullPath: '/student'
+      preLoaderRoute: typeof StudentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sign-up': {
       id: '/sign-up'
       path: '/sign-up'
@@ -580,6 +600,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignInRoute: SignInRoute,
   SignOutRoute: SignOutRoute,
   SignUpRoute: SignUpRoute,
+  StudentRoute: StudentRoute,
   AssessmentSessionIdRoute: AssessmentSessionIdRoute,
   AssessmentIndexRoute: AssessmentIndexRoute,
   AssessmentSessionIdResultsRoute: AssessmentSessionIdResultsRoute,
@@ -587,13 +608,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
