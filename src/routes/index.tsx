@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { HollandHexagon } from "@/components/HollandHexagon";
 import { RIASEC, type RIASECCode } from "@/lib/riasec";
+import { INTERNSHIPS } from "@/lib/internships-catalog";
 
 export const Route = createFileRoute("/")({
   head: () => ({
