@@ -11,6 +11,7 @@ export type Internship = {
   deliverables: string;      // what students produce
   externalUrl: string;       // each internship has its own deployed site
   emoji: string;
+  riasec: ("R" | "I" | "A" | "S" | "E" | "C")[]; // 1-3 dominant Holland codes for matching
 };
 
 export const INTERNSHIPS: Internship[] = [
