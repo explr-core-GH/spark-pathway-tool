@@ -17,6 +17,7 @@ export type Internship = {
 export const INTERNSHIPS: Internship[] = [
   {
     slug: "adaptive-design",
+    riasec: ["I","R"] as const,
     name: "Adaptive Design",
     theme: "BioMed",
     lead: "Zachary Wenz",
@@ -29,6 +30,7 @@ export const INTERNSHIPS: Internship[] = [
   },
   {
     slug: "nextgen-educators",
+    riasec: ["S","A"] as const,
     name: "NextGen Educators",
     theme: "STEM CSU Camps",
     lead: "Angela Powell",
@@ -39,6 +41,7 @@ export const INTERNSHIPS: Internship[] = [
   },
   {
     slug: "webdevai",
+    riasec: ["I","A"] as const,
     name: "WebDevAI",
     theme: "Two cohorts · Lead TBD",
     lead: null,
@@ -49,6 +52,7 @@ export const INTERNSHIPS: Internship[] = [
   },
   {
     slug: "games-for-change",
+    riasec: ["A","I"] as const,
     name: "Games for Change",
     theme: "Video Game Design",
     lead: "Julien Medina",
@@ -59,6 +63,7 @@ export const INTERNSHIPS: Internship[] = [
   },
   {
     slug: "envsci",
+    riasec: ["I","R"] as const,
     name: "EnvSci",
     theme: "Environmental Science Field Data",
     lead: "Yulisa Alvarado",
@@ -69,6 +74,7 @@ export const INTERNSHIPS: Internship[] = [
   },
   {
     slug: "civic-journalism",
+    riasec: ["A","S"] as const,
     name: "Civic Journalism",
     theme: "Civic Journalism",
     lead: "Sarah Spinelli",
