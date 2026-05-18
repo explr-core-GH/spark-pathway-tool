@@ -73,7 +73,7 @@ async function assertAdmin(userId: string) {
 export const syncExplrMore = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(null, context.userId);
+    await assertAdmin(context.userId);
 
     const camps = await fetchAllFromExplr<ExplrCamp>(
       "camps",
@@ -139,7 +139,7 @@ export const linkExplrCamp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { explrCampId: string; linkedCampSlug: string | null }) => input)
   .handler(async ({ data, context }) => {
-    await assertAdmin(null, context.userId);
+    await assertAdmin(context.userId);
     const { error } = await supabaseAdmin
       .from("explr_camps")
       .update({ linked_camp_slug: data.linkedCampSlug })
