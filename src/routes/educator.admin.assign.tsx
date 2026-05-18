@@ -1,10 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 
+const searchSchema = z.object({
+  mode: z.enum(["camp", "internship"]).optional(),
+  slug: z.string().optional(),
+});
+
 export const Route = createFileRoute("/educator/admin/assign")({
   head: () => ({ meta: [{ title: "Assign camps & internships — Admin" }] }),
+  validateSearch: searchSchema,
   component: AssignAdmin,
 });
 
