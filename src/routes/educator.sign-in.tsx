@@ -25,16 +25,27 @@ function EducatorSignIn() {
   }
 
   return (
-    <main className="mx-auto max-w-md px-6 py-24">
-      <p className="eyebrow">Educator</p>
-      <h1 className="mt-3 text-3xl font-light">Sign in</h1>
+    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
+      <Link to="/" className="eyebrow mb-12 inline-block">← EXPLR</Link>
+      <h1 className="text-3xl font-light">Sign in</h1>
+      <p className="mt-2 text-sm text-charcoal-500">Educator account.</p>
       <form onSubmit={submit} className="mt-10 space-y-5">
-        <div><label className="label">Email</label><input className="field" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-        <div><label className="label">Passphrase</label><input className="field" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+        <div>
+          <label className="label">Email</label>
+          <input className="field" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        </div>
+        <div>
+          <label className="label">Passphrase</label>
+          <input className="field" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+        </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
-        <button type="submit" disabled={loading} className="btn-ink w-full justify-center">{loading ? "Signing in…" : "Sign in"}</button>
+        <button type="submit" disabled={loading} className="btn-ink w-full justify-center">
+          {loading ? "Signing in…" : "Sign in"}
+        </button>
       </form>
-      <p className="mt-6 text-sm text-charcoal-500">No account? <Link to="/educator/sign-up" className="ink-link">Sign up</Link></p>
-    </main>
+      <p className="mt-6 text-sm text-charcoal-500">
+        No account? <Link to="/educator/sign-up" className="ink-link">Request access</Link>
+      </p>
+    </div>
   );
 }
