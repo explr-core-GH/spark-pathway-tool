@@ -1,10 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 
+const searchSchema = z.object({
+  mode: z.enum(["camp", "internship"]).optional(),
+  slug: z.string().optional(),
+});
+
 export const Route = createFileRoute("/educator/admin/assign")({
   head: () => ({ meta: [{ title: "Assign camps & internships — Admin" }] }),
+  validateSearch: searchSchema,
   component: AssignAdmin,
 });
 
@@ -18,13 +25,14 @@ type Mode = "camp" | "internship";
 
 function AssignAdmin() {
   const { user } = useSession();
-  const [mode, setMode] = useState<Mode>("camp");
+  const search = Route.useSearch();
+  const [mode, setMode] = useState<Mode>(search.mode ?? "camp");
   const [educators, setEducators] = useState<Educator[]>([]);
   const [camps, setCamps] = useState<Camp[]>([]);
   const [internships, setInternships] = useState<Internship[]>([]);
   const [campAssigns, setCampAssigns] = useState<CampAssign[]>([]);
   const [intAssigns, setIntAssigns] = useState<IntAssign[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(search.slug ?? null);
   const [filter, setFilter] = useState("");
 
   async function load() {
@@ -42,7 +50,11 @@ function AssignAdmin() {
     setIntAssigns((ia ?? []) as IntAssign[]);
   }
   useEffect(() => { load(); }, []);
-  useEffect(() => { setSelected(null); }, [mode]);
+  const firstModeRef = useRef(true);
+  useEffect(() => {
+    if (firstModeRef.current) { firstModeRef.current = false; return; }
+    setSelected(null);
+  }, [mode]);
 
   const items = mode === "camp" ? camps : internships;
   const selectedItem = items.find((i) => i.slug === selected) ?? null;
