@@ -125,11 +125,9 @@ function ImportExplrPage() {
         `Camps: ${res.campsImported} imported. Registrations: ${res.registrationsImported} imported of ${res.registrationsFetched} fetched from ExplrMore${orphanedNote}.`,
       );
       setDebugInfo(
-        JSON.stringify(
-          { debug: res.debug, rosterErrors: res.rosterErrors },
-          null,
-          2,
-        ),
+        res.rosterErrors.length > 0
+          ? JSON.stringify({ rosterErrors: res.rosterErrors }, null, 2)
+          : null,
       );
       await load();
     } catch (e) {
@@ -199,7 +197,7 @@ function ImportExplrPage() {
 
       {debugInfo && (
         <details className="mt-4 rounded border border-charcoal-200 bg-charcoal-50 p-3 text-xs">
-          <summary className="cursor-pointer font-medium text-ink">Roster sync debug</summary>
+          <summary className="cursor-pointer font-medium text-ink">Roster sync errors</summary>
           <pre className="mt-2 whitespace-pre-wrap break-words text-charcoal-700">{debugInfo}</pre>
         </details>
       )}
