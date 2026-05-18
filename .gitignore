@@ -20,6 +20,9 @@ dist-ssr
 .wrangler/
 .dev.vars
 
+# Local staging for the bulk curriculum uploader (scripts/upload-curriculum.mjs)
+.curriculum-staging/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
