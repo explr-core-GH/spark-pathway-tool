@@ -19,8 +19,8 @@ function InternshipsIndex() {
       setTags(map);
     });
   }, []);
-  const visible = educator
-    ? INTERNSHIPS.filter((i) => (tags[i.slug] ?? []).includes(educator.program_type))
+  const visible = educator?.program_type
+    ? INTERNSHIPS.filter((i) => (tags[i.slug] ?? []).includes(educator.program_type as string))
     : INTERNSHIPS;
   return (
     <main className="mx-auto max-w-6xl px-6 py-16">

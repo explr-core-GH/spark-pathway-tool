@@ -52,10 +52,25 @@ function Dashboard() {
       </main>
     );
   }
+  if (!educator.approved || !educator.program_type) {
+    return (
+      <main className="mx-auto max-w-md px-6 py-24 text-center">
+        <p className="eyebrow">Pending review</p>
+        <h1 className="mt-3 text-2xl font-light">Awaiting admin approval</h1>
+        <p className="mt-4 text-sm text-charcoal-500">
+          Thanks for signing up, {educator.full_name.split(" ")[0]}. An EXPLR admin will review your request and
+          assign your program type. You'll get access here once that's done.
+        </p>
+        <p className="mt-6 text-xs text-charcoal-400">Signed in as {educator.email}</p>
+      </main>
+    );
+  }
 
-  const visibleCamps = CAMPS.filter((c) => (campTags[c.slug] ?? []).includes(educator.program_type));
-  const visibleInternships = INTERNSHIPS.filter((i) => (internTags[i.slug] ?? []).includes(educator.program_type));
-  const meta = PROGRAM_META[educator.program_type as keyof typeof PROGRAM_META];
+  const programType = educator.program_type as string;
+  const visibleCamps = CAMPS.filter((c) => (campTags[c.slug] ?? []).includes(programType));
+  const visibleInternships = INTERNSHIPS.filter((i) => (internTags[i.slug] ?? []).includes(programType));
+  const meta = PROGRAM_META[programType as keyof typeof PROGRAM_META];
+
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-16">
