@@ -1,0 +1,1 @@
+ALTER TABLE public.educators ALTER COLUMN program_type DROP NOT NULL;

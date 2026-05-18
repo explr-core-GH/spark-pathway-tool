@@ -266,7 +266,7 @@ export type Database = {
           full_name: string
           id: string
           organization: string | null
-          program_type: Database["public"]["Enums"]["program_type"]
+          program_type: Database["public"]["Enums"]["program_type"] | null
           role: Database["public"]["Enums"]["educator_role"]
           school_irn: string | null
           school_name: string | null
@@ -278,7 +278,7 @@ export type Database = {
           full_name: string
           id: string
           organization?: string | null
-          program_type: Database["public"]["Enums"]["program_type"]
+          program_type?: Database["public"]["Enums"]["program_type"] | null
           role?: Database["public"]["Enums"]["educator_role"]
           school_irn?: string | null
           school_name?: string | null
@@ -290,7 +290,7 @@ export type Database = {
           full_name?: string
           id?: string
           organization?: string | null
-          program_type?: Database["public"]["Enums"]["program_type"]
+          program_type?: Database["public"]["Enums"]["program_type"] | null
           role?: Database["public"]["Enums"]["educator_role"]
           school_irn?: string | null
           school_name?: string | null
