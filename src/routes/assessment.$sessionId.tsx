@@ -44,7 +44,7 @@ function AssessmentRunner() {
       if (error) { setError(error.message); return; }
       if (!data) { setError("Session not found."); return; }
       if (data.completed_at) {
-        navigate({ to: "/assessment/$sessionId_/results", params: { sessionId } });
+        navigate({ to: "/assessment/$sessionId/results", params: { sessionId } });
         return;
       }
       setSession(data as SessionRow);
@@ -113,7 +113,7 @@ function AssessmentRunner() {
       flag_speeding,
     }).eq("session_id", sessionId);
     if (upErr) { setError(upErr.message); setFinishing(false); return; }
-    navigate({ to: "/assessment/$sessionId_/results", params: { sessionId } });
+    navigate({ to: "/assessment/$sessionId/results", params: { sessionId } });
   }
 
   return (
