@@ -114,15 +114,22 @@ function ImportExplrPage() {
     setSyncing(true);
     setErr(null);
     setMsg(null);
+    setDebugInfo(null);
     try {
       const res = await sync({});
-      // Show fetched-vs-imported so a schema mismatch is visible, not silent.
       const orphanedNote =
         res.registrationsOrphaned > 0
           ? ` · ${res.registrationsOrphaned} skipped (no matching camp_id)`
           : "";
       setMsg(
         `Camps: ${res.campsImported} imported. Registrations: ${res.registrationsImported} imported of ${res.registrationsFetched} fetched from ExplrMore${orphanedNote}.`,
+      );
+      setDebugInfo(
+        JSON.stringify(
+          { debug: res.debug, rosterErrors: res.rosterErrors },
+          null,
+          2,
+        ),
       );
       await load();
     } catch (e) {
