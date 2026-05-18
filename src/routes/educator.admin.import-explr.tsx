@@ -237,11 +237,49 @@ function ImportExplrPage() {
                       <td className="py-3 pr-3 align-top text-charcoal-600 tabular-nums">
                         {rosterCount}
                       </td>
-                      <td className="py-3 pr-3 align-top text-charcoal-600 tabular-nums">
-                        {assignedSet.size}
+                      <td className="py-3 pr-3 align-top text-charcoal-600">
+                        {assignedSet.size === 0 ? (
+                          <span className="text-charcoal-300">—</span>
+                        ) : (
+                          <div className="flex flex-wrap gap-1">
+                            {[...assignedSet].map((eid) => {
+                              const e = educators.find((x) => x.id === eid);
+                              return (
+                                <span
+                                  key={eid}
+                                  className="inline-block border border-charcoal-200 bg-white px-1.5 py-0.5 text-[11px] text-ink"
+                                >
+                                  {e?.full_name ?? eid.slice(0, 6)}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        )}
                       </td>
-                      <td className="py-3 pr-3 align-top text-charcoal-600 tabular-nums">
-                        {(curriculumByCamp.get(c.id)?.size ?? 0)}
+                      <td className="py-3 pr-3 align-top text-charcoal-600">
+                        {(() => {
+                          const slugs = [...(curriculumByCamp.get(c.id) ?? [])];
+                          if (slugs.length === 0)
+                            return <span className="text-charcoal-300">—</span>;
+                          return (
+                            <div className="flex flex-wrap gap-1">
+                              {slugs.map((slug) => {
+                                const o = campOptions.find((x) => x.slug === slug);
+                                return (
+                                  <span
+                                    key={slug}
+                                    className="inline-block border border-charcoal-200 bg-white px-1.5 py-0.5 text-[11px] text-ink"
+                                  >
+                                    <span aria-hidden className="mr-1">
+                                      {o?.emoji ?? "📄"}
+                                    </span>
+                                    {o?.name ?? slug}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
                       </td>
                     </tr>
 
@@ -253,8 +291,9 @@ function ImportExplrPage() {
                             <section>
                               <p className="eyebrow">Assigned educators</p>
                               <p className="mt-1 text-xs text-charcoal-500">
-                                Pick the EXPLR educator(s) running this instance. Only they
-                                get this camp on their dashboard.
+                                Pick every EXPLR educator who&apos;s running this instance —
+                                co-teaches, sub-instructors, all of them. They each get this
+                                camp on their dashboard.
                               </p>
                               {educators.length === 0 ? (
                                 <p className="mt-3 text-xs text-charcoal-400">
