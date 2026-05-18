@@ -95,7 +95,15 @@ function EducatorSignUp() {
           <div>
             <label className="label">Passphrase</label>
             <input className="field" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
-          </div>
+        </div>
+        <div>
+          <label className="label">Your school <span className="text-charcoal-400">(optional)</span></label>
+          <SchoolSearch
+            initial={school}
+            onSelect={(s) => setSchool(s.irn ? s : null)}
+            placeholder="Search Ohio schools…"
+          />
+        </div>
         </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
         <button type="submit" disabled={loading} className="btn-ink">{loading ? "Submitting…" : "Request access"}</button>
