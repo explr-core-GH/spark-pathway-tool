@@ -6,10 +6,15 @@ import { CAMPS } from "@/lib/camp-curriculum";
 import { INTERNSHIPS } from "@/lib/internships-catalog";
 import { ASSESSMENT_META, PROGRAM_META } from "@/lib/educator";
 import { EducatorSchoolEditor } from "@/components/EducatorSchoolEditor";
+import { EducatorGate } from "@/components/EducatorGate";
 
 export const Route = createFileRoute("/educator/dashboard")({
   head: () => ({ meta: [{ title: "Educator dashboard — EXPLR" }] }),
-  component: Dashboard,
+  component: () => (
+    <EducatorGate>
+      <Dashboard />
+    </EducatorGate>
+  ),
 });
 
 function Dashboard() {
