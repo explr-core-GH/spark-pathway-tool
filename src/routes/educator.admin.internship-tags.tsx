@@ -127,7 +127,8 @@ function InternshipTags() {
               })}
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </main>
   );
