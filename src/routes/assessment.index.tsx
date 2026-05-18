@@ -17,6 +17,7 @@ function AssessmentIntro() {
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [educatorMismatch, setEducatorMismatch] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -26,8 +27,18 @@ function AssessmentIntro() {
       if (!session) { setAuthed(false); setLoading(false); return; }
       setAuthed(true);
       setUserId(session.user.id);
+      const { data: edu } = await supabase
+        .from("educators").select("role").eq("id", session.user.id).maybeSingle();
+      if (cancelled) return;
+      // Non-admin educators shouldn't take the student assessment.
+      if (edu && edu.role !== "admin") {
+        setEducatorMismatch(true);
+        setLoading(false);
+        return;
+      }
       const { data: stud } = await supabase
         .from("students").select("grade").eq("id", session.user.id).maybeSingle();
+      if (cancelled) return;
       if (stud?.grade) setGrade(stud.grade);
       setLoading(false);
     })();
@@ -63,6 +74,23 @@ function AssessmentIntro() {
   }
 
   if (loading) return <div className="mx-auto max-w-2xl px-6 py-24 text-charcoal-500">Loading…</div>;
+
+  if (educatorMismatch) {
+    return (
+      <main className="mx-auto max-w-md px-6 py-24 text-center">
+        <p className="eyebrow">Educator account</p>
+        <h1 className="mt-3 text-2xl font-light">This area is for students</h1>
+        <p className="mt-4 text-sm text-charcoal-500">
+          Your account is registered as an educator. Head to your educator
+          dashboard for curriculum, internships, and rosters.
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link to="/educator/dashboard" className="btn-ink">Go to educator dashboard</Link>
+          <Link to="/" className="btn-ghost">Back to home</Link>
+        </div>
+      </main>
+    );
+  }
 
   if (!authed) {
     return (

@@ -3,10 +3,15 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ITEMS, LIKERT_LABELS, scoreResponses, type LikertValue } from "@/lib/assessment-items";
 import { RIASEC } from "@/lib/riasec";
+import { RoleGuard } from "@/components/RoleGuard";
 
 export const Route = createFileRoute("/assessment/$sessionId")({
   head: () => ({ meta: [{ title: "Assessment — EXPLR" }] }),
-  component: AssessmentRunner,
+  component: () => (
+    <RoleGuard requires="student">
+      <AssessmentRunner />
+    </RoleGuard>
+  ),
 });
 
 type SessionRow = {

@@ -3,10 +3,15 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { HollandHexagon } from "@/components/HollandHexagon";
 import { RIASEC, RIASEC_ORDER, type RIASECCode } from "@/lib/riasec";
+import { RoleGuard } from "@/components/RoleGuard";
 
 export const Route = createFileRoute("/assessment/$sessionId/results")({
   head: () => ({ meta: [{ title: "Your results — EXPLR" }] }),
-  component: Results,
+  component: () => (
+    <RoleGuard requires="student">
+      <Results />
+    </RoleGuard>
+  ),
 });
 
 type SessionRow = {
