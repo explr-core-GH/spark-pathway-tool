@@ -283,7 +283,15 @@ function ApplyPage() {
                           <span className="text-xs uppercase tracking-wider text-charcoal-500">{tag}</span>
                         </span>
                         <span className="mt-1 block text-sm text-charcoal-500">{i.deliverables}</span>
-                        <span className="mt-1 block text-xs text-charcoal-400">Holland fit: {i.riasec.join(" · ")}</span>
+                        <span className="mt-1 block text-xs text-charcoal-400">
+                          Holland fit:{" "}
+                          {i.riasec.map((c, idx2) => (
+                            <span key={c}>
+                              {idx2 > 0 && " · "}
+                              <HollandLetter code={c} />
+                            </span>
+                          ))}
+                        </span>
                         {why && (
                           <span className="mt-2 block text-sm italic" style={{ color: "var(--explr)" }}>
                             Why this fits you: {why}
