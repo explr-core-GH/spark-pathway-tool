@@ -60,6 +60,13 @@ function AssessmentIntro() {
       navigate({ to: "/assessment/$sessionId", params: { sessionId: existing.session_id } });
       return;
     }
+    // Ensure a students row exists (required by FK). Safe for both real students
+    // and admins previewing as a student.
+    const { error: studErr } = await supabase
+      .from("students")
+      .upsert({ id: userId, grade }, { onConflict: "id" });
+    if (studErr) { setError(studErr.message); setStarting(false); return; }
+
     const sessionId = crypto.randomUUID();
     const item_sequence = buildItemSequence(sessionId);
     const { error: insErr } = await supabase.from("assessment_sessions").insert({
