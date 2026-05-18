@@ -1,53 +1,120 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-// TODO: the Ohio Dept of Ed directory will be uploaded to Supabase Storage and
-// served at /ohio/directory.json. Until then this is a placeholder that
-// gracefully no-ops when the JSON is missing.
-
-type School = { irn: string; name: string; district?: string; city?: string };
-
-type Props = {
-  value: { irn: string; name: string } | null;
-  onChange: (v: { irn: string; name: string } | null) => void;
+export type SchoolPick = {
+  irn: string;
+  name: string;
+  districtName?: string;
+  city?: string;
 };
 
-export function SchoolSearch({ value, onChange }: Props) {
+type School = {
+  irn: string;
+  name: string;
+  districtName?: string;
+  districtIrn?: string;
+  county?: string;
+  region?: string;
+  city?: string;
+  gradeSpan?: string;
+  buildingType?: string;
+  enrollment?: number;
+  overallStars?: number | null;
+};
+
+type Props = {
+  onSelect: (s: SchoolPick) => void;
+  initial?: SchoolPick | null;
+  placeholder?: string;
+};
+
+let directoryCache: School[] | null = null;
+let directoryPromise: Promise<School[]> | null = null;
+
+async function loadDirectory(): Promise<School[]> {
+  if (directoryCache) return directoryCache;
+  if (!directoryPromise) {
+    directoryPromise = fetch("/ohio/directory.json")
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("not found"))))
+      .then((d: { buildings: School[] } | School[]) => {
+        const arr = Array.isArray(d) ? d : d.buildings;
+        directoryCache = arr;
+        return arr;
+      });
+  }
+  return directoryPromise;
+}
+
+export function SchoolSearch({ onSelect, initial = null, placeholder }: Props) {
+  const [picked, setPicked] = useState<SchoolPick | null>(initial);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<School[]>([]);
-  const [allSchools, setAllSchools] = useState<School[] | null>(null);
   const [missing, setMissing] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [open, setOpen] = useState(false);
+  const loadedRef = useRef(false);
+
+  async function ensureLoaded() {
+    if (loadedRef.current) return;
+    loadedRef.current = true;
+    try {
+      await loadDirectory();
+      setLoaded(true);
+    } catch {
+      setMissing(true);
+    }
+  }
 
   useEffect(() => {
-    fetch("/ohio/directory.json")
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((data) => setAllSchools(data as School[]))
-      .catch(() => setMissing(true));
-  }, []);
-
-  useEffect(() => {
-    if (!allSchools || !query.trim()) {
+    if (!query.trim() || !directoryCache) {
       setResults([]);
       return;
     }
-    const q = query.toLowerCase();
-    setResults(
-      allSchools
-        .filter((s) => s.name.toLowerCase().includes(q) || s.irn.includes(q))
-        .slice(0, 8),
-    );
-  }, [query, allSchools]);
+    const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
+    const scored: Array<{ s: School; score: number }> = [];
+    for (const s of directoryCache) {
+      const name = (s.name ?? "").toLowerCase();
+      const hay = [
+        name,
+        (s.districtName ?? "").toLowerCase(),
+        (s.city ?? "").toLowerCase(),
+        (s.county ?? "").toLowerCase(),
+        s.irn ?? "",
+      ].join(" ");
+      if (!tokens.every((t) => hay.includes(t))) continue;
+      let score = 0;
+      if (name.startsWith(tokens[0])) score += 1000;
+      scored.push({ s, score: score + (s.enrollment ?? 0) / 1e6 });
+    }
+    scored.sort((a, b) => b.score - a.score || (b.s.enrollment ?? 0) - (a.s.enrollment ?? 0));
+    setResults(scored.slice(0, 10).map((x) => x.s));
+  }, [query, loaded]);
 
-  if (value) {
+  function pick(s: School) {
+    const p: SchoolPick = { irn: s.irn, name: s.name, districtName: s.districtName, city: s.city };
+    setPicked(p);
+    setQuery("");
+    setOpen(false);
+    onSelect(p);
+  }
+
+  function clear() {
+    setPicked(null);
+    onSelect({ irn: "", name: "" });
+  }
+
+  if (picked && picked.irn) {
     return (
-      <div className="flex items-center justify-between border border-charcoal-200 bg-white px-3 py-2">
-        <div>
-          <div className="text-sm font-medium">{value.name}</div>
-          <div className="text-xs text-charcoal-400">IRN {value.irn}</div>
+      <div className="flex items-center justify-between rounded-md border border-explr-700/40 bg-explr-50 px-3 py-2">
+        <div className="text-sm text-charcoal-700">
+          <span className="font-medium">{picked.name}</span>
+          {picked.districtName && <span className="text-charcoal-500"> · {picked.districtName}</span>}
+          {picked.city && <span className="text-charcoal-500"> · {picked.city}</span>}
+          <span className="ml-2 font-mono text-[10px] text-charcoal-400">IRN {picked.irn}</span>
         </div>
         <button
           type="button"
-          onClick={() => onChange(null)}
-          className="text-xs uppercase tracking-wider text-charcoal-400 hover:text-ink"
+          onClick={clear}
+          className="text-xs uppercase tracking-wider text-explr-700 hover:text-explr-800"
         >
           Change
         </button>
@@ -56,37 +123,46 @@ export function SchoolSearch({ value, onChange }: Props) {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="relative space-y-2">
       <input
         type="text"
         className="field"
-        placeholder={missing ? "School directory not yet loaded" : "Search Ohio schools by name or IRN…"}
+        placeholder={
+          missing
+            ? "School directory not yet loaded"
+            : placeholder ?? "Search Ohio schools by name, district, city, or IRN…"
+        }
         value={query}
+        onFocus={() => {
+          ensureLoaded();
+          setOpen(true);
+        }}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
         onChange={(e) => setQuery(e.target.value)}
         disabled={missing}
       />
       {missing && (
         <p className="text-xs text-charcoal-400">
-          The Ohio school directory will be available once it's uploaded to storage.
+          The Ohio school directory is not available right now.
         </p>
       )}
-      {results.length > 0 && (
-        <ul className="border border-charcoal-100 bg-white">
+      {open && results.length > 0 && (
+        <ul className="absolute z-20 max-h-96 w-full overflow-y-auto rounded-md border border-charcoal-100 bg-white shadow-lg">
           {results.map((s) => (
-            <li key={s.irn}>
+            <li key={s.irn} className="border-b border-charcoal-100 last:border-0">
               <button
                 type="button"
-                onClick={() => {
-                  onChange({ irn: s.irn, name: s.name });
-                  setQuery("");
-                }}
-                className="block w-full px-3 py-2 text-left text-sm hover:bg-charcoal-50"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => pick(s)}
+                className="block w-full px-3 py-2 text-left hover:bg-explr-50"
               >
-                <div className="font-medium">{s.name}</div>
-                <div className="text-xs text-charcoal-400">
-                  IRN {s.irn}
-                  {s.district ? ` · ${s.district}` : ""}
-                  {s.city ? ` · ${s.city}` : ""}
+                <div className="font-semibold text-charcoal-700">{s.name}</div>
+                <div className="text-xs text-charcoal-500">
+                  {[s.districtName, s.city, s.gradeSpan, s.buildingType].filter(Boolean).join(" · ")}
+                </div>
+                <div className="font-mono text-[10px] text-charcoal-400">
+                  Enrollment {s.enrollment ?? "—"} ·{" "}
+                  {s.overallStars != null ? `${s.overallStars.toFixed(1)}★ overall` : "no rating"} · IRN {s.irn}
                 </div>
               </button>
             </li>
