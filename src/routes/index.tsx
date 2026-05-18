@@ -23,7 +23,6 @@ function SiteHeader() {
         <nav className="flex items-center gap-7 text-sm">
           <Link to="/about" className="text-charcoal-500 hover:text-ink">About</Link>
           <Link to="/educator" className="text-charcoal-500 hover:text-ink">Educators</Link>
-          <Link to="/sign-in" className="text-charcoal-500 hover:text-ink">Sign in</Link>
           <Link to="/assessment" className="btn-mint">Start</Link>
         </nav>
       </div>
