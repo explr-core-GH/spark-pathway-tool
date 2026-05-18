@@ -140,11 +140,9 @@ function Mismatch({
       <h1 className="mt-3 text-2xl font-light">{title}</h1>
       <p className="mt-4 text-sm text-charcoal-500">{body}</p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        {/* @ts-expect-error -- string routes are guarded upstream */}
-        <Link to={primary.to} className="btn-ink">{primary.label}</Link>
+        <Link to={primary.to as never} className="btn-ink">{primary.label}</Link>
         {secondary && (
-          // @ts-expect-error -- string routes are guarded upstream
-          <Link to={secondary.to} className="btn-ghost">{secondary.label}</Link>
+          <Link to={secondary.to as never} className="btn-ghost">{secondary.label}</Link>
         )}
       </div>
     </main>
