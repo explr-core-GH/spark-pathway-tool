@@ -19,13 +19,24 @@ type InterestMap = Record<string, "yes" | "maybe" | "no">;
 type ScaleScores = Partial<Record<RIASECCode, number>>;
 
 const RIASEC_LABELS: Record<RIASECCode, string> = {
-  R: "hands-on, building things (Realistic)",
-  I: "investigating and analyzing (Investigative)",
-  A: "creative and expressive work (Artistic)",
-  S: "helping and working with people (Social)",
-  E: "leading and persuading (Enterprising)",
-  C: "organizing and detail work (Conventional)",
+  R: "hands-on building and making",
+  I: "investigating and problem-solving",
+  A: "creative and expressive work",
+  S: "helping and connecting with people",
+  E: "leading and persuading others",
+  C: "organizing details and systems",
 };
+
+const RIASEC_NAMES: Record<RIASECCode, string> = {
+  R: "Realistic", I: "Investigative", A: "Artistic",
+  S: "Social", E: "Enterprising", C: "Conventional",
+};
+
+function joinList(items: string[]): string {
+  if (items.length <= 1) return items[0] ?? "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+}
 
 function buildWhyFits(
   i: Internship,
@@ -42,19 +53,23 @@ function buildWhyFits(
       : (hollandCode ?? "").split(""),
   );
   const matches = i.riasec.filter((c) => studentLetters.has(c));
-  const parts: string[] = [];
-  if (interest === "yes") parts.push("you marked it Interested");
-  else if (interest === "maybe") parts.push("you marked it Maybe");
+  const interestBit =
+    interest === "yes" ? "You said you're interested in this one" :
+    interest === "maybe" ? "You marked this one as a maybe" : null;
+
+  let hollandBit: string | null = null;
   if (matches.length > 0) {
-    const phrases = matches.map((c) => RIASEC_LABELS[c]).join(" and ");
-    parts.push(`it leans on ${phrases}, which matches your Holland profile`);
+    const traits = joinList(matches.map((c) => RIASEC_LABELS[c]));
+    const letters = matches.map((c) => `${c} (${RIASEC_NAMES[c]})`).join(" / ");
+    hollandBit = `it centers on ${traits} — a strong match for your top Holland ${matches.length > 1 ? "traits" : "trait"} ${letters}`;
   } else if (i.riasec.length > 0 && studentLetters.size > 0) {
-    parts.push(
-      `it stretches you toward ${i.riasec.map((c) => RIASEC_LABELS[c]).join(" and ")} — outside your top Holland letters but worth exploring`,
-    );
+    const traits = joinList(i.riasec.map((c) => RIASEC_LABELS[c]));
+    hollandBit = `it focuses on ${traits}, which is outside your top Holland traits — a good stretch if you want to try something new`;
   }
-  if (parts.length === 0) return null;
-  return parts.join("; ") + ".";
+
+  if (!interestBit && !hollandBit) return null;
+  if (interestBit && hollandBit) return `${interestBit}, and ${hollandBit}.`;
+  return `${interestBit ?? hollandBit}.`;
 }
 
 type Resume = {
