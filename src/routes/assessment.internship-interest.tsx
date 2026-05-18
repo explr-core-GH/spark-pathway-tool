@@ -95,12 +95,12 @@ function InternshipInterest() {
       </header>
 
       <main className="mx-auto max-w-3xl px-6 py-16">
-        <p className="eyebrow">Internship interest survey</p>
+        <p className="eyebrow">Internship preferences</p>
         <h1 className="display mt-3">Which internships interest you?</h1>
         <p className="lead mt-6 max-w-2xl">
+          This is a quick preference picker — separate from your main RIASEC interest assessment.
           Mark <strong>yes</strong>, <strong>maybe</strong>, or <strong>no</strong> for each EXPLR
-          internship. You can change your answers later. You need to finish this once before you can
-          browse and apply.
+          internship so we can rank your application list. You can change your answers later.
         </p>
 
         <ul className="mt-12 space-y-6">

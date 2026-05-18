@@ -194,11 +194,11 @@ function StudentDashboard() {
               ) : !interestDone ? (
                 <div className="mt-4">
                   <p className="text-charcoal-500 max-w-2xl">
-                    Before you can browse and apply, take the internship interest survey — a quick
-                    yes / maybe / no across the catalog.
+                    Before you can browse and apply, set your internship preferences — a quick
+                    yes / maybe / no across the catalog so we can rank your application list.
                   </p>
                   <Link to="/assessment/internship-interest" className="btn-ink mt-5 inline-block">
-                    Take the interest survey
+                    Set internship preferences
                   </Link>
                 </div>
               ) : (
@@ -220,7 +220,7 @@ function StudentDashboard() {
                 <div className="flex items-baseline justify-between gap-4">
                   <p className="eyebrow">Internships</p>
                   <Link to="/assessment/internship-interest" className="text-xs text-charcoal-500 hover:text-ink">
-                    Update interest →
+                    Update preferences →
                   </Link>
                 </div>
                 <p className="mt-3 text-charcoal-500 max-w-2xl">

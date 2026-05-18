@@ -37,6 +37,7 @@ import { Route as EducatorAdminInternshipTagsRouteImport } from './routes/educat
 import { Route as EducatorAdminCurriculumTagsRouteImport } from './routes/educator.admin.curriculum-tags'
 import { Route as AssessmentSessionIdResultsRouteImport } from './routes/assessment.$sessionId_.results'
 import { Route as EducatorAdminEducatorsIdRouteImport } from './routes/educator.admin.educators.$id'
+import { Route as DemoAptitudeBandTakeRouteImport } from './routes/demo.aptitude.$band.take'
 
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
@@ -185,6 +186,11 @@ const EducatorAdminEducatorsIdRoute =
     path: '/educators/$id',
     getParentRoute: () => EducatorAdminRoute,
   } as any)
+const DemoAptitudeBandTakeRoute = DemoAptitudeBandTakeRouteImport.update({
+  id: '/demo/aptitude/$band/take',
+  path: '/demo/aptitude/$band/take',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -214,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/educator/admin/': typeof EducatorAdminIndexRoute
   '/educator/curriculum/': typeof EducatorCurriculumIndexRoute
   '/educator/internships/': typeof EducatorInternshipsIndexRoute
+  '/demo/aptitude/$band/take': typeof DemoAptitudeBandTakeRoute
   '/educator/admin/educators/$id': typeof EducatorAdminEducatorsIdRoute
 }
 export interface FileRoutesByTo {
@@ -242,6 +249,7 @@ export interface FileRoutesByTo {
   '/educator/admin': typeof EducatorAdminIndexRoute
   '/educator/curriculum': typeof EducatorCurriculumIndexRoute
   '/educator/internships': typeof EducatorInternshipsIndexRoute
+  '/demo/aptitude/$band/take': typeof DemoAptitudeBandTakeRoute
   '/educator/admin/educators/$id': typeof EducatorAdminEducatorsIdRoute
 }
 export interface FileRoutesById {
@@ -273,6 +281,7 @@ export interface FileRoutesById {
   '/educator/admin/': typeof EducatorAdminIndexRoute
   '/educator/curriculum/': typeof EducatorCurriculumIndexRoute
   '/educator/internships/': typeof EducatorInternshipsIndexRoute
+  '/demo/aptitude/$band/take': typeof DemoAptitudeBandTakeRoute
   '/educator/admin/educators/$id': typeof EducatorAdminEducatorsIdRoute
 }
 export interface FileRouteTypes {
@@ -305,6 +314,7 @@ export interface FileRouteTypes {
     | '/educator/admin/'
     | '/educator/curriculum/'
     | '/educator/internships/'
+    | '/demo/aptitude/$band/take'
     | '/educator/admin/educators/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -333,6 +343,7 @@ export interface FileRouteTypes {
     | '/educator/admin'
     | '/educator/curriculum'
     | '/educator/internships'
+    | '/demo/aptitude/$band/take'
     | '/educator/admin/educators/$id'
   id:
     | '__root__'
@@ -363,6 +374,7 @@ export interface FileRouteTypes {
     | '/educator/admin/'
     | '/educator/curriculum/'
     | '/educator/internships/'
+    | '/demo/aptitude/$band/take'
     | '/educator/admin/educators/$id'
   fileRoutesById: FileRoutesById
 }
@@ -380,6 +392,7 @@ export interface RootRouteChildren {
   StudentApplyRoute: typeof StudentApplyRoute
   AssessmentIndexRoute: typeof AssessmentIndexRoute
   AssessmentSessionIdResultsRoute: typeof AssessmentSessionIdResultsRoute
+  DemoAptitudeBandTakeRoute: typeof DemoAptitudeBandTakeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -580,6 +593,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EducatorAdminEducatorsIdRouteImport
       parentRoute: typeof EducatorAdminRoute
     }
+    '/demo/aptitude/$band/take': {
+      id: '/demo/aptitude/$band/take'
+      path: '/demo/aptitude/$band/take'
+      fullPath: '/demo/aptitude/$band/take'
+      preLoaderRoute: typeof DemoAptitudeBandTakeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -647,7 +667,18 @@ const rootRouteChildren: RootRouteChildren = {
   StudentApplyRoute: StudentApplyRoute,
   AssessmentIndexRoute: AssessmentIndexRoute,
   AssessmentSessionIdResultsRoute: AssessmentSessionIdResultsRoute,
+  DemoAptitudeBandTakeRoute: DemoAptitudeBandTakeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
