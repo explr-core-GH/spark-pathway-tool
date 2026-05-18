@@ -115,7 +115,7 @@ function AssessmentRunner() {
     <div className="min-h-screen">
       <header className="border-b border-charcoal-100">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-          <Link to="/" className="text-sm tracking-tight">EXPLR</Link>
+          <Link to="/" className="text-sm tracking-tight">EXPLR <span style={{ color: "var(--explr)" }}>Pathways</span></Link>
           <div className="text-xs text-charcoal-500">{idx + 1} of {total}</div>
         </div>
         <div className="h-0.5 bg-charcoal-100">
