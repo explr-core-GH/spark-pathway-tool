@@ -202,11 +202,16 @@ function StudentDashboard() {
                   </Link>
                 </div>
               ) : (
-                <p className="mt-4 text-charcoal-500">
-                  {hasResults
-                    ? "You're ready to apply. Browse the internships below and pick the ones that fit."
-                    : "Finish the main assessment too — your Holland code helps match you to internships that fit."}
-                </p>
+                <div className="mt-4">
+                  <p className="text-charcoal-500 max-w-2xl">
+                    {hasResults
+                      ? "You're ready to apply. Pick the internships that fit and fill in your digital résumé."
+                      : "Finish the main assessment too — your Holland code helps match you to internships that fit."}
+                  </p>
+                  <Link to="/student/apply" className="btn-ink mt-5 inline-block">
+                    Apply now →
+                  </Link>
+                </div>
               )}
             </section>
 
