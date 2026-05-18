@@ -60,7 +60,7 @@ async function fetchAllFromExplr<T>(table: string, columns: string): Promise<T[]
   return results;
 }
 
-async function assertAdmin(supabase: ReturnType<typeof supabaseAdmin.from> extends never ? never : any, userId: string) {
+async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
     .from("educators")
     .select("role")
