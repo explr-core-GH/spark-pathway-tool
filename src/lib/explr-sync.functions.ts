@@ -98,14 +98,31 @@ function pickNum(row: Record<string, unknown>, ...keys: string[]): number | null
 
 function mapRosterRow(row: Record<string, unknown>, campId: string): ExplrRegistration | null {
   const id = pickStr(row, "id", "registration_id", "uuid");
+  const child = (row.child && typeof row.child === "object" ? row.child : {}) as Record<string, unknown>;
+  const firstName = pickStr(child, "first_name") ?? pickStr(row, "first_name");
+  const lastName = pickStr(child, "last_name") ?? pickStr(row, "last_name");
+  const composed = [firstName, lastName].filter(Boolean).join(" ").trim();
   const childName =
-    pickStr(row, "child_name", "student_name", "name", "full_name", "first_name") ?? null;
+    pickStr(row, "child_name", "student_name", "name", "full_name") ??
+    (composed || null);
   if (!id || !childName) return null;
+  let age: number | null = pickNum(row, "child_age", "age", "student_age") ?? pickNum(child, "age");
+  const dob = pickStr(child, "date_of_birth");
+  if (age == null && dob) {
+    const d = new Date(dob);
+    if (!isNaN(d.getTime())) {
+      const now = new Date();
+      let a = now.getFullYear() - d.getFullYear();
+      const m = now.getMonth() - d.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < d.getDate())) a--;
+      age = a;
+    }
+  }
   return {
     id,
     camp_id: pickStr(row, "camp_id", "campId") ?? campId,
     child_name: childName,
-    child_age: pickNum(row, "child_age", "age", "student_age"),
+    child_age: age,
     parent_name: pickStr(row, "parent_name", "guardian_name", "parent"),
     parent_email: pickStr(row, "parent_email", "email", "guardian_email"),
     parent_phone: pickStr(row, "parent_phone", "phone", "guardian_phone"),
@@ -175,24 +192,40 @@ export const syncExplrMore = createServerFn({ method: "POST" })
     let allRostersWorked = false;
     try {
       const all = await callExplrExternal("all_rosters");
-      const rows = unwrapList(all);
+      // Shape: { camps: [{ id, registrations: [...] }] } — flatten.
+      const campsArr: Record<string, unknown>[] =
+        all && typeof all === "object" && Array.isArray((all as Record<string, unknown>).camps)
+          ? ((all as Record<string, unknown>).camps as Record<string, unknown>[])
+          : [];
+      let flatCount = 0;
+      for (const c of campsArr) {
+        const cid = pickStr(c, "id", "camp_id") ?? "";
+        const regsArr = Array.isArray(c.registrations) ? (c.registrations as Record<string, unknown>[]) : [];
+        for (const row of regsArr) {
+          flatCount++;
+          const mapped = mapRosterRow(row, cid);
+          if (mapped) regs.push(mapped);
+        }
+      }
       debug.push({
         action: "all_rosters",
-        rowCount: rows.length,
+        rowCount: flatCount,
         topKeys: all && typeof all === "object" && !Array.isArray(all)
           ? Object.keys(all as Record<string, unknown>).slice(0, 10)
           : undefined,
-        sample: sampleOf(rows[0] ?? all),
+        sample: sampleOf(campsArr[0] ?? all),
       });
-      if (rows.length > 0) {
+      // Fallback to flat list shape if no camps key.
+      if (flatCount === 0) {
+        const rows = unwrapList(all);
         for (const row of rows) {
           const campId = pickStr(row, "camp_id", "campId") ?? "";
           if (!campId) continue;
           const mapped = mapRosterRow(row, campId);
           if (mapped) regs.push(mapped);
         }
-        allRostersWorked = regs.length > 0;
       }
+      allRostersWorked = regs.length > 0;
     } catch (e) {
       rosterErrors.push({ campId: "all_rosters", error: (e as Error).message });
     }
