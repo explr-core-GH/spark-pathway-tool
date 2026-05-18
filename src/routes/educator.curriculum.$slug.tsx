@@ -77,7 +77,24 @@ function CurriculumDetail() {
       .eq("camp_slug", slug)
       .eq("educator_id", educator.id)
       .maybeSingle()
-      .then(({ data }) => setAllowed(!!data));
+      .then(({ data, error }) => {
+        // Log the query result so the deny path is debuggable. RLS denials
+        // come back as null data without an error — distinguishable from a
+        // genuine "no row" only by inspecting the educator/slug below.
+        if (error) {
+          console.warn("[curriculum gate] camp_educators read failed", {
+            slug,
+            educatorId: educator.id,
+            error,
+          });
+        } else if (!data) {
+          console.warn("[curriculum gate] no camp_educators row", {
+            slug,
+            educatorId: educator.id,
+          });
+        }
+        setAllowed(!!data);
+      });
   }, [educator, isAdmin, slug]);
 
   if (!campLoaded) {

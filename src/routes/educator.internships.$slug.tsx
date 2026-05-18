@@ -70,7 +70,21 @@ function InternshipDetail() {
       .eq("internship_slug", slug)
       .eq("educator_id", educator.id)
       .maybeSingle()
-      .then(({ data }) => setAllowed(!!data));
+      .then(({ data, error }) => {
+        if (error) {
+          console.warn("[internship gate] internship_educators read failed", {
+            slug,
+            educatorId: educator.id,
+            error,
+          });
+        } else if (!data) {
+          console.warn("[internship gate] no internship_educators row", {
+            slug,
+            educatorId: educator.id,
+          });
+        }
+        setAllowed(!!data);
+      });
   }, [educator, isAdmin, slug]);
 
   if (!loaded) {
