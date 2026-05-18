@@ -29,6 +29,11 @@ type ApplicationRow = {
   submission_term: string;
 };
 
+type PlacementRow = {
+  approved_internship_id: string;
+  approved_at: string;
+};
+
 function StudentDashboard() {
   const { user, loading: authLoading } = useSession();
 
