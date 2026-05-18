@@ -5,27 +5,92 @@ export const Route = createFileRoute("/educator/admin")({
   component: AdminLayout,
 });
 
+type NavItem = { to: string; label: string };
+type NavGroup = { label: string; items: NavItem[] };
+
+// Grouped admin nav. Add new routes inside an existing group, or create a
+// new group if the route doesn't belong to one of these four.
+const NAV_GROUPS: NavGroup[] = [
+  {
+    label: "Students",
+    items: [
+      { to: "/educator/admin/applications", label: "Applications" },
+      { to: "/educator/admin/placements", label: "Placements" },
+      { to: "/educator/admin/rosters", label: "Rosters" },
+    ],
+  },
+  {
+    label: "Catalog",
+    items: [
+      { to: "/educator/admin/camps", label: "Camps" },
+      { to: "/educator/admin/internships", label: "Internships" },
+      { to: "/educator/admin/programs", label: "Programs" },
+    ],
+  },
+  {
+    label: "People",
+    items: [
+      { to: "/educator/admin/invites", label: "Invites" },
+      { to: "/educator/admin/assign", label: "Assign educators" },
+    ],
+  },
+  {
+    label: "Tools",
+    items: [
+      { to: "/educator/admin/curriculum-tags", label: "Curriculum tags" },
+      { to: "/educator/admin/internship-tags", label: "Internship tags" },
+      { to: "/educator/admin/program-riasec", label: "Program-RIASEC" },
+    ],
+  },
+];
+
+const linkBase = "block text-sm leading-tight text-charcoal-500 hover:text-ink";
+const linkActive = "block text-sm leading-tight text-ink font-semibold";
+
 function AdminLayout() {
   return (
     <RoleGuard requires="admin">
-      <div>
-        <div className="border-b border-charcoal-100 bg-charcoal-50">
-          <div className="mx-auto flex max-w-6xl flex-wrap gap-x-6 gap-y-2 px-6 py-3 text-sm">
-            <Link to="/educator/admin" className="text-charcoal-500 hover:text-ink">Home</Link>
-            <Link to="/educator/admin/applications" className="text-charcoal-500 hover:text-ink">Applications</Link>
-            <Link to="/educator/admin/placements" className="text-charcoal-500 hover:text-ink">Placements</Link>
-            <Link to="/educator/admin/rosters" className="text-charcoal-500 hover:text-ink">Rosters</Link>
-            <Link to="/educator/admin/internships" className="text-charcoal-500 hover:text-ink">Internships</Link>
-            <Link to="/educator/admin/camps" className="text-charcoal-500 hover:text-ink">Camps</Link>
-            <Link to="/educator/admin/programs" className="text-charcoal-500 hover:text-ink">Programs</Link>
-            <Link to="/educator/admin/assign" className="text-charcoal-500 hover:text-ink">Assign educators</Link>
-            <Link to="/educator/admin/invites" className="text-charcoal-500 hover:text-ink">Invites</Link>
-            <Link to="/educator/admin/curriculum-tags" className="text-charcoal-500 hover:text-ink">Curriculum tags</Link>
-            <Link to="/educator/admin/internship-tags" className="text-charcoal-500 hover:text-ink">Internship tags</Link>
-            <Link to="/educator/admin/program-riasec" className="text-charcoal-500 hover:text-ink">Program RIASEC</Link>
-          </div>
+      <div className="flex flex-col md:flex-row">
+        <aside className="border-b border-charcoal-100 bg-charcoal-50 md:w-56 md:shrink-0 md:border-b-0 md:border-r">
+          <nav
+            aria-label="Admin"
+            className="px-6 py-6 md:sticky md:top-0 md:max-h-screen md:overflow-y-auto"
+          >
+            <Link
+              to="/educator/admin"
+              activeOptions={{ exact: true }}
+              className={linkBase}
+              activeProps={{ className: linkActive }}
+            >
+              Home
+            </Link>
+            <div className="mt-6 space-y-6">
+              {NAV_GROUPS.map((group) => (
+                <div key={group.label}>
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-charcoal-400">
+                    {group.label}
+                  </p>
+                  <ul className="space-y-1.5">
+                    {group.items.map((item) => (
+                      <li key={item.to}>
+                        <Link
+                          to={item.to}
+                          className={linkBase}
+                          activeProps={{ className: linkActive }}
+                        >
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </nav>
+        </aside>
+        <div className="min-w-0 flex-1">
+          <Outlet />
         </div>
-        <Outlet />
       </div>
     </RoleGuard>
   );
