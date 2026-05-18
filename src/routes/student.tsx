@@ -31,9 +31,12 @@ type ApplicationRow = {
 
 function StudentDashboard() {
   const { user, loading: authLoading } = useSession();
-  
+
   const [session, setSession] = useState<SessionSummary | null>(null);
   const [application, setApplication] = useState<ApplicationRow | null>(null);
+  const [grade, setGrade] = useState<number | null>(null);
+  const [interestDone, setInterestDone] = useState(false);
+  const [hiddenSlugs, setHiddenSlugs] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -41,25 +44,38 @@ function StudentDashboard() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const [{ data: sess }, { data: app }] = await Promise.all([
-        supabase
-          .from("assessment_sessions")
-          .select("session_id, holland_code, completed_at")
-          .eq("student_id", user.id)
-          .order("started_at", { ascending: false })
-          .limit(1)
-          .maybeSingle(),
-        supabase
-          .from("internship_applications")
-          .select("id, status, submitted_at, selected_internship_ids, submission_term")
-          .eq("student_id", user.id)
-          .order("submitted_at", { ascending: false })
-          .limit(1)
-          .maybeSingle(),
-      ]);
+      const [{ data: sess }, { data: app }, { data: stud }, { data: comp }, { data: vis }] =
+        await Promise.all([
+          supabase
+            .from("assessment_sessions")
+            .select("session_id, holland_code, completed_at")
+            .eq("student_id", user.id)
+            .order("started_at", { ascending: false })
+            .limit(1)
+            .maybeSingle(),
+          supabase
+            .from("internship_applications")
+            .select("id, status, submitted_at, selected_internship_ids, submission_term")
+            .eq("student_id", user.id)
+            .order("submitted_at", { ascending: false })
+            .limit(1)
+            .maybeSingle(),
+          supabase.from("students").select("grade").eq("id", user.id).maybeSingle(),
+          supabase
+            .from("internship_interest_completions")
+            .select("completed_at")
+            .eq("student_id", user.id)
+            .maybeSingle(),
+          supabase.from("internship_visibility").select("internship_slug, visible"),
+        ]);
       if (cancelled) return;
       setSession((sess as SessionSummary) ?? null);
       setApplication((app as ApplicationRow) ?? null);
+      setGrade(stud?.grade ?? null);
+      setInterestDone(!!comp?.completed_at);
+      setHiddenSlugs(
+        new Set((vis ?? []).filter((r) => r.visible === false).map((r) => r.internship_slug)),
+      );
       setLoading(false);
     })();
     return () => { cancelled = true; };
@@ -73,6 +89,11 @@ function StudentDashboard() {
   const hasInProgress = !!(session && !session.completed_at && session.session_id);
   const topCode = hasResults ? (session!.holland_code![0] as RIASECCode) : null;
   const primary = topCode ? RIASEC[topCode] : null;
+
+  // Internships are only available to grades 8-12 who've finished the interest survey.
+  const eligibleByGrade = grade !== null && grade >= 8 && grade <= 12;
+  const canSeeInternships = eligibleByGrade && interestDone;
+  const visibleInternships = INTERNSHIPS.filter((i) => !hiddenSlugs.has(i.slug));
 
   return (
     <div className="min-h-screen">
