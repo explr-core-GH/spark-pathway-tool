@@ -9,7 +9,7 @@ export const Route = createFileRoute("/educator/admin/educators/$id")({
   component: ManageEducator,
 });
 
-type Ed = { id: string; full_name: string; email: string; organization: string | null; program_type: string; role: string; approved: boolean; school_irn: string | null; school_name: string | null };
+type Ed = { id: string; full_name: string; email: string; organization: string | null; program_type: ProgramType; role: "educator" | "admin"; approved: boolean; school_irn: string | null; school_name: string | null };
 
 function ManageEducator() {
   const { id } = Route.useParams();
@@ -44,7 +44,7 @@ function ManageEducator() {
         </div>
         <div>
           <label className="label">Role</label>
-          <select className="field" value={ed.role} onChange={(e) => update({ role: e.target.value })}>
+          <select className="field" value={ed.role} onChange={(e) => update({ role: e.target.value as "educator" | "admin" })}>
             <option value="educator">educator</option>
             <option value="admin">admin</option>
           </select>
