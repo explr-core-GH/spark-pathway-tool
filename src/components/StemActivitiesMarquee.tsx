@@ -51,11 +51,46 @@ export function StemActivitiesMarquee({ hollandCode }: Props) {
       </div>
 
       <div className="mt-6 space-y-4 overflow-hidden">
-        <MarqueeRow items={rowA} hollandCode={hollandCode} direction="left" />
+        <MarqueeRow items={rowA} hollandCode={hollandCode} direction="left" onSelect={setSelected} />
         {rowB.length > 0 && (
-          <MarqueeRow items={rowB} hollandCode={hollandCode} direction="right" />
+          <MarqueeRow items={rowB} hollandCode={hollandCode} direction="right" onSelect={setSelected} />
         )}
       </div>
+
+      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+        <DialogContent>
+          {selected && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <span aria-hidden className="text-2xl">{selected.emoji}</span>
+                  <span>{selected.name}</span>
+                </DialogTitle>
+              </DialogHeader>
+              <p className="text-sm text-charcoal-500">{selected.program}</p>
+              <div className="mt-4 space-y-2">
+                {CODES.map((c) => {
+                  const v = selected.scores[c] ?? 0;
+                  return (
+                    <div key={c} className="flex items-center gap-3">
+                      <span className="w-28 text-xs font-medium" style={{ color: RIASEC[c].color }}>
+                        {c} · {RIASEC[c].name}
+                      </span>
+                      <div className="h-2 flex-1 rounded bg-charcoal-50">
+                        <div
+                          className="h-2 rounded"
+                          style={{ width: `${(v / 3) * 100}%`, background: RIASEC[c].color }}
+                        />
+                      </div>
+                      <span className="w-6 text-right text-xs text-charcoal-500">{v}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {filtered.length === 0 && (
         <p className="mt-8 text-sm text-charcoal-500">
