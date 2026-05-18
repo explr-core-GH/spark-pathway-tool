@@ -243,6 +243,7 @@ export const syncExplrMore = createServerFn({ method: "POST" })
       registrationsFetched: regs.length,
       registrationsImported: matchedRegs.length,
       registrationsOrphaned: orphanedRegs,
+      rosterErrors,
       syncedAt: new Date().toISOString(),
     };
   });
