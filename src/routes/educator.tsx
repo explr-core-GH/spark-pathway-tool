@@ -17,6 +17,7 @@ function EducatorLayout() {
             {approved && (
               <>
                 <Link to="/educator/dashboard" className="text-charcoal-500 hover:text-ink">Dashboard</Link>
+                <Link to="/educator/students" className="text-charcoal-500 hover:text-ink">Students</Link>
                 <Link to="/educator/curriculum" className="text-charcoal-500 hover:text-ink">Curriculum</Link>
                 <Link to="/educator/internships" className="text-charcoal-500 hover:text-ink">Internships</Link>
               </>
