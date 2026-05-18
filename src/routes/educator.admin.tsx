@@ -43,6 +43,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/educator/admin/curriculum-tags", label: "Curriculum tags" },
       { to: "/educator/admin/internship-tags", label: "Internship tags" },
       { to: "/educator/admin/program-riasec", label: "Program-RIASEC" },
+      { to: "/educator/admin/import-explr", label: "Import from ExplrMore" },
     ],
   },
 ];
