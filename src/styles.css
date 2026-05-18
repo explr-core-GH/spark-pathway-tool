@@ -74,6 +74,7 @@
   --border: #E6E8EA;
   --explr: #2BEDA1;
   --focus-ring: #2BEDA1;
+  --ink: #1A1D1F;
 
   /* Accessibility scale (set by AccessibilityProvider) */
   --a11y-text-scale: 1;
