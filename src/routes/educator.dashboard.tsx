@@ -22,6 +22,7 @@ function Dashboard() {
   const [campTags, setCampTags] = useState<Record<string, string[]>>({});
   const [internTags, setInternTags] = useState<Record<string, string[]>>({});
   const [assignments, setAssignments] = useState<Array<{ id: string; assessment_kind: string; due_at: string | null; notes: string | null }>>([]);
+  const [myPrograms, setMyPrograms] = useState<Array<{ id: string; name: string; program_type: string; grade_band: string | null; description: string | null }>>([]);
 
   useEffect(() => {
     if (!educator) return;
@@ -38,6 +39,16 @@ function Dashboard() {
     supabase.from("assessment_assignments").select("id, assessment_kind, due_at, notes").then(({ data }) => {
       setAssignments((data as never) ?? []);
     });
+    supabase
+      .from("program_educators")
+      .select("program_id, programs(id, name, program_type, grade_band, description)")
+      .eq("educator_id", educator.id)
+      .then(({ data }) => {
+        const rows = (data ?? [])
+          .map((r: { programs: unknown }) => r.programs as { id: string; name: string; program_type: string; grade_band: string | null; description: string | null } | null)
+          .filter((p): p is NonNullable<typeof p> => !!p);
+        setMyPrograms(rows);
+      });
   }, [educator]);
 
   if (loading || !educator) return <main className="mx-auto max-w-6xl px-6 py-24 text-sm text-charcoal-400">Loading…</main>;
