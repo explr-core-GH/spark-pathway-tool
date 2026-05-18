@@ -58,38 +58,19 @@ function StudentDashboard() {
           .maybeSingle(),
       ]);
       if (cancelled) return;
-      const sessionRow = (sess as SessionSummary) ?? null;
-      setSession(sessionRow);
+      setSession((sess as SessionSummary) ?? null);
       setApplication((app as ApplicationRow) ?? null);
       setLoading(false);
-
-      // No completed assessment yet → send the student to take it.
-      // If there's an in-progress session, resume it; otherwise start fresh.
-      if (!sessionRow?.completed_at) {
-        if (sessionRow?.session_id) {
-          navigate({
-            to: "/assessment/$sessionId",
-            params: { sessionId: sessionRow.session_id },
-            replace: true,
-          });
-        } else {
-          navigate({ to: "/assessment", replace: true });
-        }
-      }
     })();
     return () => { cancelled = true; };
-  }, [user, navigate]);
+  }, [user]);
 
   if (authLoading || loading) {
     return <main className="mx-auto max-w-3xl px-6 py-24 text-sm text-charcoal-400">Loading…</main>;
   }
 
-  // While the redirect above is in flight, avoid flashing the empty dashboard.
-  if (!session?.completed_at) {
-    return <main className="mx-auto max-w-3xl px-6 py-24 text-sm text-charcoal-400">Taking you to the assessment…</main>;
-  }
-
   const hasResults = !!(session?.completed_at && session.holland_code);
+  const hasInProgress = !!(session && !session.completed_at && session.session_id);
   const topCode = hasResults ? (session!.holland_code![0] as RIASECCode) : null;
   const primary = topCode ? RIASEC[topCode] : null;
 
@@ -120,9 +101,13 @@ function StudentDashboard() {
                     {session!.holland_code}
                   </span>
                 </p>
+              ) : hasInProgress ? (
+                <p className="mt-3 text-2xl font-light text-charcoal-500">
+                  You have an assessment in progress. Pick up where you left off.
+                </p>
               ) : (
                 <p className="mt-3 text-2xl font-light text-charcoal-500">
-                  You haven't completed the assessment yet.
+                  You haven't started the assessment yet.
                 </p>
               )}
             </div>
@@ -133,6 +118,14 @@ function StudentDashboard() {
                 className="btn-ghost shrink-0"
               >
                 View full results
+              </Link>
+            ) : hasInProgress ? (
+              <Link
+                to="/assessment/$sessionId"
+                params={{ sessionId: session!.session_id }}
+                className="btn-ink shrink-0"
+              >
+                Resume assessment →
               </Link>
             ) : (
               <Link to="/assessment" className="btn-ink shrink-0">Take the assessment</Link>
