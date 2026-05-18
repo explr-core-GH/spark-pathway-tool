@@ -197,6 +197,13 @@ function ImportExplrPage() {
         {err && <span className="text-sm text-red-700">{err}</span>}
       </div>
 
+      {debugInfo && (
+        <details className="mt-4 rounded border border-charcoal-200 bg-charcoal-50 p-3 text-xs">
+          <summary className="cursor-pointer font-medium text-ink">Roster sync debug</summary>
+          <pre className="mt-2 whitespace-pre-wrap break-words text-charcoal-700">{debugInfo}</pre>
+        </details>
+      )}
+
       <div className="mt-8 overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
