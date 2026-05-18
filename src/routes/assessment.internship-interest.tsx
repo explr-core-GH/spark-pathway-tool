@@ -6,7 +6,7 @@ import { INTERNSHIPS, type Internship } from "@/lib/internships-catalog";
 import { useSession } from "@/lib/auth";
 
 export const Route = createFileRoute("/assessment/internship-interest")({
-  head: () => ({ meta: [{ title: "Internship interest — EXPLR" }] }),
+  head: () => ({ meta: [{ title: "Internship preferences — EXPLR" }] }),
   component: () => (
     <RoleGuard requires="student">
       <InternshipInterest />
