@@ -23,6 +23,7 @@ import { Route as EducatorSignUpRouteImport } from './routes/educator.sign-up'
 import { Route as EducatorSignInRouteImport } from './routes/educator.sign-in'
 import { Route as EducatorDashboardRouteImport } from './routes/educator.dashboard'
 import { Route as EducatorAdminRouteImport } from './routes/educator.admin'
+import { Route as AssessmentInternshipInterestRouteImport } from './routes/assessment.internship-interest'
 import { Route as AssessmentSessionIdRouteImport } from './routes/assessment.$sessionId'
 import { Route as EducatorInternshipsIndexRouteImport } from './routes/educator.internships.index'
 import { Route as EducatorCurriculumIndexRouteImport } from './routes/educator.curriculum.index'
@@ -106,6 +107,12 @@ const EducatorAdminRoute = EducatorAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => EducatorRoute,
 } as any)
+const AssessmentInternshipInterestRoute =
+  AssessmentInternshipInterestRouteImport.update({
+    id: '/assessment/internship-interest',
+    path: '/assessment/internship-interest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AssessmentSessionIdRoute = AssessmentSessionIdRouteImport.update({
   id: '/assessment/$sessionId',
   path: '/assessment/$sessionId',
@@ -183,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/sign-up': typeof SignUpRoute
   '/student': typeof StudentRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
+  '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
   '/educator/admin': typeof EducatorAdminRouteWithChildren
   '/educator/dashboard': typeof EducatorDashboardRoute
   '/educator/sign-in': typeof EducatorSignInRoute
@@ -210,6 +218,7 @@ export interface FileRoutesByTo {
   '/sign-up': typeof SignUpRoute
   '/student': typeof StudentRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
+  '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
   '/educator/dashboard': typeof EducatorDashboardRoute
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
@@ -238,6 +247,7 @@ export interface FileRoutesById {
   '/sign-up': typeof SignUpRoute
   '/student': typeof StudentRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
+  '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
   '/educator/admin': typeof EducatorAdminRouteWithChildren
   '/educator/dashboard': typeof EducatorDashboardRoute
   '/educator/sign-in': typeof EducatorSignInRoute
@@ -268,6 +278,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/student'
     | '/assessment/$sessionId'
+    | '/assessment/internship-interest'
     | '/educator/admin'
     | '/educator/dashboard'
     | '/educator/sign-in'
@@ -295,6 +306,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/student'
     | '/assessment/$sessionId'
+    | '/assessment/internship-interest'
     | '/educator/dashboard'
     | '/educator/sign-in'
     | '/educator/sign-up'
@@ -322,6 +334,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/student'
     | '/assessment/$sessionId'
+    | '/assessment/internship-interest'
     | '/educator/admin'
     | '/educator/dashboard'
     | '/educator/sign-in'
@@ -351,6 +364,7 @@ export interface RootRouteChildren {
   SignUpRoute: typeof SignUpRoute
   StudentRoute: typeof StudentRoute
   AssessmentSessionIdRoute: typeof AssessmentSessionIdRoute
+  AssessmentInternshipInterestRoute: typeof AssessmentInternshipInterestRoute
   AssessmentIndexRoute: typeof AssessmentIndexRoute
   AssessmentSessionIdResultsRoute: typeof AssessmentSessionIdResultsRoute
 }
@@ -454,6 +468,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/educator/admin'
       preLoaderRoute: typeof EducatorAdminRouteImport
       parentRoute: typeof EducatorRoute
+    }
+    '/assessment/internship-interest': {
+      id: '/assessment/internship-interest'
+      path: '/assessment/internship-interest'
+      fullPath: '/assessment/internship-interest'
+      preLoaderRoute: typeof AssessmentInternshipInterestRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/assessment/$sessionId': {
       id: '/assessment/$sessionId'
@@ -602,6 +623,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignUpRoute: SignUpRoute,
   StudentRoute: StudentRoute,
   AssessmentSessionIdRoute: AssessmentSessionIdRoute,
+  AssessmentInternshipInterestRoute: AssessmentInternshipInterestRoute,
   AssessmentIndexRoute: AssessmentIndexRoute,
   AssessmentSessionIdResultsRoute: AssessmentSessionIdResultsRoute,
 }
