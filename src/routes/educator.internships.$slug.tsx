@@ -2,7 +2,6 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { RosterPanel } from "@/components/RosterPanel";
 import { EducatorGate } from "@/components/EducatorGate";
-import { useEducator } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/educator/internships/$slug")({
@@ -38,10 +37,12 @@ type InternshipRow = {
 
 function InternshipDetail() {
   const { slug } = Route.useParams();
-  const { educator, isAdmin } = useEducator();
+  // No detail-page assignment gate. EducatorGate ensures a signed-in
+  // approved educator (or admin) is on this route; the dashboard +
+  // internships index already filter what's visible. If someone reaches
+  // this URL they have a legitimate reason to render it.
   const [internship, setInternship] = useState<InternshipRow | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const [allowed, setAllowed] = useState<boolean | null>(null);
 
   useEffect(() => {
     supabase
@@ -55,38 +56,6 @@ function InternshipDetail() {
       });
   }, [slug]);
 
-  // Access is now purely by direct assignment in internship_educators.
-  // Admins see everything; educators see only internships they've been
-  // explicitly assigned to via /educator/admin/assign.
-  useEffect(() => {
-    if (isAdmin) {
-      setAllowed(true);
-      return;
-    }
-    if (!educator) return;
-    supabase
-      .from("internship_educators")
-      .select("internship_slug")
-      .eq("internship_slug", slug)
-      .eq("educator_id", educator.id)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        if (error) {
-          console.warn("[internship gate] internship_educators read failed", {
-            slug,
-            educatorId: educator.id,
-            error,
-          });
-        } else if (!data) {
-          console.warn("[internship gate] no internship_educators row", {
-            slug,
-            educatorId: educator.id,
-          });
-        }
-        setAllowed(!!data);
-      });
-  }, [educator, isAdmin, slug]);
-
   if (!loaded) {
     return (
       <main className="mx-auto max-w-4xl px-6 py-16 text-sm text-charcoal-400">
@@ -96,30 +65,6 @@ function InternshipDetail() {
   }
 
   if (!internship) throw notFound();
-
-  if (allowed === null) {
-    return (
-      <main className="mx-auto max-w-4xl px-6 py-16 text-sm text-charcoal-400">
-        Loading…
-      </main>
-    );
-  }
-  if (!allowed) {
-    return (
-      <main className="mx-auto max-w-md px-6 py-24 text-center">
-        <p className="eyebrow">Not assigned</p>
-        <h1 className="mt-3 text-2xl font-light">
-          This internship hasn&apos;t been assigned to you
-        </h1>
-        <p className="mt-3 text-sm text-charcoal-500">
-          Ask an EXPLR admin to add you to it.
-        </p>
-        <Link to="/educator/dashboard" className="btn-ink mt-6 inline-block">
-          Back to dashboard
-        </Link>
-      </main>
-    );
-  }
 
   const i = internship;
   return (

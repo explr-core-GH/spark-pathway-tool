@@ -4,7 +4,6 @@ import { getCamp, fileUrl, RESOURCE_LABELS } from "@/lib/camp-curriculum";
 import { SlideViewer } from "@/components/SlideViewer";
 import { RosterPanel } from "@/components/RosterPanel";
 import { EducatorGate } from "@/components/EducatorGate";
-import { useEducator } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/educator/curriculum/$slug")({
@@ -39,11 +38,12 @@ type CampRow = {
 
 function CurriculumDetail() {
   const { slug } = Route.useParams();
-  const { educator, isAdmin } = useEducator();
+  // No per-page assignment gate. EducatorGate (further up the tree)
+  // ensures only signed-in approved educators or admins reach this route;
+  // the dashboard + curriculum index already filter the visible set.
   const [camp, setCamp] = useState<CampRow | null>(null);
   const [campLoaded, setCampLoaded] = useState(false);
   const [dayIdx, setDayIdx] = useState(0);
-  const [allowed, setAllowed] = useState<boolean | null>(null);
 
   // Static-catalog enrichment for seeded camps: brings day-deck breakdowns
   // and resources for camps that originally shipped in src/lib. Admin-added
@@ -61,41 +61,6 @@ function CurriculumDetail() {
         setCampLoaded(true);
       });
   }, [slug]);
-
-  // Access is now purely by direct assignment in camp_educators.
-  // Admins see everything; educators see only camps they've been
-  // explicitly assigned to via /educator/admin/assign.
-  useEffect(() => {
-    if (isAdmin) {
-      setAllowed(true);
-      return;
-    }
-    if (!educator) return;
-    supabase
-      .from("camp_educators")
-      .select("camp_slug")
-      .eq("camp_slug", slug)
-      .eq("educator_id", educator.id)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        // Log the query result so the deny path is debuggable. RLS denials
-        // come back as null data without an error — distinguishable from a
-        // genuine "no row" only by inspecting the educator/slug below.
-        if (error) {
-          console.warn("[curriculum gate] camp_educators read failed", {
-            slug,
-            educatorId: educator.id,
-            error,
-          });
-        } else if (!data) {
-          console.warn("[curriculum gate] no camp_educators row", {
-            slug,
-            educatorId: educator.id,
-          });
-        }
-        setAllowed(!!data);
-      });
-  }, [educator, isAdmin, slug]);
 
   if (!campLoaded) {
     return (
@@ -124,30 +89,6 @@ function CurriculumDetail() {
       : null;
 
   if (!item) throw notFound();
-
-  if (allowed === null) {
-    return (
-      <main className="mx-auto max-w-6xl px-6 py-16 text-sm text-charcoal-400">
-        Loading…
-      </main>
-    );
-  }
-  if (!allowed) {
-    return (
-      <main className="mx-auto max-w-md px-6 py-24 text-center">
-        <p className="eyebrow">Not assigned</p>
-        <h1 className="mt-3 text-2xl font-light">
-          This curriculum hasn&apos;t been assigned to you
-        </h1>
-        <p className="mt-3 text-sm text-charcoal-500">
-          Ask an EXPLR admin to add you to it.
-        </p>
-        <Link to="/educator/dashboard" className="btn-ink mt-6 inline-block">
-          Back to dashboard
-        </Link>
-      </main>
-    );
-  }
 
   // Days + resources only exist for seeded camps. Admin-added camps render
   // with a single slides file + roster.
