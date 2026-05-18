@@ -32,6 +32,10 @@ export type AccessibilityState = {
   // When 'on', the toolbar surfaces 'Read page' / 'Stop' controls that
   // pipe the active page's main content into window.speechSynthesis.
   readAloud: ReadAloud;
+  // Voice name (matches SpeechSynthesisVoice.name). null = system default.
+  readAloudVoice: string | null;
+  // Speaking rate: 0.75 (slow) / 1 (normal) / 1.25 / 1.5.
+  readAloudRate: number;
 };
 
 const DEFAULTS: AccessibilityState = {
@@ -40,6 +44,8 @@ const DEFAULTS: AccessibilityState = {
   spacing: "default",
   motion: "default",
   readAloud: "default",
+  readAloudVoice: null,
+  readAloudRate: 1,
 };
 
 const STORAGE_KEY = "explr.a11y.v1";

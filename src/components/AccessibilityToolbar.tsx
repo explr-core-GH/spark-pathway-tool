@@ -22,9 +22,27 @@ export function AccessibilityToolbar() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  // Voices load asynchronously on Chrome — the first call to getVoices() can
+  // return []. Listen for voiceschanged to pick them up once ready. Filter
+  // to English variants when present (most users on this app), but fall
+  // back to the full list if the browser only ships non-English voices.
+  useEffect(() => {
+    if (!SUPPORTS_SPEECH) return;
+    function refresh() {
+      const list = window.speechSynthesis.getVoices();
+      const en = list.filter((v) => /^en/i.test(v.lang));
+      setVoices(en.length > 0 ? en : list);
+    }
+    refresh();
+    window.speechSynthesis.addEventListener("voiceschanged", refresh);
+    return () =>
+      window.speechSynthesis.removeEventListener("voiceschanged", refresh);
   }, []);
 
   // Close on Escape.
@@ -41,18 +59,21 @@ export function AccessibilityToolbar() {
   // Trim runs of whitespace so the speech doesn't read out odd gaps.
   const speak = useCallback(() => {
     if (!SUPPORTS_SPEECH) return;
-    const root =
-      document.querySelector("main") ?? document.body;
+    const root = document.querySelector("main") ?? document.body;
     const text = (root.textContent ?? "").replace(/\s+/g, " ").trim();
     if (!text) return;
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
-    utter.rate = 1;
+    utter.rate = state.readAloudRate || 1;
+    if (state.readAloudVoice) {
+      const chosen = voices.find((v) => v.name === state.readAloudVoice);
+      if (chosen) utter.voice = chosen;
+    }
     utter.onend = () => setSpeaking(false);
     utter.onerror = () => setSpeaking(false);
     setSpeaking(true);
     window.speechSynthesis.speak(utter);
-  }, []);
+  }, [state.readAloudRate, state.readAloudVoice, voices]);
 
   const stop = useCallback(() => {
     if (!SUPPORTS_SPEECH) return;
@@ -145,32 +166,95 @@ export function AccessibilityToolbar() {
           />
 
           {state.readAloud === "on" && (
-            <div className="mt-3">
+            <div className="mt-3 space-y-3">
               {!SUPPORTS_SPEECH ? (
                 <p className="text-xs text-charcoal-500">
                   Your browser doesn&apos;t support speech synthesis.
                 </p>
               ) : (
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={speak}
-                    disabled={speaking}
-                    className="px-3 py-1.5 text-xs font-semibold disabled:opacity-50"
-                    style={{ background: "var(--ink)", color: "var(--bg)" }}
-                  >
-                    {speaking ? "Reading…" : "Read this page"}
-                  </button>
-                  {speaking && (
+                <>
+                  {/* Voice picker — populates from speechSynthesis.getVoices(). */}
+                  <div>
+                    <p className="label">Voice</p>
+                    <select
+                      className="field mt-1 w-full text-sm"
+                      value={state.readAloudVoice ?? ""}
+                      onChange={(e) =>
+                        set("readAloudVoice", e.target.value || null)
+                      }
+                    >
+                      <option value="">System default</option>
+                      {voices.map((v) => (
+                        <option key={`${v.name}-${v.lang}`} value={v.name}>
+                          {v.name} · {v.lang}
+                          {v.localService ? "" : " · cloud"}
+                        </option>
+                      ))}
+                    </select>
+                    {voices.length === 0 && (
+                      <p className="mt-1 text-[11px] text-charcoal-400">
+                        Loading voices… (browser-dependent)
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Rate */}
+                  <div>
+                    <p className="label">Rate</p>
+                    <div className="mt-1 inline-flex border border-charcoal-200">
+                      {[
+                        { v: 0.75, label: "Slow" },
+                        { v: 1, label: "Normal" },
+                        { v: 1.25, label: "Fast" },
+                        { v: 1.5, label: "Faster" },
+                      ].map((opt) => {
+                        const on = state.readAloudRate === opt.v;
+                        return (
+                          <button
+                            key={opt.v}
+                            type="button"
+                            aria-pressed={on}
+                            onClick={() => set("readAloudRate", opt.v)}
+                            className={
+                              on
+                                ? "px-2.5 py-1.5 text-xs font-semibold"
+                                : "px-2.5 py-1.5 text-xs font-medium text-charcoal-500 hover:text-ink"
+                            }
+                            style={
+                              on
+                                ? { background: "var(--ink)", color: "var(--bg)" }
+                                : undefined
+                            }
+                          >
+                            {opt.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Read + Stop */}
+                  <div className="flex gap-2">
                     <button
                       type="button"
-                      onClick={stop}
-                      className="px-3 py-1.5 text-xs font-semibold border border-charcoal-200 text-charcoal-700 hover:border-ink"
+                      onClick={speak}
+                      disabled={speaking}
+                      className="px-3 py-1.5 text-xs font-semibold disabled:opacity-50"
+                      style={{ background: "var(--ink)", color: "var(--bg)" }}
                     >
-                      Stop
+                      {speaking ? "Reading…" : "Read this page"}
                     </button>
-                  )}
-                </div>
+                    {speaking && (
+                      <button
+                        type="button"
+                        onClick={stop}
+                        className="px-3 py-1.5 text-xs font-semibold border border-charcoal-200 text-charcoal-700 hover:border-ink"
+                      >
+                        Stop
+                      </button>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           )}
