@@ -20,7 +20,14 @@ function SiteHeader() {
   return (
     <header className="border-b border-charcoal-100">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <Link to="/" className="text-base font-medium tracking-tight">EXPLR <span style={{ color: "var(--explr)" }}>Pathways</span></Link>
+        <Link to="/" className="brand-stars text-base font-medium tracking-tight">
+          <span className="brand-stars__shoot" aria-hidden />
+          <span className="brand-stars__text">
+            EXPLR <span style={{ color: "var(--explr)" }}>Pathways</span>
+          </span>
+          <span className="brand-stars__star brand-stars__star--a" aria-hidden>✦</span>
+          <span className="brand-stars__star brand-stars__star--b" aria-hidden>✦</span>
+        </Link>
         <nav className="flex items-center gap-7 text-sm">
           <Link to="/about" className="text-charcoal-500 hover:text-ink">About</Link>
           

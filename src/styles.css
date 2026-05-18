@@ -308,3 +308,133 @@ h1, h2, h3, h4 {
   }
   .tile:hover { border-color: var(--fg); }
 }
+
+/* ============================================================
+ * Brand wordmark decoration — a subtle, periodic shooting star
+ * behind "EXPLR Pathways" plus a couple twinkling stars in front.
+ *
+ * `.brand-stars` is the wrapper; the streak lives in the
+ * `.brand-stars__shoot` element (z-index 0). Text is z-index 1.
+ * Foreground stars are z-index 2. The streak fires once every ~9
+ * seconds and lasts ~1s; the rest of the cycle is idle so it
+ * never feels busy. Respects prefers-reduced-motion +
+ * [data-motion="reduced"] from the accessibility provider.
+ * ============================================================ */
+
+.brand-stars {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+  padding: 0 14px 0 4px; /* room for streak + corner stars */
+}
+
+.brand-stars__text {
+  position: relative;
+  z-index: 1;
+}
+
+.brand-stars__shoot {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: 4px;
+}
+.brand-stars__shoot::before {
+  content: "";
+  position: absolute;
+  top: 35%;
+  left: -45%;
+  width: 55%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(43, 237, 161, 0) 5%,
+    rgba(43, 237, 161, 0.95) 50%,
+    rgba(43, 237, 161, 0) 95%,
+    transparent 100%
+  );
+  filter: drop-shadow(0 0 4px rgba(43, 237, 161, 0.6));
+  transform: rotate(-12deg) translate(0, 0);
+  opacity: 0;
+  animation: brand-shoot 9s ease-in-out infinite;
+}
+
+@keyframes brand-shoot {
+  /* idle for most of the cycle, then a ~1s streak */
+  0%, 88%, 100% {
+    opacity: 0;
+    transform: rotate(-12deg) translate(0, 0);
+  }
+  89% {
+    opacity: 0;
+  }
+  91% {
+    opacity: 1;
+  }
+  97% {
+    opacity: 0.6;
+    transform: rotate(-12deg) translate(220%, -10px);
+  }
+  98% {
+    opacity: 0;
+    transform: rotate(-12deg) translate(240%, -12px);
+  }
+}
+
+.brand-stars__star {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  color: var(--explr);
+  line-height: 1;
+  opacity: 0.7;
+  animation: brand-twinkle 4.5s ease-in-out infinite;
+  text-shadow: 0 0 4px rgba(43, 237, 161, 0.55);
+}
+.brand-stars__star--a {
+  top: -3px;
+  right: 0;
+  font-size: 8px;
+}
+.brand-stars__star--b {
+  bottom: -1px;
+  left: 38%;
+  font-size: 6px;
+  animation-delay: 1.8s;
+  opacity: 0.5;
+}
+
+@keyframes brand-twinkle {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.15);
+  }
+}
+
+/* Respect motion preferences — hold the streak off and keep the
+   stars at a single dim state. */
+@media (prefers-reduced-motion: reduce) {
+  .brand-stars__shoot::before {
+    animation: none;
+    opacity: 0;
+  }
+  .brand-stars__star {
+    animation: none;
+    opacity: 0.4;
+  }
+}
+[data-motion="reduced"] .brand-stars__shoot::before {
+  animation: none;
+  opacity: 0;
+}
+[data-motion="reduced"] .brand-stars__star {
+  animation: none;
+  opacity: 0.4;
+}
