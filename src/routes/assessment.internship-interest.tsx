@@ -118,15 +118,21 @@ function InternshipInterest() {
               <div className="mt-4 grid grid-cols-3 gap-2">
                 {OPTIONS.map((opt) => {
                   const selected = answers[i.slug] === opt.value;
+                  const tone =
+                    opt.value === "yes"
+                      ? { bg: "#16a34a", border: "#15803d" }
+                      : opt.value === "maybe"
+                      ? { bg: "#d97706", border: "#b45309" }
+                      : { bg: "#dc2626", border: "#b91c1c" };
                   return (
                     <button
                       key={opt.value}
                       onClick={() => setAnswers((a) => ({ ...a, [i.slug]: opt.value }))}
-                      className="border px-3 py-2 text-sm transition-colors"
+                      className="border px-3 py-2 text-sm font-medium transition-colors"
                       style={{
-                        borderColor: selected ? "var(--ink)" : "var(--color-charcoal-200)",
-                        background: selected ? "var(--ink)" : "transparent",
-                        color: selected ? "white" : "var(--color-charcoal-600)",
+                        borderColor: selected ? tone.border : "var(--color-charcoal-200)",
+                        background: selected ? tone.bg : "transparent",
+                        color: selected ? "#ffffff" : "var(--color-charcoal-600)",
                       }}
                     >
                       {opt.label}
