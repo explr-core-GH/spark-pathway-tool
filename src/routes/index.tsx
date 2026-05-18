@@ -19,14 +19,77 @@ export const Route = createFileRoute("/")({
 function SiteHeader() {
   return (
     <header className="border-b border-charcoal-100">
+      {/* Brand-mark animation lives inline so Tailwind v4 can't purge it.
+          Two prior attempts in styles.css (top-level + @layer components)
+          got dropped by the build pipeline. A <style> tag in the JSX
+          always reaches the page. */}
+      <style
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes explr-shooting-star {
+              0%, 88% {
+                opacity: 0;
+                transform: translate(0, 0) rotate(-14deg);
+              }
+              90% {
+                opacity: 1;
+                transform: translate(40%, -2px) rotate(-14deg);
+              }
+              96% {
+                opacity: 0.5;
+                transform: translate(220%, -10px) rotate(-14deg);
+              }
+              97%, 100% {
+                opacity: 0;
+                transform: translate(260%, -12px) rotate(-14deg);
+              }
+            }
+            .explr-brand { position: relative; display: inline-block; isolation: isolate; }
+            .explr-brand__text { position: relative; z-index: 1; }
+            .explr-brand__shoot {
+              position: absolute;
+              inset: -2px -10px;
+              z-index: 0;
+              overflow: hidden;
+              pointer-events: none;
+            }
+            .explr-brand__shoot::before {
+              content: "";
+              position: absolute;
+              top: 38%;
+              left: -55%;
+              width: 50%;
+              height: 1.5px;
+              background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(250, 204, 21, 0) 5%,
+                rgba(250, 204, 21, 1) 50%,
+                rgba(250, 204, 21, 0) 95%,
+                transparent 100%
+              );
+              filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.7));
+              opacity: 0;
+              transform: rotate(-14deg);
+              animation: explr-shooting-star 9s linear infinite;
+            }
+            @media (prefers-reduced-motion: reduce) {
+              .explr-brand__shoot::before { animation: none; opacity: 0; }
+            }
+            [data-motion="reduced"] .explr-brand__shoot::before {
+              animation: none;
+              opacity: 0;
+            }
+          `,
+        }}
+      />
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <Link to="/" className="brand-stars text-base font-medium tracking-tight">
-          <span className="brand-stars__shoot" aria-hidden />
-          <span className="brand-stars__text">
+        <Link to="/" className="explr-brand text-base font-medium tracking-tight">
+          <span className="explr-brand__shoot" aria-hidden />
+          <span className="explr-brand__text">
             EXPLR <span style={{ color: "var(--explr)" }}>Pathways</span>
           </span>
-          <span className="brand-stars__star brand-stars__star--a" aria-hidden>✦</span>
-          <span className="brand-stars__star brand-stars__star--b" aria-hidden>✦</span>
         </Link>
         <nav className="flex items-center gap-7 text-sm">
           <Link to="/about" className="text-charcoal-500 hover:text-ink">About</Link>
