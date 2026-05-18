@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      aptitude_results: {
+        Row: {
+          band: string
+          completed_at: string
+          id: string
+          started_at: string
+          student_id: string
+          subscale_scores: Json
+          total_items: number
+          total_score: number
+        }
+        Insert: {
+          band: string
+          completed_at?: string
+          id?: string
+          started_at?: string
+          student_id: string
+          subscale_scores: Json
+          total_items: number
+          total_score: number
+        }
+        Update: {
+          band?: string
+          completed_at?: string
+          id?: string
+          started_at?: string
+          student_id?: string
+          subscale_scores?: Json
+          total_items?: number
+          total_score?: number
+        }
+        Relationships: []
+      }
       assessment_assignments: {
         Row: {
           assessment_kind: Database["public"]["Enums"]["assessment_kind"]
