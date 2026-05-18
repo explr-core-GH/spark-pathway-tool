@@ -44,16 +44,15 @@ function EducatorSignUp() {
       .is("accepted_at", null)
       .maybeSingle();
 
-    const row: Record<string, unknown> = {
+    const { error: eErr } = await supabase.from("educators").insert({
       id: uid,
       full_name: fullName,
       email,
       organization: invite?.organization ?? (organization || null),
       program_type: invite?.program_type ?? null,
-      approved: !!invite, // pending unless invited (admin trigger may still flip via email)
-    };
+      approved: !!invite,
+    });
 
-    const { error: eErr } = await supabase.from("educators").insert(row);
     if (eErr) { setError(eErr.message); setLoading(false); return; }
 
     if (invite) {
