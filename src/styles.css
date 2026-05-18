@@ -68,6 +68,11 @@
      Without this, every `bg-ink` (e.g. the Sync now button) generates no
      rule and renders transparent. Keeps the rest of the codebase honest. */
   --color-ink: var(--fg);
+  /* Same trick for canvas — text-canvas / bg-canvas / border-canvas are
+     used on dark surfaces (e.g. the student "Accepted to …" placement
+     banner that prints white-on-ink). Without this alias the rules don't
+     generate and the text inherits ink → invisible on ink background. */
+  --color-canvas: var(--bg);
 }
 
 /* ============================================================
