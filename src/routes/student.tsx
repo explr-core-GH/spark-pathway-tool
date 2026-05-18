@@ -272,12 +272,6 @@ function StudentDashboard() {
                 </a>
               </section>
             )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
-            )}
           </>
         )}
       </main>
