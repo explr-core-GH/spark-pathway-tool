@@ -208,6 +208,27 @@ export type Database = {
           },
         ]
       }
+      camp_educators: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          camp_slug: string
+          educator_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          camp_slug: string
+          educator_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          camp_slug?: string
+          educator_id?: string
+        }
+        Relationships: []
+      }
       camps: {
         Row: {
           age_range: string
@@ -467,6 +488,27 @@ export type Database = {
           internship_slug?: string
           tagged_at?: string
           tagged_by?: string | null
+        }
+        Relationships: []
+      }
+      internship_educators: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          educator_id: string
+          internship_slug: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          educator_id: string
+          internship_slug: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          educator_id?: string
+          internship_slug?: string
         }
         Relationships: []
       }
