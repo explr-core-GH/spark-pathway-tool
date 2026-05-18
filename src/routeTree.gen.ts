@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WorksitesRouteImport } from './routes/worksites'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as StemLabRouteImport } from './routes/stem-lab'
 import { Route as SignUpRouteImport } from './routes/sign-up'
@@ -52,6 +53,11 @@ import { Route as AssessmentSessionIdResultsRouteImport } from './routes/assessm
 import { Route as EducatorAdminEducatorsIdRouteImport } from './routes/educator.admin.educators.$id'
 import { Route as DemoAptitudeBandTakeRouteImport } from './routes/demo.aptitude.$band.take'
 
+const WorksitesRoute = WorksitesRouteImport.update({
+  id: '/worksites',
+  path: '/worksites',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
@@ -284,6 +290,7 @@ export interface FileRoutesByFullPath {
   '/sign-up': typeof SignUpRoute
   '/stem-lab': typeof StemLabRoute
   '/student': typeof StudentRoute
+  '/worksites': typeof WorksitesRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
   '/educator/admin': typeof EducatorAdminRouteWithChildren
@@ -327,6 +334,7 @@ export interface FileRoutesByTo {
   '/sign-up': typeof SignUpRoute
   '/stem-lab': typeof StemLabRoute
   '/student': typeof StudentRoute
+  '/worksites': typeof WorksitesRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
   '/educator/dashboard': typeof EducatorDashboardRoute
@@ -371,6 +379,7 @@ export interface FileRoutesById {
   '/sign-up': typeof SignUpRoute
   '/stem-lab': typeof StemLabRoute
   '/student': typeof StudentRoute
+  '/worksites': typeof WorksitesRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
   '/educator/admin': typeof EducatorAdminRouteWithChildren
@@ -417,6 +426,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/stem-lab'
     | '/student'
+    | '/worksites'
     | '/assessment/$sessionId'
     | '/assessment/internship-interest'
     | '/educator/admin'
@@ -460,6 +470,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/stem-lab'
     | '/student'
+    | '/worksites'
     | '/assessment/$sessionId'
     | '/assessment/internship-interest'
     | '/educator/dashboard'
@@ -503,6 +514,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/stem-lab'
     | '/student'
+    | '/worksites'
     | '/assessment/$sessionId'
     | '/assessment/internship-interest'
     | '/educator/admin'
@@ -548,6 +560,7 @@ export interface RootRouteChildren {
   SignUpRoute: typeof SignUpRoute
   StemLabRoute: typeof StemLabRoute
   StudentRoute: typeof StudentRoute
+  WorksitesRoute: typeof WorksitesRoute
   AssessmentSessionIdRoute: typeof AssessmentSessionIdRoute
   AssessmentInternshipInterestRoute: typeof AssessmentInternshipInterestRoute
   LabSplatRoute: typeof LabSplatRoute
@@ -559,6 +572,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/worksites': {
+      id: '/worksites'
+      path: '/worksites'
+      fullPath: '/worksites'
+      preLoaderRoute: typeof WorksitesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/student': {
       id: '/student'
       path: '/student'
@@ -937,6 +957,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignUpRoute: SignUpRoute,
   StemLabRoute: StemLabRoute,
   StudentRoute: StudentRoute,
+  WorksitesRoute: WorksitesRoute,
   AssessmentSessionIdRoute: AssessmentSessionIdRoute,
   AssessmentInternshipInterestRoute: AssessmentInternshipInterestRoute,
   LabSplatRoute: LabSplatRoute,
