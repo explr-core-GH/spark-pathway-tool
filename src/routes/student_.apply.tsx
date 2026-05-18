@@ -63,6 +63,7 @@ function HollandLetter({ code }: { code: RIASECCode }) {
   );
 }
 
+function buildWhyFits(
   i: Internship,
   interest: "yes" | "maybe" | "no" | undefined,
   scaleScores: ScaleScores,
