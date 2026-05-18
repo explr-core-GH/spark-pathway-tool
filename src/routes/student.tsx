@@ -29,6 +29,11 @@ type ApplicationRow = {
   submission_term: string;
 };
 
+type PlacementRow = {
+  approved_internship_id: string;
+  approved_at: string;
+};
+
 function StudentDashboard() {
   const { user, loading: authLoading } = useSession();
 
@@ -37,6 +42,7 @@ function StudentDashboard() {
   const [grade, setGrade] = useState<number | null>(null);
   const [interestDone, setInterestDone] = useState(false);
   const [hiddenSlugs, setHiddenSlugs] = useState<Set<string>>(new Set());
+  const [placement, setPlacement] = useState<PlacementRow | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,7 +50,7 @@ function StudentDashboard() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const [{ data: sess }, { data: app }, { data: stud }, { data: comp }, { data: vis }] =
+      const [{ data: sess }, { data: app }, { data: stud }, { data: comp }, { data: vis }, { data: plac }] =
         await Promise.all([
           supabase
             .from("assessment_sessions")
@@ -67,6 +73,13 @@ function StudentDashboard() {
             .eq("student_id", user.id)
             .maybeSingle(),
           supabase.from("internship_visibility").select("internship_slug, visible"),
+          supabase
+            .from("internship_placements")
+            .select("approved_internship_id, approved_at")
+            .eq("student_id", user.id)
+            .order("approved_at", { ascending: false })
+            .limit(1)
+            .maybeSingle(),
         ]);
       if (cancelled) return;
       setSession((sess as SessionSummary) ?? null);
@@ -76,6 +89,7 @@ function StudentDashboard() {
       setHiddenSlugs(
         new Set((vis ?? []).filter((r) => r.visible === false).map((r) => r.internship_slug)),
       );
+      setPlacement((plac as PlacementRow) ?? null);
       setLoading(false);
     })();
     return () => { cancelled = true; };
@@ -94,6 +108,9 @@ function StudentDashboard() {
   const eligibleByGrade = grade !== null && grade >= 8 && grade <= 12;
   const canSeeInternships = eligibleByGrade && interestDone;
   const visibleInternships = INTERNSHIPS.filter((i) => !hiddenSlugs.has(i.slug));
+  const placedInternship = placement
+    ? INTERNSHIPS.find((i) => i.slug === placement.approved_internship_id)
+    : null;
 
   return (
     <div className="min-h-screen">
@@ -227,18 +244,32 @@ function StudentDashboard() {
                         <p className="mt-4 text-sm text-charcoal-500 line-clamp-3">
                           {i.deliverables}
                         </p>
-                        <a
-                          href={i.externalUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="ink-link mt-4 inline-block text-sm"
-                        >
-                          Visit site →
-                        </a>
                       </li>
                     ))}
                   </ul>
                 )}
+              </section>
+            )}
+
+            {placedInternship && (
+              <section className="mt-12 border-t border-charcoal-100 pt-10">
+                <p className="eyebrow" style={{ color: "var(--explr)" }}>Your placement</p>
+                <h2 className="mt-3 text-2xl font-light">
+                  You've been accepted to{" "}
+                  <span className="font-medium text-ink">{placedInternship.name}</span>
+                </h2>
+                <p className="mt-2 text-sm text-charcoal-500">
+                  Approved {new Date(placement!.approved_at).toLocaleDateString()}. Use the link
+                  below to access your internship's program site.
+                </p>
+                <a
+                  href={placedInternship.externalUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-ink mt-5 inline-block"
+                >
+                  Open {placedInternship.name} site →
+                </a>
               </section>
             )}
           </>
