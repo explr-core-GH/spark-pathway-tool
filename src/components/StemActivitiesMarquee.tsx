@@ -17,6 +17,7 @@ const CODES: RIASECCode[] = ["R", "I", "A", "S", "E", "C"];
 export function StemActivitiesMarquee({ hollandCode }: Props) {
   const top = (hollandCode?.[0] as RIASECCode | undefined) ?? null;
   const [filter, setFilter] = useState<RIASECCode | "ALL">(top ?? "ALL");
+  const [selected, setSelected] = useState<StemActivity | null>(null);
 
   const ranked = useMemo(
     () => rankByHollandCode(STEM_ACTIVITIES, hollandCode),
