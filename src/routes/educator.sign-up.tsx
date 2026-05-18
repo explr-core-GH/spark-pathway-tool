@@ -70,31 +70,29 @@ function EducatorSignUp() {
   }
 
   return (
-    <main className="mx-auto max-w-xl px-6 py-24">
-      <p className="eyebrow">Educator</p>
-      <h1 className="mt-3 text-3xl font-light">Request access</h1>
-      <p className="mt-3 text-sm text-charcoal-500">
-        New accounts are reviewed by an EXPLR admin before activation. An admin will assign your program type
-        (STEM/CS, FLL/FTC/FRC, EXPLR camp, or internship). If you received an invite link, use that instead — it
-        activates instantly.
+    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
+      <Link to="/" className="eyebrow mb-12 inline-block">← EXPLR</Link>
+      <h1 className="text-3xl font-light">Request access</h1>
+      <p className="mt-2 text-sm text-charcoal-500">
+        Educator account. An EXPLR admin reviews new accounts and assigns your program type. If you have an
+        invite link, use that instead — it activates instantly.
       </p>
-      <form onSubmit={submit} className="mt-10 space-y-6">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <div>
-            <label className="label">Full name</label>
-            <input className="field" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
-          </div>
-          <div>
-            <label className="label">Organization</label>
-            <input className="field" value={organization} onChange={(e) => setOrganization(e.target.value)} placeholder="School or program (optional)" />
-          </div>
-          <div>
-            <label className="label">Email</label>
-            <input className="field" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-          </div>
-          <div>
-            <label className="label">Passphrase</label>
-            <input className="field" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
+      <form onSubmit={submit} className="mt-10 space-y-5">
+        <div>
+          <label className="label">Full name</label>
+          <input className="field" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
+        </div>
+        <div>
+          <label className="label">Organization</label>
+          <input className="field" value={organization} onChange={(e) => setOrganization(e.target.value)} placeholder="School or program (optional)" />
+        </div>
+        <div>
+          <label className="label">Email</label>
+          <input className="field" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        </div>
+        <div>
+          <label className="label">Passphrase</label>
+          <input className="field" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
         <div>
           <label className="label">Your school <span className="text-charcoal-400">(optional)</span></label>
@@ -104,13 +102,14 @@ function EducatorSignUp() {
             placeholder="Search Ohio schools…"
           />
         </div>
-        </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
-        <button type="submit" disabled={loading} className="btn-ink">{loading ? "Submitting…" : "Request access"}</button>
+        <button type="submit" disabled={loading} className="btn-ink w-full justify-center">
+          {loading ? "Submitting…" : "Request access"}
+        </button>
       </form>
       <p className="mt-6 text-sm text-charcoal-500">
         Have an account? <Link to="/educator/sign-in" className="ink-link">Sign in</Link>
       </p>
-    </main>
+    </div>
   );
 }
