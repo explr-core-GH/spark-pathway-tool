@@ -1,80 +1,51 @@
-# EXPLR Assessment — Build Plan
+# Build plan
 
-A multi-surface K-12 career-interest platform. Editorial visual tone (Lexend, mint accent, charcoal ink), not SaaS-dashboard. Student RIASEC assessment + educator portal sharing one Supabase backend. Educator surfaces are the priority.
+Five phases. Each is a self-contained shippable chunk so you can review and course-correct between them rather than getting a 2,000-line patch all at once.
 
-Note on stack: this project is on **TanStack Start** (not plain Vite+React Router). File-based routes live under `src/routes/`. I'll follow that convention — same architecture, same Supabase, same shadcn. Calling this out so the route files look right to you.
+## Phase 1 — Admin: Internship Applications review queue
+Smallest, highest-value piece. Uses existing tables; no migrations.
 
-## Phase 1 — Foundation
+- New route `educator.admin.applications.tsx` (admin-only).
+- Lists all rows from `internship_applications` with student name, grade, submitted_at, selected internships, RIASEC snapshot.
+- Detail drawer: full résumé responses + Approve / Reject + staff_notes.
+- Approve writes to `internship_placements` (requires new RLS policy + insert grant for admins — small migration).
+- Link card on the admin index page.
 
-1. **Enable Lovable Cloud** (Supabase).
-2. **Run schema migrations** from `schema.sql` then `educator-schema.sql` via the migration tool. Add the extra tables the spec implies but aren't in the SQL files: `curriculum_tags`, `internship_tags`, `unit_rosters`, `educator_invites`, `program_riasec_scores` (admin tool persistence is localStorage per spec, but server copy is cheap insurance — I'll skip unless you want it).
-3. **Copy shared types** into the project verbatim:
-   - `src/lib/riasec.ts`
-   - `src/lib/educator.ts`
-   - `src/lib/camp-curriculum.ts`
-   - `src/lib/internships-catalog.ts`
-   - `src/lib/program-riasec.ts`
-   - `src/lib/rosters.ts`
+## Phase 2 — Catalog migration (internships, camps, curriculum) to DB
+Foundation for the admin CRUD in Phase 3.
 
-## Phase 2 — Design system
+- New tables: `internships`, `camps`, `curriculum_modules` with all fields currently in the TS catalogs (slug, title, description, riasec, holland_fit, image_url, sort_order, visible, etc.).
+- RLS: read = any authenticated; write = admin only.
+- One-time seed migration that inserts the current TS catalog contents so nothing disappears from the student-facing pages.
+- Rewrite reads in `student.internships.tsx`, `student_.apply.tsx`, camps page, curriculum page to query the DB (keeping TS files only as fallback types).
 
-4. Add **Lexend 300–700** via Google Fonts in `__root.tsx` head.
-5. Rewrite `src/styles.css`:
-   - Brand mint + charcoal scales as CSS tokens (oklch conversions of your hex values).
-   - Semantic tokens: `--background` = paper white, `--foreground` = charcoal-700, `--accent` = explr-500, `--muted` = charcoal-50, `--border` = charcoal-100.
-   - Font family = Lexend. Generous line-height. No dark mode (out of scope).
-6. **No stock shadcn defaults** — I'll add a small editorial primitives file (`src/components/ui/editorial.tsx`) with button/link/card variants tuned to the look. I will still keep the underlying shadcn components installed for forms/dialogs/tabs but restyle them.
+## Phase 3 — Admin CRUD for catalogs
+Three sibling admin pages with the same shape:
 
-## Phase 3 — Routes (TanStack file-based)
+- `educator.admin.internships.tsx`, `educator.admin.camps.tsx`, `educator.admin.curriculum.tsx`.
+- Table view + add / edit / delete dialog. Visibility toggle. Sort order.
+- Reuses existing tag pages (curriculum-tags, internship-tags) — those stay.
 
-Public:
-- `src/routes/index.tsx` — hero, **HollandHexagon** SVG, RIASEC color tour
-- `about.tsx`, `privacy.tsx`
-- `sign-in.tsx`, `sign-up.tsx`, `sign-out.tsx` — student auth (Supabase email/password)
+## Phase 4 — Career Pathways snapshot + per-internship dropdown
+Data import + UI.
 
-Educator (pathless layout `_educator.tsx` with shared header):
-- `educator/index.tsx` — landing
-- `educator/sign-in.tsx`, `educator/sign-up.tsx` (email + passphrase + program-type picker + SchoolSearch)
-- `educator/invite.$token.tsx`
-- `educator/dashboard.tsx` — assignments + curriculum tiles + internship tiles + school panel
-- `educator/curriculum/index.tsx` + `educator/curriculum/$slug.tsx`
-- `educator/internships/index.tsx` + `educator/internships/$slug.tsx`
+- New tables: `career_clusters` (16 federal clusters), `occupations` (SOC code, title, median wage, growth %, openings, education level, cluster_id), `occupation_programs` (institution, program name, completions). Read = public/authed; write = admin.
+- Seed migration with a snapshot of the Workforce site's social-mobility table (scraped from the markdown I already fetched).
+- New join: `internship_occupations` (internship_slug → SOC codes).
+- Internship card grows a "Career pathways" collapsible: cluster name, top occupations with wage / growth / openings, link to full EXPLR Workforce site for that SOC.
+- Admin can edit the SOC tags per internship from Phase 3's internship editor.
 
-Admin (guarded by `_educator/_admin.tsx`):
-- `educator/admin/index.tsx`
-- `educator/admin/curriculum-tags.tsx`
-- `educator/admin/internship-tags.tsx`
-- `educator/admin/program-riasec.tsx` (three tabs, localStorage)
-- `educator/admin/educators.$id.tsx`
-
-## Phase 4 — Reusable components
-
-`src/components/`:
-- `HollandHexagon.tsx` — SVG hexagon, vertex colors from `riasec.ts`
-- `SchoolSearch.tsx` — typeahead over `/ohio/directory.json` (**stubbed** — empty placeholder data + TODO comment; you'll upload to Storage later)
-- `SchoolDemographics.tsx` — fetches `/ohio/buildings/<irn>.json` (stubbed)
-- `RosterPanel.tsx` — textarea + CSV upload, upserts `unit_rosters`
-- `EducatorSchoolEditor.tsx`
-- `RequireAuth.tsx` — wraps content with `requireAdmin` / `requireEducator` props; pairs with the `_authenticated` / `_admin` layout-route guards
-- `SlideViewer.tsx` — **stub**: shows deck filename + "preview coming soon" placeholder
-
-## Phase 5 — Auth wiring
-
-- Student auth via `src/integrations/supabase/client` directly.
-- Educator role check via the `educators` table + RLS (already in `educator-schema.sql`).
-- `_authenticated` and `_admin` pathless layout routes do redirect-based guards in `beforeLoad`.
-- No auto-emailed invites — admin invite form generates a copyable `/educator/invite/<token>` URL.
+## Phase 5 — Educator invites + programs/rosters admin
+- `educator.admin.invites.tsx` — form (email + program_type + organization) writes to `educator_invites`; list of pending/accepted invites; copy-invite-link button.
+- `educator.admin.programs.tsx` — create programs, assign educators (`program_educators`), edit rosters (`unit_rosters`).
 
 ## Technical notes
 
-- **Stubs**: slide viewer, school directory JSON, school demographics JSON, student auth flows (basic Supabase signUp/signIn — no email confirm UX polish), assessment-taking screens. These are explicitly out of scope for this scaffold per your message.
-- **RLS**: I'll rely on the policies in `educator-schema.sql`. If any are missing for new tables (`curriculum_tags`, `internship_tags`, `unit_rosters`, `educator_invites`), I'll add them in the migration.
-- **Tags**: `curriculum_tags` and `internship_tags` are `(slug, program_type)` join tables. Admin pages let admins toggle per program type. Educator-facing pages filter the static catalogs by these tags.
-- **Routing convention**: TanStack flat dot-separated route files (e.g. `educator.curriculum.$slug.tsx`).
-- **Design tokens**: hex → oklch conversion for the two brand scales so they integrate with the existing token system.
+- Every new admin page is gated by `educator?.role === 'admin'` in the component and by `is_admin(auth.uid())` in RLS.
+- Reads from new public-facing data use `createServerFn` only where RLS isn't sufficient; otherwise direct `supabase` client calls from components.
+- Career Pathways data is a **snapshot** — admins can re-seed by re-running a migration. Live sync to the EXPLR site is out of scope.
+- I'll re-use the existing shadcn primitives (Table, Dialog, Accordion, Popover) — no new design system work.
 
-## What I'll deliver in this turn
+## Order of execution
 
-Everything above except the assessment-taking flow (no spec given for question screens, scoring UI, item bank) and Supabase Storage uploads (you mentioned doing those separately). All routes will render, all guards work, all admin tagging persists. The slide viewer + school search render as labeled placeholders so the layout is real but the data wait is honest.
-
-Confirm and I'll execute.
+I'll execute Phase 1 in this turn so you have something concrete to test, then stop and confirm before Phase 2 (which touches student-facing pages via the catalog migration). Phases 3–5 follow one per turn unless you tell me to batch them.
