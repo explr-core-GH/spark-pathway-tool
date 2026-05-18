@@ -24,7 +24,7 @@ function SiteHeader() {
           <Link to="/about" className="text-charcoal-500 hover:text-ink">About</Link>
           <Link to="/educator" className="text-charcoal-500 hover:text-ink">Educators</Link>
           <Link to="/sign-in" className="text-charcoal-500 hover:text-ink">Sign in</Link>
-          <Link to="/sign-up" className="btn-mint">Start</Link>
+          <Link to="/assessment" className="btn-mint">Start</Link>
         </nav>
       </div>
     </header>
@@ -68,7 +68,7 @@ function Landing() {
                 survey that gives you a starting point — not a verdict.
               </p>
               <div className="mt-10 flex gap-3">
-                <Link to="/sign-up" className="btn-ink">Take the assessment</Link>
+                <Link to="/assessment" className="btn-ink">Take the assessment</Link>
                 <Link to="/about" className="btn-ghost">How it works</Link>
               </div>
             </div>
@@ -134,7 +134,7 @@ function Landing() {
                 Take the survey. See your Holland code. Use it to ask better questions about
                 what comes after high school.
               </p>
-              <Link to="/sign-up" className="ink-link mt-6 inline-block">Take the assessment →</Link>
+              <Link to="/assessment" className="ink-link mt-6 inline-block">Take the assessment →</Link>
             </div>
             <div>
               <p className="eyebrow">For educators</p>
