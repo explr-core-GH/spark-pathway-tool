@@ -1,8 +1,5 @@
 // Shared auth + role helpers. Client-safe.
-//
-// As of the admins-split migration, admin status comes from the public.admins
-// table, NOT from educators.role. An account can be an admin, an educator,
-// both, or neither.
+// Admin status is derived from educators.role === 'admin'.
 
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
