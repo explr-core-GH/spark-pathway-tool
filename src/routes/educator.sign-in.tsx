@@ -18,10 +18,32 @@ function EducatorSignIn() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: auth, error: authErr } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (authErr) {
+      setError(authErr.message);
+      setLoading(false);
+      return;
+    }
+    // Educators and admins live in separate tables (no overlap). Look up
+    // public.admins for this user; if they're an admin, land in admin tools,
+    // otherwise the educator dashboard.
+    const uid = auth.user?.id;
+    if (uid) {
+      const { data: adminRow } = await (
+        supabase.from as (n: string) => ReturnType<typeof supabase.from>
+      )("admins")
+        .select("id")
+        .eq("id", uid)
+        .maybeSingle();
+      setLoading(false);
+      navigate({ to: adminRow ? "/educator/admin" : "/educator/dashboard" });
+      return;
+    }
     setLoading(false);
-    if (error) setError(error.message);
-    else navigate({ to: "/educator/dashboard" });
+    navigate({ to: "/educator/dashboard" });
   }
 
   return (

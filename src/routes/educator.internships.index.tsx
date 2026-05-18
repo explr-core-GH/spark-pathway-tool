@@ -15,7 +15,7 @@ export const Route = createFileRoute("/educator/internships/")({
 });
 
 function InternshipsIndex() {
-  const { educator } = useEducator();
+  const { educator, isAdmin } = useEducator();
   const [tags, setTags] = useState<Record<string, string[]>>({});
   useEffect(() => {
     supabase.from("internship_tags").select("internship_slug, program_type").then(({ data }) => {
@@ -24,7 +24,7 @@ function InternshipsIndex() {
       setTags(map);
     });
   }, []);
-  const visible = educator?.role === "admin"
+  const visible = isAdmin
     ? INTERNSHIPS
     : INTERNSHIPS.filter((i) => (tags[i.slug] ?? []).includes(educator?.program_type ?? ""));
   return (

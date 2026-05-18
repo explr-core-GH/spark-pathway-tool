@@ -19,14 +19,14 @@ export const Route = createFileRoute("/educator/curriculum/$slug")({
 
 function CurriculumDetail() {
   const { slug } = Route.useParams();
-  const { educator } = useEducator();
+  const { educator, isAdmin } = useEducator();
   const camp = getCamp(slug);
   const [dayIdx, setDayIdx] = useState(0);
   const [allowed, setAllowed] = useState<boolean | null>(null);
 
   useEffect(() => {
+    if (isAdmin) { setAllowed(true); return; }
     if (!educator) return;
-    if (educator.role === "admin") { setAllowed(true); return; }
     if (!educator.program_type) { setAllowed(false); return; }
     supabase.from("curriculum_tags")
       .select("program_type")

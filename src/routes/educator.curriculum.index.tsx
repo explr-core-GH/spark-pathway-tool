@@ -15,7 +15,7 @@ export const Route = createFileRoute("/educator/curriculum/")({
 });
 
 function CurriculumIndex() {
-  const { educator } = useEducator();
+  const { educator, isAdmin } = useEducator();
   const [tags, setTags] = useState<Record<string, string[]>>({});
   useEffect(() => {
     supabase.from("curriculum_tags").select("camp_slug, program_type").then(({ data }) => {
@@ -24,7 +24,7 @@ function CurriculumIndex() {
       setTags(map);
     });
   }, []);
-  const visible = educator?.role === "admin"
+  const visible = isAdmin
     ? CAMPS
     : CAMPS.filter((c) => (tags[c.slug] ?? []).includes(educator?.program_type ?? ""));
   return (

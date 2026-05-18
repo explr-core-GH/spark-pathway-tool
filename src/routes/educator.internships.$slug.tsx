@@ -18,13 +18,13 @@ export const Route = createFileRoute("/educator/internships/$slug")({
 
 function InternshipDetail() {
   const { slug } = Route.useParams();
-  const { educator } = useEducator();
+  const { educator, isAdmin } = useEducator();
   const i = INTERNSHIPS.find((x) => x.slug === slug);
   const [allowed, setAllowed] = useState<boolean | null>(null);
 
   useEffect(() => {
+    if (isAdmin) { setAllowed(true); return; }
     if (!educator) return;
-    if (educator.role === "admin") { setAllowed(true); return; }
     if (!educator.program_type) { setAllowed(false); return; }
     supabase.from("internship_tags")
       .select("program_type")

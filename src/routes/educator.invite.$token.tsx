@@ -54,37 +54,44 @@ function InviteAccept() {
       uid = data.user?.id;
     }
     if (!uid) { setError("Could not create account."); setBusy(false); return; }
-    // Build the educators upsert payload based on the invite's role. Admins
-    // don't carry a program_type; the role field on educators gates admin
-    // tools (current model — admins live in the educators table with
-    // role='admin', not a separate admins table).
-    const educatorPayload =
-      invite.role === "admin"
-        ? {
-            id: uid,
-            full_name: fullName,
-            email: invite.email,
-            organization: invite.organization,
-            program_type: null as never,
-            role: "admin",
-            approved: true,
-          }
-        : {
-            id: uid,
-            full_name: fullName,
-            email: invite.email,
-            organization: invite.organization,
-            program_type: invite.program_type as never,
-            role: "educator",
-            approved: true,
-          };
-    const { error: eErr } = await supabase
-      .from("educators")
-      .upsert(educatorPayload as never);
+
+    // Educators and admins are separate tables — no overlap. Route the upsert
+    // based on the invite's role.
+    let eErr: { message: string } | null = null;
+    if (invite.role === "admin") {
+      // public.admins (migration 20260518053900) — cast through unknown
+      // until the Database type regenerates with the admins table.
+      const adminPayload = {
+        id: uid,
+        full_name: fullName,
+        email: invite.email,
+      } as unknown as Record<string, unknown>;
+      const { error } = await (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(
+        "admins",
+      ).upsert(adminPayload as never);
+      eErr = error;
+    } else {
+      const educatorPayload = {
+        id: uid,
+        full_name: fullName,
+        email: invite.email,
+        organization: invite.organization,
+        program_type: invite.program_type as never,
+        role: "educator", // always educator; admins live in public.admins
+        approved: true,
+      };
+      const { error } = await supabase
+        .from("educators")
+        .upsert(educatorPayload as never);
+      eErr = error;
+    }
     if (eErr) { setError(eErr.message); setBusy(false); return; }
     await supabase.from("educator_invites").update({ accepted_at: new Date().toISOString(), accepted_by: uid }).eq("id", invite.id);
     setBusy(false);
-    navigate({ to: "/educator/dashboard" });
+    // Admins land on admin tools; educators land on their dashboard.
+    navigate({
+      to: invite.role === "admin" ? "/educator/admin" : "/educator/dashboard",
+    });
   }
 
   if (error) return <main className="mx-auto max-w-md px-6 py-24 text-center text-sm text-destructive">{error}</main>;

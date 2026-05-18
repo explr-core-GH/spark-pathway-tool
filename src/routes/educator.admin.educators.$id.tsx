@@ -42,12 +42,18 @@ function ManageEducator() {
             {PROGRAM_TYPES.map((pt) => <option key={pt} value={pt}>{PROGRAM_META[pt].label}</option>)}
           </select>
         </div>
+        {/* Role is always 'educator' here — admins live in public.admins,
+            not in this table. The field is shown read-only so the admin
+            doesn't expect to be able to promote an educator from here.
+            To make someone an admin, invite them as an admin from
+            /educator/admin/invites. */}
         <div>
           <label className="label">Role</label>
-          <select className="field" value={ed.role} onChange={(e) => update({ role: e.target.value as "educator" | "admin" })}>
-            <option value="educator">educator</option>
-            <option value="admin">admin</option>
-          </select>
+          <input
+            className="field bg-charcoal-50 text-charcoal-500"
+            value="educator"
+            readOnly
+          />
         </div>
         <div>
           <label className="label">Approved</label>
