@@ -31,6 +31,7 @@ type ApplicationRow = {
 
 function StudentDashboard() {
   const { user, loading: authLoading } = useSession();
+  const navigate = useNavigate();
   const [session, setSession] = useState<SessionSummary | null>(null);
   const [application, setApplication] = useState<ApplicationRow | null>(null);
   const [loading, setLoading] = useState(true);
@@ -57,15 +58,35 @@ function StudentDashboard() {
           .maybeSingle(),
       ]);
       if (cancelled) return;
-      setSession((sess as SessionSummary) ?? null);
+      const sessionRow = (sess as SessionSummary) ?? null;
+      setSession(sessionRow);
       setApplication((app as ApplicationRow) ?? null);
       setLoading(false);
+
+      // No completed assessment yet → send the student to take it.
+      // If there's an in-progress session, resume it; otherwise start fresh.
+      if (!sessionRow?.completed_at) {
+        if (sessionRow?.session_id) {
+          navigate({
+            to: "/assessment/$sessionId",
+            params: { sessionId: sessionRow.session_id },
+            replace: true,
+          });
+        } else {
+          navigate({ to: "/assessment", replace: true });
+        }
+      }
     })();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user, navigate]);
 
   if (authLoading || loading) {
     return <main className="mx-auto max-w-3xl px-6 py-24 text-sm text-charcoal-400">Loading…</main>;
+  }
+
+  // While the redirect above is in flight, avoid flashing the empty dashboard.
+  if (!session?.completed_at) {
+    return <main className="mx-auto max-w-3xl px-6 py-24 text-sm text-charcoal-400">Taking you to the assessment…</main>;
   }
 
   const hasResults = !!(session?.completed_at && session.holland_code);
