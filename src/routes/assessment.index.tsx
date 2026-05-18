@@ -13,6 +13,7 @@ function AssessmentIntro() {
   const navigate = useNavigate();
   const [grade, setGrade] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authed, setAuthed] = useState(false);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
@@ -22,7 +23,8 @@ function AssessmentIntro() {
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (cancelled) return;
-      if (!session) { navigate({ to: "/sign-in" }); return; }
+      if (!session) { setAuthed(false); setLoading(false); return; }
+      setAuthed(true);
       setUserId(session.user.id);
       const { data: stud } = await supabase
         .from("students").select("grade").eq("id", session.user.id).maybeSingle();
@@ -61,6 +63,42 @@ function AssessmentIntro() {
   }
 
   if (loading) return <div className="mx-auto max-w-2xl px-6 py-24 text-charcoal-500">Loading…</div>;
+
+  if (!authed) {
+    return (
+      <div className="mx-auto max-w-4xl px-6 py-20">
+        <Link to="/" className="eyebrow">← EXPLR</Link>
+        <h1 className="display mt-10">Get started.</h1>
+        <p className="lead mt-4">Pick your pathway.</p>
+        <div className="mt-12 grid gap-6 md:grid-cols-2">
+          <div className="r-md border border-charcoal-100 p-8">
+            <p className="eyebrow">For students</p>
+            <h4 className="mt-3 text-xl font-light text-charcoal-700">A starting point you actually own.</h4>
+            <p className="mt-3 text-sm text-charcoal-500">
+              Take the survey. See your Holland code. Use it to ask better questions about
+              what comes after high school.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link to="/sign-up" className="btn-ink">Create student account</Link>
+              <Link to="/sign-in" className="btn-ghost">Sign in</Link>
+            </div>
+          </div>
+          <div className="r-md border border-charcoal-100 p-8">
+            <p className="eyebrow">For educators</p>
+            <h4 className="mt-3 text-xl font-light text-charcoal-700">Curriculum and rosters in one place.</h4>
+            <p className="mt-3 text-sm text-charcoal-500">
+              STEM, CS, robotics coaches, camp instructors, and internship supervisors —
+              manage assignments and student lists per program.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link to="/educator/sign-up" className="btn-ink">Request educator access</Link>
+              <Link to="/educator/sign-in" className="btn-ghost">Sign in</Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-20">
