@@ -167,7 +167,7 @@ export const syncExplrMore = createServerFn({ method: "POST" })
         topKeys: all && typeof all === "object" && !Array.isArray(all)
           ? Object.keys(all as Record<string, unknown>).slice(0, 10)
           : undefined,
-        sample: rows[0] ?? (Array.isArray(all) ? null : all),
+        sample: sampleOf(rows[0] ?? all),
       });
       if (rows.length > 0) {
         for (const row of rows) {
@@ -194,7 +194,7 @@ export const syncExplrMore = createServerFn({ method: "POST" })
             topKeys: roster && typeof roster === "object" && !Array.isArray(roster)
               ? Object.keys(roster as Record<string, unknown>).slice(0, 10)
               : undefined,
-            sample: rows[0] ?? (Array.isArray(roster) ? null : roster),
+            sample: sampleOf(rows[0] ?? roster),
           });
           for (const row of rows) {
             const mapped = mapRosterRow(row, c.id);
