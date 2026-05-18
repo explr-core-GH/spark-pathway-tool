@@ -153,7 +153,10 @@ export const syncExplrMore = createServerFn({ method: "POST" })
     // all_rosters first — if EXPLR returns it as a flat list we save N calls.
     const regs: ExplrRegistration[] = [];
     const rosterErrors: { campId: string; error: string }[] = [];
-    const debug: { action: string; campId?: string; sample?: unknown; rowCount?: number; topKeys?: string[] }[] = [];
+    const debug: { action: string; campId?: string; sample?: string; rowCount?: number; topKeys?: string[] }[] = [];
+    const sampleOf = (v: unknown) => {
+      try { return JSON.stringify(v).slice(0, 600); } catch { return String(v).slice(0, 600); }
+    };
     let allRostersWorked = false;
     try {
       const all = await callExplrExternal("all_rosters");
