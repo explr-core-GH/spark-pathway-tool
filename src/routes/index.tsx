@@ -27,29 +27,36 @@ function SiteHeader() {
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           __html: `
+            /* Falling-star streak: idles most of the cycle, then a fast top-to-bottom
+               drop. The shoot container extends well above + below the wordmark so
+               the streak has runway; overflow:hidden clips it at the wordmark's
+               own visible band. */
             @keyframes explr-shooting-star {
-              0%, 88% {
+              0%, 95% {
                 opacity: 0;
-                transform: translate(0, 0) rotate(-14deg);
-              }
-              90% {
-                opacity: 1;
-                transform: translate(40%, -2px) rotate(-14deg);
+                transform: translateY(-100%) translateX(0) rotate(-78deg);
               }
               96% {
-                opacity: 0.5;
-                transform: translate(220%, -10px) rotate(-14deg);
+                opacity: 1;
+                transform: translateY(-30%) translateX(2px) rotate(-78deg);
               }
-              97%, 100% {
+              98% {
+                opacity: 0.7;
+                transform: translateY(60%) translateX(5px) rotate(-78deg);
+              }
+              99%, 100% {
                 opacity: 0;
-                transform: translate(260%, -12px) rotate(-14deg);
+                transform: translateY(140%) translateX(8px) rotate(-78deg);
               }
             }
             .explr-brand { position: relative; display: inline-block; isolation: isolate; }
             .explr-brand__text { position: relative; z-index: 1; }
             .explr-brand__shoot {
               position: absolute;
-              inset: -2px -10px;
+              top: -60px;
+              right: -8px;
+              bottom: -60px;
+              left: -8px;
               z-index: 0;
               overflow: hidden;
               pointer-events: none;
@@ -57,12 +64,12 @@ function SiteHeader() {
             .explr-brand__shoot::before {
               content: "";
               position: absolute;
-              top: 38%;
-              left: -55%;
-              width: 50%;
-              height: 1.5px;
+              top: 0;
+              left: 62%;
+              width: 1.5px;
+              height: 28px;
               background: linear-gradient(
-                90deg,
+                180deg,
                 transparent 0%,
                 rgba(250, 204, 21, 0) 5%,
                 rgba(250, 204, 21, 1) 50%,
@@ -71,8 +78,8 @@ function SiteHeader() {
               );
               filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.7));
               opacity: 0;
-              transform: rotate(-14deg);
-              animation: explr-shooting-star 9s linear infinite;
+              transform: translateY(-100%) rotate(-78deg);
+              animation: explr-shooting-star 7s linear infinite;
             }
             @media (prefers-reduced-motion: reduce) {
               .explr-brand__shoot::before { animation: none; opacity: 0; }
