@@ -22,12 +22,16 @@ export type Mode = "hs" | "ms";
 export type Contrast = "default" | "high";
 export type Spacing = "default" | "loose";
 export type Motion = "default" | "reduced";
+export type ReadAloud = "default" | "on";
 
 export type AccessibilityState = {
   mode: Mode;
   contrast: Contrast;
   spacing: Spacing;
   motion: Motion;
+  // When 'on', the toolbar surfaces 'Read page' / 'Stop' controls that
+  // pipe the active page's main content into window.speechSynthesis.
+  readAloud: ReadAloud;
 };
 
 const DEFAULTS: AccessibilityState = {
@@ -35,6 +39,7 @@ const DEFAULTS: AccessibilityState = {
   contrast: "default",
   spacing: "default",
   motion: "default",
+  readAloud: "default",
 };
 
 const STORAGE_KEY = "explr.a11y.v1";

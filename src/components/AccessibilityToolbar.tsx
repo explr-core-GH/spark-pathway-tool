@@ -1,20 +1,27 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAccessibility } from "./AccessibilityProvider";
 
 /**
- * Floating accessibility widget bottom-right. Collapsed: a small icon button.
- * Expanded: a tight panel with 4 segmented controls for mode / contrast /
- * spacing / motion, plus a reset link. Reads from + writes to the
- * AccessibilityProvider context.
+ * Floating accessibility widget bottom-right. Collapsed: a small robot
+ * icon button. Expanded: a tight panel with five segmented controls
+ * (mode / contrast / spacing / motion / read aloud), a 'Read page'
+ * action when read-aloud is on, and a reset link.
  *
- * Renders nothing on the server (window guard) to keep TanStack Start's
+ * Read-aloud uses the browser's window.speechSynthesis. When the user
+ * toggles it off mid-speech the active utterance is cancelled.
+ *
+ * Renders nothing on the server (mounted guard) to keep TanStack Start's
  * SSR shell clean — appears as soon as the client hydrates.
  */
+
+const SUPPORTS_SPEECH =
+  typeof window !== "undefined" && "speechSynthesis" in window;
 
 export function AccessibilityToolbar() {
   const { state, set, reset } = useAccessibility();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -29,6 +36,41 @@ export function AccessibilityToolbar() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
+
+  // Pull text from the current page's main region (falling back to body).
+  // Trim runs of whitespace so the speech doesn't read out odd gaps.
+  const speak = useCallback(() => {
+    if (!SUPPORTS_SPEECH) return;
+    const root =
+      document.querySelector("main") ?? document.body;
+    const text = (root.textContent ?? "").replace(/\s+/g, " ").trim();
+    if (!text) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 1;
+    utter.onend = () => setSpeaking(false);
+    utter.onerror = () => setSpeaking(false);
+    setSpeaking(true);
+    window.speechSynthesis.speak(utter);
+  }, []);
+
+  const stop = useCallback(() => {
+    if (!SUPPORTS_SPEECH) return;
+    window.speechSynthesis.cancel();
+    setSpeaking(false);
+  }, []);
+
+  // Turning the toggle off mid-speech: cancel.
+  useEffect(() => {
+    if (state.readAloud === "default" && speaking) stop();
+  }, [state.readAloud, speaking, stop]);
+
+  // Stop speech on unmount (route changes etc).
+  useEffect(() => {
+    return () => {
+      if (SUPPORTS_SPEECH) window.speechSynthesis.cancel();
+    };
+  }, []);
 
   if (!mounted) return null;
 
@@ -92,6 +134,47 @@ export function AccessibilityToolbar() {
             onChange={(v) => set("motion", v)}
           />
 
+          <Toggle
+            label="Read aloud"
+            value={state.readAloud}
+            options={[
+              { value: "default", label: "Off" },
+              { value: "on", label: "On" },
+            ]}
+            onChange={(v) => set("readAloud", v)}
+          />
+
+          {state.readAloud === "on" && (
+            <div className="mt-3">
+              {!SUPPORTS_SPEECH ? (
+                <p className="text-xs text-charcoal-500">
+                  Your browser doesn&apos;t support speech synthesis.
+                </p>
+              ) : (
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={speak}
+                    disabled={speaking}
+                    className="px-3 py-1.5 text-xs font-semibold disabled:opacity-50"
+                    style={{ background: "var(--ink)", color: "var(--bg)" }}
+                  >
+                    {speaking ? "Reading…" : "Read this page"}
+                  </button>
+                  {speaking && (
+                    <button
+                      type="button"
+                      onClick={stop}
+                      className="px-3 py-1.5 text-xs font-semibold border border-charcoal-200 text-charcoal-700 hover:border-ink"
+                    >
+                      Stop
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="mt-4 flex items-center justify-between text-xs">
             <button
               type="button"
@@ -113,19 +196,26 @@ export function AccessibilityToolbar() {
         className="flex h-11 w-11 items-center justify-center rounded-full shadow-lg ring-1 ring-charcoal-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-explr-500"
         style={{ background: "var(--ink)", color: "var(--bg)" }}
       >
+        {/* Friendly robot — antenna with tip dot, rounded head, two eyes,
+            small mouth grille. Drawn in currentColor so it inherits the
+            bg-contrast color from the button's style attribute. */}
         <svg
           viewBox="0 0 24 24"
           aria-hidden
           className="h-5 w-5"
           fill="none"
           stroke="currentColor"
-          strokeWidth={2}
+          strokeWidth={1.8}
+          strokeLinecap="round"
+          strokeLinejoin="round"
         >
-          <circle cx="12" cy="4" r="2" />
-          <path
-            strokeLinecap="round"
-            d="M5 8h14M9 8l1 13M15 8l-1 13M10 13h4"
-          />
+          <path d="M12 3.5v2" />
+          <circle cx="12" cy="2.5" r="1.1" fill="currentColor" stroke="none" />
+          <rect x="5" y="6" width="14" height="11" rx="2.5" />
+          <circle cx="9" cy="11" r="1.2" fill="currentColor" stroke="none" />
+          <circle cx="15" cy="11" r="1.2" fill="currentColor" stroke="none" />
+          <path d="M9.5 14h5" />
+          <path d="M3 12h2M19 12h2" />
         </svg>
       </button>
     </div>
