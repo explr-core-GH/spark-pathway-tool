@@ -38,8 +38,6 @@ function EducatorLayout() {
             </div>
           </div>
         )}
-        <div className="hidden">
-        </div>
       </header>
       <Outlet />
     </div>
