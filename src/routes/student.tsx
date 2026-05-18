@@ -128,7 +128,7 @@ function StudentDashboard() {
             </div>
             {hasResults ? (
               <Link
-                to="/assessment/$sessionId_/results"
+                to="/assessment/$sessionId/results"
                 params={{ sessionId: session!.session_id }}
                 className="btn-ghost shrink-0"
               >
