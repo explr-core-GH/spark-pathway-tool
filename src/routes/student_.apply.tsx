@@ -5,6 +5,7 @@ import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
 import { INTERNSHIPS, type Internship } from "@/lib/internships-catalog";
 import type { RIASECCode } from "@/lib/riasec";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export const Route = createFileRoute("/student_/apply")({
   head: () => ({ meta: [{ title: "Apply for an internship — EXPLR" }] }),
