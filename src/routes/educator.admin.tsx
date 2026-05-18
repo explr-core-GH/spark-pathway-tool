@@ -14,6 +14,7 @@ function AdminLayout() {
             <Link to="/educator/admin" className="text-charcoal-500 hover:text-ink">Home</Link>
             <Link to="/educator/admin/applications" className="text-charcoal-500 hover:text-ink">Applications</Link>
             <Link to="/educator/admin/placements" className="text-charcoal-500 hover:text-ink">Placements</Link>
+            <Link to="/educator/admin/rosters" className="text-charcoal-500 hover:text-ink">Rosters</Link>
             <Link to="/educator/admin/internships" className="text-charcoal-500 hover:text-ink">Internships</Link>
             <Link to="/educator/admin/camps" className="text-charcoal-500 hover:text-ink">Camps</Link>
             <Link to="/educator/admin/programs" className="text-charcoal-500 hover:text-ink">Programs</Link>
