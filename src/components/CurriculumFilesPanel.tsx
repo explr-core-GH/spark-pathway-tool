@@ -137,11 +137,21 @@ export function CurriculumFilesPanel({ slug, primaryDeck, onPrimaryChange }: Pro
 
   return (
     <div className="border border-charcoal-100 bg-charcoal-50 p-4">
-      <div className="flex items-baseline justify-between">
+      <div className="flex items-baseline justify-between gap-3">
         <p className="eyebrow" style={{ margin: 0 }}>Slide decks & files</p>
-        <span className="text-[11px] text-charcoal-500">
-          curriculum/{slug}/
-        </span>
+        <div className="flex items-baseline gap-3">
+          <button
+            type="button"
+            onClick={refresh}
+            className="text-xs text-charcoal-500 hover:text-ink"
+            title="Re-query Supabase Storage for this camp's files"
+          >
+            ↻ Refresh
+          </button>
+          <span className="text-[11px] text-charcoal-500">
+            curriculum/{slug}/
+          </span>
+        </div>
       </div>
 
       {/* Drop zone */}
@@ -195,7 +205,15 @@ export function CurriculumFilesPanel({ slug, primaryDeck, onPrimaryChange }: Pro
         {loading ? (
           <p className="text-xs text-charcoal-400">Loading…</p>
         ) : files.length === 0 ? (
-          <p className="text-xs text-charcoal-400">No files yet for this camp.</p>
+          <div className="text-xs text-charcoal-500">
+            <p>No files at curriculum/{slug}/ in Supabase Storage.</p>
+            <p className="mt-1 text-charcoal-400">
+              If you just uploaded, click <strong>↻ Refresh</strong> above.
+              If you uploaded outside this panel (e.g., Lovable Cloud
+              Storage UI), make sure the bucket is <code className="font-mono">curriculum</code>{" "}
+              and files live under <code className="font-mono">{slug}/</code> — not at the bucket root.
+            </p>
+          </div>
         ) : (
           <ul className="divide-y divide-charcoal-100 border-y border-charcoal-100">
             {files.map((f) => {
