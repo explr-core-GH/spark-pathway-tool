@@ -390,36 +390,42 @@ export type Database = {
           created_at: string
           email: string
           full_name: string
+          grade_levels: number[] | null
           id: string
           organization: string | null
           program_type: Database["public"]["Enums"]["program_type"] | null
           role: Database["public"]["Enums"]["educator_role"]
           school_irn: string | null
           school_name: string | null
+          student_count: number | null
         }
         Insert: {
           approved?: boolean
           created_at?: string
           email: string
           full_name: string
+          grade_levels?: number[] | null
           id: string
           organization?: string | null
           program_type?: Database["public"]["Enums"]["program_type"] | null
           role?: Database["public"]["Enums"]["educator_role"]
           school_irn?: string | null
           school_name?: string | null
+          student_count?: number | null
         }
         Update: {
           approved?: boolean
           created_at?: string
           email?: string
           full_name?: string
+          grade_levels?: number[] | null
           id?: string
           organization?: string | null
           program_type?: Database["public"]["Enums"]["program_type"] | null
           role?: Database["public"]["Enums"]["educator_role"]
           school_irn?: string | null
           school_name?: string | null
+          student_count?: number | null
         }
         Relationships: []
       }
@@ -886,27 +892,39 @@ export type Database = {
           created_by: string | null
           description: string | null
           grade_band: string | null
+          grade_levels: number[] | null
           id: string
           name: string
           program_type: Database["public"]["Enums"]["program_type"]
+          school_irn: string | null
+          school_name: string | null
+          student_count: number | null
         }
         Insert: {
           created_at?: string
           created_by?: string | null
           description?: string | null
           grade_band?: string | null
+          grade_levels?: number[] | null
           id?: string
           name: string
           program_type: Database["public"]["Enums"]["program_type"]
+          school_irn?: string | null
+          school_name?: string | null
+          student_count?: number | null
         }
         Update: {
           created_at?: string
           created_by?: string | null
           description?: string | null
           grade_band?: string | null
+          grade_levels?: number[] | null
           id?: string
           name?: string
           program_type?: Database["public"]["Enums"]["program_type"]
+          school_irn?: string | null
+          school_name?: string | null
+          student_count?: number | null
         }
         Relationships: [
           {
