@@ -2,6 +2,10 @@
 @source "../src";
 @import "tw-animate-css";
 
+/* Lexend font — defensive load so the brand survives if anyone removes the
+   <link> tag in __root.tsx. Browsers dedupe when both load the same URL. */
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap');
+
 /* Tailwind v4 theme — mirrors tailwind.config.ts (colors, fonts, font sizes). */
 @theme inline {
   --font-sans: var(--font-lexend), system-ui, sans-serif;
@@ -31,12 +35,13 @@
   --color-explr-800: #085739;
   --color-explr-900: #042E1E;
 
-  --color-riasec-r: #D86B3C;
-  --color-riasec-i: #4D5BAE;
-  --color-riasec-a: #D9417A;
-  --color-riasec-s: #E5A82F;
-  --color-riasec-e: #B8364D;
-  --color-riasec-c: #3F7BA8;
+  /* RIASEC palette — must stay in sync with src/lib/riasec.ts (canonical). */
+  --color-riasec-r: #D9523B; /* Realistic — vermillion */
+  --color-riasec-i: #D9952A; /* Investigative — amber-gold */
+  --color-riasec-a: #3D9C56; /* Artistic — forest green */
+  --color-riasec-s: #2E8FB0; /* Social — teal-cyan */
+  --color-riasec-e: #5C56B0; /* Enterprising — indigo-violet */
+  --color-riasec-c: #B14A99; /* Conventional — magenta-orchid */
 
   --text-base: 1.0625rem;
   --text-base--line-height: 1.65;

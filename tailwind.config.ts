@@ -32,14 +32,16 @@ const config: Config = {
           800: "#085739",
           900: "#042E1E",
         },
-        // RIASEC palette — Holland hexagon (R-I-A-S-E-C, opposites contrast)
+        // RIASEC palette — Holland hexagon (R-I-A-S-E-C, opposites contrast).
+        // Must stay in sync with src/lib/riasec.ts (canonical source).
+        // R↔S, I↔E, A↔C are the three opposite pairs (60° apart on the wheel).
         riasec: {
-          r: "#D86B3C", // Realistic — warm terracotta
-          i: "#4D5BAE", // Investigative — deep indigo
-          a: "#D9417A", // Artistic — vivid pink
-          s: "#E5A82F", // Social — golden amber
-          e: "#B8364D", // Enterprising — brick red
-          c: "#3F7BA8", // Conventional — slate blue
+          r: "#D9523B", // Realistic — vermillion (hue 10°)
+          i: "#D9952A", // Investigative — amber-gold (hue 45°)
+          a: "#3D9C56", // Artistic — forest green (hue 135°)
+          s: "#2E8FB0", // Social — teal-cyan (hue 195°)
+          e: "#5C56B0", // Enterprising — indigo-violet (hue 245°)
+          c: "#B14A99", // Conventional — magenta-orchid (hue 315°)
         },
       },
       fontFamily: {
