@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SchoolSearch } from "./SchoolSearch";
+import { SchoolSearch, type SchoolPick } from "./SchoolSearch";
 import { SchoolDemographics } from "./SchoolDemographics";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -10,25 +10,30 @@ type Props = {
 };
 
 export function EducatorSchoolEditor({ educatorId, initialIrn, initialName }: Props) {
-  const [school, setSchool] = useState<{ irn: string; name: string } | null>(
+  const [school, setSchool] = useState<SchoolPick | null>(
     initialIrn && initialName ? { irn: initialIrn, name: initialName } : null,
   );
   const [status, setStatus] = useState<string | null>(null);
 
-  async function persist(next: { irn: string; name: string } | null) {
-    setSchool(next);
+  async function persist(next: SchoolPick) {
+    const cleared = !next.irn;
+    const value = cleared ? null : next;
+    setSchool(value);
     const { error } = await supabase
       .from("educators")
-      .update({ school_irn: next?.irn ?? null, school_name: next?.name ?? null })
+      .update({
+        school_irn: value?.irn ?? null,
+        school_name: value?.name ?? null,
+      })
       .eq("id", educatorId);
     setStatus(error ? `Error: ${error.message}` : "Saved.");
   }
 
   return (
     <div className="space-y-3">
-      <SchoolSearch value={school} onChange={persist} />
+      <SchoolSearch initial={school} onSelect={persist} />
       {status && <p className="text-xs text-charcoal-400">{status}</p>}
-      {school && <SchoolDemographics irn={school.irn} />}
+      {school?.irn && <SchoolDemographics irn={school.irn} />}
     </div>
   );
 }
