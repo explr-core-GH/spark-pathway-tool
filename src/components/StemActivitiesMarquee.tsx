@@ -68,6 +68,16 @@ export function StemActivitiesMarquee({ hollandCode }: Props) {
                 </DialogTitle>
               </DialogHeader>
               <p className="text-sm text-charcoal-500">{selected.program}</p>
+              <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-charcoal-500">
+                <span className="border border-charcoal-100 px-2 py-0.5">{selected.duration}</span>
+                <span className="border border-charcoal-100 px-2 py-0.5">{selected.ageRange}</span>
+                {selected.dayCount > 0 && (
+                  <span className="border border-charcoal-100 px-2 py-0.5">
+                    {selected.dayCount} days
+                  </span>
+                )}
+              </div>
+              <p className="mt-3 text-sm leading-relaxed text-ink/80">{selected.overview}</p>
               <div className="mt-4 space-y-2">
                 {CODES.map((c) => {
                   const v = selected.scores[c] ?? 0;
