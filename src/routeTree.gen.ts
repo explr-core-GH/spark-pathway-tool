@@ -9,38 +9,343 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignUpRouteImport } from './routes/sign-up'
+import { Route as SignOutRouteImport } from './routes/sign-out'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as EducatorRouteImport } from './routes/educator'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EducatorIndexRouteImport } from './routes/educator.index'
+import { Route as EducatorSignUpRouteImport } from './routes/educator.sign-up'
+import { Route as EducatorSignInRouteImport } from './routes/educator.sign-in'
+import { Route as EducatorDashboardRouteImport } from './routes/educator.dashboard'
+import { Route as EducatorAdminRouteImport } from './routes/educator.admin'
+import { Route as EducatorInternshipsIndexRouteImport } from './routes/educator.internships.index'
+import { Route as EducatorCurriculumIndexRouteImport } from './routes/educator.curriculum.index'
+import { Route as EducatorAdminIndexRouteImport } from './routes/educator.admin.index'
+import { Route as EducatorInviteTokenRouteImport } from './routes/educator.invite.$token'
+import { Route as EducatorInternshipsSlugRouteImport } from './routes/educator.internships.$slug'
+import { Route as EducatorCurriculumSlugRouteImport } from './routes/educator.curriculum.$slug'
+import { Route as EducatorAdminProgramRiasecRouteImport } from './routes/educator.admin.program-riasec'
+import { Route as EducatorAdminInternshipTagsRouteImport } from './routes/educator.admin.internship-tags'
+import { Route as EducatorAdminCurriculumTagsRouteImport } from './routes/educator.admin.curriculum-tags'
+import { Route as EducatorAdminEducatorsIdRouteImport } from './routes/educator.admin.educators.$id'
 
+const SignUpRoute = SignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignOutRoute = SignOutRouteImport.update({
+  id: '/sign-out',
+  path: '/sign-out',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EducatorRoute = EducatorRouteImport.update({
+  id: '/educator',
+  path: '/educator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EducatorIndexRoute = EducatorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EducatorRoute,
+} as any)
+const EducatorSignUpRoute = EducatorSignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => EducatorRoute,
+} as any)
+const EducatorSignInRoute = EducatorSignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => EducatorRoute,
+} as any)
+const EducatorDashboardRoute = EducatorDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => EducatorRoute,
+} as any)
+const EducatorAdminRoute = EducatorAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => EducatorRoute,
+} as any)
+const EducatorInternshipsIndexRoute =
+  EducatorInternshipsIndexRouteImport.update({
+    id: '/internships/',
+    path: '/internships/',
+    getParentRoute: () => EducatorRoute,
+  } as any)
+const EducatorCurriculumIndexRoute = EducatorCurriculumIndexRouteImport.update({
+  id: '/curriculum/',
+  path: '/curriculum/',
+  getParentRoute: () => EducatorRoute,
+} as any)
+const EducatorAdminIndexRoute = EducatorAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EducatorAdminRoute,
+} as any)
+const EducatorInviteTokenRoute = EducatorInviteTokenRouteImport.update({
+  id: '/invite/$token',
+  path: '/invite/$token',
+  getParentRoute: () => EducatorRoute,
+} as any)
+const EducatorInternshipsSlugRoute = EducatorInternshipsSlugRouteImport.update({
+  id: '/internships/$slug',
+  path: '/internships/$slug',
+  getParentRoute: () => EducatorRoute,
+} as any)
+const EducatorCurriculumSlugRoute = EducatorCurriculumSlugRouteImport.update({
+  id: '/curriculum/$slug',
+  path: '/curriculum/$slug',
+  getParentRoute: () => EducatorRoute,
+} as any)
+const EducatorAdminProgramRiasecRoute =
+  EducatorAdminProgramRiasecRouteImport.update({
+    id: '/program-riasec',
+    path: '/program-riasec',
+    getParentRoute: () => EducatorAdminRoute,
+  } as any)
+const EducatorAdminInternshipTagsRoute =
+  EducatorAdminInternshipTagsRouteImport.update({
+    id: '/internship-tags',
+    path: '/internship-tags',
+    getParentRoute: () => EducatorAdminRoute,
+  } as any)
+const EducatorAdminCurriculumTagsRoute =
+  EducatorAdminCurriculumTagsRouteImport.update({
+    id: '/curriculum-tags',
+    path: '/curriculum-tags',
+    getParentRoute: () => EducatorAdminRoute,
+  } as any)
+const EducatorAdminEducatorsIdRoute =
+  EducatorAdminEducatorsIdRouteImport.update({
+    id: '/educators/$id',
+    path: '/educators/$id',
+    getParentRoute: () => EducatorAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/educator': typeof EducatorRouteWithChildren
+  '/privacy': typeof PrivacyRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-out': typeof SignOutRoute
+  '/sign-up': typeof SignUpRoute
+  '/educator/admin': typeof EducatorAdminRouteWithChildren
+  '/educator/dashboard': typeof EducatorDashboardRoute
+  '/educator/sign-in': typeof EducatorSignInRoute
+  '/educator/sign-up': typeof EducatorSignUpRoute
+  '/educator/': typeof EducatorIndexRoute
+  '/educator/admin/curriculum-tags': typeof EducatorAdminCurriculumTagsRoute
+  '/educator/admin/internship-tags': typeof EducatorAdminInternshipTagsRoute
+  '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
+  '/educator/curriculum/$slug': typeof EducatorCurriculumSlugRoute
+  '/educator/internships/$slug': typeof EducatorInternshipsSlugRoute
+  '/educator/invite/$token': typeof EducatorInviteTokenRoute
+  '/educator/admin/': typeof EducatorAdminIndexRoute
+  '/educator/curriculum/': typeof EducatorCurriculumIndexRoute
+  '/educator/internships/': typeof EducatorInternshipsIndexRoute
+  '/educator/admin/educators/$id': typeof EducatorAdminEducatorsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/privacy': typeof PrivacyRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-out': typeof SignOutRoute
+  '/sign-up': typeof SignUpRoute
+  '/educator/dashboard': typeof EducatorDashboardRoute
+  '/educator/sign-in': typeof EducatorSignInRoute
+  '/educator/sign-up': typeof EducatorSignUpRoute
+  '/educator': typeof EducatorIndexRoute
+  '/educator/admin/curriculum-tags': typeof EducatorAdminCurriculumTagsRoute
+  '/educator/admin/internship-tags': typeof EducatorAdminInternshipTagsRoute
+  '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
+  '/educator/curriculum/$slug': typeof EducatorCurriculumSlugRoute
+  '/educator/internships/$slug': typeof EducatorInternshipsSlugRoute
+  '/educator/invite/$token': typeof EducatorInviteTokenRoute
+  '/educator/admin': typeof EducatorAdminIndexRoute
+  '/educator/curriculum': typeof EducatorCurriculumIndexRoute
+  '/educator/internships': typeof EducatorInternshipsIndexRoute
+  '/educator/admin/educators/$id': typeof EducatorAdminEducatorsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/educator': typeof EducatorRouteWithChildren
+  '/privacy': typeof PrivacyRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-out': typeof SignOutRoute
+  '/sign-up': typeof SignUpRoute
+  '/educator/admin': typeof EducatorAdminRouteWithChildren
+  '/educator/dashboard': typeof EducatorDashboardRoute
+  '/educator/sign-in': typeof EducatorSignInRoute
+  '/educator/sign-up': typeof EducatorSignUpRoute
+  '/educator/': typeof EducatorIndexRoute
+  '/educator/admin/curriculum-tags': typeof EducatorAdminCurriculumTagsRoute
+  '/educator/admin/internship-tags': typeof EducatorAdminInternshipTagsRoute
+  '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
+  '/educator/curriculum/$slug': typeof EducatorCurriculumSlugRoute
+  '/educator/internships/$slug': typeof EducatorInternshipsSlugRoute
+  '/educator/invite/$token': typeof EducatorInviteTokenRoute
+  '/educator/admin/': typeof EducatorAdminIndexRoute
+  '/educator/curriculum/': typeof EducatorCurriculumIndexRoute
+  '/educator/internships/': typeof EducatorInternshipsIndexRoute
+  '/educator/admin/educators/$id': typeof EducatorAdminEducatorsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/educator'
+    | '/privacy'
+    | '/sign-in'
+    | '/sign-out'
+    | '/sign-up'
+    | '/educator/admin'
+    | '/educator/dashboard'
+    | '/educator/sign-in'
+    | '/educator/sign-up'
+    | '/educator/'
+    | '/educator/admin/curriculum-tags'
+    | '/educator/admin/internship-tags'
+    | '/educator/admin/program-riasec'
+    | '/educator/curriculum/$slug'
+    | '/educator/internships/$slug'
+    | '/educator/invite/$token'
+    | '/educator/admin/'
+    | '/educator/curriculum/'
+    | '/educator/internships/'
+    | '/educator/admin/educators/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/privacy'
+    | '/sign-in'
+    | '/sign-out'
+    | '/sign-up'
+    | '/educator/dashboard'
+    | '/educator/sign-in'
+    | '/educator/sign-up'
+    | '/educator'
+    | '/educator/admin/curriculum-tags'
+    | '/educator/admin/internship-tags'
+    | '/educator/admin/program-riasec'
+    | '/educator/curriculum/$slug'
+    | '/educator/internships/$slug'
+    | '/educator/invite/$token'
+    | '/educator/admin'
+    | '/educator/curriculum'
+    | '/educator/internships'
+    | '/educator/admin/educators/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/educator'
+    | '/privacy'
+    | '/sign-in'
+    | '/sign-out'
+    | '/sign-up'
+    | '/educator/admin'
+    | '/educator/dashboard'
+    | '/educator/sign-in'
+    | '/educator/sign-up'
+    | '/educator/'
+    | '/educator/admin/curriculum-tags'
+    | '/educator/admin/internship-tags'
+    | '/educator/admin/program-riasec'
+    | '/educator/curriculum/$slug'
+    | '/educator/internships/$slug'
+    | '/educator/invite/$token'
+    | '/educator/admin/'
+    | '/educator/curriculum/'
+    | '/educator/internships/'
+    | '/educator/admin/educators/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  EducatorRoute: typeof EducatorRouteWithChildren
+  PrivacyRoute: typeof PrivacyRoute
+  SignInRoute: typeof SignInRoute
+  SignOutRoute: typeof SignOutRoute
+  SignUpRoute: typeof SignUpRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sign-up': {
+      id: '/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-out': {
+      id: '/sign-out'
+      path: '/sign-out'
+      fullPath: '/sign-out'
+      preLoaderRoute: typeof SignOutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/educator': {
+      id: '/educator'
+      path: '/educator'
+      fullPath: '/educator'
+      preLoaderRoute: typeof EducatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +353,173 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/educator/': {
+      id: '/educator/'
+      path: '/'
+      fullPath: '/educator/'
+      preLoaderRoute: typeof EducatorIndexRouteImport
+      parentRoute: typeof EducatorRoute
+    }
+    '/educator/sign-up': {
+      id: '/educator/sign-up'
+      path: '/sign-up'
+      fullPath: '/educator/sign-up'
+      preLoaderRoute: typeof EducatorSignUpRouteImport
+      parentRoute: typeof EducatorRoute
+    }
+    '/educator/sign-in': {
+      id: '/educator/sign-in'
+      path: '/sign-in'
+      fullPath: '/educator/sign-in'
+      preLoaderRoute: typeof EducatorSignInRouteImport
+      parentRoute: typeof EducatorRoute
+    }
+    '/educator/dashboard': {
+      id: '/educator/dashboard'
+      path: '/dashboard'
+      fullPath: '/educator/dashboard'
+      preLoaderRoute: typeof EducatorDashboardRouteImport
+      parentRoute: typeof EducatorRoute
+    }
+    '/educator/admin': {
+      id: '/educator/admin'
+      path: '/admin'
+      fullPath: '/educator/admin'
+      preLoaderRoute: typeof EducatorAdminRouteImport
+      parentRoute: typeof EducatorRoute
+    }
+    '/educator/internships/': {
+      id: '/educator/internships/'
+      path: '/internships'
+      fullPath: '/educator/internships/'
+      preLoaderRoute: typeof EducatorInternshipsIndexRouteImport
+      parentRoute: typeof EducatorRoute
+    }
+    '/educator/curriculum/': {
+      id: '/educator/curriculum/'
+      path: '/curriculum'
+      fullPath: '/educator/curriculum/'
+      preLoaderRoute: typeof EducatorCurriculumIndexRouteImport
+      parentRoute: typeof EducatorRoute
+    }
+    '/educator/admin/': {
+      id: '/educator/admin/'
+      path: '/'
+      fullPath: '/educator/admin/'
+      preLoaderRoute: typeof EducatorAdminIndexRouteImport
+      parentRoute: typeof EducatorAdminRoute
+    }
+    '/educator/invite/$token': {
+      id: '/educator/invite/$token'
+      path: '/invite/$token'
+      fullPath: '/educator/invite/$token'
+      preLoaderRoute: typeof EducatorInviteTokenRouteImport
+      parentRoute: typeof EducatorRoute
+    }
+    '/educator/internships/$slug': {
+      id: '/educator/internships/$slug'
+      path: '/internships/$slug'
+      fullPath: '/educator/internships/$slug'
+      preLoaderRoute: typeof EducatorInternshipsSlugRouteImport
+      parentRoute: typeof EducatorRoute
+    }
+    '/educator/curriculum/$slug': {
+      id: '/educator/curriculum/$slug'
+      path: '/curriculum/$slug'
+      fullPath: '/educator/curriculum/$slug'
+      preLoaderRoute: typeof EducatorCurriculumSlugRouteImport
+      parentRoute: typeof EducatorRoute
+    }
+    '/educator/admin/program-riasec': {
+      id: '/educator/admin/program-riasec'
+      path: '/program-riasec'
+      fullPath: '/educator/admin/program-riasec'
+      preLoaderRoute: typeof EducatorAdminProgramRiasecRouteImport
+      parentRoute: typeof EducatorAdminRoute
+    }
+    '/educator/admin/internship-tags': {
+      id: '/educator/admin/internship-tags'
+      path: '/internship-tags'
+      fullPath: '/educator/admin/internship-tags'
+      preLoaderRoute: typeof EducatorAdminInternshipTagsRouteImport
+      parentRoute: typeof EducatorAdminRoute
+    }
+    '/educator/admin/curriculum-tags': {
+      id: '/educator/admin/curriculum-tags'
+      path: '/curriculum-tags'
+      fullPath: '/educator/admin/curriculum-tags'
+      preLoaderRoute: typeof EducatorAdminCurriculumTagsRouteImport
+      parentRoute: typeof EducatorAdminRoute
+    }
+    '/educator/admin/educators/$id': {
+      id: '/educator/admin/educators/$id'
+      path: '/educators/$id'
+      fullPath: '/educator/admin/educators/$id'
+      preLoaderRoute: typeof EducatorAdminEducatorsIdRouteImport
+      parentRoute: typeof EducatorAdminRoute
+    }
   }
 }
 
+interface EducatorAdminRouteChildren {
+  EducatorAdminCurriculumTagsRoute: typeof EducatorAdminCurriculumTagsRoute
+  EducatorAdminInternshipTagsRoute: typeof EducatorAdminInternshipTagsRoute
+  EducatorAdminProgramRiasecRoute: typeof EducatorAdminProgramRiasecRoute
+  EducatorAdminIndexRoute: typeof EducatorAdminIndexRoute
+  EducatorAdminEducatorsIdRoute: typeof EducatorAdminEducatorsIdRoute
+}
+
+const EducatorAdminRouteChildren: EducatorAdminRouteChildren = {
+  EducatorAdminCurriculumTagsRoute: EducatorAdminCurriculumTagsRoute,
+  EducatorAdminInternshipTagsRoute: EducatorAdminInternshipTagsRoute,
+  EducatorAdminProgramRiasecRoute: EducatorAdminProgramRiasecRoute,
+  EducatorAdminIndexRoute: EducatorAdminIndexRoute,
+  EducatorAdminEducatorsIdRoute: EducatorAdminEducatorsIdRoute,
+}
+
+const EducatorAdminRouteWithChildren = EducatorAdminRoute._addFileChildren(
+  EducatorAdminRouteChildren,
+)
+
+interface EducatorRouteChildren {
+  EducatorAdminRoute: typeof EducatorAdminRouteWithChildren
+  EducatorDashboardRoute: typeof EducatorDashboardRoute
+  EducatorSignInRoute: typeof EducatorSignInRoute
+  EducatorSignUpRoute: typeof EducatorSignUpRoute
+  EducatorIndexRoute: typeof EducatorIndexRoute
+  EducatorCurriculumSlugRoute: typeof EducatorCurriculumSlugRoute
+  EducatorInternshipsSlugRoute: typeof EducatorInternshipsSlugRoute
+  EducatorInviteTokenRoute: typeof EducatorInviteTokenRoute
+  EducatorCurriculumIndexRoute: typeof EducatorCurriculumIndexRoute
+  EducatorInternshipsIndexRoute: typeof EducatorInternshipsIndexRoute
+}
+
+const EducatorRouteChildren: EducatorRouteChildren = {
+  EducatorAdminRoute: EducatorAdminRouteWithChildren,
+  EducatorDashboardRoute: EducatorDashboardRoute,
+  EducatorSignInRoute: EducatorSignInRoute,
+  EducatorSignUpRoute: EducatorSignUpRoute,
+  EducatorIndexRoute: EducatorIndexRoute,
+  EducatorCurriculumSlugRoute: EducatorCurriculumSlugRoute,
+  EducatorInternshipsSlugRoute: EducatorInternshipsSlugRoute,
+  EducatorInviteTokenRoute: EducatorInviteTokenRoute,
+  EducatorCurriculumIndexRoute: EducatorCurriculumIndexRoute,
+  EducatorInternshipsIndexRoute: EducatorInternshipsIndexRoute,
+}
+
+const EducatorRouteWithChildren = EducatorRoute._addFileChildren(
+  EducatorRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  EducatorRoute: EducatorRouteWithChildren,
+  PrivacyRoute: PrivacyRoute,
+  SignInRoute: SignInRoute,
+  SignOutRoute: SignOutRoute,
+  SignUpRoute: SignUpRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
