@@ -32,14 +32,30 @@ export function useSession() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let resolved = false;
+    const finish = (u: User | null) => {
+      setUser(u);
+      if (!resolved) {
+        resolved = true;
+        setLoading(false);
+      }
+    };
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
+      // Fires immediately with INITIAL_SESSION, so this also clears loading
+      // if getSession() hangs (network / CORS / extension blockers).
+      finish(session?.user ?? null);
     });
     supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null);
-      setLoading(false);
+      finish(data.session?.user ?? null);
+    }).catch(() => {
+      finish(null);
     });
-    return () => sub.subscription.unsubscribe();
+    // Hard timeout — never leave the UI spinning forever.
+    const t = setTimeout(() => finish(null), 4000);
+    return () => {
+      clearTimeout(t);
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   return { user, loading };
