@@ -140,9 +140,10 @@ function ImportExplrPage() {
 
       <div className="mt-6 flex items-center gap-4">
         <button
+          type="button"
           onClick={runSync}
           disabled={syncing}
-          className="rounded-md bg-ink px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+          className="btn-ink disabled:opacity-60"
         >
           {syncing ? "Syncing…" : "Sync now"}
         </button>
