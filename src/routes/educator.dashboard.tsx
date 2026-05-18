@@ -18,7 +18,7 @@ export const Route = createFileRoute("/educator/dashboard")({
 });
 
 function Dashboard() {
-  const { user, educator, loading } = useEducator();
+  const { educator, loading } = useEducator();
   const [campTags, setCampTags] = useState<Record<string, string[]>>({});
   const [internTags, setInternTags] = useState<Record<string, string[]>>({});
   const [assignments, setAssignments] = useState<Array<{ id: string; assessment_kind: string; due_at: string | null; notes: string | null }>>([]);
