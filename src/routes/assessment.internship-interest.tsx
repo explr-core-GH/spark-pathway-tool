@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { RoleGuard } from "@/components/RoleGuard";
 import { INTERNSHIPS, type Internship } from "@/lib/internships-catalog";
 import { useSession } from "@/lib/auth";
+import { CareerPathwaysDropdown } from "@/components/CareerPathwaysDropdown";
 
 export const Route = createFileRoute("/assessment/internship-interest")({
   head: () => ({ meta: [{ title: "Internship preferences — EXPLR" }] }),
