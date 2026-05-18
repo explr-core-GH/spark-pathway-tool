@@ -1,10 +1,9 @@
 @import "tailwindcss" source(none);
-@source "../src";
 @import "tw-animate-css";
-
 /* Lexend font — defensive load so the brand survives if anyone removes the
    <link> tag in __root.tsx. Browsers dedupe when both load the same URL. */
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap');
+@source "../src";
 
 /* Tailwind v4 theme — mirrors tailwind.config.ts (colors, fonts, font sizes). */
 @theme inline {
