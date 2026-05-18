@@ -1,58 +1,48 @@
-// STEM Lab activities = the real camp catalog (src/lib/camp-curriculum.ts).
-// Each camp is tagged with per-RIASEC scores (0-3) so the student dashboard
-// can rank and filter the marquee against a student's Holland code.
+// STEM Lab activities — sourced from src/lib/stemlab-catalog.ts (the 45
+// interactive activities hosted at /lab/t/<slug>). Each catalog entry's
+// riasec[] tag list is converted to a 0-3 score per dimension so the student
+// dashboard marquee can rank/filter against a student's Holland code.
 
-import { CAMPS, type CampCurriculum } from "./camp-curriculum";
+import {
+  STEM_LAB_ACTIVITIES,
+  stemLabActivityLink,
+  type StemLabActivity,
+  type RiasecType,
+} from "./stemlab-catalog";
 import type { RIASECCode } from "./riasec";
 
 export type StemActivity = {
-  id: string;          // camp slug
+  id: string;     // catalog slug
   slug: string;
   name: string;
-  program: string;     // tagline
-  emoji: string;
-  overview: string;
-  duration: string;
-  ageRange: string;
-  dayCount: number;
+  blurb: string;
+  category: string;
+  gradeBand: string;
+  href: string;   // opens the actual activity in /lab/
   scores: Record<RIASECCode, number>;
 };
 
-// RIASEC scoring per camp slug (0-3). Derived from the program-RIASEC coder
-// examples where available; remaining camps scored from their curriculum
-// overview (build/test = R+I, design/showcase = A, team/competition = S+E,
-// data/standards = C).
-const CAMP_SCORES: Record<string, Record<RIASECCode, number>> = {
-  "bike-cleveland":         { R: 3, I: 2, A: 1, S: 1, E: 0, C: 1 },
-  "boxcraft":               { R: 3, I: 2, A: 2, S: 1, E: 1, C: 1 },
-  "fashionforge":           { R: 3, I: 1, A: 3, S: 1, E: 1, C: 2 },
-  "fll-challenge":          { R: 3, I: 3, A: 1, S: 2, E: 2, C: 2 },
-  "microclimate":           { R: 2, I: 3, A: 1, S: 2, E: 1, C: 2 },
-  "oda-workshop":           { R: 0, I: 2, A: 1, S: 3, E: 2, C: 1 },
-  "robobattles":            { R: 3, I: 2, A: 1, S: 2, E: 3, C: 1 },
-  "roller-coasters-drones": { R: 3, I: 3, A: 2, S: 1, E: 1, C: 2 },
-  "seaperch":               { R: 3, I: 3, A: 1, S: 2, E: 1, C: 2 },
-  "seamate":                { R: 3, I: 3, A: 1, S: 2, E: 1, C: 2 },
-  "xrp":                    { R: 3, I: 3, A: 1, S: 1, E: 1, C: 3 },
-};
+// primary tag = 3, secondary = 2, tertiary = 1, untagged = 0
+function toScores(tags: RiasecType[]): Record<RIASECCode, number> {
+  const out: Record<RIASECCode, number> = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+  tags.forEach((t, i) => { out[t] = Math.max(out[t], 3 - i); });
+  return out;
+}
 
-function toActivity(c: CampCurriculum): StemActivity {
-  const scores = CAMP_SCORES[c.slug] ?? { R: 1, I: 1, A: 1, S: 1, E: 1, C: 1 };
+function toActivity(a: StemLabActivity): StemActivity {
   return {
-    id: c.slug,
-    slug: c.slug,
-    name: c.name,
-    program: c.tagline,
-    emoji: c.emoji,
-    overview: c.overview,
-    duration: c.duration,
-    ageRange: c.ageRange,
-    dayCount: c.days.length,
-    scores,
+    id: a.slug,
+    slug: a.slug,
+    name: a.title,
+    blurb: a.blurb,
+    category: a.category,
+    gradeBand: a.grade_band,
+    href: stemLabActivityLink(a.slug),
+    scores: toScores(a.riasec),
   };
 }
 
-export const STEM_ACTIVITIES: StemActivity[] = CAMPS.map(toActivity);
+export const STEM_ACTIVITIES: StemActivity[] = STEM_LAB_ACTIVITIES.map(toActivity);
 
 export function dominantCode(a: StemActivity): RIASECCode {
   let best: RIASECCode = "R";
