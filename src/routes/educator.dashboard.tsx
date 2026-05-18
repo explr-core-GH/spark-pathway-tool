@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useEducator } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,14 +6,19 @@ import { CAMPS } from "@/lib/camp-curriculum";
 import { INTERNSHIPS } from "@/lib/internships-catalog";
 import { ASSESSMENT_META, PROGRAM_META } from "@/lib/educator";
 import { EducatorSchoolEditor } from "@/components/EducatorSchoolEditor";
+import { EducatorGate } from "@/components/EducatorGate";
 
 export const Route = createFileRoute("/educator/dashboard")({
   head: () => ({ meta: [{ title: "Educator dashboard — EXPLR" }] }),
-  component: Dashboard,
+  component: () => (
+    <EducatorGate>
+      <Dashboard />
+    </EducatorGate>
+  ),
 });
 
 function Dashboard() {
-  const { user, educator, loading } = useEducator();
+  const { educator, loading } = useEducator();
   const [campTags, setCampTags] = useState<Record<string, string[]>>({});
   const [internTags, setInternTags] = useState<Record<string, string[]>>({});
   const [assignments, setAssignments] = useState<Array<{ id: string; assessment_kind: string; due_at: string | null; notes: string | null }>>([]);
@@ -35,36 +40,7 @@ function Dashboard() {
     });
   }, [educator]);
 
-  if (loading) return <main className="mx-auto max-w-6xl px-6 py-24 text-sm text-charcoal-400">Loading…</main>;
-  if (!user) {
-    return (
-      <main className="mx-auto max-w-md px-6 py-24 text-center">
-        <p className="lead">You need to sign in.</p>
-        <Link to="/educator/sign-in" className="btn-ink mt-6">Sign in</Link>
-      </main>
-    );
-  }
-  if (!educator) {
-    return (
-      <main className="mx-auto max-w-md px-6 py-24 text-center">
-        <p className="lead">No educator profile linked to this account.</p>
-        <Link to="/educator/sign-up" className="btn-ink mt-6">Complete sign-up</Link>
-      </main>
-    );
-  }
-  if (!educator.approved || !educator.program_type) {
-    return (
-      <main className="mx-auto max-w-md px-6 py-24 text-center">
-        <p className="eyebrow">Pending review</p>
-        <h1 className="mt-3 text-2xl font-light">Awaiting admin approval</h1>
-        <p className="mt-4 text-sm text-charcoal-500">
-          Thanks for signing up, {educator.full_name.split(" ")[0]}. An EXPLR admin will review your request and
-          assign your program type. You'll get access here once that's done.
-        </p>
-        <p className="mt-6 text-xs text-charcoal-400">Signed in as {educator.email}</p>
-      </main>
-    );
-  }
+  if (loading || !educator) return <main className="mx-auto max-w-6xl px-6 py-24 text-sm text-charcoal-400">Loading…</main>;
 
   const programType = educator.program_type as string;
   const visibleCamps = CAMPS.filter((c) => (campTags[c.slug] ?? []).includes(programType));
