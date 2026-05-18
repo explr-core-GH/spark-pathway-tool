@@ -19,8 +19,8 @@ function CurriculumIndex() {
       setTags(map);
     });
   }, []);
-  const visible = educator
-    ? CAMPS.filter((c) => (tags[c.slug] ?? []).includes(educator.program_type))
+  const visible = educator?.program_type
+    ? CAMPS.filter((c) => (tags[c.slug] ?? []).includes(educator.program_type as string))
     : CAMPS;
   return (
     <main className="mx-auto max-w-6xl px-6 py-16">
