@@ -108,6 +108,9 @@ function StudentDashboard() {
   const eligibleByGrade = grade !== null && grade >= 8 && grade <= 12;
   const canSeeInternships = eligibleByGrade && interestDone;
   const visibleInternships = INTERNSHIPS.filter((i) => !hiddenSlugs.has(i.slug));
+  const placedInternship = placement
+    ? INTERNSHIPS.find((i) => i.slug === placement.approved_internship_id)
+    : null;
 
   return (
     <div className="min-h-screen">
