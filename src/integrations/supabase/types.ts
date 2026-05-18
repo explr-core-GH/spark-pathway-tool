@@ -365,6 +365,42 @@ export type Database = {
         }
         Relationships: []
       }
+      internship_interest_completions: {
+        Row: {
+          completed_at: string
+          student_id: string
+        }
+        Insert: {
+          completed_at?: string
+          student_id: string
+        }
+        Update: {
+          completed_at?: string
+          student_id?: string
+        }
+        Relationships: []
+      }
+      internship_interest_responses: {
+        Row: {
+          internship_slug: string
+          responded_at: string
+          response: string
+          student_id: string
+        }
+        Insert: {
+          internship_slug: string
+          responded_at?: string
+          response: string
+          student_id: string
+        }
+        Update: {
+          internship_slug?: string
+          responded_at?: string
+          response?: string
+          student_id?: string
+        }
+        Relationships: []
+      }
       internship_placements: {
         Row: {
           application_id: string
@@ -445,6 +481,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      internship_visibility: {
+        Row: {
+          internship_slug: string
+          updated_at: string
+          updated_by: string | null
+          visible: boolean
+        }
+        Insert: {
+          internship_slug: string
+          updated_at?: string
+          updated_by?: string | null
+          visible?: boolean
+        }
+        Update: {
+          internship_slug?: string
+          updated_at?: string
+          updated_by?: string | null
+          visible?: boolean
+        }
+        Relationships: []
       }
       module_progress: {
         Row: {
