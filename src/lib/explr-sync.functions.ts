@@ -185,10 +185,6 @@ export const syncExplrMore = createServerFn({ method: "POST" })
     // all_rosters first — if EXPLR returns it as a flat list we save N calls.
     const regs: ExplrRegistration[] = [];
     const rosterErrors: { campId: string; error: string }[] = [];
-    const debug: { action: string; campId?: string; sample?: string; rowCount?: number; topKeys?: string[] }[] = [];
-    const sampleOf = (v: unknown) => {
-      try { return JSON.stringify(v).slice(0, 600); } catch { return String(v).slice(0, 600); }
-    };
     let allRostersWorked = false;
     try {
       const all = await callExplrExternal("all_rosters");
@@ -207,14 +203,6 @@ export const syncExplrMore = createServerFn({ method: "POST" })
           if (mapped) regs.push(mapped);
         }
       }
-      debug.push({
-        action: "all_rosters",
-        rowCount: flatCount,
-        topKeys: all && typeof all === "object" && !Array.isArray(all)
-          ? Object.keys(all as Record<string, unknown>).slice(0, 10)
-          : undefined,
-        sample: sampleOf(campsArr[0] ?? all),
-      });
       // Fallback to flat list shape if no camps key.
       if (flatCount === 0) {
         const rows = unwrapList(all);
@@ -231,29 +219,7 @@ export const syncExplrMore = createServerFn({ method: "POST" })
     }
 
     if (!allRostersWorked) {
-      for (const c of camps.slice(0, 3)) {
-        try {
-          const roster = await callExplrExternal("roster", c.id);
-          const rows = unwrapList(roster);
-          debug.push({
-            action: "roster",
-            campId: c.id,
-            rowCount: rows.length,
-            topKeys: roster && typeof roster === "object" && !Array.isArray(roster)
-              ? Object.keys(roster as Record<string, unknown>).slice(0, 10)
-              : undefined,
-            sample: sampleOf(rows[0] ?? roster),
-          });
-          for (const row of rows) {
-            const mapped = mapRosterRow(row, c.id);
-            if (mapped) regs.push(mapped);
-          }
-        } catch (e) {
-          rosterErrors.push({ campId: c.id, error: (e as Error).message });
-        }
-      }
-      // Continue remaining camps without debug capture.
-      for (const c of camps.slice(3)) {
+      for (const c of camps) {
         try {
           const roster = await callExplrExternal("roster", c.id);
           for (const row of unwrapList(roster)) {
