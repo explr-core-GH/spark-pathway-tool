@@ -149,8 +149,13 @@ function CurriculumDetail() {
           <ul className="mt-4 divide-y divide-charcoal-100 border-y border-charcoal-100">
             {resources.map((r) => (
               <li key={r.file} className="flex items-baseline justify-between py-3">
-                <a href={fileUrl(item.slug, r.file)} className="ink-link text-sm">
-                  {r.label}
+                <a
+                  href={fileUrl(item.slug, r.file)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="ink-link text-sm"
+                >
+                  {r.label} ↗
                 </a>
                 <span className="text-xs uppercase tracking-wider text-charcoal-400">
                   {RESOURCE_LABELS[r.type]}

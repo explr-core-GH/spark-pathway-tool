@@ -300,6 +300,20 @@ export function filterCampsByTag(
   return CAMPS.filter((c) => (tagMap[c.slug] ?? []).includes(pt));
 }
 
+/**
+ * Public URL for a curriculum resource file (Teacher Guide, Workbook, etc.).
+ * Files live in the Supabase Storage `curriculum` bucket at
+ * curriculum/<slug>/<filename>; the bucket is public-read so a plain
+ * <a href={fileUrl(...)}> downloads / opens directly.
+ *
+ * The bucket URL pattern matches SlideViewer.tsx — keep them in sync if
+ * either ever changes.
+ */
 export function fileUrl(slug: string, file: string): string {
-  return `/curriculum/${slug}/${encodeURIComponent(file)}`;
+  const supabaseUrl =
+    (typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_URL) ||
+    (typeof process !== "undefined" && process.env?.SUPABASE_URL) ||
+    "";
+  const path = `${encodeURIComponent(slug)}/${encodeURIComponent(file)}`;
+  return `${supabaseUrl}/storage/v1/object/public/curriculum/${path}`;
 }
