@@ -29,6 +29,76 @@ type ExplrRegistration = {
   created_at: string | null;
 };
 
+// Fetch rosters via the EXPLR external-data proxy (admin API key). The
+// previous direct PostgREST call against `registrations` failed because the
+// EXPLR_SERVICE_ROLE_KEY secret is actually the anon key — rosters are not
+// reachable that way. external-data with x-api-key bypasses RLS server-side.
+const EXPLR_EXTERNAL_DATA =
+  "https://ovmmlbpaaadzgxxrbmdl.supabase.co/functions/v1/external-data";
+
+async function callExplrExternal(action: string, campId?: string): Promise<unknown> {
+  const apiKey = process.env.EXPLR_API_KEY;
+  if (!apiKey) throw new Error("EXPLR_API_KEY not configured");
+  const url = new URL(EXPLR_EXTERNAL_DATA);
+  url.searchParams.set("action", action);
+  if (campId) url.searchParams.set("camp_id", campId);
+  const res = await fetch(url.toString(), {
+    headers: { "x-api-key": apiKey, Accept: "application/json" },
+  });
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error(`EXPLR ${action} failed [${res.status}]: ${text.slice(0, 300)}`);
+  }
+  try { return JSON.parse(text); } catch { return text; }
+}
+
+function unwrapList(payload: unknown): Record<string, unknown>[] {
+  if (Array.isArray(payload)) return payload as Record<string, unknown>[];
+  if (payload && typeof payload === "object") {
+    const p = payload as Record<string, unknown>;
+    for (const key of ["data", "items", "results", "rows", "roster", "registrations"]) {
+      const v = p[key];
+      if (Array.isArray(v)) return v as Record<string, unknown>[];
+    }
+  }
+  return [];
+}
+
+function pickStr(row: Record<string, unknown>, ...keys: string[]): string | null {
+  for (const k of keys) {
+    const v = row[k];
+    if (typeof v === "string" && v.trim()) return v;
+    if (typeof v === "number") return String(v);
+  }
+  return null;
+}
+function pickNum(row: Record<string, unknown>, ...keys: string[]): number | null {
+  for (const k of keys) {
+    const v = row[k];
+    if (typeof v === "number" && Number.isFinite(v)) return v;
+    if (typeof v === "string" && v.trim() && !isNaN(Number(v))) return Number(v);
+  }
+  return null;
+}
+
+function mapRosterRow(row: Record<string, unknown>, campId: string): ExplrRegistration | null {
+  const id = pickStr(row, "id", "registration_id", "uuid");
+  const childName =
+    pickStr(row, "child_name", "student_name", "name", "full_name", "first_name") ?? null;
+  if (!id || !childName) return null;
+  return {
+    id,
+    camp_id: pickStr(row, "camp_id", "campId") ?? campId,
+    child_name: childName,
+    child_age: pickNum(row, "child_age", "age", "student_age"),
+    parent_name: pickStr(row, "parent_name", "guardian_name", "parent"),
+    parent_email: pickStr(row, "parent_email", "email", "guardian_email"),
+    parent_phone: pickStr(row, "parent_phone", "phone", "guardian_phone"),
+    status: pickStr(row, "status", "registration_status"),
+    created_at: pickStr(row, "created_at", "registered_at", "signup_date"),
+  };
+}
+
 async function fetchAllFromExplr<T>(table: string, columns: string): Promise<T[]> {
   const url = process.env.EXPLR_SUPABASE_URL;
   const key = process.env.EXPLR_SERVICE_ROLE_KEY;
