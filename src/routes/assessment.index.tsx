@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { buildItemSequence, FORM_VERSION } from "@/lib/assessment-items";
+import { buildItemSequence } from "@/lib/assessment-items";
 import { HollandHexagon } from "@/components/HollandHexagon";
 
 export const Route = createFileRoute("/assessment/")({
