@@ -5,6 +5,7 @@ import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
 import { INTERNSHIPS, type Internship } from "@/lib/internships-catalog";
 import type { RIASECCode } from "@/lib/riasec";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export const Route = createFileRoute("/student_/apply")({
   head: () => ({ meta: [{ title: "Apply for an internship — EXPLR" }] }),
@@ -36,6 +37,30 @@ function joinList(items: string[]): string {
   if (items.length <= 1) return items[0] ?? "";
   if (items.length === 2) return `${items[0]} and ${items[1]}`;
   return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+}
+
+function HollandLetter({ code }: { code: RIASECCode }) {
+  const name = RIASEC_NAMES[code];
+  const label = RIASEC_LABELS[code];
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          title={`${name} — ${label}`}
+          className="inline-flex items-center justify-center rounded-sm border border-charcoal-200 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink hover:bg-charcoal-50 focus:outline-none focus:ring-1 focus:ring-ink"
+          aria-label={`${name}: ${label}`}
+          onClick={(e) => e.preventDefault()}
+        >
+          {code}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent side="top" className="w-56 text-xs">
+        <p className="font-semibold text-ink">{code} — {name}</p>
+        <p className="mt-1 text-charcoal-500">{label}</p>
+      </PopoverContent>
+    </Popover>
+  );
 }
 
 function buildWhyFits(
@@ -283,7 +308,15 @@ function ApplyPage() {
                           <span className="text-xs uppercase tracking-wider text-charcoal-500">{tag}</span>
                         </span>
                         <span className="mt-1 block text-sm text-charcoal-500">{i.deliverables}</span>
-                        <span className="mt-1 block text-xs text-charcoal-400">Holland fit: {i.riasec.join(" · ")}</span>
+                        <span className="mt-1 block text-xs text-charcoal-400">
+                          Holland fit:{" "}
+                          {i.riasec.map((c, idx2) => (
+                            <span key={c}>
+                              {idx2 > 0 && " · "}
+                              <HollandLetter code={c} />
+                            </span>
+                          ))}
+                        </span>
                         {why && (
                           <span className="mt-2 block text-sm italic" style={{ color: "var(--explr)" }}>
                             Why this fits you: {why}
