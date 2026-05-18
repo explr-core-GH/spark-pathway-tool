@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorksitesRouteImport } from './routes/worksites'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as StemLabRouteImport } from './routes/stem-lab'
+import { Route as StartRouteImport } from './routes/start'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignOutRouteImport } from './routes/sign-out'
 import { Route as SignInRouteImport } from './routes/sign-in'
@@ -66,6 +67,11 @@ const StudentRoute = StudentRouteImport.update({
 const StemLabRoute = StemLabRouteImport.update({
   id: '/stem-lab',
   path: '/stem-lab',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StartRoute = StartRouteImport.update({
+  id: '/start',
+  path: '/start',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignUpRoute = SignUpRouteImport.update({
@@ -288,6 +294,7 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
   '/sign-up': typeof SignUpRoute
+  '/start': typeof StartRoute
   '/stem-lab': typeof StemLabRoute
   '/student': typeof StudentRoute
   '/worksites': typeof WorksitesRoute
@@ -332,6 +339,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
   '/sign-up': typeof SignUpRoute
+  '/start': typeof StartRoute
   '/stem-lab': typeof StemLabRoute
   '/student': typeof StudentRoute
   '/worksites': typeof WorksitesRoute
@@ -377,6 +385,7 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
   '/sign-up': typeof SignUpRoute
+  '/start': typeof StartRoute
   '/stem-lab': typeof StemLabRoute
   '/student': typeof StudentRoute
   '/worksites': typeof WorksitesRoute
@@ -424,6 +433,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-out'
     | '/sign-up'
+    | '/start'
     | '/stem-lab'
     | '/student'
     | '/worksites'
@@ -468,6 +478,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-out'
     | '/sign-up'
+    | '/start'
     | '/stem-lab'
     | '/student'
     | '/worksites'
@@ -512,6 +523,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-out'
     | '/sign-up'
+    | '/start'
     | '/stem-lab'
     | '/student'
     | '/worksites'
@@ -558,6 +570,7 @@ export interface RootRouteChildren {
   SignInRoute: typeof SignInRoute
   SignOutRoute: typeof SignOutRoute
   SignUpRoute: typeof SignUpRoute
+  StartRoute: typeof StartRoute
   StemLabRoute: typeof StemLabRoute
   StudentRoute: typeof StudentRoute
   WorksitesRoute: typeof WorksitesRoute
@@ -591,6 +604,13 @@ declare module '@tanstack/react-router' {
       path: '/stem-lab'
       fullPath: '/stem-lab'
       preLoaderRoute: typeof StemLabRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/start': {
+      id: '/start'
+      path: '/start'
+      fullPath: '/start'
+      preLoaderRoute: typeof StartRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sign-up': {
@@ -955,6 +975,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignInRoute: SignInRoute,
   SignOutRoute: SignOutRoute,
   SignUpRoute: SignUpRoute,
+  StartRoute: StartRoute,
   StemLabRoute: StemLabRoute,
   StudentRoute: StudentRoute,
   WorksitesRoute: WorksitesRoute,

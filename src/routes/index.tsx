@@ -101,8 +101,9 @@ function SiteHeader() {
         </Link>
         <nav className="flex items-center gap-7 text-sm">
           <Link to="/about" className="text-charcoal-500 hover:text-ink">About</Link>
-          
-          <Link to="/assessment" className="btn-mint">Start</Link>
+          <Link to="/sign-in" className="text-charcoal-500 hover:text-ink">Student sign in</Link>
+          <Link to="/educator/sign-in" className="text-charcoal-500 hover:text-ink">Educator sign in</Link>
+          <Link to="/start" className="btn-mint">Start</Link>
         </nav>
       </div>
     </header>
@@ -146,7 +147,7 @@ function Landing() {
                 survey that gives you a starting point — not a verdict.
               </p>
               <div className="mt-10 flex gap-3">
-                <Link to="/assessment" className="btn-ink">Take the assessment</Link>
+                <Link to="/start" className="btn-ink">Take the assessment</Link>
                 <Link to="/about" className="btn-ghost">How it works</Link>
               </div>
             </div>
