@@ -123,6 +123,50 @@ function Landing() {
           </div>
         </section>
 
+        {/* More than an assessment */}
+        <section className="mx-auto max-w-6xl px-6 py-24">
+          <div className="grid gap-10 lg:grid-cols-[260px_1fr]">
+            <div>
+              <p className="eyebrow">Beyond the survey</p>
+              <h2 className="mt-3 text-3xl font-light tracking-tight">More than an assessment.</h2>
+              <p className="mt-3 text-sm text-charcoal-500">
+                EXPLR Pathways connects students, educators, and STEM programs to the next step.
+              </p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-3">
+              <article className="border border-charcoal-100 p-6">
+                <p className="eyebrow" style={{ color: "var(--explr)" }}>Students</p>
+                <h3 className="mt-3 text-lg font-medium">Internships &amp; opportunities</h3>
+                <p className="mt-3 text-sm text-charcoal-500">
+                  Interested high schoolers can apply for internships and real-world
+                  opportunities matched to their RIASEC interests.
+                </p>
+                <Link to="/assessment" className="ink-link mt-5 inline-block text-sm">Start the assessment →</Link>
+              </article>
+
+              <article className="border border-charcoal-100 p-6">
+                <p className="eyebrow" style={{ color: "var(--explr)" }}>Educators</p>
+                <h3 className="mt-3 text-lg font-medium">Curricular materials</h3>
+                <p className="mt-3 text-sm text-charcoal-500">
+                  Approved educators access curriculum and lesson resources tied to
+                  career pathways and student interest profiles.
+                </p>
+                <Link to="/educator/sign-up" className="ink-link mt-5 inline-block text-sm">Request educator access →</Link>
+              </article>
+
+              <article className="border border-charcoal-100 p-6">
+                <p className="eyebrow" style={{ color: "var(--explr)" }}>STEM programs</p>
+                <h3 className="mt-3 text-lg font-medium">Robotics &amp; STEM curriculum</h3>
+                <p className="mt-3 text-sm text-charcoal-500">
+                  Educators and organizations running FLL, FTC, and FRC programs can
+                  access materials, curriculum, and programming resources.
+                </p>
+                <Link to="/educator/sign-up" className="ink-link mt-5 inline-block text-sm">Request program access →</Link>
+              </article>
+            </div>
+          </div>
+        </section>
+
       </main>
 
       <SiteFooter />
