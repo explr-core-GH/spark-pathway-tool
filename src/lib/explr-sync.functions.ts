@@ -192,24 +192,40 @@ export const syncExplrMore = createServerFn({ method: "POST" })
     let allRostersWorked = false;
     try {
       const all = await callExplrExternal("all_rosters");
-      const rows = unwrapList(all);
+      // Shape: { camps: [{ id, registrations: [...] }] } — flatten.
+      const campsArr: Record<string, unknown>[] =
+        all && typeof all === "object" && Array.isArray((all as Record<string, unknown>).camps)
+          ? ((all as Record<string, unknown>).camps as Record<string, unknown>[])
+          : [];
+      let flatCount = 0;
+      for (const c of campsArr) {
+        const cid = pickStr(c, "id", "camp_id") ?? "";
+        const regsArr = Array.isArray(c.registrations) ? (c.registrations as Record<string, unknown>[]) : [];
+        for (const row of regsArr) {
+          flatCount++;
+          const mapped = mapRosterRow(row, cid);
+          if (mapped) regs.push(mapped);
+        }
+      }
       debug.push({
         action: "all_rosters",
-        rowCount: rows.length,
+        rowCount: flatCount,
         topKeys: all && typeof all === "object" && !Array.isArray(all)
           ? Object.keys(all as Record<string, unknown>).slice(0, 10)
           : undefined,
-        sample: sampleOf(rows[0] ?? all),
+        sample: sampleOf(campsArr[0] ?? all),
       });
-      if (rows.length > 0) {
+      // Fallback to flat list shape if no camps key.
+      if (flatCount === 0) {
+        const rows = unwrapList(all);
         for (const row of rows) {
           const campId = pickStr(row, "camp_id", "campId") ?? "";
           if (!campId) continue;
           const mapped = mapRosterRow(row, campId);
           if (mapped) regs.push(mapped);
         }
-        allRostersWorked = regs.length > 0;
       }
+      allRostersWorked = regs.length > 0;
     } catch (e) {
       rosterErrors.push({ campId: "all_rosters", error: (e as Error).message });
     }
