@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { RIASEC_ORDER, type RIASECCode } from "@/lib/riasec";
+import { ProgramTypeTagPills } from "@/components/ProgramTypeTagPills";
+import type { ProgramType } from "@/lib/educator";
 
 export const Route = createFileRoute("/educator/admin/internships")({
   head: () => ({ meta: [{ title: "Internships — Admin" }] }),
@@ -33,14 +35,20 @@ function InternshipsAdmin() {
   const [editing, setEditing] = useState<Row | null>(null);
   const [creating, setCreating] = useState(false);
   const [saving, setSaving] = useState(false);
+  // slug -> set of program types tagged for that internship
+  const [tags, setTags] = useState<Record<string, ProgramType[]>>({});
 
   async function load() {
-    const { data } = await supabase
-      .from("internships")
-      .select("*")
-      .order("sort_order")
-      .order("name");
-    setRows((data ?? []) as Row[]);
+    const [{ data: is }, { data: ts }] = await Promise.all([
+      supabase.from("internships").select("*").order("sort_order").order("name"),
+      supabase.from("internship_tags").select("internship_slug, program_type"),
+    ]);
+    setRows((is ?? []) as Row[]);
+    const map: Record<string, ProgramType[]> = {};
+    for (const t of (ts ?? []) as Array<{ internship_slug: string; program_type: ProgramType }>) {
+      (map[t.internship_slug] ??= []).push(t.program_type);
+    }
+    setTags(map);
   }
   useEffect(() => { load(); }, []);
 
@@ -82,24 +90,35 @@ function InternshipsAdmin() {
 
       <ul className="mt-10 divide-y divide-charcoal-100 border-y border-charcoal-100">
         {rows.map((r) => (
-          <li key={r.slug} className="flex items-center gap-4 py-3">
-            <span className="text-2xl" aria-hidden>{r.emoji}</span>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium truncate">{r.name}</p>
-              <p className="text-xs text-charcoal-500 truncate">
-                {r.theme} · {r.slug}{r.lead ? ` · ${r.lead}` : ""}
-                {r.riasec.length > 0 ? ` · ${r.riasec.join("")}` : ""}
-              </p>
+          <li key={r.slug} className="py-4">
+            <div className="flex items-center gap-4">
+              <span className="text-2xl" aria-hidden>{r.emoji}</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium truncate">{r.name}</p>
+                <p className="text-xs text-charcoal-500 truncate">
+                  {r.theme} · {r.slug}{r.lead ? ` · ${r.lead}` : ""}
+                  {r.riasec.length > 0 ? ` · ${r.riasec.join("")}` : ""}
+                </p>
+              </div>
+              <button onClick={() => toggleVisible(r)}
+                className="text-xs px-2 py-1 border"
+                style={{ borderColor: r.visible ? "var(--color-explr-500)" : "var(--color-charcoal-200)",
+                         color: r.visible ? "var(--color-explr-600)" : "var(--color-charcoal-500)" }}>
+                {r.visible ? "Visible" : "Hidden"}
+              </button>
+              <Link to="/educator/admin/assign" search={{ mode: "internship", slug: r.slug }} className="text-xs text-explr-600 hover:underline">Assign educators</Link>
+              <button onClick={() => { setCreating(false); setEditing({ ...r }); }} className="text-xs text-charcoal-500 hover:text-ink">Edit</button>
+              <button onClick={() => remove(r.slug)} className="text-xs text-red-600 hover:underline">Delete</button>
             </div>
-            <button onClick={() => toggleVisible(r)}
-              className="text-xs px-2 py-1 border"
-              style={{ borderColor: r.visible ? "var(--color-explr-500)" : "var(--color-charcoal-200)",
-                       color: r.visible ? "var(--color-explr-600)" : "var(--color-charcoal-500)" }}>
-              {r.visible ? "Visible" : "Hidden"}
-            </button>
-            <Link to="/educator/admin/assign" search={{ mode: "internship", slug: r.slug }} className="text-xs text-explr-600 hover:underline">Assign educators</Link>
-            <button onClick={() => { setCreating(false); setEditing({ ...r }); }} className="text-xs text-charcoal-500 hover:text-ink">Edit</button>
-            <button onClick={() => remove(r.slug)} className="text-xs text-red-600 hover:underline">Delete</button>
+            {/* Program-type tag pills — click to tag/untag this internship */}
+            <div className="mt-2 pl-10">
+              <ProgramTypeTagPills
+                kind="internship"
+                slug={r.slug}
+                tags={tags[r.slug] ?? []}
+                onChange={(next) => setTags((m) => ({ ...m, [r.slug]: next }))}
+              />
+            </div>
           </li>
         ))}
         {rows.length === 0 && <li className="py-6 text-sm text-charcoal-500">No internships yet.</li>}

@@ -22,7 +22,9 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Catalog",
     items: [
-      { to: "/educator/admin/camps", label: "Camps" },
+      // 'Curriculum' is the renamed camps admin — supports add / edit and
+      // hosts the program-type tag pills inline (no separate tags page).
+      { to: "/educator/admin/camps", label: "Curriculum" },
       { to: "/educator/admin/internships", label: "Internships" },
       { to: "/educator/admin/programs", label: "Programs" },
     ],
@@ -40,8 +42,6 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { to: "/educator/admin/assessments", label: "Assessments" },
       { to: "/educator/admin/demographics", label: "Demographics" },
-      { to: "/educator/admin/curriculum-tags", label: "Curriculum tags" },
-      { to: "/educator/admin/internship-tags", label: "Internship tags" },
       { to: "/educator/admin/program-riasec", label: "Program-RIASEC" },
       { to: "/educator/admin/import-explr", label: "Import from ExplrMore" },
     ],

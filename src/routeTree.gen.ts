@@ -41,10 +41,8 @@ import { Route as EducatorAdminProgramRiasecRouteImport } from './routes/educato
 import { Route as EducatorAdminPlacementsRouteImport } from './routes/educator.admin.placements'
 import { Route as EducatorAdminInvitesRouteImport } from './routes/educator.admin.invites'
 import { Route as EducatorAdminInternshipsRouteImport } from './routes/educator.admin.internships'
-import { Route as EducatorAdminInternshipTagsRouteImport } from './routes/educator.admin.internship-tags'
 import { Route as EducatorAdminImportExplrRouteImport } from './routes/educator.admin.import-explr'
 import { Route as EducatorAdminDemographicsRouteImport } from './routes/educator.admin.demographics'
-import { Route as EducatorAdminCurriculumTagsRouteImport } from './routes/educator.admin.curriculum-tags'
 import { Route as EducatorAdminCampsRouteImport } from './routes/educator.admin.camps'
 import { Route as EducatorAdminAssignRouteImport } from './routes/educator.admin.assign'
 import { Route as EducatorAdminAssessmentsRouteImport } from './routes/educator.admin.assessments'
@@ -217,12 +215,6 @@ const EducatorAdminInternshipsRoute =
     path: '/internships',
     getParentRoute: () => EducatorAdminRoute,
   } as any)
-const EducatorAdminInternshipTagsRoute =
-  EducatorAdminInternshipTagsRouteImport.update({
-    id: '/internship-tags',
-    path: '/internship-tags',
-    getParentRoute: () => EducatorAdminRoute,
-  } as any)
 const EducatorAdminImportExplrRoute =
   EducatorAdminImportExplrRouteImport.update({
     id: '/import-explr',
@@ -233,12 +225,6 @@ const EducatorAdminDemographicsRoute =
   EducatorAdminDemographicsRouteImport.update({
     id: '/demographics',
     path: '/demographics',
-    getParentRoute: () => EducatorAdminRoute,
-  } as any)
-const EducatorAdminCurriculumTagsRoute =
-  EducatorAdminCurriculumTagsRouteImport.update({
-    id: '/curriculum-tags',
-    path: '/curriculum-tags',
     getParentRoute: () => EducatorAdminRoute,
   } as any)
 const EducatorAdminCampsRoute = EducatorAdminCampsRouteImport.update({
@@ -307,10 +293,8 @@ export interface FileRoutesByFullPath {
   '/educator/admin/assessments': typeof EducatorAdminAssessmentsRoute
   '/educator/admin/assign': typeof EducatorAdminAssignRoute
   '/educator/admin/camps': typeof EducatorAdminCampsRoute
-  '/educator/admin/curriculum-tags': typeof EducatorAdminCurriculumTagsRoute
   '/educator/admin/demographics': typeof EducatorAdminDemographicsRoute
   '/educator/admin/import-explr': typeof EducatorAdminImportExplrRoute
-  '/educator/admin/internship-tags': typeof EducatorAdminInternshipTagsRoute
   '/educator/admin/internships': typeof EducatorAdminInternshipsRoute
   '/educator/admin/invites': typeof EducatorAdminInvitesRoute
   '/educator/admin/placements': typeof EducatorAdminPlacementsRoute
@@ -350,10 +334,8 @@ export interface FileRoutesByTo {
   '/educator/admin/assessments': typeof EducatorAdminAssessmentsRoute
   '/educator/admin/assign': typeof EducatorAdminAssignRoute
   '/educator/admin/camps': typeof EducatorAdminCampsRoute
-  '/educator/admin/curriculum-tags': typeof EducatorAdminCurriculumTagsRoute
   '/educator/admin/demographics': typeof EducatorAdminDemographicsRoute
   '/educator/admin/import-explr': typeof EducatorAdminImportExplrRoute
-  '/educator/admin/internship-tags': typeof EducatorAdminInternshipTagsRoute
   '/educator/admin/internships': typeof EducatorAdminInternshipsRoute
   '/educator/admin/invites': typeof EducatorAdminInvitesRoute
   '/educator/admin/placements': typeof EducatorAdminPlacementsRoute
@@ -396,10 +378,8 @@ export interface FileRoutesById {
   '/educator/admin/assessments': typeof EducatorAdminAssessmentsRoute
   '/educator/admin/assign': typeof EducatorAdminAssignRoute
   '/educator/admin/camps': typeof EducatorAdminCampsRoute
-  '/educator/admin/curriculum-tags': typeof EducatorAdminCurriculumTagsRoute
   '/educator/admin/demographics': typeof EducatorAdminDemographicsRoute
   '/educator/admin/import-explr': typeof EducatorAdminImportExplrRoute
-  '/educator/admin/internship-tags': typeof EducatorAdminInternshipTagsRoute
   '/educator/admin/internships': typeof EducatorAdminInternshipsRoute
   '/educator/admin/invites': typeof EducatorAdminInvitesRoute
   '/educator/admin/placements': typeof EducatorAdminPlacementsRoute
@@ -443,10 +423,8 @@ export interface FileRouteTypes {
     | '/educator/admin/assessments'
     | '/educator/admin/assign'
     | '/educator/admin/camps'
-    | '/educator/admin/curriculum-tags'
     | '/educator/admin/demographics'
     | '/educator/admin/import-explr'
-    | '/educator/admin/internship-tags'
     | '/educator/admin/internships'
     | '/educator/admin/invites'
     | '/educator/admin/placements'
@@ -486,10 +464,8 @@ export interface FileRouteTypes {
     | '/educator/admin/assessments'
     | '/educator/admin/assign'
     | '/educator/admin/camps'
-    | '/educator/admin/curriculum-tags'
     | '/educator/admin/demographics'
     | '/educator/admin/import-explr'
-    | '/educator/admin/internship-tags'
     | '/educator/admin/internships'
     | '/educator/admin/invites'
     | '/educator/admin/placements'
@@ -531,10 +507,8 @@ export interface FileRouteTypes {
     | '/educator/admin/assessments'
     | '/educator/admin/assign'
     | '/educator/admin/camps'
-    | '/educator/admin/curriculum-tags'
     | '/educator/admin/demographics'
     | '/educator/admin/import-explr'
-    | '/educator/admin/internship-tags'
     | '/educator/admin/internships'
     | '/educator/admin/invites'
     | '/educator/admin/placements'
@@ -796,13 +770,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EducatorAdminInternshipsRouteImport
       parentRoute: typeof EducatorAdminRoute
     }
-    '/educator/admin/internship-tags': {
-      id: '/educator/admin/internship-tags'
-      path: '/internship-tags'
-      fullPath: '/educator/admin/internship-tags'
-      preLoaderRoute: typeof EducatorAdminInternshipTagsRouteImport
-      parentRoute: typeof EducatorAdminRoute
-    }
     '/educator/admin/import-explr': {
       id: '/educator/admin/import-explr'
       path: '/import-explr'
@@ -815,13 +782,6 @@ declare module '@tanstack/react-router' {
       path: '/demographics'
       fullPath: '/educator/admin/demographics'
       preLoaderRoute: typeof EducatorAdminDemographicsRouteImport
-      parentRoute: typeof EducatorAdminRoute
-    }
-    '/educator/admin/curriculum-tags': {
-      id: '/educator/admin/curriculum-tags'
-      path: '/curriculum-tags'
-      fullPath: '/educator/admin/curriculum-tags'
-      preLoaderRoute: typeof EducatorAdminCurriculumTagsRouteImport
       parentRoute: typeof EducatorAdminRoute
     }
     '/educator/admin/camps': {
@@ -881,10 +841,8 @@ interface EducatorAdminRouteChildren {
   EducatorAdminAssessmentsRoute: typeof EducatorAdminAssessmentsRoute
   EducatorAdminAssignRoute: typeof EducatorAdminAssignRoute
   EducatorAdminCampsRoute: typeof EducatorAdminCampsRoute
-  EducatorAdminCurriculumTagsRoute: typeof EducatorAdminCurriculumTagsRoute
   EducatorAdminDemographicsRoute: typeof EducatorAdminDemographicsRoute
   EducatorAdminImportExplrRoute: typeof EducatorAdminImportExplrRoute
-  EducatorAdminInternshipTagsRoute: typeof EducatorAdminInternshipTagsRoute
   EducatorAdminInternshipsRoute: typeof EducatorAdminInternshipsRoute
   EducatorAdminInvitesRoute: typeof EducatorAdminInvitesRoute
   EducatorAdminPlacementsRoute: typeof EducatorAdminPlacementsRoute
@@ -900,10 +858,8 @@ const EducatorAdminRouteChildren: EducatorAdminRouteChildren = {
   EducatorAdminAssessmentsRoute: EducatorAdminAssessmentsRoute,
   EducatorAdminAssignRoute: EducatorAdminAssignRoute,
   EducatorAdminCampsRoute: EducatorAdminCampsRoute,
-  EducatorAdminCurriculumTagsRoute: EducatorAdminCurriculumTagsRoute,
   EducatorAdminDemographicsRoute: EducatorAdminDemographicsRoute,
   EducatorAdminImportExplrRoute: EducatorAdminImportExplrRoute,
-  EducatorAdminInternshipTagsRoute: EducatorAdminInternshipTagsRoute,
   EducatorAdminInternshipsRoute: EducatorAdminInternshipsRoute,
   EducatorAdminInvitesRoute: EducatorAdminInvitesRoute,
   EducatorAdminPlacementsRoute: EducatorAdminPlacementsRoute,

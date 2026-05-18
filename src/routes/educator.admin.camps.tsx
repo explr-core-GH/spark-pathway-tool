@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { ProgramTypeTagPills } from "@/components/ProgramTypeTagPills";
+import type { ProgramType } from "@/lib/educator";
 
 export const Route = createFileRoute("/educator/admin/camps")({
-  head: () => ({ meta: [{ title: "Camps — Admin" }] }),
+  head: () => ({ meta: [{ title: "Curriculum — Admin" }] }),
   component: CampsAdmin,
 });
 
@@ -30,14 +32,24 @@ function CampsAdmin() {
   const [editing, setEditing] = useState<Row | null>(null);
   const [creating, setCreating] = useState(false);
   const [saving, setSaving] = useState(false);
+  // slug -> set of program types tagged for that curriculum item
+  const [tags, setTags] = useState<Record<string, ProgramType[]>>({});
 
   async function load() {
-    const { data } = await supabase
-      .from("camps")
-      .select("slug,name,emoji,tagline,duration,age_range,overview,slides,visible,sort_order")
-      .order("sort_order")
-      .order("name");
-    setRows((data ?? []) as Row[]);
+    const [{ data: cs }, { data: ts }] = await Promise.all([
+      supabase
+        .from("camps")
+        .select("slug,name,emoji,tagline,duration,age_range,overview,slides,visible,sort_order")
+        .order("sort_order")
+        .order("name"),
+      supabase.from("curriculum_tags").select("camp_slug, program_type"),
+    ]);
+    setRows((cs ?? []) as Row[]);
+    const map: Record<string, ProgramType[]> = {};
+    for (const t of (ts ?? []) as Array<{ camp_slug: string; program_type: ProgramType }>) {
+      (map[t.camp_slug] ??= []).push(t.program_type);
+    }
+    setTags(map);
   }
   useEffect(() => { load(); }, []);
 
@@ -70,41 +82,56 @@ function CampsAdmin() {
       <div className="flex items-baseline justify-between">
         <div>
           <p className="eyebrow">Admin</p>
-          <h1 className="display mt-2">Camps & curriculum</h1>
+          <h1 className="display mt-2">Curriculum</h1>
+          <p className="lead mt-3">
+            Camp + classroom curriculum items. Tag each one with the program types
+            whose educators should see it.
+          </p>
         </div>
         <button onClick={() => { setCreating(true); setEditing({ ...EMPTY }); }} className="btn-ink">
-          + New camp
+          + New curriculum item
         </button>
       </div>
 
       <ul className="mt-10 divide-y divide-charcoal-100 border-y border-charcoal-100">
         {rows.map((r) => (
-          <li key={r.slug} className="flex items-center gap-4 py-3">
-            <span className="text-2xl" aria-hidden>{r.emoji}</span>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium truncate">{r.name}</p>
-              <p className="text-xs text-charcoal-500 truncate">
-                {r.duration} · {r.age_range} · {r.slug}
-              </p>
+          <li key={r.slug} className="py-4">
+            <div className="flex items-center gap-4">
+              <span className="text-2xl" aria-hidden>{r.emoji}</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium truncate">{r.name}</p>
+                <p className="text-xs text-charcoal-500 truncate">
+                  {r.duration} · {r.age_range} · {r.slug}
+                </p>
+              </div>
+              <button onClick={() => toggleVisible(r)}
+                className="text-xs px-2 py-1 border"
+                style={{ borderColor: r.visible ? "var(--color-explr-500)" : "var(--color-charcoal-200)",
+                         color: r.visible ? "var(--color-explr-600)" : "var(--color-charcoal-500)" }}>
+                {r.visible ? "Visible" : "Hidden"}
+              </button>
+              <Link to="/educator/admin/assign" search={{ mode: "camp", slug: r.slug }} className="text-xs text-explr-600 hover:underline">Assign educators</Link>
+              <button onClick={() => { setCreating(false); setEditing({ ...r }); }} className="text-xs text-charcoal-500 hover:text-ink">Edit</button>
+              <button onClick={() => remove(r.slug)} className="text-xs text-red-600 hover:underline">Delete</button>
             </div>
-            <button onClick={() => toggleVisible(r)}
-              className="text-xs px-2 py-1 border"
-              style={{ borderColor: r.visible ? "var(--color-explr-500)" : "var(--color-charcoal-200)",
-                       color: r.visible ? "var(--color-explr-600)" : "var(--color-charcoal-500)" }}>
-              {r.visible ? "Visible" : "Hidden"}
-            </button>
-            <Link to="/educator/admin/assign" search={{ mode: "camp", slug: r.slug }} className="text-xs text-explr-600 hover:underline">Assign educators</Link>
-            <button onClick={() => { setCreating(false); setEditing({ ...r }); }} className="text-xs text-charcoal-500 hover:text-ink">Edit</button>
-            <button onClick={() => remove(r.slug)} className="text-xs text-red-600 hover:underline">Delete</button>
+            {/* Tag pills — click to tag/untag this curriculum item for a program type */}
+            <div className="mt-2 pl-10">
+              <ProgramTypeTagPills
+                kind="curriculum"
+                slug={r.slug}
+                tags={tags[r.slug] ?? []}
+                onChange={(next) => setTags((m) => ({ ...m, [r.slug]: next }))}
+              />
+            </div>
           </li>
         ))}
-        {rows.length === 0 && <li className="py-6 text-sm text-charcoal-500">No camps yet.</li>}
+        {rows.length === 0 && <li className="py-6 text-sm text-charcoal-500">No curriculum items yet.</li>}
       </ul>
 
       {editing && (
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-6">
           <div className="w-full max-w-2xl border bg-white p-8">
-            <h2 className="text-xl font-medium">{creating ? "New camp" : `Edit · ${editing.slug}`}</h2>
+            <h2 className="text-xl font-medium">{creating ? "New curriculum item" : `Edit · ${editing.slug}`}</h2>
             <div className="mt-6 grid gap-4">
               <div className="grid grid-cols-[1fr_auto] gap-3">
                 <div>
