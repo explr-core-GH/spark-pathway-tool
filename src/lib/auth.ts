@@ -8,7 +8,7 @@ export type EducatorRow = {
   full_name: string;
   email: string;
   organization: string | null;
-  program_type: string;
+  program_type: string | null;
   role: "educator" | "admin";
   approved: boolean;
   school_irn: string | null;
