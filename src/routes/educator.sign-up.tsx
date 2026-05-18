@@ -28,7 +28,14 @@ function EducatorSignUp() {
       email, password, options: { emailRedirectTo: window.location.origin },
     });
     if (error) { setError(error.message); setLoading(false); return; }
-    if (data.user) {
+    // Ensure an authenticated session exists before inserting (RLS requires auth.uid()=id).
+    let session = data.session;
+    if (!session) {
+      const { data: signIn, error: siErr } = await supabase.auth.signInWithPassword({ email, password });
+      if (siErr) { setError(siErr.message); setLoading(false); return; }
+      session = signIn.session;
+    }
+    if (data.user && session) {
       const { error: eErr } = await supabase.from("educators").insert({
         id: data.user.id,
         full_name: fullName,
