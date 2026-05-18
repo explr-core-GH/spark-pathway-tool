@@ -171,6 +171,26 @@ function StudentDashboard() {
           </div>
         </section>
 
+        {/* Aptitude battery */}
+        <section className="mt-12 border-t border-charcoal-100 pt-10">
+          <div className="flex items-baseline justify-between gap-6">
+            <div>
+              <p className="eyebrow">Aptitude battery</p>
+              <p className="mt-3 text-2xl font-light text-charcoal-500">
+                A short {grade !== null && grade >= 8 ? "high-school" : "middle-school"} battery
+                covering numeric, pattern, and verbal reasoning.
+              </p>
+            </div>
+            <Link
+              to="/demo/aptitude/$band/take"
+              params={{ band: grade !== null && grade >= 8 ? "HS" : "MS" }}
+              className="btn-ink shrink-0"
+            >
+              Take aptitude battery
+            </Link>
+          </div>
+        </section>
+
         {/* Application & internships — only for grades 8-12 who finished the interest survey */}
         {eligibleByGrade && (
           <>
@@ -194,11 +214,11 @@ function StudentDashboard() {
               ) : !interestDone ? (
                 <div className="mt-4">
                   <p className="text-charcoal-500 max-w-2xl">
-                    Before you can browse and apply, take the internship interest survey — a quick
-                    yes / maybe / no across the catalog.
+                    Before you can browse and apply, set your internship preferences — a quick
+                    yes / maybe / no across the catalog so we can rank your application list.
                   </p>
                   <Link to="/assessment/internship-interest" className="btn-ink mt-5 inline-block">
-                    Take the interest survey
+                    Set internship preferences
                   </Link>
                 </div>
               ) : (
@@ -220,7 +240,7 @@ function StudentDashboard() {
                 <div className="flex items-baseline justify-between gap-4">
                   <p className="eyebrow">Internships</p>
                   <Link to="/assessment/internship-interest" className="text-xs text-charcoal-500 hover:text-ink">
-                    Update interest →
+                    Update preferences →
                   </Link>
                 </div>
                 <p className="mt-3 text-charcoal-500 max-w-2xl">
