@@ -66,9 +66,10 @@ function Dashboard() {
     );
   }
 
-  const visibleCamps = CAMPS.filter((c) => (campTags[c.slug] ?? []).includes(educator.program_type));
-  const visibleInternships = INTERNSHIPS.filter((i) => (internTags[i.slug] ?? []).includes(educator.program_type));
-  const meta = PROGRAM_META[educator.program_type as keyof typeof PROGRAM_META];
+  const programType = educator.program_type as string;
+  const visibleCamps = CAMPS.filter((c) => (campTags[c.slug] ?? []).includes(programType));
+  const visibleInternships = INTERNSHIPS.filter((i) => (internTags[i.slug] ?? []).includes(programType));
+  const meta = PROGRAM_META[programType as keyof typeof PROGRAM_META];
 
 
   return (
