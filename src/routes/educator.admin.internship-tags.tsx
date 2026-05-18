@@ -115,12 +115,15 @@ function InternshipTags() {
                     }}
                   >
                     <span
-                      className="h-3 w-3 shrink-0 border"
+                      className="flex h-4 w-4 shrink-0 items-center justify-center border text-[10px] leading-none"
                       style={{
                         borderColor: on ? "var(--ink)" : "var(--color-charcoal-300)",
                         background: on ? "var(--ink)" : "transparent",
+                        color: "white",
                       }}
-                    />
+                    >
+                      {on ? "✓" : ""}
+                    </span>
                     {s.label}
                   </button>
                 );
