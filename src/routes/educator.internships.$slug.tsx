@@ -55,21 +55,20 @@ function InternshipDetail() {
       });
   }, [slug]);
 
+  // Access is now purely by direct assignment in internship_educators.
+  // Admins see everything; educators see only internships they've been
+  // explicitly assigned to via /educator/admin/assign.
   useEffect(() => {
     if (isAdmin) {
       setAllowed(true);
       return;
     }
     if (!educator) return;
-    if (!educator.program_type) {
-      setAllowed(false);
-      return;
-    }
     supabase
-      .from("internship_tags")
-      .select("program_type")
+      .from("internship_educators")
+      .select("internship_slug")
       .eq("internship_slug", slug)
-      .eq("program_type", educator.program_type as never)
+      .eq("educator_id", educator.id)
       .maybeSingle()
       .then(({ data }) => setAllowed(!!data));
   }, [educator, isAdmin, slug]);
@@ -94,12 +93,15 @@ function InternshipDetail() {
   if (!allowed) {
     return (
       <main className="mx-auto max-w-md px-6 py-24 text-center">
-        <p className="eyebrow">Not available</p>
+        <p className="eyebrow">Not assigned</p>
         <h1 className="mt-3 text-2xl font-light">
-          This internship isn&apos;t approved for your program
+          This internship hasn&apos;t been assigned to you
         </h1>
-        <Link to="/educator/internships" className="btn-ink mt-6 inline-block">
-          Back to internships
+        <p className="mt-3 text-sm text-charcoal-500">
+          Ask an EXPLR admin to add you to it.
+        </p>
+        <Link to="/educator/dashboard" className="btn-ink mt-6 inline-block">
+          Back to dashboard
         </Link>
       </main>
     );

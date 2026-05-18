@@ -25,7 +25,7 @@ type Internship = {
 function InternshipsIndex() {
   const { educator, isAdmin } = useEducator();
   const [internships, setInternships] = useState<Internship[]>([]);
-  const [tags, setTags] = useState<Record<string, string[]>>({});
+  const [assigned, setAssigned] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     // Read from the Supabase `internships` table — anything added via
@@ -38,24 +38,24 @@ function InternshipsIndex() {
       .order("sort_order")
       .order("name")
       .then(({ data }) => setInternships((data ?? []) as Internship[]));
-
-    supabase
-      .from("internship_tags")
-      .select("internship_slug, program_type")
-      .then(({ data }) => {
-        const map: Record<string, string[]> = {};
-        (data ?? []).forEach((r) => {
-          (map[r.internship_slug] ??= []).push(r.program_type);
-        });
-        setTags(map);
-      });
   }, []);
+
+  // Direct-assignment-only access: educators see what the admin checked
+  // off for them in /educator/admin/assign.
+  useEffect(() => {
+    if (!educator || isAdmin) return;
+    supabase
+      .from("internship_educators")
+      .select("internship_slug")
+      .eq("educator_id", educator.id)
+      .then(({ data }) => {
+        setAssigned(new Set((data ?? []).map((r) => r.internship_slug)));
+      });
+  }, [educator, isAdmin]);
 
   const visible = isAdmin
     ? internships
-    : internships.filter((i) =>
-        (tags[i.slug] ?? []).includes(educator?.program_type ?? ""),
-      );
+    : internships.filter((i) => assigned.has(i.slug));
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-16">
@@ -63,7 +63,8 @@ function InternshipsIndex() {
       <h1 className="mt-3 text-4xl font-light">{visible.length} programs</h1>
       {visible.length === 0 && (
         <p className="mt-6 text-sm text-charcoal-500">
-          No internships have been approved for your program type yet.
+          No internships have been assigned to you yet. Ask an EXPLR admin
+          to add you to one.
         </p>
       )}
       <div className="mt-10 grid gap-px bg-charcoal-100 sm:grid-cols-2 lg:grid-cols-3">

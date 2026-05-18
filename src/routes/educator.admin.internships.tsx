@@ -2,8 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { RIASEC_ORDER, type RIASECCode } from "@/lib/riasec";
-import { ProgramTypeTagPills } from "@/components/ProgramTypeTagPills";
-import type { ProgramType } from "@/lib/educator";
 
 export const Route = createFileRoute("/educator/admin/internships")({
   head: () => ({ meta: [{ title: "Internships — Admin" }] }),
@@ -35,20 +33,14 @@ function InternshipsAdmin() {
   const [editing, setEditing] = useState<Row | null>(null);
   const [creating, setCreating] = useState(false);
   const [saving, setSaving] = useState(false);
-  // slug -> set of program types tagged for that internship
-  const [tags, setTags] = useState<Record<string, ProgramType[]>>({});
 
   async function load() {
-    const [{ data: is }, { data: ts }] = await Promise.all([
-      supabase.from("internships").select("*").order("sort_order").order("name"),
-      supabase.from("internship_tags").select("internship_slug, program_type"),
-    ]);
+    const { data: is } = await supabase
+      .from("internships")
+      .select("*")
+      .order("sort_order")
+      .order("name");
     setRows((is ?? []) as Row[]);
-    const map: Record<string, ProgramType[]> = {};
-    for (const t of (ts ?? []) as Array<{ internship_slug: string; program_type: ProgramType }>) {
-      (map[t.internship_slug] ??= []).push(t.program_type);
-    }
-    setTags(map);
   }
   useEffect(() => { load(); }, []);
 
@@ -109,15 +101,6 @@ function InternshipsAdmin() {
               <Link to="/educator/admin/assign" search={{ mode: "internship", slug: r.slug }} className="text-xs text-explr-600 hover:underline">Assign educators</Link>
               <button onClick={() => { setCreating(false); setEditing({ ...r }); }} className="text-xs text-charcoal-500 hover:text-ink">Edit</button>
               <button onClick={() => remove(r.slug)} className="text-xs text-red-600 hover:underline">Delete</button>
-            </div>
-            {/* Program-type tag pills — click to tag/untag this internship */}
-            <div className="mt-2 pl-10">
-              <ProgramTypeTagPills
-                kind="internship"
-                slug={r.slug}
-                tags={tags[r.slug] ?? []}
-                onChange={(next) => setTags((m) => ({ ...m, [r.slug]: next }))}
-              />
             </div>
           </li>
         ))}

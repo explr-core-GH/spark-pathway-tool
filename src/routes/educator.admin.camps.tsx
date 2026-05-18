@@ -1,8 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { ProgramTypeTagPills } from "@/components/ProgramTypeTagPills";
-import type { ProgramType } from "@/lib/educator";
 
 export const Route = createFileRoute("/educator/admin/camps")({
   head: () => ({ meta: [{ title: "Curriculum — Admin" }] }),
@@ -32,24 +30,14 @@ function CampsAdmin() {
   const [editing, setEditing] = useState<Row | null>(null);
   const [creating, setCreating] = useState(false);
   const [saving, setSaving] = useState(false);
-  // slug -> set of program types tagged for that curriculum item
-  const [tags, setTags] = useState<Record<string, ProgramType[]>>({});
 
   async function load() {
-    const [{ data: cs }, { data: ts }] = await Promise.all([
-      supabase
-        .from("camps")
-        .select("slug,name,emoji,tagline,duration,age_range,overview,slides,visible,sort_order")
-        .order("sort_order")
-        .order("name"),
-      supabase.from("curriculum_tags").select("camp_slug, program_type"),
-    ]);
+    const { data: cs } = await supabase
+      .from("camps")
+      .select("slug,name,emoji,tagline,duration,age_range,overview,slides,visible,sort_order")
+      .order("sort_order")
+      .order("name");
     setRows((cs ?? []) as Row[]);
-    const map: Record<string, ProgramType[]> = {};
-    for (const t of (ts ?? []) as Array<{ camp_slug: string; program_type: ProgramType }>) {
-      (map[t.camp_slug] ??= []).push(t.program_type);
-    }
-    setTags(map);
   }
   useEffect(() => { load(); }, []);
 
@@ -84,8 +72,9 @@ function CampsAdmin() {
           <p className="eyebrow">Admin</p>
           <h1 className="display mt-2">Curriculum</h1>
           <p className="lead mt-3">
-            Camp + classroom curriculum items. Tag each one with the program types
-            whose educators should see it.
+            Camp + classroom curriculum items. Use{" "}
+            <span className="font-medium">Assign educators</span> to give a
+            specific educator access — there&apos;s no program-type tagging.
           </p>
         </div>
         <button onClick={() => { setCreating(true); setEditing({ ...EMPTY }); }} className="btn-ink">
@@ -113,15 +102,6 @@ function CampsAdmin() {
               <Link to="/educator/admin/assign" search={{ mode: "camp", slug: r.slug }} className="text-xs text-explr-600 hover:underline">Assign educators</Link>
               <button onClick={() => { setCreating(false); setEditing({ ...r }); }} className="text-xs text-charcoal-500 hover:text-ink">Edit</button>
               <button onClick={() => remove(r.slug)} className="text-xs text-red-600 hover:underline">Delete</button>
-            </div>
-            {/* Tag pills — click to tag/untag this curriculum item for a program type */}
-            <div className="mt-2 pl-10">
-              <ProgramTypeTagPills
-                kind="curriculum"
-                slug={r.slug}
-                tags={tags[r.slug] ?? []}
-                onChange={(next) => setTags((m) => ({ ...m, [r.slug]: next }))}
-              />
             </div>
           </li>
         ))}

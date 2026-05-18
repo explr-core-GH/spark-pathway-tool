@@ -26,7 +26,7 @@ type Camp = {
 function CurriculumIndex() {
   const { educator, isAdmin } = useEducator();
   const [camps, setCamps] = useState<Camp[]>([]);
-  const [tags, setTags] = useState<Record<string, string[]>>({});
+  const [assigned, setAssigned] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     // Source of truth is the Supabase `camps` table, not the static
@@ -39,24 +39,23 @@ function CurriculumIndex() {
       .order("sort_order")
       .order("name")
       .then(({ data }) => setCamps((data ?? []) as Camp[]));
-
-    supabase
-      .from("curriculum_tags")
-      .select("camp_slug, program_type")
-      .then(({ data }) => {
-        const map: Record<string, string[]> = {};
-        (data ?? []).forEach((r) => {
-          (map[r.camp_slug] ??= []).push(r.program_type);
-        });
-        setTags(map);
-      });
   }, []);
 
-  const visible = isAdmin
-    ? camps
-    : camps.filter((c) =>
-        (tags[c.slug] ?? []).includes(educator?.program_type ?? ""),
-      );
+  // Direct-assignment-only access: educators see what the admin checked
+  // off for them in /educator/admin/assign. Tagging-by-program-type was
+  // removed per design — assignments are now manual.
+  useEffect(() => {
+    if (!educator || isAdmin) return;
+    supabase
+      .from("camp_educators")
+      .select("camp_slug")
+      .eq("educator_id", educator.id)
+      .then(({ data }) => {
+        setAssigned(new Set((data ?? []).map((r) => r.camp_slug)));
+      });
+  }, [educator, isAdmin]);
+
+  const visible = isAdmin ? camps : camps.filter((c) => assigned.has(c.slug));
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-16">
@@ -64,8 +63,8 @@ function CurriculumIndex() {
       <h1 className="mt-3 text-4xl font-light">{visible.length} units</h1>
       {visible.length === 0 && (
         <p className="mt-6 text-sm text-charcoal-500">
-          No curriculum has been approved for your program type yet. An admin
-          will tag relevant units soon.
+          No curriculum has been assigned to you yet. Ask an EXPLR admin to
+          add you to a camp.
         </p>
       )}
       <div className="mt-10 grid gap-px bg-charcoal-100 sm:grid-cols-2 lg:grid-cols-3">

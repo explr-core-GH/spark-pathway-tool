@@ -38,11 +38,10 @@ function Dashboard() {
   const { educator, loading } = useEducator();
   const [camps, setCamps] = useState<Camp[]>([]);
   const [internships, setInternships] = useState<Internship[]>([]);
-  const [campTags, setCampTags] = useState<Record<string, string[]>>({});
-  const [internTags, setInternTags] = useState<Record<string, string[]>>({});
   // Direct educator-to-item assignments from camp_educators / internship_educators.
-  // Surfaces a camp/internship on this educator's dashboard regardless of
-  // whether it's also program-type-tagged.
+  // These are now the only way a camp/internship surfaces for an educator —
+  // program-type tagging was removed. Admins assign manually via
+  // /educator/admin/assign.
   const [assignedCampSlugs, setAssignedCampSlugs] = useState<Set<string>>(new Set());
   const [assignedInternshipSlugs, setAssignedInternshipSlugs] = useState<Set<string>>(new Set());
   const [assignments, setAssignments] = useState<
@@ -79,20 +78,6 @@ function Dashboard() {
       .order("name")
       .then(({ data }) => setInternships((data ?? []) as Internship[]));
 
-    supabase.from("curriculum_tags").select("camp_slug, program_type").then(({ data }) => {
-      const map: Record<string, string[]> = {};
-      (data ?? []).forEach((r) => {
-        (map[r.camp_slug] ??= []).push(r.program_type);
-      });
-      setCampTags(map);
-    });
-    supabase.from("internship_tags").select("internship_slug, program_type").then(({ data }) => {
-      const map: Record<string, string[]> = {};
-      (data ?? []).forEach((r) => {
-        (map[r.internship_slug] ??= []).push(r.program_type);
-      });
-      setInternTags(map);
-    });
     supabase
       .from("assessment_assignments")
       .select("id, assessment_kind, due_at, notes")
@@ -100,8 +85,7 @@ function Dashboard() {
         setAssignments((data as never) ?? []);
       });
     // Direct assignments — admin picks "this educator runs that camp" from
-    // /educator/admin/assign. These should show even if the camp isn't
-    // tagged for the educator's program_type.
+    // /educator/admin/assign. Sole source of truth for visibility now.
     supabase
       .from("camp_educators")
       .select("camp_slug")
@@ -149,19 +133,11 @@ function Dashboard() {
     );
 
   const programType = educator.program_type as string;
-  // Show a camp/internship if either (a) it's tagged for the educator's
-  // program_type, or (b) the admin directly assigned this educator to it
-  // via /educator/admin/assign. Direct assignments win even when tagging
-  // hasn't been set up yet.
-  const visibleCamps = camps.filter(
-    (c) =>
-      (campTags[c.slug] ?? []).includes(programType) ||
-      assignedCampSlugs.has(c.slug),
-  );
-  const visibleInternships = internships.filter(
-    (i) =>
-      (internTags[i.slug] ?? []).includes(programType) ||
-      assignedInternshipSlugs.has(i.slug),
+  // Direct-assignment-only: an educator sees a camp/internship iff an admin
+  // checked them off in /educator/admin/assign.
+  const visibleCamps = camps.filter((c) => assignedCampSlugs.has(c.slug));
+  const visibleInternships = internships.filter((i) =>
+    assignedInternshipSlugs.has(i.slug),
   );
   const meta = PROGRAM_META[programType as keyof typeof PROGRAM_META];
 

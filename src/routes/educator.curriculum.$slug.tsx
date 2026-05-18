@@ -62,21 +62,20 @@ function CurriculumDetail() {
       });
   }, [slug]);
 
+  // Access is now purely by direct assignment in camp_educators.
+  // Admins see everything; educators see only camps they've been
+  // explicitly assigned to via /educator/admin/assign.
   useEffect(() => {
     if (isAdmin) {
       setAllowed(true);
       return;
     }
     if (!educator) return;
-    if (!educator.program_type) {
-      setAllowed(false);
-      return;
-    }
     supabase
-      .from("curriculum_tags")
-      .select("program_type")
+      .from("camp_educators")
+      .select("camp_slug")
       .eq("camp_slug", slug)
-      .eq("program_type", educator.program_type as never)
+      .eq("educator_id", educator.id)
       .maybeSingle()
       .then(({ data }) => setAllowed(!!data));
   }, [educator, isAdmin, slug]);
@@ -119,15 +118,15 @@ function CurriculumDetail() {
   if (!allowed) {
     return (
       <main className="mx-auto max-w-md px-6 py-24 text-center">
-        <p className="eyebrow">Not available</p>
+        <p className="eyebrow">Not assigned</p>
         <h1 className="mt-3 text-2xl font-light">
-          This curriculum isn&apos;t approved for your program
+          This curriculum hasn&apos;t been assigned to you
         </h1>
         <p className="mt-3 text-sm text-charcoal-500">
-          Contact your EXPLR admin if you think this is a mistake.
+          Ask an EXPLR admin to add you to it.
         </p>
-        <Link to="/educator/curriculum" className="btn-ink mt-6 inline-block">
-          Back to curriculum
+        <Link to="/educator/dashboard" className="btn-ink mt-6 inline-block">
+          Back to dashboard
         </Link>
       </main>
     );
