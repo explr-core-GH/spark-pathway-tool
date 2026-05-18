@@ -75,6 +75,23 @@ function AssessmentIntro() {
 
   if (loading) return <div className="mx-auto max-w-2xl px-6 py-24 text-charcoal-500">Loading…</div>;
 
+  if (educatorMismatch) {
+    return (
+      <main className="mx-auto max-w-md px-6 py-24 text-center">
+        <p className="eyebrow">Educator account</p>
+        <h1 className="mt-3 text-2xl font-light">This area is for students</h1>
+        <p className="mt-4 text-sm text-charcoal-500">
+          Your account is registered as an educator. Head to your educator
+          dashboard for curriculum, internships, and rosters.
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link to="/educator/dashboard" className="btn-ink">Go to educator dashboard</Link>
+          <Link to="/" className="btn-ghost">Back to home</Link>
+        </div>
+      </main>
+    );
+  }
+
   if (!authed) {
     return (
       <div className="mx-auto max-w-4xl px-6 py-20">
