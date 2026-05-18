@@ -39,7 +39,30 @@ function joinList(items: string[]): string {
   return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
 }
 
-function buildWhyFits(
+function HollandLetter({ code }: { code: RIASECCode }) {
+  const name = RIASEC_NAMES[code];
+  const label = RIASEC_LABELS[code];
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          title={`${name} — ${label}`}
+          className="inline-flex items-center justify-center rounded-sm border border-charcoal-200 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink hover:bg-charcoal-50 focus:outline-none focus:ring-1 focus:ring-ink"
+          aria-label={`${name}: ${label}`}
+          onClick={(e) => e.preventDefault()}
+        >
+          {code}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent side="top" className="w-56 text-xs">
+        <p className="font-semibold text-ink">{code} — {name}</p>
+        <p className="mt-1 text-charcoal-500">{label}</p>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
   i: Internship,
   interest: "yes" | "maybe" | "no" | undefined,
   scaleScores: ScaleScores,
