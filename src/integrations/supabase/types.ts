@@ -429,6 +429,49 @@ export type Database = {
         }
         Relationships: []
       }
+      explr_camp_curriculum_links: {
+        Row: {
+          camp_slug: string
+          explr_camp_id: string
+          linked_at: string
+          linked_by: string | null
+        }
+        Insert: {
+          camp_slug: string
+          explr_camp_id: string
+          linked_at?: string
+          linked_by?: string | null
+        }
+        Update: {
+          camp_slug?: string
+          explr_camp_id?: string
+          linked_at?: string
+          linked_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "explr_camp_curriculum_links_camp_slug_fkey"
+            columns: ["camp_slug"]
+            isOneToOne: false
+            referencedRelation: "camps"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "explr_camp_curriculum_links_explr_camp_id_fkey"
+            columns: ["explr_camp_id"]
+            isOneToOne: false
+            referencedRelation: "explr_camps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "explr_camp_curriculum_links_linked_by_fkey"
+            columns: ["linked_by"]
+            isOneToOne: false
+            referencedRelation: "educators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       explr_camp_educators: {
         Row: {
           assigned_at: string
