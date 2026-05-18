@@ -50,8 +50,11 @@ function AssignAdmin() {
     setIntAssigns((ia ?? []) as IntAssign[]);
   }
   useEffect(() => { load(); }, []);
-  const isFirstMode = useFirstRender();
-  useEffect(() => { if (!isFirstMode) setSelected(null); }, [mode, isFirstMode]);
+  const firstModeRef = useRef(true);
+  useEffect(() => {
+    if (firstModeRef.current) { firstModeRef.current = false; return; }
+    setSelected(null);
+  }, [mode]);
 
   const items = mode === "camp" ? camps : internships;
   const selectedItem = items.find((i) => i.slug === selected) ?? null;
