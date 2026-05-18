@@ -4,6 +4,7 @@ import { useEducator } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { ASSESSMENT_META, PROGRAM_META } from "@/lib/educator";
 import { EducatorGate } from "@/components/EducatorGate";
+import { MySessionsPanel } from "@/components/MySessionsPanel";
 
 export const Route = createFileRoute("/educator/dashboard")({
   head: () => ({ meta: [{ title: "Educator dashboard — EXPLR" }] }),
@@ -13,16 +14,6 @@ export const Route = createFileRoute("/educator/dashboard")({
     </EducatorGate>
   ),
 });
-
-type Camp = {
-  slug: string;
-  name: string;
-  emoji: string;
-  tagline: string | null;
-  duration: string | null;
-  age_range: string | null;
-  visible: boolean | null;
-};
 
 type Internship = {
   slug: string;
@@ -35,13 +26,10 @@ type Internship = {
 
 function Dashboard() {
   const { educator, loading } = useEducator();
-  const [camps, setCamps] = useState<Camp[]>([]);
   const [internships, setInternships] = useState<Internship[]>([]);
-  // Direct educator-to-item assignments from camp_educators / internship_educators.
-  // These are now the only way a camp/internship surfaces for an educator —
-  // program-type tagging was removed. Admins assign manually via
-  // /educator/admin/assign.
-  const [assignedCampSlugs, setAssignedCampSlugs] = useState<Set<string>>(new Set());
+  // Direct internship assignments still happen at the slug level — internships
+  // aren't multi-week like camps. Camps moved to sessions (explr_camps) and
+  // are surfaced by <MySessionsPanel /> below.
   const [assignedInternshipSlugs, setAssignedInternshipSlugs] = useState<Set<string>>(new Set());
   const [assignments, setAssignments] = useState<
     Array<{ id: string; assessment_kind: string; due_at: string | null; notes: string | null }>
@@ -58,17 +46,8 @@ function Dashboard() {
 
   useEffect(() => {
     if (!educator) return;
-    // Read camps + internships from the Supabase tables, not the static
-    // catalogs in src/lib. The static lists were a seed snapshot and miss
-    // anything an admin added through /educator/admin/camps or /internships.
-    supabase
-      .from("camps")
-      .select("slug,name,emoji,tagline,duration,age_range,visible")
-      .eq("visible", true)
-      .order("sort_order")
-      .order("name")
-      .then(({ data }) => setCamps((data ?? []) as Camp[]));
-
+    // Camp content is now session-based — see <MySessionsPanel />. Only
+    // internships still go by slug.
     supabase
       .from("internships")
       .select("slug,name,emoji,theme,lead,visible")
@@ -82,15 +61,6 @@ function Dashboard() {
       .select("id, assessment_kind, due_at, notes")
       .then(({ data }) => {
         setAssignments((data as never) ?? []);
-      });
-    // Direct assignments — admin picks "this educator runs that camp" from
-    // /educator/admin/assign. Sole source of truth for visibility now.
-    supabase
-      .from("camp_educators")
-      .select("camp_slug")
-      .eq("educator_id", educator.id)
-      .then(({ data }) => {
-        setAssignedCampSlugs(new Set((data ?? []).map((r) => r.camp_slug)));
       });
     supabase
       .from("internship_educators")
@@ -132,9 +102,6 @@ function Dashboard() {
     );
 
   const programType = educator.program_type as string;
-  // Direct-assignment-only: an educator sees a camp/internship iff an admin
-  // checked them off in /educator/admin/assign.
-  const visibleCamps = camps.filter((c) => assignedCampSlugs.has(c.slug));
   const visibleInternships = internships.filter((i) =>
     assignedInternshipSlugs.has(i.slug),
   );
@@ -241,32 +208,16 @@ function Dashboard() {
         )}
       </section>
 
-      {/* Curriculum tiles */}
+      {/* My camp sessions — replaces the old camp-slug curriculum tiles.
+          Each card is one explr_camps row (a specific week/offering); its
+          linked curricula + roster live on the session detail page. */}
       <section className="mt-16">
-        <h2 className="text-xs uppercase tracking-wider text-charcoal-400">Curriculum</h2>
-        {visibleCamps.length === 0 ? (
-          <p className="mt-4 py-6 text-sm text-charcoal-400">
-            No curriculum assigned to you yet.
-          </p>
-        ) : (
-          <div className="mt-4 grid gap-px bg-charcoal-100 sm:grid-cols-2 lg:grid-cols-3">
-            {visibleCamps.map((c) => (
-              <Link
-                key={c.slug}
-                to="/educator/curriculum/$slug"
-                params={{ slug: c.slug }}
-                className="tile"
-              >
-                <div className="text-2xl">{c.emoji}</div>
-                <div className="mt-3 font-medium">{c.name}</div>
-                <div className="mt-1 text-xs text-charcoal-400">
-                  {c.duration ?? "—"}
-                  {c.age_range ? ` · ${c.age_range}` : ""}
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
+        <h2 className="text-xs uppercase tracking-wider text-charcoal-400">
+          My camp sessions
+        </h2>
+        <div className="mt-4">
+          <MySessionsPanel educatorId={educator.id} />
+        </div>
       </section>
 
       {/* Internship tiles */}

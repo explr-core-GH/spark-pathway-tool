@@ -35,6 +35,7 @@ import { Route as AssessmentSessionIdRouteImport } from './routes/assessment.$se
 import { Route as EducatorInternshipsIndexRouteImport } from './routes/educator.internships.index'
 import { Route as EducatorCurriculumIndexRouteImport } from './routes/educator.curriculum.index'
 import { Route as EducatorAdminIndexRouteImport } from './routes/educator.admin.index'
+import { Route as EducatorSessionsSessionIdRouteImport } from './routes/educator.sessions.$sessionId'
 import { Route as EducatorInviteTokenRouteImport } from './routes/educator.invite.$token'
 import { Route as EducatorInternshipsSlugRouteImport } from './routes/educator.internships.$slug'
 import { Route as EducatorCurriculumSlugRouteImport } from './routes/educator.curriculum.$slug'
@@ -186,6 +187,12 @@ const EducatorAdminIndexRoute = EducatorAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => EducatorAdminRoute,
 } as any)
+const EducatorSessionsSessionIdRoute =
+  EducatorSessionsSessionIdRouteImport.update({
+    id: '/sessions/$sessionId',
+    path: '/sessions/$sessionId',
+    getParentRoute: () => EducatorRoute,
+  } as any)
 const EducatorInviteTokenRoute = EducatorInviteTokenRouteImport.update({
   id: '/invite/$token',
   path: '/invite/$token',
@@ -325,6 +332,7 @@ export interface FileRoutesByFullPath {
   '/educator/curriculum/$slug': typeof EducatorCurriculumSlugRoute
   '/educator/internships/$slug': typeof EducatorInternshipsSlugRoute
   '/educator/invite/$token': typeof EducatorInviteTokenRoute
+  '/educator/sessions/$sessionId': typeof EducatorSessionsSessionIdRoute
   '/educator/admin/': typeof EducatorAdminIndexRoute
   '/educator/curriculum/': typeof EducatorCurriculumIndexRoute
   '/educator/internships/': typeof EducatorInternshipsIndexRoute
@@ -369,6 +377,7 @@ export interface FileRoutesByTo {
   '/educator/curriculum/$slug': typeof EducatorCurriculumSlugRoute
   '/educator/internships/$slug': typeof EducatorInternshipsSlugRoute
   '/educator/invite/$token': typeof EducatorInviteTokenRoute
+  '/educator/sessions/$sessionId': typeof EducatorSessionsSessionIdRoute
   '/educator/admin': typeof EducatorAdminIndexRoute
   '/educator/curriculum': typeof EducatorCurriculumIndexRoute
   '/educator/internships': typeof EducatorInternshipsIndexRoute
@@ -416,6 +425,7 @@ export interface FileRoutesById {
   '/educator/curriculum/$slug': typeof EducatorCurriculumSlugRoute
   '/educator/internships/$slug': typeof EducatorInternshipsSlugRoute
   '/educator/invite/$token': typeof EducatorInviteTokenRoute
+  '/educator/sessions/$sessionId': typeof EducatorSessionsSessionIdRoute
   '/educator/admin/': typeof EducatorAdminIndexRoute
   '/educator/curriculum/': typeof EducatorCurriculumIndexRoute
   '/educator/internships/': typeof EducatorInternshipsIndexRoute
@@ -464,6 +474,7 @@ export interface FileRouteTypes {
     | '/educator/curriculum/$slug'
     | '/educator/internships/$slug'
     | '/educator/invite/$token'
+    | '/educator/sessions/$sessionId'
     | '/educator/admin/'
     | '/educator/curriculum/'
     | '/educator/internships/'
@@ -508,6 +519,7 @@ export interface FileRouteTypes {
     | '/educator/curriculum/$slug'
     | '/educator/internships/$slug'
     | '/educator/invite/$token'
+    | '/educator/sessions/$sessionId'
     | '/educator/admin'
     | '/educator/curriculum'
     | '/educator/internships'
@@ -554,6 +566,7 @@ export interface FileRouteTypes {
     | '/educator/curriculum/$slug'
     | '/educator/internships/$slug'
     | '/educator/invite/$token'
+    | '/educator/sessions/$sessionId'
     | '/educator/admin/'
     | '/educator/curriculum/'
     | '/educator/internships/'
@@ -767,6 +780,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EducatorAdminIndexRouteImport
       parentRoute: typeof EducatorAdminRoute
     }
+    '/educator/sessions/$sessionId': {
+      id: '/educator/sessions/$sessionId'
+      path: '/sessions/$sessionId'
+      fullPath: '/educator/sessions/$sessionId'
+      preLoaderRoute: typeof EducatorSessionsSessionIdRouteImport
+      parentRoute: typeof EducatorRoute
+    }
     '/educator/invite/$token': {
       id: '/educator/invite/$token'
       path: '/invite/$token'
@@ -944,6 +964,7 @@ interface EducatorRouteChildren {
   EducatorCurriculumSlugRoute: typeof EducatorCurriculumSlugRoute
   EducatorInternshipsSlugRoute: typeof EducatorInternshipsSlugRoute
   EducatorInviteTokenRoute: typeof EducatorInviteTokenRoute
+  EducatorSessionsSessionIdRoute: typeof EducatorSessionsSessionIdRoute
   EducatorCurriculumIndexRoute: typeof EducatorCurriculumIndexRoute
   EducatorInternshipsIndexRoute: typeof EducatorInternshipsIndexRoute
 }
@@ -958,6 +979,7 @@ const EducatorRouteChildren: EducatorRouteChildren = {
   EducatorCurriculumSlugRoute: EducatorCurriculumSlugRoute,
   EducatorInternshipsSlugRoute: EducatorInternshipsSlugRoute,
   EducatorInviteTokenRoute: EducatorInviteTokenRoute,
+  EducatorSessionsSessionIdRoute: EducatorSessionsSessionIdRoute,
   EducatorCurriculumIndexRoute: EducatorCurriculumIndexRoute,
   EducatorInternshipsIndexRoute: EducatorInternshipsIndexRoute,
 }

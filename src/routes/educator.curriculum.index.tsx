@@ -41,18 +41,34 @@ function CurriculumIndex() {
       .then(({ data }) => setCamps((data ?? []) as Camp[]));
   }, []);
 
-  // Direct-assignment-only access: educators see what the admin checked
-  // off for them in /educator/admin/assign. Tagging-by-program-type was
-  // removed per design — assignments are now manual.
+  // Visibility is now derived from sessions: the educator sees a curriculum
+  // iff at least one of their assigned sessions (explr_camp_educators) is
+  // linked to it via explr_camp_curriculum_links. Admin sees everything.
   useEffect(() => {
     if (!educator || isAdmin) return;
-    supabase
-      .from("camp_educators")
-      .select("camp_slug")
-      .eq("educator_id", educator.id)
-      .then(({ data }) => {
-        setAssigned(new Set((data ?? []).map((r) => r.camp_slug)));
-      });
+    (async () => {
+      const { data: myAssignments } = await (
+        supabase.from as (n: string) => ReturnType<typeof supabase.from>
+      )("explr_camp_educators")
+        .select("explr_camp_id")
+        .eq("educator_id", educator.id);
+      const ids = (myAssignments ?? []).map(
+        (r: { explr_camp_id: string }) => r.explr_camp_id,
+      );
+      if (ids.length === 0) {
+        setAssigned(new Set());
+        return;
+      }
+      const { data: links } = await (
+        supabase.from as (n: string) => ReturnType<typeof supabase.from>
+      )("explr_camp_curriculum_links")
+        .select("camp_slug")
+        .in("explr_camp_id", ids);
+      const slugs = new Set<string>(
+        ((links ?? []) as Array<{ camp_slug: string }>).map((l) => l.camp_slug),
+      );
+      setAssigned(slugs);
+    })();
   }, [educator, isAdmin]);
 
   const visible = isAdmin ? camps : camps.filter((c) => assigned.has(c.slug));
