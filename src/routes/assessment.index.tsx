@@ -66,7 +66,7 @@ function AssessmentIntro() {
       session_id: sessionId,
       student_id: userId,
       grade_at_session: grade,
-      form_version: FORM_VERSION,
+      form_version: grade <= 6 ? "MS" : "HS",
       item_sequence,
     });
     if (insErr) { setError(insErr.message); setStarting(false); return; }
