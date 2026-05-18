@@ -15,6 +15,7 @@ import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignOutRouteImport } from './routes/sign-out'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ExplrRostersRouteImport } from './routes/explr-rosters'
 import { Route as EducatorRouteImport } from './routes/educator'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -79,6 +80,11 @@ const SignInRoute = SignInRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExplrRostersRoute = ExplrRostersRouteImport.update({
+  id: '/explr-rosters',
+  path: '/explr-rosters',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EducatorRoute = EducatorRouteImport.update({
@@ -271,6 +277,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/educator': typeof EducatorRouteWithChildren
+  '/explr-rosters': typeof ExplrRostersRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
@@ -313,6 +320,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/explr-rosters': typeof ExplrRostersRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
@@ -356,6 +364,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/educator': typeof EducatorRouteWithChildren
+  '/explr-rosters': typeof ExplrRostersRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
@@ -401,6 +410,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/educator'
+    | '/explr-rosters'
     | '/privacy'
     | '/sign-in'
     | '/sign-out'
@@ -443,6 +453,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/explr-rosters'
     | '/privacy'
     | '/sign-in'
     | '/sign-out'
@@ -485,6 +496,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/educator'
+    | '/explr-rosters'
     | '/privacy'
     | '/sign-in'
     | '/sign-out'
@@ -529,6 +541,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   EducatorRoute: typeof EducatorRouteWithChildren
+  ExplrRostersRoute: typeof ExplrRostersRoute
   PrivacyRoute: typeof PrivacyRoute
   SignInRoute: typeof SignInRoute
   SignOutRoute: typeof SignOutRoute
@@ -586,6 +599,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explr-rosters': {
+      id: '/explr-rosters'
+      path: '/explr-rosters'
+      fullPath: '/explr-rosters'
+      preLoaderRoute: typeof ExplrRostersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/educator': {
@@ -910,6 +930,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   EducatorRoute: EducatorRouteWithChildren,
+  ExplrRostersRoute: ExplrRostersRoute,
   PrivacyRoute: PrivacyRoute,
   SignInRoute: SignInRoute,
   SignOutRoute: SignOutRoute,
