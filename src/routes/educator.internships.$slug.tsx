@@ -1,17 +1,51 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { INTERNSHIPS } from "@/lib/internships-catalog";
 import { RosterPanel } from "@/components/RosterPanel";
+import { EducatorGate } from "@/components/EducatorGate";
+import { useEducator } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/educator/internships/$slug")({
   head: ({ params }) => ({ meta: [{ title: `${params.slug} — Internship` }] }),
-  component: InternshipDetail,
+  component: () => (
+    <EducatorGate>
+      <InternshipDetail />
+    </EducatorGate>
+  ),
   notFoundComponent: () => <div className="mx-auto max-w-md px-6 py-24 text-center text-sm">Not found. <Link to="/educator/internships" className="ink-link">Back</Link></div>,
 });
 
 function InternshipDetail() {
   const { slug } = Route.useParams();
+  const { educator } = useEducator();
   const i = INTERNSHIPS.find((x) => x.slug === slug);
+  const [allowed, setAllowed] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!educator) return;
+    if (educator.role === "admin") { setAllowed(true); return; }
+    if (!educator.program_type) { setAllowed(false); return; }
+    supabase.from("internship_tags")
+      .select("program_type")
+      .eq("internship_slug", slug)
+      .eq("program_type", educator.program_type)
+      .maybeSingle()
+      .then(({ data }) => setAllowed(!!data));
+  }, [educator, slug]);
+
   if (!i) throw notFound();
+  if (allowed === null) return <main className="mx-auto max-w-4xl px-6 py-16 text-sm text-charcoal-400">Loading…</main>;
+  if (!allowed) {
+    return (
+      <main className="mx-auto max-w-md px-6 py-24 text-center">
+        <p className="eyebrow">Not available</p>
+        <h1 className="mt-3 text-2xl font-light">This internship isn't approved for your program</h1>
+        <Link to="/educator/internships" className="btn-ink mt-6 inline-block">Back to internships</Link>
+      </main>
+    );
+  }
+
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
       <Link to="/educator/internships" className="ink-link text-sm">← Internships</Link>

@@ -1,20 +1,53 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getCamp, fileUrl, RESOURCE_LABELS } from "@/lib/camp-curriculum";
 import { SlideViewer } from "@/components/SlideViewer";
 import { RosterPanel } from "@/components/RosterPanel";
+import { EducatorGate } from "@/components/EducatorGate";
+import { useEducator } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/educator/curriculum/$slug")({
   head: ({ params }) => ({ meta: [{ title: `${params.slug} — Curriculum` }] }),
-  component: CurriculumDetail,
+  component: () => (
+    <EducatorGate>
+      <CurriculumDetail />
+    </EducatorGate>
+  ),
   notFoundComponent: () => <div className="mx-auto max-w-md px-6 py-24 text-center text-sm text-charcoal-500">Curriculum not found. <Link to="/educator/curriculum" className="ink-link">Back</Link></div>,
 });
 
 function CurriculumDetail() {
   const { slug } = Route.useParams();
+  const { educator } = useEducator();
   const camp = getCamp(slug);
   const [dayIdx, setDayIdx] = useState(0);
+  const [allowed, setAllowed] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!educator) return;
+    if (educator.role === "admin") { setAllowed(true); return; }
+    if (!educator.program_type) { setAllowed(false); return; }
+    supabase.from("curriculum_tags")
+      .select("program_type")
+      .eq("camp_slug", slug)
+      .eq("program_type", educator.program_type)
+      .maybeSingle()
+      .then(({ data }) => setAllowed(!!data));
+  }, [educator, slug]);
+
   if (!camp) throw notFound();
+  if (allowed === null) return <main className="mx-auto max-w-6xl px-6 py-16 text-sm text-charcoal-400">Loading…</main>;
+  if (!allowed) {
+    return (
+      <main className="mx-auto max-w-md px-6 py-24 text-center">
+        <p className="eyebrow">Not available</p>
+        <h1 className="mt-3 text-2xl font-light">This curriculum isn't approved for your program</h1>
+        <p className="mt-3 text-sm text-charcoal-500">Contact your EXPLR admin if you think this is a mistake.</p>
+        <Link to="/educator/curriculum" className="btn-ink mt-6 inline-block">Back to curriculum</Link>
+      </main>
+    );
+  }
 
   const currentFile = camp.days.length > 0 ? camp.days[dayIdx]?.file : camp.slides;
 
