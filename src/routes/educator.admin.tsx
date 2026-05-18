@@ -30,7 +30,8 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "People",
     items: [
-      { to: "/educator/admin/invites", label: "Invites" },
+      { to: "/educator/admin/invites", label: "Educator invites" },
+      { to: "/educator/admin/admin-invites", label: "Admin invites" },
       { to: "/educator/admin/assign", label: "Assign educators" },
     ],
   },

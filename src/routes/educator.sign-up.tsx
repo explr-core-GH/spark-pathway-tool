@@ -78,10 +78,16 @@ function EducatorSignUp() {
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
       <Link to="/" className="eyebrow mb-12 inline-block">← EXPLR</Link>
-      <h1 className="text-3xl font-light">Request access</h1>
+      <h1 className="text-3xl font-light">Request educator access</h1>
       <p className="mt-2 text-sm text-charcoal-500">
-        Educator account. An EXPLR admin reviews new accounts and assigns your program type. If you have an
-        invite link, use that instead — it activates instantly.
+        For teachers, coaches, camp instructors, and internship supervisors.
+        An EXPLR admin reviews new accounts and assigns your program type. If
+        you have an invite link, use that instead — it activates instantly.
+      </p>
+      <p className="mt-3 text-xs text-charcoal-400">
+        EXPLR admin? You don&apos;t need an educator account — admins are invited
+        separately and sign in at{" "}
+        <Link to="/admin/sign-in" className="ink-link">/admin/sign-in</Link>.
       </p>
       <form onSubmit={submit} className="mt-10 space-y-5">
         <div>

@@ -13,14 +13,14 @@ type Props = {
  * the required role. Otherwise shows a small explainer with a link back to
  * the appropriate dashboard / sign-in page for their actual role.
  *
- * Role resolution:
- *  - admin    → educators row with role = 'admin'
- *  - educator → educators row (any role)
- *  - student  → signed-in user that is NOT an educator (admins are allowed
- *               so they can "view as student")
+ * Role resolution (post admins-split):
+ *  - admin    → row in public.admins (independent of educators)
+ *  - educator → row in public.educators
+ *  - student  → signed-in user that is NEITHER an admin nor an educator
+ *               (admins are allowed through so they can preview)
  */
 export function RoleGuard({ requires, children }: Props) {
-  const { user, educator, loading } = useEducator();
+  const { user, educator, isAdmin, loading } = useEducator();
 
   if (loading) {
     return (
@@ -59,10 +59,11 @@ export function RoleGuard({ requires, children }: Props) {
     );
   }
 
-  const isAdmin = educator?.role === "admin";
   const isEducator = !!educator;
+  // An approved educator has both program_type and approved=true. Admins
+  // are NOT auto-approved as educators — they're admins, separately.
   const isApprovedEducator =
-    !!educator && educator.approved && (!!educator.program_type || isAdmin);
+    !!educator && educator.approved && !!educator.program_type;
 
   // Student-only pages — admins allowed (view-as-student); plain educators not.
   if (requires === "student" && isEducator && !isAdmin) {
@@ -77,8 +78,9 @@ export function RoleGuard({ requires, children }: Props) {
     );
   }
 
-  // Educator pages — must have an educator row.
-  if (requires === "educator" && !isEducator) {
+  // Educator pages — admins are allowed through for preview; otherwise
+  // require an approved educator row.
+  if (requires === "educator" && !isEducator && !isAdmin) {
     return (
       <Mismatch
         eyebrow="Student account"
@@ -89,7 +91,7 @@ export function RoleGuard({ requires, children }: Props) {
       />
     );
   }
-  if (requires === "educator" && !isApprovedEducator) {
+  if (requires === "educator" && !isAdmin && !isApprovedEducator) {
     return (
       <Mismatch
         eyebrow="Pending approval"
