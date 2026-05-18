@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RIASEC, type RIASECCode } from "@/lib/riasec";
 import {
   STEM_ACTIVITIES,
