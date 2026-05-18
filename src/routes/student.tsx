@@ -171,6 +171,26 @@ function StudentDashboard() {
           </div>
         </section>
 
+        {/* Aptitude battery */}
+        <section className="mt-12 border-t border-charcoal-100 pt-10">
+          <div className="flex items-baseline justify-between gap-6">
+            <div>
+              <p className="eyebrow">Aptitude battery</p>
+              <p className="mt-3 text-2xl font-light text-charcoal-500">
+                A short {grade !== null && grade >= 8 ? "high-school" : "middle-school"} battery
+                covering numeric, pattern, and verbal reasoning.
+              </p>
+            </div>
+            <Link
+              to="/demo/aptitude/$band/take"
+              params={{ band: grade !== null && grade >= 8 ? "HS" : "MS" }}
+              className="btn-ink shrink-0"
+            >
+              Take aptitude battery
+            </Link>
+          </div>
+        </section>
+
         {/* Application & internships — only for grades 8-12 who finished the interest survey */}
         {eligibleByGrade && (
           <>
