@@ -47,6 +47,7 @@ function ImportExplrPage() {
   const [syncing, setSyncing] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<string | null>(null);
 
   async function load() {
     const [
@@ -113,15 +114,22 @@ function ImportExplrPage() {
     setSyncing(true);
     setErr(null);
     setMsg(null);
+    setDebugInfo(null);
     try {
       const res = await sync({});
-      // Show fetched-vs-imported so a schema mismatch is visible, not silent.
       const orphanedNote =
         res.registrationsOrphaned > 0
           ? ` · ${res.registrationsOrphaned} skipped (no matching camp_id)`
           : "";
       setMsg(
         `Camps: ${res.campsImported} imported. Registrations: ${res.registrationsImported} imported of ${res.registrationsFetched} fetched from ExplrMore${orphanedNote}.`,
+      );
+      setDebugInfo(
+        JSON.stringify(
+          { debug: res.debug, rosterErrors: res.rosterErrors },
+          null,
+          2,
+        ),
       );
       await load();
     } catch (e) {
@@ -188,6 +196,13 @@ function ImportExplrPage() {
         {msg && <span className="text-sm text-emerald-700">{msg}</span>}
         {err && <span className="text-sm text-red-700">{err}</span>}
       </div>
+
+      {debugInfo && (
+        <details className="mt-4 rounded border border-charcoal-200 bg-charcoal-50 p-3 text-xs">
+          <summary className="cursor-pointer font-medium text-ink">Roster sync debug</summary>
+          <pre className="mt-2 whitespace-pre-wrap break-words text-charcoal-700">{debugInfo}</pre>
+        </details>
+      )}
 
       <div className="mt-8 overflow-x-auto">
         <table className="w-full text-sm">
