@@ -1,0 +1,26 @@
+{
+  "year": "2024-2025",
+  "source": "Ohio Department of Education and Workforce",
+  "sourceUrl": "https://reportcard.education.ohio.gov/",
+  "ratingComponents": {
+    "overall": "Overall",
+    "achievement": "Achievement",
+    "earlyLiteracy": "Early Literacy",
+    "progress": "Progress",
+    "gapClosing": "Gap Closing",
+    "graduation": "Graduation Rate",
+    "ccwmr": "College, Career, Workforce & Military Readiness"
+  },
+  "demographicCategories": {
+    "race": "Race / Ethnicity",
+    "gender": "Gender",
+    "disabled": "Students with Disabilities",
+    "el": "English Learners",
+    "econ": "Economically Disadvantaged",
+    "gifted": "Gifted",
+    "homeless": "Homeless",
+    "foster": "Foster Care",
+    "migrant": "Migrant",
+    "military": "Military Connected"
+  }
+}

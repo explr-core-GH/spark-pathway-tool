@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { SchoolSearch, type SchoolPick } from "@/components/SchoolSearch";
 
 export const Route = createFileRoute("/educator/sign-up")({
   head: () => ({ meta: [{ title: "Educator sign up — EXPLR" }] }),
@@ -13,6 +14,7 @@ function EducatorSignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [organization, setOrganization] = useState("");
+  const [school, setSchool] = useState<SchoolPick | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -51,6 +53,8 @@ function EducatorSignUp() {
       organization: invite?.organization ?? (organization || null),
       program_type: invite?.program_type ?? null,
       approved: !!invite,
+      school_irn: school?.irn ?? null,
+      school_name: school?.name ?? null,
     });
 
     if (eErr) { setError(eErr.message); setLoading(false); return; }
@@ -91,7 +95,15 @@ function EducatorSignUp() {
           <div>
             <label className="label">Passphrase</label>
             <input className="field" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
-          </div>
+        </div>
+        <div>
+          <label className="label">Your school <span className="text-charcoal-400">(optional)</span></label>
+          <SchoolSearch
+            initial={school}
+            onSelect={(s) => setSchool(s.irn ? s : null)}
+            placeholder="Search Ohio schools…"
+          />
+        </div>
         </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
         <button type="submit" disabled={loading} className="btn-ink">{loading ? "Submitting…" : "Request access"}</button>
