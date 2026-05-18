@@ -32,10 +32,14 @@ import { Route as EducatorAdminIndexRouteImport } from './routes/educator.admin.
 import { Route as EducatorInviteTokenRouteImport } from './routes/educator.invite.$token'
 import { Route as EducatorInternshipsSlugRouteImport } from './routes/educator.internships.$slug'
 import { Route as EducatorCurriculumSlugRouteImport } from './routes/educator.curriculum.$slug'
+import { Route as EducatorAdminProgramsRouteImport } from './routes/educator.admin.programs'
 import { Route as EducatorAdminProgramRiasecRouteImport } from './routes/educator.admin.program-riasec'
 import { Route as EducatorAdminPlacementsRouteImport } from './routes/educator.admin.placements'
+import { Route as EducatorAdminInvitesRouteImport } from './routes/educator.admin.invites'
+import { Route as EducatorAdminInternshipsRouteImport } from './routes/educator.admin.internships'
 import { Route as EducatorAdminInternshipTagsRouteImport } from './routes/educator.admin.internship-tags'
 import { Route as EducatorAdminCurriculumTagsRouteImport } from './routes/educator.admin.curriculum-tags'
+import { Route as EducatorAdminCampsRouteImport } from './routes/educator.admin.camps'
 import { Route as EducatorAdminApplicationsRouteImport } from './routes/educator.admin.applications'
 import { Route as AssessmentSessionIdResultsRouteImport } from './routes/assessment.$sessionId_.results'
 import { Route as EducatorAdminEducatorsIdRouteImport } from './routes/educator.admin.educators.$id'
@@ -158,6 +162,11 @@ const EducatorCurriculumSlugRoute = EducatorCurriculumSlugRouteImport.update({
   path: '/curriculum/$slug',
   getParentRoute: () => EducatorRoute,
 } as any)
+const EducatorAdminProgramsRoute = EducatorAdminProgramsRouteImport.update({
+  id: '/programs',
+  path: '/programs',
+  getParentRoute: () => EducatorAdminRoute,
+} as any)
 const EducatorAdminProgramRiasecRoute =
   EducatorAdminProgramRiasecRouteImport.update({
     id: '/program-riasec',
@@ -169,6 +178,17 @@ const EducatorAdminPlacementsRoute = EducatorAdminPlacementsRouteImport.update({
   path: '/placements',
   getParentRoute: () => EducatorAdminRoute,
 } as any)
+const EducatorAdminInvitesRoute = EducatorAdminInvitesRouteImport.update({
+  id: '/invites',
+  path: '/invites',
+  getParentRoute: () => EducatorAdminRoute,
+} as any)
+const EducatorAdminInternshipsRoute =
+  EducatorAdminInternshipsRouteImport.update({
+    id: '/internships',
+    path: '/internships',
+    getParentRoute: () => EducatorAdminRoute,
+  } as any)
 const EducatorAdminInternshipTagsRoute =
   EducatorAdminInternshipTagsRouteImport.update({
     id: '/internship-tags',
@@ -181,6 +201,11 @@ const EducatorAdminCurriculumTagsRoute =
     path: '/curriculum-tags',
     getParentRoute: () => EducatorAdminRoute,
   } as any)
+const EducatorAdminCampsRoute = EducatorAdminCampsRouteImport.update({
+  id: '/camps',
+  path: '/camps',
+  getParentRoute: () => EducatorAdminRoute,
+} as any)
 const EducatorAdminApplicationsRoute =
   EducatorAdminApplicationsRouteImport.update({
     id: '/applications',
@@ -225,10 +250,14 @@ export interface FileRoutesByFullPath {
   '/educator/': typeof EducatorIndexRoute
   '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
   '/educator/admin/applications': typeof EducatorAdminApplicationsRoute
+  '/educator/admin/camps': typeof EducatorAdminCampsRoute
   '/educator/admin/curriculum-tags': typeof EducatorAdminCurriculumTagsRoute
   '/educator/admin/internship-tags': typeof EducatorAdminInternshipTagsRoute
+  '/educator/admin/internships': typeof EducatorAdminInternshipsRoute
+  '/educator/admin/invites': typeof EducatorAdminInvitesRoute
   '/educator/admin/placements': typeof EducatorAdminPlacementsRoute
   '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
+  '/educator/admin/programs': typeof EducatorAdminProgramsRoute
   '/educator/curriculum/$slug': typeof EducatorCurriculumSlugRoute
   '/educator/internships/$slug': typeof EducatorInternshipsSlugRoute
   '/educator/invite/$token': typeof EducatorInviteTokenRoute
@@ -256,10 +285,14 @@ export interface FileRoutesByTo {
   '/educator': typeof EducatorIndexRoute
   '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
   '/educator/admin/applications': typeof EducatorAdminApplicationsRoute
+  '/educator/admin/camps': typeof EducatorAdminCampsRoute
   '/educator/admin/curriculum-tags': typeof EducatorAdminCurriculumTagsRoute
   '/educator/admin/internship-tags': typeof EducatorAdminInternshipTagsRoute
+  '/educator/admin/internships': typeof EducatorAdminInternshipsRoute
+  '/educator/admin/invites': typeof EducatorAdminInvitesRoute
   '/educator/admin/placements': typeof EducatorAdminPlacementsRoute
   '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
+  '/educator/admin/programs': typeof EducatorAdminProgramsRoute
   '/educator/curriculum/$slug': typeof EducatorCurriculumSlugRoute
   '/educator/internships/$slug': typeof EducatorInternshipsSlugRoute
   '/educator/invite/$token': typeof EducatorInviteTokenRoute
@@ -290,10 +323,14 @@ export interface FileRoutesById {
   '/educator/': typeof EducatorIndexRoute
   '/assessment/$sessionId_/results': typeof AssessmentSessionIdResultsRoute
   '/educator/admin/applications': typeof EducatorAdminApplicationsRoute
+  '/educator/admin/camps': typeof EducatorAdminCampsRoute
   '/educator/admin/curriculum-tags': typeof EducatorAdminCurriculumTagsRoute
   '/educator/admin/internship-tags': typeof EducatorAdminInternshipTagsRoute
+  '/educator/admin/internships': typeof EducatorAdminInternshipsRoute
+  '/educator/admin/invites': typeof EducatorAdminInvitesRoute
   '/educator/admin/placements': typeof EducatorAdminPlacementsRoute
   '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
+  '/educator/admin/programs': typeof EducatorAdminProgramsRoute
   '/educator/curriculum/$slug': typeof EducatorCurriculumSlugRoute
   '/educator/internships/$slug': typeof EducatorInternshipsSlugRoute
   '/educator/invite/$token': typeof EducatorInviteTokenRoute
@@ -325,10 +362,14 @@ export interface FileRouteTypes {
     | '/educator/'
     | '/assessment/$sessionId/results'
     | '/educator/admin/applications'
+    | '/educator/admin/camps'
     | '/educator/admin/curriculum-tags'
     | '/educator/admin/internship-tags'
+    | '/educator/admin/internships'
+    | '/educator/admin/invites'
     | '/educator/admin/placements'
     | '/educator/admin/program-riasec'
+    | '/educator/admin/programs'
     | '/educator/curriculum/$slug'
     | '/educator/internships/$slug'
     | '/educator/invite/$token'
@@ -356,10 +397,14 @@ export interface FileRouteTypes {
     | '/educator'
     | '/assessment/$sessionId/results'
     | '/educator/admin/applications'
+    | '/educator/admin/camps'
     | '/educator/admin/curriculum-tags'
     | '/educator/admin/internship-tags'
+    | '/educator/admin/internships'
+    | '/educator/admin/invites'
     | '/educator/admin/placements'
     | '/educator/admin/program-riasec'
+    | '/educator/admin/programs'
     | '/educator/curriculum/$slug'
     | '/educator/internships/$slug'
     | '/educator/invite/$token'
@@ -389,10 +434,14 @@ export interface FileRouteTypes {
     | '/educator/'
     | '/assessment/$sessionId_/results'
     | '/educator/admin/applications'
+    | '/educator/admin/camps'
     | '/educator/admin/curriculum-tags'
     | '/educator/admin/internship-tags'
+    | '/educator/admin/internships'
+    | '/educator/admin/invites'
     | '/educator/admin/placements'
     | '/educator/admin/program-riasec'
+    | '/educator/admin/programs'
     | '/educator/curriculum/$slug'
     | '/educator/internships/$slug'
     | '/educator/invite/$token'
@@ -583,6 +632,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EducatorCurriculumSlugRouteImport
       parentRoute: typeof EducatorRoute
     }
+    '/educator/admin/programs': {
+      id: '/educator/admin/programs'
+      path: '/programs'
+      fullPath: '/educator/admin/programs'
+      preLoaderRoute: typeof EducatorAdminProgramsRouteImport
+      parentRoute: typeof EducatorAdminRoute
+    }
     '/educator/admin/program-riasec': {
       id: '/educator/admin/program-riasec'
       path: '/program-riasec'
@@ -597,6 +653,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EducatorAdminPlacementsRouteImport
       parentRoute: typeof EducatorAdminRoute
     }
+    '/educator/admin/invites': {
+      id: '/educator/admin/invites'
+      path: '/invites'
+      fullPath: '/educator/admin/invites'
+      preLoaderRoute: typeof EducatorAdminInvitesRouteImport
+      parentRoute: typeof EducatorAdminRoute
+    }
+    '/educator/admin/internships': {
+      id: '/educator/admin/internships'
+      path: '/internships'
+      fullPath: '/educator/admin/internships'
+      preLoaderRoute: typeof EducatorAdminInternshipsRouteImport
+      parentRoute: typeof EducatorAdminRoute
+    }
     '/educator/admin/internship-tags': {
       id: '/educator/admin/internship-tags'
       path: '/internship-tags'
@@ -609,6 +679,13 @@ declare module '@tanstack/react-router' {
       path: '/curriculum-tags'
       fullPath: '/educator/admin/curriculum-tags'
       preLoaderRoute: typeof EducatorAdminCurriculumTagsRouteImport
+      parentRoute: typeof EducatorAdminRoute
+    }
+    '/educator/admin/camps': {
+      id: '/educator/admin/camps'
+      path: '/camps'
+      fullPath: '/educator/admin/camps'
+      preLoaderRoute: typeof EducatorAdminCampsRouteImport
       parentRoute: typeof EducatorAdminRoute
     }
     '/educator/admin/applications': {
@@ -644,20 +721,28 @@ declare module '@tanstack/react-router' {
 
 interface EducatorAdminRouteChildren {
   EducatorAdminApplicationsRoute: typeof EducatorAdminApplicationsRoute
+  EducatorAdminCampsRoute: typeof EducatorAdminCampsRoute
   EducatorAdminCurriculumTagsRoute: typeof EducatorAdminCurriculumTagsRoute
   EducatorAdminInternshipTagsRoute: typeof EducatorAdminInternshipTagsRoute
+  EducatorAdminInternshipsRoute: typeof EducatorAdminInternshipsRoute
+  EducatorAdminInvitesRoute: typeof EducatorAdminInvitesRoute
   EducatorAdminPlacementsRoute: typeof EducatorAdminPlacementsRoute
   EducatorAdminProgramRiasecRoute: typeof EducatorAdminProgramRiasecRoute
+  EducatorAdminProgramsRoute: typeof EducatorAdminProgramsRoute
   EducatorAdminIndexRoute: typeof EducatorAdminIndexRoute
   EducatorAdminEducatorsIdRoute: typeof EducatorAdminEducatorsIdRoute
 }
 
 const EducatorAdminRouteChildren: EducatorAdminRouteChildren = {
   EducatorAdminApplicationsRoute: EducatorAdminApplicationsRoute,
+  EducatorAdminCampsRoute: EducatorAdminCampsRoute,
   EducatorAdminCurriculumTagsRoute: EducatorAdminCurriculumTagsRoute,
   EducatorAdminInternshipTagsRoute: EducatorAdminInternshipTagsRoute,
+  EducatorAdminInternshipsRoute: EducatorAdminInternshipsRoute,
+  EducatorAdminInvitesRoute: EducatorAdminInvitesRoute,
   EducatorAdminPlacementsRoute: EducatorAdminPlacementsRoute,
   EducatorAdminProgramRiasecRoute: EducatorAdminProgramRiasecRoute,
+  EducatorAdminProgramsRoute: EducatorAdminProgramsRoute,
   EducatorAdminIndexRoute: EducatorAdminIndexRoute,
   EducatorAdminEducatorsIdRoute: EducatorAdminEducatorsIdRoute,
 }
