@@ -429,6 +429,104 @@ export type Database = {
         }
         Relationships: []
       }
+      explr_camps: {
+        Row: {
+          age_range: string | null
+          capacity: number | null
+          category: string | null
+          date: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          image: string | null
+          imported_at: string
+          linked_camp_slug: string | null
+          location: string | null
+          source_updated_at: string | null
+          time: string | null
+          title: string
+        }
+        Insert: {
+          age_range?: string | null
+          capacity?: number | null
+          category?: string | null
+          date?: string | null
+          description?: string | null
+          end_date?: string | null
+          id: string
+          image?: string | null
+          imported_at?: string
+          linked_camp_slug?: string | null
+          location?: string | null
+          source_updated_at?: string | null
+          time?: string | null
+          title: string
+        }
+        Update: {
+          age_range?: string | null
+          capacity?: number | null
+          category?: string | null
+          date?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          image?: string | null
+          imported_at?: string
+          linked_camp_slug?: string | null
+          location?: string | null
+          source_updated_at?: string | null
+          time?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      explr_registrations: {
+        Row: {
+          camp_id: string
+          child_age: number | null
+          child_name: string
+          id: string
+          imported_at: string
+          parent_email: string | null
+          parent_name: string | null
+          parent_phone: string | null
+          source_created_at: string | null
+          status: string | null
+        }
+        Insert: {
+          camp_id: string
+          child_age?: number | null
+          child_name: string
+          id: string
+          imported_at?: string
+          parent_email?: string | null
+          parent_name?: string | null
+          parent_phone?: string | null
+          source_created_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          camp_id?: string
+          child_age?: number | null
+          child_name?: string
+          id?: string
+          imported_at?: string
+          parent_email?: string | null
+          parent_name?: string | null
+          parent_phone?: string | null
+          source_created_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "explr_registrations_camp_id_fkey"
+            columns: ["camp_id"]
+            isOneToOne: false
+            referencedRelation: "explr_camps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       internship_applications: {
         Row: {
           decided_at: string | null
