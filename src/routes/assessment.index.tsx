@@ -17,6 +17,7 @@ function AssessmentIntro() {
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [educatorMismatch, setEducatorMismatch] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -26,8 +27,18 @@ function AssessmentIntro() {
       if (!session) { setAuthed(false); setLoading(false); return; }
       setAuthed(true);
       setUserId(session.user.id);
+      const { data: edu } = await supabase
+        .from("educators").select("role").eq("id", session.user.id).maybeSingle();
+      if (cancelled) return;
+      // Non-admin educators shouldn't take the student assessment.
+      if (edu && edu.role !== "admin") {
+        setEducatorMismatch(true);
+        setLoading(false);
+        return;
+      }
       const { data: stud } = await supabase
         .from("students").select("grade").eq("id", session.user.id).maybeSingle();
+      if (cancelled) return;
       if (stud?.grade) setGrade(stud.grade);
       setLoading(false);
     })();
