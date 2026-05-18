@@ -154,9 +154,9 @@ function WorksitesInner() {
       <p className="eyebrow">Imports</p>
       <h1 className="display mt-2">Worksites</h1>
       <p className="lead mt-3 max-w-2xl">
-        Synced from the external worksites-roster-api every hour, and on
-        demand below. Each card shows a worksite&apos;s metadata plus its
-        roster of assigned students.
+        Manual sync only — click <strong>Sync now</strong> to pull the
+        latest worksites and rosters from the external API. Each card shows
+        a worksite&apos;s metadata plus its roster of assigned students.
       </p>
 
       <div className="mt-8 flex flex-wrap items-center gap-4">

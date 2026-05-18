@@ -94,75 +94,8 @@ drop policy if exists "sync_runs authed read" on public.sync_runs;
 create policy "sync_runs authed read" on public.sync_runs
   for select using (auth.uid() is not null);
 
--- ---------- Hourly cron schedule (pg_cron + pg_net) ----------
---
--- Calls the sync-worksites edge function once an hour. Auth uses the
--- project's service-role key, stored in Supabase Vault under the secret
--- name `project_service_role_key`. The project URL is read from
--- `project_url`. Set both via Supabase Dashboard > Project Settings >
--- Vault before the cron will succeed:
---   project_url            = https://<project-ref>.supabase.co
---   project_service_role_key = <service role key>
---
--- If you haven't enabled the extensions yet, this block will enable them.
--- The schedule is idempotent — running this migration again unschedules
--- the previous job before creating it fresh.
-
-create extension if not exists pg_cron;
-create extension if not exists pg_net;
-
--- Helper: builds the request URL + auth header from vault secrets and
--- fires off the POST. Returning the net request id keeps cron logs useful.
-create or replace function public.sync_worksites_via_cron()
-returns bigint
-language plpgsql
-security definer
-set search_path = public, extensions, vault
-as $$
-declare
-  v_url text;
-  v_key text;
-  v_request_id bigint;
-begin
-  select decrypted_secret into v_url
-    from vault.decrypted_secrets where name = 'project_url' limit 1;
-  select decrypted_secret into v_key
-    from vault.decrypted_secrets where name = 'project_service_role_key' limit 1;
-
-  if v_url is null or v_key is null then
-    raise notice 'sync_worksites_via_cron: missing vault secrets project_url or project_service_role_key';
-    return null;
-  end if;
-
-  select net.http_post(
-    url := v_url || '/functions/v1/sync-worksites',
-    headers := jsonb_build_object(
-      'Content-Type', 'application/json',
-      'Authorization', 'Bearer ' || v_key
-    ),
-    body := jsonb_build_object('source', 'pg_cron')
-  ) into v_request_id;
-
-  return v_request_id;
-end;
-$$;
-
-revoke execute on function public.sync_worksites_via_cron() from public, anon, authenticated;
-
--- (Re)schedule the hourly job. cron.unschedule errors if the job doesn't
--- exist, so the do-block swallows that case.
-do $$
-begin
-  perform cron.unschedule('sync-worksites-hourly');
-exception when others then
-  -- nothing to unschedule on first run
-  null;
-end$$;
-
-select cron.schedule(
-  'sync-worksites-hourly',
-  '0 * * * *',
-  $$ select public.sync_worksites_via_cron(); $$
-);
+-- No scheduled cron. The sync-worksites edge function is invoked manually
+-- from the /worksites UI's 'Sync now' button only — per Jordan, no
+-- automated syncs.
 
 notify pgrst, 'reload schema';
