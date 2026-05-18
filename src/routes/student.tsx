@@ -42,6 +42,7 @@ function StudentDashboard() {
   const [grade, setGrade] = useState<number | null>(null);
   const [interestDone, setInterestDone] = useState(false);
   const [hiddenSlugs, setHiddenSlugs] = useState<Set<string>>(new Set());
+  const [placement, setPlacement] = useState<PlacementRow | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -49,7 +50,7 @@ function StudentDashboard() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const [{ data: sess }, { data: app }, { data: stud }, { data: comp }, { data: vis }] =
+      const [{ data: sess }, { data: app }, { data: stud }, { data: comp }, { data: vis }, { data: plac }] =
         await Promise.all([
           supabase
             .from("assessment_sessions")
@@ -72,6 +73,13 @@ function StudentDashboard() {
             .eq("student_id", user.id)
             .maybeSingle(),
           supabase.from("internship_visibility").select("internship_slug, visible"),
+          supabase
+            .from("internship_placements")
+            .select("approved_internship_id, approved_at")
+            .eq("student_id", user.id)
+            .order("approved_at", { ascending: false })
+            .limit(1)
+            .maybeSingle(),
         ]);
       if (cancelled) return;
       setSession((sess as SessionSummary) ?? null);
@@ -81,6 +89,7 @@ function StudentDashboard() {
       setHiddenSlugs(
         new Set((vis ?? []).filter((r) => r.visible === false).map((r) => r.internship_slug)),
       );
+      setPlacement((plac as PlacementRow) ?? null);
       setLoading(false);
     })();
     return () => { cancelled = true; };
