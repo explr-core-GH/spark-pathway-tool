@@ -34,12 +34,16 @@ export function useSession() {
   useEffect(() => {
     let resolved = false;
     let currentId: string | null = null;
-    // Only set user when the actual user id changes. Supabase fires a
-    // fresh User object on TOKEN_REFRESHED — same person, different
-    // reference. If we set state on every event, useEducator's effect
-    // re-fires, refetches, and EducatorGate flickers through
-    // "Loading…" / "Request access" panels for users whose session is
-    // alive and well. Same goes for tab-visibility wakeups.
+    // Defensive policy: once we've seen a real user, we only ever clear
+    // it on an explicit SIGNED_OUT event. Every other event with a null
+    // session is treated as a transient blip (tab visibility, network
+    // hiccup, mistimed refresh) and silently ignored.
+    //
+    // This is more aggressive than just filtering TOKEN_REFRESHED. The
+    // browser fires INITIAL_SESSION on tab focus too, and depending on
+    // cookie/storage state it can arrive with session=null even when the
+    // user is fine. Ignoring those keeps EducatorGate from briefly
+    // showing the "Request access" panel mid-navigation.
     const apply = (u: User | null) => {
       const nextId = u?.id ?? null;
       if (nextId !== currentId) {
@@ -51,23 +55,28 @@ export function useSession() {
         setLoading(false);
       }
     };
+
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      // SIGNED_OUT: clear immediately, regardless of session.user value.
       if (event === "SIGNED_OUT") {
         apply(null);
         return;
       }
-      // Skip TOKEN_REFRESHED when session is null (refresh failed but
-      // the user wasn't actively signed out). Letting that through would
-      // briefly wipe `user` and bounce people to the sign-in gate.
-      if (event === "TOKEN_REFRESHED" && !session) return;
-      apply(session?.user ?? null);
+      // Only positive transitions from here on. If we somehow get a null
+      // session for an event that isn't SIGNED_OUT, drop it on the floor.
+      if (!session) return;
+      apply(session.user ?? null);
     });
+
     supabase.auth.getSession().then(({ data }) => {
+      // Initial bootstrap: this is the only legitimate place we may
+      // transition from "unknown" → null (the page loaded and there's no
+      // session). After this call, `apply` will only ever go null on a
+      // genuine SIGNED_OUT event.
       apply(data.session?.user ?? null);
     }).catch(() => {
       apply(null);
     });
+
     // Hard timeout — never leave the UI spinning forever.
     const t = setTimeout(() => apply(null), 4000);
     return () => {
