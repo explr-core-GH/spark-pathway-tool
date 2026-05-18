@@ -53,6 +53,8 @@ function EducatorSignUp() {
       organization: invite?.organization ?? (organization || null),
       program_type: invite?.program_type ?? null,
       approved: !!invite,
+      school_irn: school?.irn ?? null,
+      school_name: school?.name ?? null,
     });
 
     if (eErr) { setError(eErr.message); setLoading(false); return; }
