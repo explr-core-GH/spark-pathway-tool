@@ -106,11 +106,18 @@ export const syncExplrMore = createServerFn({ method: "POST" })
       if (error) throw new Error(`Camp upsert failed: ${error.message}`);
     }
 
-    if (regs.length > 0) {
-      const validCampIds = new Set(camps.map((c) => c.id));
-      const filteredRegs = regs.filter((r) => validCampIds.has(r.camp_id));
+    // Roster filtering. The previous version silently dropped any registration
+    // whose camp_id wasn't in the camps set, with no breadcrumb left behind —
+    // so a schema mismatch in ExplrMore (different join key, different table)
+    // looked identical to "no registrations" in the UI. Now we report both
+    // the raw fetch count and the post-filter count.
+    const validCampIds = new Set(camps.map((c) => c.id));
+    const matchedRegs = regs.filter((r) => validCampIds.has(r.camp_id));
+    const orphanedRegs = regs.length - matchedRegs.length;
+
+    if (matchedRegs.length > 0) {
       const { error } = await supabaseAdmin.from("explr_registrations").upsert(
-        filteredRegs.map((r) => ({
+        matchedRegs.map((r) => ({
           id: r.id,
           camp_id: r.camp_id,
           child_name: r.child_name,
@@ -129,23 +136,63 @@ export const syncExplrMore = createServerFn({ method: "POST" })
 
     return {
       ok: true,
+      campsFetched: camps.length,
       campsImported: camps.length,
-      registrationsImported: regs.length,
+      registrationsFetched: regs.length,
+      registrationsImported: matchedRegs.length,
+      registrationsOrphaned: orphanedRegs,
       syncedAt: new Date().toISOString(),
     };
   });
 
+// Replace the curriculum links for an ExplrMore camp with the supplied list
+// of curriculum slugs (zero or more). Simple replace strategy: delete every
+// existing link for this camp then insert the new set. Also keeps the legacy
+// linked_camp_slug column in sync (set to the first slug, or null) for any
+// older code that still reads it.
 export const linkExplrCamp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { explrCampId: string; linkedCampSlug: string | null }) => input)
+  .inputValidator(
+    (input: { explrCampId: string; linkedCampSlugs: string[] }) => input,
+  )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const { error } = await supabaseAdmin
-      .from("explr_camps")
-      .update({ linked_camp_slug: data.linkedCampSlug })
-      .eq("id", data.explrCampId);
-    if (error) throw new Error(error.message);
-    return { ok: true };
+
+    // explr_camp_curriculum_links isn't in the generated Database type yet
+    // (migration 20260518064003). Cast the table name to bypass.
+    const links = (supabaseAdmin.from as (n: string) => ReturnType<typeof supabaseAdmin.from>)(
+      "explr_camp_curriculum_links",
+    );
+
+    // Clear existing links for this camp.
+    {
+      const { error } = await links.delete().eq("explr_camp_id", data.explrCampId);
+      if (error) throw new Error(error.message);
+    }
+
+    // Insert the new set (dedup defensively).
+    const uniqueSlugs = [...new Set(data.linkedCampSlugs.filter(Boolean))];
+    if (uniqueSlugs.length > 0) {
+      const { error } = await links.insert(
+        uniqueSlugs.map((slug) => ({
+          explr_camp_id: data.explrCampId,
+          camp_slug: slug,
+          linked_by: context.userId,
+        })),
+      );
+      if (error) throw new Error(error.message);
+    }
+
+    // Keep the legacy single-link column in sync for any code that still reads it.
+    {
+      const { error } = await supabaseAdmin
+        .from("explr_camps")
+        .update({ linked_camp_slug: uniqueSlugs[0] ?? null })
+        .eq("id", data.explrCampId);
+      if (error) throw new Error(error.message);
+    }
+
+    return { ok: true, linkedCount: uniqueSlugs.length };
   });
 
 // Toggle an educator's assignment to an ExplrMore camp instance. Idempotent.

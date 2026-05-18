@@ -25,9 +25,10 @@ type ExplrCamp = {
   imported_at: string;
 };
 
-type CampOption = { slug: string; name: string };
+type CampOption = { slug: string; name: string; emoji: string };
 type Educator = { id: string; full_name: string; email: string };
 type Assignment = { explr_camp_id: string; educator_id: string };
+type CurriculumLink = { explr_camp_id: string; camp_slug: string };
 type RegCount = { camp_id: string };
 
 function ImportExplrPage() {
@@ -40,6 +41,7 @@ function ImportExplrPage() {
   const [campOptions, setCampOptions] = useState<CampOption[]>([]);
   const [educators, setEducators] = useState<Educator[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [curriculumLinks, setCurriculumLinks] = useState<CurriculumLink[]>([]);
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
@@ -53,13 +55,14 @@ function ImportExplrPage() {
       { data: local },
       { data: educs },
       { data: assigns },
+      { data: links },
     ] = await Promise.all([
       supabase
         .from("explr_camps")
         .select("id,title,date,end_date,location,capacity,category,linked_camp_slug,imported_at")
         .order("date", { ascending: false, nullsFirst: false }),
       supabase.from("explr_registrations").select("camp_id"),
-      supabase.from("camps").select("slug,name").order("name"),
+      supabase.from("camps").select("slug,name,emoji").order("name"),
       supabase
         .from("educators")
         .select("id,full_name,email")
@@ -70,6 +73,10 @@ function ImportExplrPage() {
       (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(
         "explr_camp_educators",
       ).select("explr_camp_id, educator_id"),
+      // explr_camp_curriculum_links is added in migration 20260518064003.
+      (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(
+        "explr_camp_curriculum_links",
+      ).select("explr_camp_id, camp_slug"),
     ]);
     setCamps((c ?? []) as ExplrCamp[]);
     const counts: Record<string, number> = {};
@@ -80,6 +87,7 @@ function ImportExplrPage() {
     setCampOptions((local ?? []) as CampOption[]);
     setEducators((educs ?? []) as Educator[]);
     setAssignments(((assigns ?? []) as unknown) as Assignment[]);
+    setCurriculumLinks(((links ?? []) as unknown) as CurriculumLink[]);
   }
   useEffect(() => { load(); }, []);
 
@@ -92,13 +100,29 @@ function ImportExplrPage() {
     return m;
   }, [assignments]);
 
+  const curriculumByCamp = useMemo(() => {
+    const m = new Map<string, Set<string>>();
+    for (const l of curriculumLinks) {
+      if (!m.has(l.explr_camp_id)) m.set(l.explr_camp_id, new Set());
+      m.get(l.explr_camp_id)!.add(l.camp_slug);
+    }
+    return m;
+  }, [curriculumLinks]);
+
   async function runSync() {
     setSyncing(true);
     setErr(null);
     setMsg(null);
     try {
       const res = await sync({});
-      setMsg(`Imported ${res.campsImported} camps and ${res.registrationsImported} registrations.`);
+      // Show fetched-vs-imported so a schema mismatch is visible, not silent.
+      const orphanedNote =
+        res.registrationsOrphaned > 0
+          ? ` · ${res.registrationsOrphaned} skipped (no matching camp_id)`
+          : "";
+      setMsg(
+        `Camps: ${res.campsImported} imported. Registrations: ${res.registrationsImported} imported of ${res.registrationsFetched} fetched from ExplrMore${orphanedNote}.`,
+      );
       await load();
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Sync failed");
@@ -107,10 +131,24 @@ function ImportExplrPage() {
     }
   }
 
-  async function onLinkChange(id: string, slug: string) {
+  async function toggleCurriculumLink(explrCampId: string, slug: string) {
+    const current = curriculumByCamp.get(explrCampId) ?? new Set<string>();
+    const next = new Set(current);
+    if (next.has(slug)) next.delete(slug);
+    else next.add(slug);
+    const linkedCampSlugs = [...next];
     try {
-      await linkCamp({ data: { explrCampId: id, linkedCampSlug: slug || null } });
-      setCamps((prev) => prev.map((c) => (c.id === id ? { ...c, linked_camp_slug: slug || null } : c)));
+      await linkCamp({ data: { explrCampId, linkedCampSlugs } });
+      // Replace this camp's links in local state.
+      setCurriculumLinks((prev) => [
+        ...prev.filter((l) => l.explr_camp_id !== explrCampId),
+        ...linkedCampSlugs.map((s) => ({ explr_camp_id: explrCampId, camp_slug: s })),
+      ]);
+      setCamps((prev) =>
+        prev.map((c) =>
+          c.id === explrCampId ? { ...c, linked_camp_slug: linkedCampSlugs[0] ?? null } : c,
+        ),
+      );
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Link failed");
     }
@@ -160,7 +198,7 @@ function ImportExplrPage() {
               <th className="py-2 pr-3">Date</th>
               <th className="py-2 pr-3">Roster</th>
               <th className="py-2 pr-3">Educators</th>
-              <th className="py-2 pr-3">Linked curriculum</th>
+              <th className="py-2 pr-3">Curriculum</th>
             </tr>
           </thead>
           <tbody>
@@ -202,50 +240,77 @@ function ImportExplrPage() {
                       <td className="py-3 pr-3 align-top text-charcoal-600 tabular-nums">
                         {assignedSet.size}
                       </td>
-                      <td className="py-3 pr-3 align-top">
-                        <select
-                          value={c.linked_camp_slug ?? ""}
-                          onChange={(e) => onLinkChange(c.id, e.target.value)}
-                          className="rounded border border-charcoal-200 bg-white px-2 py-1 text-sm"
-                        >
-                          <option value="">— not linked —</option>
-                          {campOptions.map((o) => (
-                            <option key={o.slug} value={o.slug}>{o.name}</option>
-                          ))}
-                        </select>
+                      <td className="py-3 pr-3 align-top text-charcoal-600 tabular-nums">
+                        {(curriculumByCamp.get(c.id)?.size ?? 0)}
                       </td>
                     </tr>
 
                     {isOpen && (
                       <tr className="border-b border-charcoal-100 bg-charcoal-50/40">
                         <td className="py-5 pl-3 pr-3" colSpan={6}>
-                          <p className="eyebrow">Assigned educators</p>
-                          <p className="mt-1 text-xs text-charcoal-500">
-                            Pick the EXPLR educator(s) running this instance. Only they get
-                            this camp on their dashboard.
-                          </p>
-                          {educators.length === 0 ? (
-                            <p className="mt-3 text-xs text-charcoal-400">
-                              No approved educators yet. Approve someone first.
-                            </p>
-                          ) : (
-                            <ul className="mt-3 max-h-56 space-y-1 overflow-y-auto border border-charcoal-100 bg-white p-2">
-                              {educators.map((e) => {
-                                const on = assignedSet.has(e.id);
-                                return (
-                                  <li key={e.id} className="flex items-center gap-2 px-2 py-1">
-                                    <input
-                                      type="checkbox"
-                                      checked={on}
-                                      onChange={() => toggleEducator(c.id, e.id, !on)}
-                                    />
-                                    <span className="text-sm text-ink">{e.full_name}</span>
-                                    <span className="text-xs text-charcoal-400">{e.email}</span>
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                          )}
+                          <div className="grid gap-6 md:grid-cols-2">
+                            {/* Educator assignment */}
+                            <section>
+                              <p className="eyebrow">Assigned educators</p>
+                              <p className="mt-1 text-xs text-charcoal-500">
+                                Pick the EXPLR educator(s) running this instance. Only they
+                                get this camp on their dashboard.
+                              </p>
+                              {educators.length === 0 ? (
+                                <p className="mt-3 text-xs text-charcoal-400">
+                                  No approved educators yet. Approve someone first.
+                                </p>
+                              ) : (
+                                <ul className="mt-3 max-h-56 space-y-1 overflow-y-auto border border-charcoal-100 bg-white p-2">
+                                  {educators.map((e) => {
+                                    const on = assignedSet.has(e.id);
+                                    return (
+                                      <li key={e.id} className="flex items-center gap-2 px-2 py-1">
+                                        <input
+                                          type="checkbox"
+                                          checked={on}
+                                          onChange={() => toggleEducator(c.id, e.id, !on)}
+                                        />
+                                        <span className="text-sm text-ink">{e.full_name}</span>
+                                        <span className="text-xs text-charcoal-400">{e.email}</span>
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              )}
+                            </section>
+
+                            {/* Curriculum (multi-select) */}
+                            <section>
+                              <p className="eyebrow">Linked curriculum</p>
+                              <p className="mt-1 text-xs text-charcoal-500">
+                                Connect this camp instance to one or more curriculum items.
+                                Pick everything that fits.
+                              </p>
+                              {campOptions.length === 0 ? (
+                                <p className="mt-3 text-xs text-charcoal-400">
+                                  No curriculum items yet. Add one under Catalog → Curriculum.
+                                </p>
+                              ) : (
+                                <ul className="mt-3 max-h-56 space-y-1 overflow-y-auto border border-charcoal-100 bg-white p-2">
+                                  {campOptions.map((o) => {
+                                    const linked = curriculumByCamp.get(c.id)?.has(o.slug) ?? false;
+                                    return (
+                                      <li key={o.slug} className="flex items-center gap-2 px-2 py-1">
+                                        <input
+                                          type="checkbox"
+                                          checked={linked}
+                                          onChange={() => toggleCurriculumLink(c.id, o.slug)}
+                                        />
+                                        <span aria-hidden>{o.emoji}</span>
+                                        <span className="text-sm text-ink">{o.name}</span>
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              )}
+                            </section>
+                          </div>
                         </td>
                       </tr>
                     )}
