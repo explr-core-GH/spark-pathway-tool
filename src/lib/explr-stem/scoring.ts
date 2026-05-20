@@ -117,6 +117,107 @@ export function cohenLabel(d: number): "negligible" | "small" | "medium" | "larg
   return "large";
 }
 
+export type WilcoxonResult = {
+  /** count of non-zero difference pairs (zero diffs are dropped) */
+  n: number;
+  /** sum of ranks of positive differences */
+  wPlus: number;
+  /** sum of ranks of negative differences */
+  wMinus: number;
+  /** normal-approximation z (continuity-corrected) */
+  z: number;
+  /** two-tailed p-value from the normal approximation */
+  p: number;
+};
+
+/**
+ * Wilcoxon signed-rank test for matched pre/post pairs.
+ *
+ * The README recommends this over the paired t-test for small camp
+ * cohorts (n < 30) — it doesn't assume the differences are normally
+ * distributed. Ranks use average ranks for ties; the variance carries
+ * the standard tie correction; the z uses a continuity correction.
+ *
+ * Returns null when fewer than 2 non-zero pairs remain.
+ */
+export function wilcoxonSignedRank(
+  pre: number[],
+  post: number[],
+): WilcoxonResult | null {
+  const n0 = Math.min(pre.length, post.length);
+  // Non-zero differences only — exact-tie pairs are dropped (standard).
+  const diffs: number[] = [];
+  for (let i = 0; i < n0; i++) {
+    const d = post[i] - pre[i];
+    if (d !== 0) diffs.push(d);
+  }
+  const n = diffs.length;
+  if (n < 2) return null;
+
+  // Rank by absolute difference, averaging ranks within tie groups.
+  const sorted = diffs
+    .map((d, i) => ({ abs: Math.abs(d), sign: Math.sign(d), i }))
+    .sort((a, b) => a.abs - b.abs);
+  const ranks = new Array<number>(n);
+  const tieGroups: number[] = [];
+  let j = 0;
+  while (j < n) {
+    let k = j;
+    while (k + 1 < n && sorted[k + 1].abs === sorted[j].abs) k++;
+    // positions j..k tie → average rank ((j+1)+(k+1))/2
+    const avgRank = (j + 1 + (k + 1)) / 2;
+    for (let m = j; m <= k; m++) ranks[m] = avgRank;
+    if (k > j) tieGroups.push(k - j + 1);
+    j = k + 1;
+  }
+
+  let wPlus = 0;
+  let wMinus = 0;
+  for (let m = 0; m < n; m++) {
+    if (sorted[m].sign > 0) wPlus += ranks[m];
+    else wMinus += ranks[m];
+  }
+
+  const meanW = (n * (n + 1)) / 4;
+  // variance with tie correction
+  let tieCorr = 0;
+  for (const t of tieGroups) tieCorr += t * t * t - t;
+  const varW = (n * (n + 1) * (2 * n + 1)) / 24 - tieCorr / 48;
+  const sdW = Math.sqrt(Math.max(varW, 0));
+
+  // continuity-corrected z on W+
+  let z = 0;
+  if (sdW > 0) {
+    const diff = wPlus - meanW;
+    const cc = diff > 0 ? -0.5 : diff < 0 ? 0.5 : 0;
+    z = (diff + cc) / sdW;
+  }
+  const p = 2 * (1 - normalCdf(Math.abs(z)));
+
+  return { n, wPlus, wMinus, z, p: Math.min(1, Math.max(0, p)) };
+}
+
+/** Standard normal CDF Φ(x), via a high-accuracy erf approximation. */
+function normalCdf(x: number): number {
+  return 0.5 * (1 + erf(x / Math.SQRT2));
+}
+
+/** Abramowitz & Stegun 7.1.26 approximation of erf (max error ~1.5e-7). */
+function erf(x: number): number {
+  const sign = x < 0 ? -1 : 1;
+  const ax = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * ax);
+  const y =
+    1 -
+    ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t -
+      0.284496736) *
+      t +
+      0.254829592) *
+      t *
+      Math.exp(-ax * ax);
+  return sign * y;
+}
+
 // ---- t-distribution p-value ----------------------------------------------
 // Two-tailed p-value for a t statistic with df degrees of freedom, via the
 // regularized incomplete beta function (Numerical Recipes, betai/betacf).

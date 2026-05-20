@@ -4,6 +4,7 @@ import {
   scoreConstruct,
   pairedChange,
   cohenLabel,
+  wilcoxonSignedRank,
   type ItemResponseValue,
 } from "./scoring";
 import type { SurveyItem } from "./index";
@@ -120,5 +121,47 @@ describe("cohenLabel", () => {
     expect(cohenLabel(0.9)).toBe("large");
     // sign-independent
     expect(cohenLabel(-0.9)).toBe("large");
+  });
+});
+
+describe("wilcoxonSignedRank", () => {
+  it("ranks an all-positive, tie-free shift (hand-checked)", () => {
+    // diffs = [1,2,3,4,5], no ties → ranks 1..5, all positive.
+    // W+ = 15, W- = 0. meanW = 5·6/4 = 7.5.
+    // varW = 5·6·11/24 = 13.75, sdW = 3.70810.
+    // z = (15 - 7.5 - 0.5) / 3.70810 = 7 / 3.70810 = 1.88774.
+    const r = wilcoxonSignedRank([1, 1, 1, 1, 1], [2, 3, 4, 5, 6])!;
+    expect(r.n).toBe(5);
+    expect(r.wPlus).toBe(15);
+    expect(r.wMinus).toBe(0);
+    expect(r.z).toBeCloseTo(1.88774, 4);
+    expect(r.p).toBeCloseTo(0.059, 2);
+  });
+
+  it("drops zero-difference pairs before ranking", () => {
+    // diffs = [1, 0, 2, 0, 3] → three non-zero pairs.
+    const r = wilcoxonSignedRank([1, 2, 3, 4, 5], [2, 2, 5, 4, 8])!;
+    expect(r.n).toBe(3);
+    expect(r.wPlus).toBe(6); // ranks 1+2+3, all positive
+    expect(r.wMinus).toBe(0);
+  });
+
+  it("averages ranks within tie groups", () => {
+    // diffs = [1, 2, 2, 3] → abs ranks: 1, 2.5, 2.5, 4. all positive.
+    const r = wilcoxonSignedRank([0, 0, 0, 0], [1, 2, 2, 3])!;
+    expect(r.n).toBe(4);
+    expect(r.wPlus).toBeCloseTo(10, 6); // 1 + 2.5 + 2.5 + 4
+  });
+
+  it("returns null with fewer than 2 non-zero pairs", () => {
+    expect(wilcoxonSignedRank([3, 3], [3, 3])).toBeNull(); // all zero diffs
+    expect(wilcoxonSignedRank([3], [5])).toBeNull();
+  });
+
+  it("yields a small p for a large consistent shift", () => {
+    const pre = [2, 2, 3, 2, 3, 2, 3, 2, 3, 2];
+    const post = [4, 5, 5, 4, 5, 4, 5, 4, 5, 4];
+    const r = wilcoxonSignedRank(pre, post)!;
+    expect(r.p).toBeLessThan(0.01);
   });
 });

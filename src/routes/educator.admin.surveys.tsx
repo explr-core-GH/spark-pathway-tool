@@ -14,8 +14,10 @@ import {
   scoreConstruct,
   pairedChange,
   cohenLabel,
+  wilcoxonSignedRank,
   type ItemResponseValue,
 } from "@/lib/explr-stem/scoring";
+import { RIASEC_ORDER, type RIASECCode } from "@/lib/riasec";
 
 const sb = supabase.from as (n: string) => ReturnType<typeof supabase.from>;
 
@@ -55,6 +57,8 @@ const SURVEY_TYPES: SurveyType[] = [
   "middle_school",
   "high_school",
 ];
+
+type Disaggregation = "none" | "grade" | "holland" | "year";
 
 // scale max per construct — career_interest is the only 4-point construct.
 function scaleMax(c: ConstructId): number {
@@ -118,9 +122,15 @@ function SurveysAdmin() {
     Array<{ slug: string; name: string }>
   >([]);
 
-  // selected results group
+  // selected results group + disaggregation mode
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-  const [byGrade, setByGrade] = useState(false);
+  const [disagg, setDisagg] = useState<Disaggregation>("none");
+
+  // student_id → primary RIASEC letter (from their latest completed
+  // assessment session) — powers the Holland-code cross-tab.
+  const [hollandByStudent, setHollandByStudent] = useState<
+    Record<string, RIASECCode>
+  >({});
 
   async function load() {
     setLoading(true);
@@ -148,6 +158,33 @@ function SurveysAdmin() {
       setItemsByResponse(map);
     } else {
       setItemsByResponse({});
+    }
+
+    // Holland codes for cross-tab — one per student (most recent completed
+    // assessment session). Only students who took the RIASEC assessment
+    // appear; the rest fall into an "Unknown" bucket.
+    const studentIds = [...new Set(resp.map((x) => x.student_id))];
+    if (studentIds.length > 0) {
+      const { data: sessions } = await supabase
+        .from("assessment_sessions")
+        .select("student_id, holland_code, completed_at")
+        .in("student_id", studentIds)
+        .not("completed_at", "is", null)
+        .order("completed_at", { ascending: false });
+      const hmap: Record<string, RIASECCode> = {};
+      for (const s of (sessions ?? []) as Array<{
+        student_id: string;
+        holland_code: string | null;
+      }>) {
+        if (hmap[s.student_id]) continue; // keep the most recent
+        const letter = s.holland_code?.[0]?.toUpperCase();
+        if (letter && RIASEC_ORDER.includes(letter as RIASECCode)) {
+          hmap[s.student_id] = letter as RIASECCode;
+        }
+      }
+      setHollandByStudent(hmap);
+    } else {
+      setHollandByStudent({});
     }
     setLoading(false);
   }
@@ -426,8 +463,9 @@ function SurveysAdmin() {
             assignments={assignments}
             responses={responses}
             itemsByResponse={itemsByResponse}
-            byGrade={byGrade}
-            onToggleByGrade={() => setByGrade((v) => !v)}
+            hollandByStudent={hollandByStudent}
+            disagg={disagg}
+            onSetDisagg={setDisagg}
           />
         ) : (
           <p className="mt-4 text-sm text-charcoal-400">
@@ -450,20 +488,30 @@ type Group = {
   assignmentIds: string[];
 };
 
+type Paired = {
+  pre: Partial<Record<ConstructId, number | null>>;
+  post: Partial<Record<ConstructId, number | null>>;
+  grade: number | null;
+  hollandCode: RIASECCode | null;
+  year: number | null;
+};
+
 function ResultsPanel({
   group,
   assignments,
   responses,
   itemsByResponse,
-  byGrade,
-  onToggleByGrade,
+  hollandByStudent,
+  disagg,
+  onSetDisagg,
 }: {
   group: Group;
   assignments: Assignment[];
   responses: ResponseRow[];
   itemsByResponse: Record<string, ItemRow[]>;
-  byGrade: boolean;
-  onToggleByGrade: () => void;
+  hollandByStudent: Record<string, RIASECCode>;
+  disagg: Disaggregation;
+  onSetDisagg: (d: Disaggregation) => void;
 }) {
   const groupAssignments = assignments.filter((a) =>
     group.assignmentIds.includes(a.id),
@@ -473,17 +521,11 @@ function ResultsPanel({
     (r) => groupAsgIds.has(r.assignment_id) && r.completed_at,
   );
 
-  // Build matched pre/post pairs per construct.
   const isRetro = group.surveyType === "retrospective";
+  const yearOf = (iso: string | null) =>
+    iso ? new Date(iso).getFullYear() : null;
 
-  // student_id → { pre: scores, post: scores, grade }
-  type Paired = {
-    pre: Partial<Record<ConstructId, number | null>>;
-    post: Partial<Record<ConstructId, number | null>>;
-    grade: number | null;
-  };
   const pairs: Paired[] = [];
-
   if (isRetro) {
     // One response per student; 'then' = pre, 'now' = post.
     for (const r of completed) {
@@ -491,11 +533,12 @@ function ResultsPanel({
         pre: scoreAll(itemsByResponse, r.id, "then"),
         post: scoreAll(itemsByResponse, r.id, "now"),
         grade: r.demographics?.grade ?? null,
+        hollandCode: hollandByStudent[r.student_id] ?? null,
+        year: yearOf(r.completed_at),
       });
     }
   } else {
-    // Match a completed 'pre' response to a completed 'post' response by
-    // student_id.
+    // Match a completed 'pre' response to a completed 'post' by student_id.
     const preByStudent = new Map<string, ResponseRow>();
     const postByStudent = new Map<string, ResponseRow>();
     for (const r of completed) {
@@ -509,13 +552,16 @@ function ResultsPanel({
         pre: scoreAll(itemsByResponse, preR.id, "now"),
         post: scoreAll(itemsByResponse, postR.id, "now"),
         grade: postR.demographics?.grade ?? preR.demographics?.grade ?? null,
+        hollandCode: hollandByStudent[sid] ?? null,
+        // The post administration's year = the year the program ran.
+        year: yearOf(postR.completed_at),
       });
     }
   }
 
   function constructTable(rows: Paired[], label: string) {
     return (
-      <div className="mt-4">
+      <div key={label} className="mt-5">
         <p className="text-xs font-semibold text-charcoal-600">
           {label} · n = {rows.length}
         </p>
@@ -534,6 +580,7 @@ function ResultsPanel({
                   <th className="py-2 pr-4 font-normal">Change</th>
                   <th className="py-2 pr-4 font-normal">n</th>
                   <th className="py-2 pr-4 font-normal">Cohen&apos;s d</th>
+                  <th className="py-2 pr-4 font-normal">Significance</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-charcoal-100">
@@ -551,6 +598,14 @@ function ResultsPanel({
                   if (pre.length === 0) return null;
                   const r = pairedChange(pre, post);
                   if (!r) return null;
+                  // README: prefer the non-parametric Wilcoxon test for
+                  // small cohorts (n < 30); the paired t-test otherwise.
+                  const useWilcoxon = r.n < 30;
+                  const wil = useWilcoxon
+                    ? wilcoxonSignedRank(pre, post)
+                    : null;
+                  const pVal = useWilcoxon ? (wil?.p ?? null) : r.p;
+                  const testName = useWilcoxon ? "Wilcoxon" : "t-test";
                   return (
                     <tr key={c}>
                       <td className="py-2 pr-4 font-medium">
@@ -583,6 +638,18 @@ function ResultsPanel({
                           ({cohenLabel(r.cohensD)})
                         </span>
                       </td>
+                      <td className="py-2 pr-4 text-charcoal-600">
+                        {pVal != null ? (
+                          <>
+                            p = {pVal < 0.001 ? "<0.001" : pVal.toFixed(3)}{" "}
+                            <span className="text-xs text-charcoal-400">
+                              ({testName})
+                            </span>
+                          </>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
                     </tr>
                   );
                 })}
@@ -602,6 +669,8 @@ function ResultsPanel({
       "survey_type",
       "administration",
       "grade",
+      "completed_year",
+      "holland_code",
       "item_id",
       "value_now",
       "value_then",
@@ -619,6 +688,8 @@ function ResultsPanel({
             r.survey_type,
             r.administration,
             r.demographics?.grade ?? "",
+            yearOf(r.completed_at) ?? "",
+            hollandByStudent[r.student_id] ?? "",
             it.item_id,
             it.value_now ?? "",
             it.value_then ?? "",
@@ -636,30 +707,47 @@ function ResultsPanel({
     URL.revokeObjectURL(url);
   }
 
-  // grade disaggregation buckets
-  const gradeBuckets = byGrade
-    ? [
-        { label: "Grades 5–6", test: (g: number | null) => g != null && g <= 6 },
-        { label: "Grades 7–8", test: (g: number | null) => g != null && g >= 7 && g <= 8 },
-        { label: "Grades 9–12", test: (g: number | null) => g != null && g >= 9 },
-      ]
-    : [];
+  // Build the (label, rows) buckets for the current disaggregation mode.
+  let buckets: Array<{ label: string; rows: Paired[] }>;
+  if (disagg === "grade") {
+    buckets = [
+      { label: "Grades 5–6", rows: pairs.filter((p) => p.grade != null && p.grade <= 6) },
+      { label: "Grades 7–8", rows: pairs.filter((p) => p.grade != null && p.grade >= 7 && p.grade <= 8) },
+      { label: "Grades 9–12", rows: pairs.filter((p) => p.grade != null && p.grade >= 9) },
+    ];
+  } else if (disagg === "holland") {
+    buckets = RIASEC_ORDER.map((code) => ({
+      label: `Holland code ${code}`,
+      rows: pairs.filter((p) => p.hollandCode === code),
+    }));
+    const unknown = pairs.filter((p) => p.hollandCode == null);
+    if (unknown.length > 0) {
+      buckets.push({ label: "No assessment on file", rows: unknown });
+    }
+  } else if (disagg === "year") {
+    const years = [...new Set(pairs.map((p) => p.year).filter((y): y is number => y != null))].sort();
+    buckets = years.map((y) => ({
+      label: `${y}`,
+      rows: pairs.filter((p) => p.year === y),
+    }));
+  } else {
+    buckets = [{ label: "All students", rows: pairs }];
+  }
+
+  const DISAGG_LABELS: Record<Disaggregation, string> = {
+    none: "Overall",
+    grade: "By grade",
+    holland: "By Holland code",
+    year: "By year",
+  };
 
   return (
     <div className="mt-4 border border-charcoal-100 p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h3 className="text-base font-medium">{group.title}</h3>
-        <div className="flex gap-3 text-xs">
-          <button
-            onClick={onToggleByGrade}
-            className="text-charcoal-500 underline hover:text-ink"
-          >
-            {byGrade ? "Show overall" : "Disaggregate by grade"}
-          </button>
-          <button onClick={exportCsv} className="ink-link">
-            Export raw CSV
-          </button>
-        </div>
+        <button onClick={exportCsv} className="ink-link text-xs">
+          Export raw CSV
+        </button>
       </div>
       <p className="mt-1 text-xs text-charcoal-500">
         {completed.length} completed response
@@ -667,21 +755,37 @@ function ResultsPanel({
         pair{pairs.length === 1 ? "" : "s"}
       </p>
 
-      {byGrade ? (
-        gradeBuckets.map((b) =>
-          constructTable(
-            pairs.filter((p) => b.test(p.grade)),
-            b.label,
-          ),
-        )
+      {/* Disaggregation control */}
+      <div className="mt-4 inline-flex flex-wrap border border-charcoal-200">
+        {(["none", "grade", "holland", "year"] as Disaggregation[]).map((d) => (
+          <button
+            key={d}
+            type="button"
+            onClick={() => onSetDisagg(d)}
+            className="px-3 py-1.5 text-xs"
+            style={{
+              background: disagg === d ? "var(--ink)" : "white",
+              color: disagg === d ? "white" : "var(--color-charcoal-500)",
+            }}
+          >
+            {DISAGG_LABELS[d]}
+          </button>
+        ))}
+      </div>
+
+      {buckets.length === 0 ? (
+        <p className="mt-4 text-xs text-charcoal-400">
+          No data for this breakdown yet.
+        </p>
       ) : (
-        <>{constructTable(pairs, "All students")}</>
+        buckets.map((b) => constructTable(b.rows, b.label))
       )}
 
-      <p className="mt-4 text-[11px] text-charcoal-400">
-        Cohen&apos;s d: 0.2 small · 0.5 medium · 0.8 large. The S-STEM is
-        validated at the construct level — treat item-level numbers as
-        diagnostic only.
+      <p className="mt-5 text-[11px] text-charcoal-400">
+        Cohen&apos;s d: 0.2 small · 0.5 medium · 0.8 large. Significance uses
+        the paired t-test at n ≥ 30 and the non-parametric Wilcoxon
+        signed-rank test below that. The S-STEM is validated at the construct
+        level — treat item-level numbers as diagnostic only.
       </p>
     </div>
   );
