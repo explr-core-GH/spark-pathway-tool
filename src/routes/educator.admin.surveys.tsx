@@ -109,6 +109,15 @@ function SurveysAdmin() {
   const [fTitle, setFTitle] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // Pickable units for the create form — camp sessions (explr_camps) and
+  // internships, so the admin never hand-types a slug / id.
+  const [campSessions, setCampSessions] = useState<
+    Array<{ id: string; title: string; date: string | null }>
+  >([]);
+  const [internships, setInternships] = useState<
+    Array<{ slug: string; name: string }>
+  >([]);
+
   // selected results group
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [byGrade, setByGrade] = useState(false);
@@ -144,6 +153,25 @@ function SurveysAdmin() {
   }
   useEffect(() => {
     load();
+  }, []);
+
+  // Load the unit options once.
+  useEffect(() => {
+    sb("explr_camps")
+      .select("id, title, date")
+      .order("date", { ascending: true })
+      .then(({ data }: { data: unknown }) => {
+        setCampSessions(
+          (data ?? []) as Array<{ id: string; title: string; date: string | null }>,
+        );
+      });
+    supabase
+      .from("internships")
+      .select("slug, name")
+      .order("name")
+      .then(({ data }) => {
+        setInternships((data ?? []) as Array<{ slug: string; name: string }>);
+      });
   }, []);
 
   async function createAssignment(e: React.FormEvent) {
@@ -262,28 +290,64 @@ function SurveysAdmin() {
                 <button
                   key={u}
                   type="button"
-                  onClick={() => setFUnitType(u)}
+                  onClick={() => {
+                    setFUnitType(u);
+                    setFUnitRef(""); // ref is unit-type specific
+                  }}
                   className="px-3 py-1.5 text-xs"
                   style={{
                     background: fUnitType === u ? "var(--ink)" : "white",
                     color: fUnitType === u ? "white" : "var(--color-charcoal-500)",
                   }}
                 >
-                  {u === "camp" ? "Camp" : "Internship"}
+                  {u === "camp" ? "Camp session" : "Internship"}
                 </button>
               ))}
             </div>
           </div>
           <div>
             <label className="label">
-              {fUnitType === "camp" ? "Camp" : "Internship"} reference
+              {fUnitType === "camp" ? "Camp session" : "Internship"}
             </label>
-            <input
+            <select
               className="field mt-1"
               value={fUnitRef}
-              onChange={(e) => setFUnitRef(e.target.value)}
-              placeholder="slug or session id"
-            />
+              onChange={(e) => {
+                setFUnitRef(e.target.value);
+                // Prefill the student-facing title from the picked unit if
+                // the admin hasn't typed one yet.
+                if (!fTitle.trim()) {
+                  if (fUnitType === "camp") {
+                    const s = campSessions.find((c) => c.id === e.target.value);
+                    if (s) setFTitle(s.title);
+                  } else {
+                    const i = internships.find((x) => x.slug === e.target.value);
+                    if (i) setFTitle(i.name);
+                  }
+                }
+              }}
+            >
+              <option value="">
+                Pick a {fUnitType === "camp" ? "camp session" : "internship"}…
+              </option>
+              {fUnitType === "camp"
+                ? campSessions.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.title}
+                      {s.date ? ` · ${new Date(s.date).toLocaleDateString()}` : ""}
+                    </option>
+                  ))
+                : internships.map((i) => (
+                    <option key={i.slug} value={i.slug}>
+                      {i.name}
+                    </option>
+                  ))}
+            </select>
+            {fUnitType === "camp" && campSessions.length === 0 && (
+              <p className="mt-1 text-[11px] text-charcoal-400">
+                No camp sessions synced yet — run an ExplrMore sync first.
+              </p>
+            )}
           </div>
           <div>
             <label className="label">Title shown to students</label>
