@@ -6,6 +6,7 @@ import { RoleGuard } from "@/components/RoleGuard";
 import { INTERNSHIPS } from "@/lib/internships-catalog";
 import { RIASEC, type RIASECCode } from "@/lib/riasec";
 import { StemActivitiesMarquee } from "@/components/StemActivitiesMarquee";
+import { StudentSurveysPanel } from "@/components/StudentSurveysPanel";
 
 export const Route = createFileRoute("/student")({
   head: () => ({ meta: [{ title: "Your dashboard — EXPLR" }] }),
@@ -228,6 +229,17 @@ function StudentDashboard() {
               Take aptitude battery
             </Link>
           </div>
+        </section>
+
+        {/* STEM surveys — admin-assigned pre/post research surveys */}
+        <section className="mt-12 border-t border-charcoal-100 pt-10">
+          <p className="eyebrow">STEM surveys</p>
+          <p className="mt-3 text-charcoal-500 max-w-2xl">
+            Short research surveys from your camp or internship. They help
+            EXPLR understand what&apos;s working — your answers are never
+            shown next to your name.
+          </p>
+          <StudentSurveysPanel studentId={user!.id} />
         </section>
 
         {/* Application & internships — only for grades 8-12 who finished the interest survey */}

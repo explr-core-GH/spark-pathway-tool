@@ -1,0 +1,727 @@
+{
+  "meta": {
+    "version": "1.0",
+    "last_updated": "2026-05-19",
+    "program": "EXPLR — Cleveland State University × MAGNET",
+    "intended_use": "Pre/post evaluation of EXPLR camps (grades 5–8) and internships (grades 9–12)",
+    "primary_source": {
+      "name": "S-STEM Survey, Middle and High School (6–12) version",
+      "citation": "Friday Institute for Educational Innovation. (2012). Middle and High School STEM-Student Survey. Raleigh, NC: Author.",
+      "license": "Free for educational, non-commercial use with attribution.",
+      "psychometric_reference": "Unfried, A., Faber, M., Stanhope, D. S., & Wiebe, E. (2015). The development and validation of a measure of student attitudes toward science, technology, engineering, and math (S-STEM). Journal of Psychoeducational Assessment, 33(7), 622–639."
+    },
+    "secondary_source": {
+      "name": "Career Decision Self-Efficacy items (high school career planning section)",
+      "citation": "Falco, L. D., & Summers, J. J. (2019). Improving career decision self-efficacy and STEM self-efficacy in high school girls: Evaluation of an intervention. Journal of Career Development, 46(1), 62–76.",
+      "note": "Items adapted from the standard 5-domain career decision self-efficacy framework (self-appraisal, occupational information, goal selection, planning, problem solving)."
+    }
+  },
+  "scales": {
+    "agreement_5pt": {
+      "type": "likert",
+      "min": 1,
+      "max": 5,
+      "points": [
+        {
+          "value": 1,
+          "label": "Strongly Disagree"
+        },
+        {
+          "value": 2,
+          "label": "Disagree"
+        },
+        {
+          "value": 3,
+          "label": "Neither Agree nor Disagree"
+        },
+        {
+          "value": 4,
+          "label": "Agree"
+        },
+        {
+          "value": 5,
+          "label": "Strongly Agree"
+        }
+      ]
+    },
+    "interest_4pt": {
+      "type": "likert",
+      "min": 1,
+      "max": 4,
+      "points": [
+        {
+          "value": 1,
+          "label": "Not at all Interested"
+        },
+        {
+          "value": 2,
+          "label": "Not So Interested"
+        },
+        {
+          "value": 3,
+          "label": "Interested"
+        },
+        {
+          "value": 4,
+          "label": "Very Interested"
+        }
+      ]
+    },
+    "confidence_5pt": {
+      "type": "likert",
+      "min": 1,
+      "max": 5,
+      "points": [
+        {
+          "value": 1,
+          "label": "Not at All Confident"
+        },
+        {
+          "value": 2,
+          "label": "Slightly Confident"
+        },
+        {
+          "value": 3,
+          "label": "Somewhat Confident"
+        },
+        {
+          "value": 4,
+          "label": "Confident"
+        },
+        {
+          "value": 5,
+          "label": "Totally Confident"
+        }
+      ]
+    }
+  },
+  "constructs": {
+    "math": {
+      "name": "Math attitudes / self-efficacy",
+      "scale": "agreement_5pt",
+      "source": "S-STEM",
+      "cronbach_alpha": 0.9,
+      "items": [
+        {
+          "id": "math_1",
+          "item_number_in_sstem": 1,
+          "text": "Math has been my worst subject.",
+          "reverse_coded": true
+        },
+        {
+          "id": "math_2",
+          "item_number_in_sstem": 2,
+          "text": "I would consider choosing a career that uses math.",
+          "reverse_coded": false
+        },
+        {
+          "id": "math_3",
+          "item_number_in_sstem": 3,
+          "text": "Math is hard for me.",
+          "reverse_coded": true
+        },
+        {
+          "id": "math_4",
+          "item_number_in_sstem": 4,
+          "text": "I am the type of student to do well in math.",
+          "reverse_coded": false
+        },
+        {
+          "id": "math_5",
+          "item_number_in_sstem": 5,
+          "text": "I can handle most subjects well, but I cannot do a good job with math.",
+          "reverse_coded": true
+        },
+        {
+          "id": "math_6",
+          "item_number_in_sstem": 6,
+          "text": "I am sure I could do advanced work in math.",
+          "reverse_coded": false
+        },
+        {
+          "id": "math_7",
+          "item_number_in_sstem": 7,
+          "text": "I can get good grades in math.",
+          "reverse_coded": false
+        },
+        {
+          "id": "math_8",
+          "item_number_in_sstem": 8,
+          "text": "I am good at math.",
+          "reverse_coded": false
+        }
+      ]
+    },
+    "science": {
+      "name": "Science attitudes / self-efficacy",
+      "scale": "agreement_5pt",
+      "source": "S-STEM",
+      "cronbach_alpha": 0.89,
+      "items": [
+        {
+          "id": "science_1",
+          "item_number_in_sstem": 9,
+          "text": "I am sure of myself when I do science.",
+          "reverse_coded": false
+        },
+        {
+          "id": "science_2",
+          "item_number_in_sstem": 10,
+          "text": "I would consider a career in science.",
+          "reverse_coded": false
+        },
+        {
+          "id": "science_3",
+          "item_number_in_sstem": 11,
+          "text": "I expect to use science when I get out of school.",
+          "reverse_coded": false
+        },
+        {
+          "id": "science_4",
+          "item_number_in_sstem": 12,
+          "text": "Knowing science will help me earn a living.",
+          "reverse_coded": false
+        },
+        {
+          "id": "science_5",
+          "item_number_in_sstem": 13,
+          "text": "I will need science for my future work.",
+          "reverse_coded": false
+        },
+        {
+          "id": "science_6",
+          "item_number_in_sstem": 14,
+          "text": "I know I can do well in science.",
+          "reverse_coded": false
+        },
+        {
+          "id": "science_7",
+          "item_number_in_sstem": 15,
+          "text": "Science will be important to me in my life's work.",
+          "reverse_coded": false
+        },
+        {
+          "id": "science_8",
+          "item_number_in_sstem": 16,
+          "text": "I can handle most subjects well, but I cannot do a good job with science.",
+          "reverse_coded": true
+        },
+        {
+          "id": "science_9",
+          "item_number_in_sstem": 17,
+          "text": "I am sure I could do advanced work in science.",
+          "reverse_coded": false
+        }
+      ]
+    },
+    "engineering_technology": {
+      "name": "Engineering and Technology attitudes",
+      "scale": "agreement_5pt",
+      "source": "S-STEM",
+      "cronbach_alpha": 0.89,
+      "preamble": "Engineers use math, science, and creativity to research and solve problems that improve everyone's life and to invent new products. There are many different types of engineering, such as chemical, electrical, computer, mechanical, civil, environmental, and biomedical. Engineers design and improve things like bridges, cars, fabrics, foods, and virtual reality amusement parks. Technologists implement the designs that engineers develop; they build, test, and maintain products and processes.",
+      "items": [
+        {
+          "id": "engtech_1",
+          "item_number_in_sstem": 18,
+          "text": "I like to imagine creating new products.",
+          "reverse_coded": false
+        },
+        {
+          "id": "engtech_2",
+          "item_number_in_sstem": 19,
+          "text": "If I learn engineering, then I can improve things that people use every day.",
+          "reverse_coded": false
+        },
+        {
+          "id": "engtech_3",
+          "item_number_in_sstem": 20,
+          "text": "I am good at building and fixing things.",
+          "reverse_coded": false
+        },
+        {
+          "id": "engtech_4",
+          "item_number_in_sstem": 21,
+          "text": "I am interested in what makes machines work.",
+          "reverse_coded": false
+        },
+        {
+          "id": "engtech_5",
+          "item_number_in_sstem": 22,
+          "text": "Designing products or structures will be important for my future work.",
+          "reverse_coded": false
+        },
+        {
+          "id": "engtech_6",
+          "item_number_in_sstem": 23,
+          "text": "I am curious about how electronics work.",
+          "reverse_coded": false
+        },
+        {
+          "id": "engtech_7",
+          "item_number_in_sstem": 24,
+          "text": "I would like to use creativity and innovation in my future work.",
+          "reverse_coded": false
+        },
+        {
+          "id": "engtech_8",
+          "item_number_in_sstem": 25,
+          "text": "Knowing how to use math and science together will allow me to invent useful things.",
+          "reverse_coded": false
+        },
+        {
+          "id": "engtech_9",
+          "item_number_in_sstem": 26,
+          "text": "I believe I can be successful in a career in engineering.",
+          "reverse_coded": false
+        }
+      ]
+    },
+    "twentyfirst_century": {
+      "name": "21st Century Learning Skills",
+      "scale": "agreement_5pt",
+      "source": "S-STEM",
+      "cronbach_alpha": 0.91,
+      "items": [
+        {
+          "id": "c21_1",
+          "item_number_in_sstem": 27,
+          "text": "I am confident I can lead others to accomplish a goal.",
+          "reverse_coded": false
+        },
+        {
+          "id": "c21_2",
+          "item_number_in_sstem": 28,
+          "text": "I am confident I can encourage others to do their best.",
+          "reverse_coded": false
+        },
+        {
+          "id": "c21_3",
+          "item_number_in_sstem": 29,
+          "text": "I am confident I can produce high quality work.",
+          "reverse_coded": false
+        },
+        {
+          "id": "c21_4",
+          "item_number_in_sstem": 30,
+          "text": "I am confident I can respect the differences of my peers.",
+          "reverse_coded": false
+        },
+        {
+          "id": "c21_5",
+          "item_number_in_sstem": 31,
+          "text": "I am confident I can help my peers.",
+          "reverse_coded": false
+        },
+        {
+          "id": "c21_6",
+          "item_number_in_sstem": 32,
+          "text": "I am confident I can include others' perspectives when making decisions.",
+          "reverse_coded": false
+        },
+        {
+          "id": "c21_7",
+          "item_number_in_sstem": 33,
+          "text": "I am confident I can make changes when things do not go as planned.",
+          "reverse_coded": false
+        },
+        {
+          "id": "c21_8",
+          "item_number_in_sstem": 34,
+          "text": "I am confident I can set my own learning goals.",
+          "reverse_coded": false
+        },
+        {
+          "id": "c21_9",
+          "item_number_in_sstem": 35,
+          "text": "I am confident I can manage my time wisely when working on my own.",
+          "reverse_coded": false
+        },
+        {
+          "id": "c21_10",
+          "item_number_in_sstem": 36,
+          "text": "When I have many assignments, I can choose which ones need to be done first.",
+          "reverse_coded": false
+        },
+        {
+          "id": "c21_11",
+          "item_number_in_sstem": 37,
+          "text": "I am confident I can work well with students from different backgrounds.",
+          "reverse_coded": false
+        }
+      ]
+    },
+    "career_interest": {
+      "name": "STEM Career Interest",
+      "scale": "interest_4pt",
+      "source": "S-STEM",
+      "instructions": "Below are descriptions of subject areas that involve math, science, engineering and/or technology, with lists of jobs connected to each subject area. Rate how interested you are in each one.",
+      "items": [
+        {
+          "id": "career_physics",
+          "item_number": 1,
+          "career_name": "Physics",
+          "description": "is the study of basic laws governing the motion, energy, structure, and interactions of matter. This can include studying the nature of the universe. (aviation engineer, alternative energy technician, lab technician, physicist, astronomer)",
+          "reverse_coded": false
+        },
+        {
+          "id": "career_environmental_work",
+          "item_number": 2,
+          "career_name": "Environmental Work",
+          "description": "involves learning about physical and biological processes that govern nature and working to improve the environment. This includes finding and designing solutions to problems like pollution, reusing waste and recycling. (pollution control analyst, environmental engineer or scientist, erosion control specialist, energy systems engineer and maintenance technician)",
+          "reverse_coded": false
+        },
+        {
+          "id": "career_biology_and_zoology",
+          "item_number": 3,
+          "career_name": "Biology and Zoology",
+          "description": "involve the study of living organisms (such as plants and animals) and the processes of life. This includes working with farm animals and in areas like nutrition and breeding. (biological technician, biological scientist, plant breeder, crop lab technician, animal scientist, geneticist, zoologist)",
+          "reverse_coded": false
+        },
+        {
+          "id": "career_veterinary_work",
+          "item_number": 4,
+          "career_name": "Veterinary Work",
+          "description": "involves the science of preventing or treating disease in animals. (veterinary assistant, veterinarian, livestock producer, animal caretaker)",
+          "reverse_coded": false
+        },
+        {
+          "id": "career_mathematics",
+          "item_number": 5,
+          "career_name": "Mathematics",
+          "description": "is the science of numbers and their operations. It involves computation, algorithms and theory used to solve problems and summarize data. (accountant, applied mathematician, economist, financial analyst, mathematician, statistician, market researcher, stock market analyst)",
+          "reverse_coded": false
+        },
+        {
+          "id": "career_medicine",
+          "item_number": 6,
+          "career_name": "Medicine",
+          "description": "involves maintaining health and preventing and treating disease. (physician's assistant, nurse, doctor, nutritionist, emergency medical technician, physical therapist, dentist)",
+          "reverse_coded": false
+        },
+        {
+          "id": "career_earth_science",
+          "item_number": 7,
+          "career_name": "Earth Science",
+          "description": "is the study of earth, including the air, land, and ocean. (geologist, weather forecaster, archaeologist, geoscientist)",
+          "reverse_coded": false
+        },
+        {
+          "id": "career_computer_science",
+          "item_number": 8,
+          "career_name": "Computer Science",
+          "description": "consists of the development and testing of computer systems, designing new programs and helping others to use computers. (computer support specialist, computer programmer, computer and network technician, gaming designer, computer software engineer, information technology specialist)",
+          "reverse_coded": false
+        },
+        {
+          "id": "career_medical_science",
+          "item_number": 9,
+          "career_name": "Medical Science",
+          "description": "involves researching human disease and working to find new solutions to human health problems. (clinical laboratory technologist, medical scientist, biomedical engineer, epidemiologist, pharmacologist)",
+          "reverse_coded": false
+        },
+        {
+          "id": "career_chemistry",
+          "item_number": 10,
+          "career_name": "Chemistry",
+          "description": "uses math and experiments to search for new chemicals, and to study the structure of matter and how it behaves. (chemical technician, chemist, chemical engineer)",
+          "reverse_coded": false
+        },
+        {
+          "id": "career_energy",
+          "item_number": 11,
+          "career_name": "Energy",
+          "description": "involves the study and generation of power, such as heat or electricity. (electrician, electrical engineer, heating, ventilation, and air conditioning (HVAC) technician, nuclear engineer, systems engineer, alternative energy systems installer or technician)",
+          "reverse_coded": false
+        },
+        {
+          "id": "career_engineering",
+          "item_number": 12,
+          "career_name": "Engineering",
+          "description": "involves designing, testing, and manufacturing new products (like machines, bridges, buildings, and electronics) through the use of math, science, and computers. (civil, industrial, agricultural, or mechanical engineers, welder, auto-mechanic, engineering technician, construction manager)",
+          "reverse_coded": false
+        }
+      ]
+    },
+    "career_planning": {
+      "name": "Career Decision Self-Efficacy (Career Planning Confidence)",
+      "scale": "confidence_5pt",
+      "source": "Adapted from Falco & Summers (2019); domains follow the standard career decision self-efficacy framework (Crites, 1978; Bandura, 1986; Betz, Klein, & Taylor, 1996).",
+      "use_for": "high_school_internship_only",
+      "items": [
+        {
+          "id": "career_planning_self_appraisal",
+          "item_number": 38,
+          "domain": "Self-appraisal",
+          "text": "I can accurately judge my own abilities and interests when it comes to choosing a career.",
+          "reverse_coded": false
+        },
+        {
+          "id": "career_planning_occupational_information",
+          "item_number": 39,
+          "domain": "Occupational information",
+          "text": "I can find information about careers I am interested in.",
+          "reverse_coded": false
+        },
+        {
+          "id": "career_planning_goal_selection",
+          "item_number": 40,
+          "domain": "Goal selection",
+          "text": "I can choose a career that will fit my interests.",
+          "reverse_coded": false
+        },
+        {
+          "id": "career_planning_planning",
+          "item_number": 41,
+          "domain": "Planning",
+          "text": "I can make a plan of my goals for the next five years.",
+          "reverse_coded": false
+        },
+        {
+          "id": "career_planning_problem_solving",
+          "item_number": 42,
+          "domain": "Problem solving",
+          "text": "I can change my plans if things do not work out the way I wanted.",
+          "reverse_coded": false
+        }
+      ]
+    },
+    "work_based_learning": {
+      "name": "Work-Based Learning Outcomes",
+      "scale": "agreement_5pt",
+      "source": "Custom items grounded in the work-based learning and workplace-mentoring literature.",
+      "use_for": "high_school_internship_post_only",
+      "note": "Post-survey only. Use as a stand-alone end-of-program measure of internship quality.",
+      "items": [
+        {
+          "id": "wbl_1",
+          "item_number": 43,
+          "text": "My internship work felt like real, meaningful work.",
+          "reverse_coded": false
+        },
+        {
+          "id": "wbl_2",
+          "item_number": 44,
+          "text": "I learned skills at my internship that I could not have learned in a classroom.",
+          "reverse_coded": false
+        },
+        {
+          "id": "wbl_3",
+          "item_number": 45,
+          "text": "I had at least one adult at my internship I felt comfortable asking for help.",
+          "reverse_coded": false
+        },
+        {
+          "id": "wbl_4",
+          "item_number": 46,
+          "text": "I can picture myself working in a job like this someday.",
+          "reverse_coded": false
+        },
+        {
+          "id": "wbl_5",
+          "item_number": 47,
+          "text": "My internship helped me understand what people in this field actually do day to day.",
+          "reverse_coded": false
+        },
+        {
+          "id": "wbl_6",
+          "item_number": 48,
+          "text": "After this internship, I have a clearer idea of what I want to study after high school.",
+          "reverse_coded": false
+        }
+      ]
+    }
+  },
+  "surveys": {
+    "one_week_camp_retrospective": {
+      "audience": "Middle school camp students (grades 5–8) in one-week camps",
+      "administration": "Single administration on the final day of camp. Each item rated twice: once for 'before camp' (then) and once for 'right now' (now).",
+      "estimated_time_minutes": 15,
+      "construct_subsets": {
+        "math": [
+          "math_4",
+          "math_6",
+          "math_7",
+          "math_8",
+          "math_2"
+        ],
+        "science": [
+          "science_1",
+          "science_6",
+          "science_9",
+          "science_2",
+          "science_7"
+        ],
+        "engineering_technology": [
+          "engtech_1",
+          "engtech_3",
+          "engtech_4",
+          "engtech_7",
+          "engtech_8",
+          "engtech_9"
+        ],
+        "twentyfirst_century": [
+          "c21_1",
+          "c21_3",
+          "c21_7",
+          "c21_8",
+          "c21_9",
+          "c21_11"
+        ],
+        "career_interest": "all_12_items"
+      },
+      "response_format": "For each item, collect TWO response values: { then: <1-5>, now: <1-5> }",
+      "open_ended_questions": [
+        "What is the most important thing you learned at camp this week?",
+        "Did anything happen at camp that surprised you or changed how you think about science, engineering, or technology?",
+        "What would you tell a friend about this camp?"
+      ]
+    },
+    "middle_school_prepost": {
+      "audience": "Middle school camp students (grades 5–8)",
+      "administration": "Two separate administrations: PRE on Day 1, POST on the last day. Same items in both. Use ID code to match.",
+      "estimated_time_minutes": 13,
+      "construct_subsets": {
+        "math": "all_8_items",
+        "science": "all_9_items",
+        "engineering_technology": "all_9_items",
+        "twentyfirst_century": "all_11_items",
+        "career_interest": "all_12_items"
+      },
+      "response_format": "Single rating per item.",
+      "post_only_open_ended": [
+        "What is the most important thing you learned at camp this week?",
+        "Did anything at camp surprise you or change how you think about STEM?",
+        "What would you tell a friend about this camp?"
+      ]
+    },
+    "high_school_internship_prepost": {
+      "audience": "High school interns (grades 9–12)",
+      "administration": "Two separate administrations: PRE on Day 1, POST on the final day. Same items in both, plus the work_based_learning section appears in POST only.",
+      "estimated_time_minutes": 18,
+      "construct_subsets": {
+        "math": "all_8_items",
+        "science": "all_9_items",
+        "engineering_technology": "all_9_items",
+        "twentyfirst_century": "all_11_items",
+        "career_planning": "all_5_items",
+        "career_interest": "all_12_items",
+        "work_based_learning": "post_only_all_6_items"
+      },
+      "response_format": "Single rating per item.",
+      "post_only_open_ended": [
+        "What was the most important thing you learned during your internship?",
+        "Did the internship change how you think about your future career? In what way?",
+        "What is one thing EXPLR could do to make the internship better for next year's students?"
+      ]
+    }
+  },
+  "demographics": {
+    "common_fields": [
+      {
+        "id": "grade",
+        "label": "What grade are you in?",
+        "type": "integer",
+        "min": 5,
+        "max": 12
+      },
+      {
+        "id": "program_name",
+        "label": "What is the name of your camp/program?",
+        "type": "text"
+      },
+      {
+        "id": "knows_stem_adults",
+        "label": "Do you know any adults who work in STEM?",
+        "type": "multi_select",
+        "options": [
+          "Scientists",
+          "Engineers",
+          "Mathematicians",
+          "Technologists / IT",
+          "Healthcare workers"
+        ]
+      },
+      {
+        "id": "prior_stem_activities",
+        "label": "Please list any other STEM camps, clubs, or activities you have been involved in:",
+        "type": "text_long"
+      }
+    ],
+    "high_school_only_fields": [
+      {
+        "id": "placement_site",
+        "label": "What is your internship placement site?",
+        "type": "text"
+      },
+      {
+        "id": "prior_explr",
+        "label": "Have you participated in any previous EXPLR camps or programs?",
+        "type": "single_select",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "followup_if": "Yes",
+        "followup_label": "If yes, which ones?"
+      },
+      {
+        "id": "college_plans",
+        "label": "Do you plan to go to college?",
+        "type": "single_select",
+        "options": [
+          "Yes",
+          "No",
+          "Not Sure"
+        ]
+      },
+      {
+        "id": "college_type",
+        "label": "If yes, are you planning on a community college or a four-year college first?",
+        "type": "single_select",
+        "options": [
+          "Community College",
+          "Four-year College",
+          "Not sure yet"
+        ],
+        "show_if": {
+          "field": "college_plans",
+          "value": "Yes"
+        }
+      },
+      {
+        "id": "majors_of_interest",
+        "label": "List up to three areas or college majors you are interested in studying:",
+        "type": "text_list",
+        "max_items": 3
+      }
+    ]
+  },
+  "id_code": {
+    "purpose": "Match pre and post survey responses for the same student without collecting names. Use this for analysis only — never display alongside identifying information.",
+    "components": [
+      "First letter of mother's first name",
+      "Day of the month born (1-31)",
+      "First letter of city of birth"
+    ],
+    "example": "A student whose mother's name is Karen, born on the 14th in Cleveland: K14C",
+    "digital_implementation_note": "Ask students to construct the same code on both pre and post. For digital surveys, you may instead generate a random ID at first login and store it client-side (e.g., browser localStorage tied to the device) so the student does not need to remember the code."
+  },
+  "scoring": {
+    "rules": [
+      "Score at the construct (scale) level. The S-STEM is validated at the construct level, not the item level.",
+      "Reverse-code negatively-worded items before averaging. The reverse_coded flag in each item identifies which.",
+      "To reverse-code on a 5-point scale: reversed = 6 - original (so 1→5, 2→4, 3→3, 4→2, 5→1).",
+      "Compute a mean score per construct per student per administration: sum(items) / number_of_items.",
+      "Match pre and post using ID code; compute pre-to-post change scores as (post_mean − pre_mean) per construct per student.",
+      "Aggregate to the program level for reporting: mean change, standard deviation, paired-samples t-test, Cohen's d."
+    ],
+    "paired_t_test": "For matched pre-post pairs, run a paired-samples t-test on each construct mean.",
+    "cohen_d_interpretation": {
+      "0.2": "small effect",
+      "0.5": "medium effect",
+      "0.8": "large effect"
+    },
+    "retrospective_special_note": "For the retrospective pre/post (one-week camp survey), both ratings are collected at the end of camp. The 'then' rating is the pre score and the 'now' rating is the post score — treat the same way you would matched pre-post pairs from separate administrations."
+  }
+}

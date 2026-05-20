@@ -23,6 +23,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EducatorIndexRouteImport } from './routes/educator.index'
 import { Route as AssessmentIndexRouteImport } from './routes/assessment.index'
+import { Route as SurveyAssignmentIdRouteImport } from './routes/survey.$assignmentId'
 import { Route as StudentApplyRouteImport } from './routes/student_.apply'
 import { Route as LabSplatRouteImport } from './routes/lab.$'
 import { Route as EducatorStudentsRouteImport } from './routes/educator.students'
@@ -39,6 +40,7 @@ import { Route as EducatorSessionsSessionIdRouteImport } from './routes/educator
 import { Route as EducatorInviteTokenRouteImport } from './routes/educator.invite.$token'
 import { Route as EducatorInternshipsSlugRouteImport } from './routes/educator.internships.$slug'
 import { Route as EducatorCurriculumSlugRouteImport } from './routes/educator.curriculum.$slug'
+import { Route as EducatorAdminSurveysRouteImport } from './routes/educator.admin.surveys'
 import { Route as EducatorAdminRostersRouteImport } from './routes/educator.admin.rosters'
 import { Route as EducatorAdminProgramsRouteImport } from './routes/educator.admin.programs'
 import { Route as EducatorAdminProgramRiasecRouteImport } from './routes/educator.admin.program-riasec'
@@ -125,6 +127,11 @@ const AssessmentIndexRoute = AssessmentIndexRouteImport.update({
   path: '/assessment/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SurveyAssignmentIdRoute = SurveyAssignmentIdRouteImport.update({
+  id: '/survey/$assignmentId',
+  path: '/survey/$assignmentId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StudentApplyRoute = StudentApplyRouteImport.update({
   id: '/student_/apply',
   path: '/student/apply',
@@ -207,6 +214,11 @@ const EducatorCurriculumSlugRoute = EducatorCurriculumSlugRouteImport.update({
   id: '/curriculum/$slug',
   path: '/curriculum/$slug',
   getParentRoute: () => EducatorRoute,
+} as any)
+const EducatorAdminSurveysRoute = EducatorAdminSurveysRouteImport.update({
+  id: '/surveys',
+  path: '/surveys',
+  getParentRoute: () => EducatorAdminRoute,
 } as any)
 const EducatorAdminRostersRoute = EducatorAdminRostersRouteImport.update({
   id: '/rosters',
@@ -314,6 +326,7 @@ export interface FileRoutesByFullPath {
   '/educator/students': typeof EducatorStudentsRoute
   '/lab/$': typeof LabSplatRoute
   '/student/apply': typeof StudentApplyRoute
+  '/survey/$assignmentId': typeof SurveyAssignmentIdRoute
   '/assessment/': typeof AssessmentIndexRoute
   '/educator/': typeof EducatorIndexRoute
   '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
@@ -329,6 +342,7 @@ export interface FileRoutesByFullPath {
   '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
   '/educator/admin/programs': typeof EducatorAdminProgramsRoute
   '/educator/admin/rosters': typeof EducatorAdminRostersRoute
+  '/educator/admin/surveys': typeof EducatorAdminSurveysRoute
   '/educator/curriculum/$slug': typeof EducatorCurriculumSlugRoute
   '/educator/internships/$slug': typeof EducatorInternshipsSlugRoute
   '/educator/invite/$token': typeof EducatorInviteTokenRoute
@@ -359,6 +373,7 @@ export interface FileRoutesByTo {
   '/educator/students': typeof EducatorStudentsRoute
   '/lab/$': typeof LabSplatRoute
   '/student/apply': typeof StudentApplyRoute
+  '/survey/$assignmentId': typeof SurveyAssignmentIdRoute
   '/assessment': typeof AssessmentIndexRoute
   '/educator': typeof EducatorIndexRoute
   '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
@@ -374,6 +389,7 @@ export interface FileRoutesByTo {
   '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
   '/educator/admin/programs': typeof EducatorAdminProgramsRoute
   '/educator/admin/rosters': typeof EducatorAdminRostersRoute
+  '/educator/admin/surveys': typeof EducatorAdminSurveysRoute
   '/educator/curriculum/$slug': typeof EducatorCurriculumSlugRoute
   '/educator/internships/$slug': typeof EducatorInternshipsSlugRoute
   '/educator/invite/$token': typeof EducatorInviteTokenRoute
@@ -407,6 +423,7 @@ export interface FileRoutesById {
   '/educator/students': typeof EducatorStudentsRoute
   '/lab/$': typeof LabSplatRoute
   '/student_/apply': typeof StudentApplyRoute
+  '/survey/$assignmentId': typeof SurveyAssignmentIdRoute
   '/assessment/': typeof AssessmentIndexRoute
   '/educator/': typeof EducatorIndexRoute
   '/assessment/$sessionId_/results': typeof AssessmentSessionIdResultsRoute
@@ -422,6 +439,7 @@ export interface FileRoutesById {
   '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
   '/educator/admin/programs': typeof EducatorAdminProgramsRoute
   '/educator/admin/rosters': typeof EducatorAdminRostersRoute
+  '/educator/admin/surveys': typeof EducatorAdminSurveysRoute
   '/educator/curriculum/$slug': typeof EducatorCurriculumSlugRoute
   '/educator/internships/$slug': typeof EducatorInternshipsSlugRoute
   '/educator/invite/$token': typeof EducatorInviteTokenRoute
@@ -456,6 +474,7 @@ export interface FileRouteTypes {
     | '/educator/students'
     | '/lab/$'
     | '/student/apply'
+    | '/survey/$assignmentId'
     | '/assessment/'
     | '/educator/'
     | '/assessment/$sessionId/results'
@@ -471,6 +490,7 @@ export interface FileRouteTypes {
     | '/educator/admin/program-riasec'
     | '/educator/admin/programs'
     | '/educator/admin/rosters'
+    | '/educator/admin/surveys'
     | '/educator/curriculum/$slug'
     | '/educator/internships/$slug'
     | '/educator/invite/$token'
@@ -501,6 +521,7 @@ export interface FileRouteTypes {
     | '/educator/students'
     | '/lab/$'
     | '/student/apply'
+    | '/survey/$assignmentId'
     | '/assessment'
     | '/educator'
     | '/assessment/$sessionId/results'
@@ -516,6 +537,7 @@ export interface FileRouteTypes {
     | '/educator/admin/program-riasec'
     | '/educator/admin/programs'
     | '/educator/admin/rosters'
+    | '/educator/admin/surveys'
     | '/educator/curriculum/$slug'
     | '/educator/internships/$slug'
     | '/educator/invite/$token'
@@ -548,6 +570,7 @@ export interface FileRouteTypes {
     | '/educator/students'
     | '/lab/$'
     | '/student_/apply'
+    | '/survey/$assignmentId'
     | '/assessment/'
     | '/educator/'
     | '/assessment/$sessionId_/results'
@@ -563,6 +586,7 @@ export interface FileRouteTypes {
     | '/educator/admin/program-riasec'
     | '/educator/admin/programs'
     | '/educator/admin/rosters'
+    | '/educator/admin/surveys'
     | '/educator/curriculum/$slug'
     | '/educator/internships/$slug'
     | '/educator/invite/$token'
@@ -591,6 +615,7 @@ export interface RootRouteChildren {
   AssessmentInternshipInterestRoute: typeof AssessmentInternshipInterestRoute
   LabSplatRoute: typeof LabSplatRoute
   StudentApplyRoute: typeof StudentApplyRoute
+  SurveyAssignmentIdRoute: typeof SurveyAssignmentIdRoute
   AssessmentIndexRoute: typeof AssessmentIndexRoute
   AssessmentSessionIdResultsRoute: typeof AssessmentSessionIdResultsRoute
   DemoAptitudeBandTakeRoute: typeof DemoAptitudeBandTakeRoute
@@ -694,6 +719,13 @@ declare module '@tanstack/react-router' {
       path: '/assessment'
       fullPath: '/assessment/'
       preLoaderRoute: typeof AssessmentIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/survey/$assignmentId': {
+      id: '/survey/$assignmentId'
+      path: '/survey/$assignmentId'
+      fullPath: '/survey/$assignmentId'
+      preLoaderRoute: typeof SurveyAssignmentIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/student_/apply': {
@@ -807,6 +839,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/educator/curriculum/$slug'
       preLoaderRoute: typeof EducatorCurriculumSlugRouteImport
       parentRoute: typeof EducatorRoute
+    }
+    '/educator/admin/surveys': {
+      id: '/educator/admin/surveys'
+      path: '/surveys'
+      fullPath: '/educator/admin/surveys'
+      preLoaderRoute: typeof EducatorAdminSurveysRouteImport
+      parentRoute: typeof EducatorAdminRoute
     }
     '/educator/admin/rosters': {
       id: '/educator/admin/rosters'
@@ -929,6 +968,7 @@ interface EducatorAdminRouteChildren {
   EducatorAdminProgramRiasecRoute: typeof EducatorAdminProgramRiasecRoute
   EducatorAdminProgramsRoute: typeof EducatorAdminProgramsRoute
   EducatorAdminRostersRoute: typeof EducatorAdminRostersRoute
+  EducatorAdminSurveysRoute: typeof EducatorAdminSurveysRoute
   EducatorAdminIndexRoute: typeof EducatorAdminIndexRoute
   EducatorAdminEducatorsIdRoute: typeof EducatorAdminEducatorsIdRoute
 }
@@ -946,6 +986,7 @@ const EducatorAdminRouteChildren: EducatorAdminRouteChildren = {
   EducatorAdminProgramRiasecRoute: EducatorAdminProgramRiasecRoute,
   EducatorAdminProgramsRoute: EducatorAdminProgramsRoute,
   EducatorAdminRostersRoute: EducatorAdminRostersRoute,
+  EducatorAdminSurveysRoute: EducatorAdminSurveysRoute,
   EducatorAdminIndexRoute: EducatorAdminIndexRoute,
   EducatorAdminEducatorsIdRoute: EducatorAdminEducatorsIdRoute,
 }
@@ -1005,6 +1046,7 @@ const rootRouteChildren: RootRouteChildren = {
   AssessmentInternshipInterestRoute: AssessmentInternshipInterestRoute,
   LabSplatRoute: LabSplatRoute,
   StudentApplyRoute: StudentApplyRoute,
+  SurveyAssignmentIdRoute: SurveyAssignmentIdRoute,
   AssessmentIndexRoute: AssessmentIndexRoute,
   AssessmentSessionIdResultsRoute: AssessmentSessionIdResultsRoute,
   DemoAptitudeBandTakeRoute: DemoAptitudeBandTakeRoute,

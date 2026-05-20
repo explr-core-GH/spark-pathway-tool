@@ -42,6 +42,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Tools",
     items: [
       { to: "/educator/admin/assessments", label: "Assessments" },
+      { to: "/educator/admin/surveys", label: "STEM Surveys" },
       { to: "/educator/admin/demographics", label: "Demographics" },
       { to: "/educator/admin/program-riasec", label: "Program-RIASEC" },
       { to: "/educator/admin/import-explr", label: "Import from ExplrMore" },
