@@ -2,6 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { generateCampLogins } from "@/lib/camp-logins.functions";
+import {
+  familyReportPageHtml,
+  familyReportDocument,
+} from "@/lib/family-report";
 
 export const Route = createFileRoute("/educator/admin/camp-logins")({
   head: () => ({ meta: [{ title: "Camp logins — Admin" }] }),
@@ -15,6 +19,7 @@ type CampSession = { id: string; title: string; date: string | null };
 type Login = {
   id: string;
   explr_camp_id: string;
+  student_id: string | null;
   child_name: string;
   username: string;
   password_plain: string;
@@ -24,6 +29,8 @@ function CampLoginsAdmin() {
   const [sessions, setSessions] = useState<CampSession[]>([]);
   const [regCounts, setRegCounts] = useState<Record<string, number>>({});
   const [logins, setLogins] = useState<Login[]>([]);
+  // student_id → Holland code, for students who've completed the assessment.
+  const [holland, setHolland] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -37,7 +44,7 @@ function CampLoginsAdmin() {
         .order("date", { ascending: true }),
       sb("explr_registrations").select("camp_id"),
       sb("camp_student_logins").select(
-        "id, explr_camp_id, child_name, username, password_plain",
+        "id, explr_camp_id, student_id, child_name, username, password_plain",
       ),
     ]);
     setSessions((ss ?? []) as CampSession[]);
@@ -46,7 +53,33 @@ function CampLoginsAdmin() {
       counts[r.camp_id] = (counts[r.camp_id] ?? 0) + 1;
     }
     setRegCounts(counts);
-    setLogins((lg ?? []) as Login[]);
+    const loginRows = (lg ?? []) as Login[];
+    setLogins(loginRows);
+
+    // Holland codes for the generated students who've finished the
+    // assessment — drives the family-report availability.
+    const studentIds = loginRows
+      .map((l) => l.student_id)
+      .filter((x): x is string => !!x);
+    if (studentIds.length > 0) {
+      const { data: sess } = await supabase
+        .from("assessment_sessions")
+        .select("student_id, holland_code, completed_at")
+        .in("student_id", studentIds)
+        .not("completed_at", "is", null)
+        .order("completed_at", { ascending: false });
+      const hmap: Record<string, string> = {};
+      for (const s of (sess ?? []) as Array<{
+        student_id: string;
+        holland_code: string | null;
+      }>) {
+        if (hmap[s.student_id]) continue; // keep most recent
+        if (s.holland_code) hmap[s.student_id] = s.holland_code;
+      }
+      setHolland(hmap);
+    } else {
+      setHolland({});
+    }
     setLoading(false);
   }
   useEffect(() => {
@@ -112,6 +145,56 @@ function CampLoginsAdmin() {
     }
   }
 
+  // Count of camp students who've completed the assessment (eligible for a
+  // family report).
+  function reportableCount(campId: string): number {
+    return logins.filter(
+      (l) =>
+        l.explr_camp_id === campId && l.student_id && holland[l.student_id],
+    ).length;
+  }
+
+  /**
+   * Print the family 1-pager for one camp's students who have results,
+   * or — when `onlyLogin` is given — just that one student. Each page
+   * carries the login + the RIASEC profile + a how-it-works explainer.
+   */
+  function printFamilyReports(
+    campId: string,
+    title: string,
+    onlyLogin?: Login,
+  ) {
+    const pool = onlyLogin
+      ? [onlyLogin]
+      : logins.filter((l) => l.explr_camp_id === campId);
+    const signInUrl = window.location.origin;
+    const pages = pool
+      .filter((l) => l.student_id && holland[l.student_id])
+      .map((l) =>
+        familyReportPageHtml({
+          childName: l.child_name,
+          campTitle: title,
+          username: l.username,
+          password: l.password_plain,
+          signInUrl,
+          hollandCode: holland[l.student_id as string],
+        }),
+      );
+    if (pages.length === 0) {
+      setStatus(
+        "No family reports to print yet — students need to finish the assessment first.",
+      );
+      return;
+    }
+    const w = window.open("", "_blank");
+    if (w) {
+      w.document.write(familyReportDocument(pages));
+      w.document.close();
+      w.focus();
+      w.print();
+    }
+  }
+
   return (
     <main className="mx-auto max-w-6xl px-6 py-12">
       <p className="eyebrow">Admin</p>
@@ -120,7 +203,9 @@ function CampLoginsAdmin() {
         Camp students have no email, so EXPLR generates an account per
         ExplrMore registration — a username and a simple password you print
         and hand out. Generating accounts also links each student to the camp,
-        so assessments you assign to the camp&apos;s educator reach them.
+        so assessments you assign to the camp&apos;s educator reach them. Once
+        a student finishes their assessment, print a family 1-pager with their
+        login and RIASEC profile to send home.
       </p>
 
       {status && (
@@ -164,6 +249,14 @@ function CampLoginsAdmin() {
                         Print sheet
                       </button>
                     )}
+                    {reportableCount(s.id) > 0 && (
+                      <button
+                        onClick={() => printFamilyReports(s.id, s.title)}
+                        className="text-xs text-explr-600 hover:underline"
+                      >
+                        Family reports ({reportableCount(s.id)})
+                      </button>
+                    )}
                     {logN > 0 && (
                       <button
                         onClick={() =>
@@ -195,22 +288,43 @@ function CampLoginsAdmin() {
                             <th className="px-3 py-2 font-normal">Student</th>
                             <th className="px-3 py-2 font-normal">Username</th>
                             <th className="px-3 py-2 font-normal">Password</th>
+                            <th className="px-3 py-2 font-normal">Family report</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-charcoal-100">
                           {logins
                             .filter((l) => l.explr_camp_id === s.id)
-                            .map((l) => (
-                              <tr key={l.id}>
-                                <td className="px-3 py-2">{l.child_name}</td>
-                                <td className="px-3 py-2 font-mono text-xs">
-                                  {l.username}
-                                </td>
-                                <td className="px-3 py-2 font-mono text-xs">
-                                  {l.password_plain}
-                                </td>
-                              </tr>
-                            ))}
+                            .map((l) => {
+                              const hasResult =
+                                !!l.student_id && !!holland[l.student_id];
+                              return (
+                                <tr key={l.id}>
+                                  <td className="px-3 py-2">{l.child_name}</td>
+                                  <td className="px-3 py-2 font-mono text-xs">
+                                    {l.username}
+                                  </td>
+                                  <td className="px-3 py-2 font-mono text-xs">
+                                    {l.password_plain}
+                                  </td>
+                                  <td className="px-3 py-2 text-xs">
+                                    {hasResult ? (
+                                      <button
+                                        onClick={() =>
+                                          printFamilyReports(s.id, s.title, l)
+                                        }
+                                        className="text-explr-600 hover:underline"
+                                      >
+                                        Print 1-pager
+                                      </button>
+                                    ) : (
+                                      <span className="text-charcoal-400">
+                                        Awaiting assessment
+                                      </span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
                         </tbody>
                       </table>
                     </div>
