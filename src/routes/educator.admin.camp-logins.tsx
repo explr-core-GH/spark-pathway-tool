@@ -1,0 +1,239 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { generateCampLogins } from "@/lib/camp-logins.functions";
+
+export const Route = createFileRoute("/educator/admin/camp-logins")({
+  head: () => ({ meta: [{ title: "Camp logins — Admin" }] }),
+  component: CampLoginsAdmin,
+});
+
+const sb = (table: string) =>
+  (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(table);
+
+type CampSession = { id: string; title: string; date: string | null };
+type Login = {
+  id: string;
+  explr_camp_id: string;
+  child_name: string;
+  username: string;
+  password_plain: string;
+};
+
+function CampLoginsAdmin() {
+  const [sessions, setSessions] = useState<CampSession[]>([]);
+  const [regCounts, setRegCounts] = useState<Record<string, number>>({});
+  const [logins, setLogins] = useState<Login[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
+
+  async function load() {
+    setLoading(true);
+    const [{ data: ss }, { data: regs }, { data: lg }] = await Promise.all([
+      sb("explr_camps")
+        .select("id, title, date")
+        .order("date", { ascending: true }),
+      sb("explr_registrations").select("camp_id"),
+      sb("camp_student_logins").select(
+        "id, explr_camp_id, child_name, username, password_plain",
+      ),
+    ]);
+    setSessions((ss ?? []) as CampSession[]);
+    const counts: Record<string, number> = {};
+    for (const r of (regs ?? []) as Array<{ camp_id: string }>) {
+      counts[r.camp_id] = (counts[r.camp_id] ?? 0) + 1;
+    }
+    setRegCounts(counts);
+    setLogins((lg ?? []) as Login[]);
+    setLoading(false);
+  }
+  useEffect(() => {
+    load();
+  }, []);
+
+  const loginCounts = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const l of logins) m[l.explr_camp_id] = (m[l.explr_camp_id] ?? 0) + 1;
+    return m;
+  }, [logins]);
+
+  async function generate(campId: string) {
+    setBusy(campId);
+    setStatus(null);
+    try {
+      const res = await generateCampLogins({ data: { explrCampId: campId } });
+      setStatus(
+        `Generated ${res.created} new login${res.created === 1 ? "" : "s"}` +
+          ` · ${res.skipped} already existed` +
+          (res.failed > 0 ? ` · ${res.failed} failed` : "") +
+          (res.errors.length > 0 ? ` — ${res.errors[0]}` : ""),
+      );
+      await load();
+      setExpanded(campId);
+    } catch (e) {
+      setStatus(e instanceof Error ? e.message : "Generation failed.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  function printSheet(campId: string, title: string) {
+    const rows = logins.filter((l) => l.explr_camp_id === campId);
+    const html = `<!doctype html><html><head><title>${title} — logins</title>
+      <style>
+        body{font-family:system-ui,sans-serif;padding:24px;color:#1A1D1F}
+        h1{font-size:18px;margin:0 0 4px}
+        p{color:#6E767F;font-size:12px;margin:0 0 16px}
+        table{border-collapse:collapse;width:100%;font-size:13px}
+        th,td{text-align:left;padding:6px 10px;border-bottom:1px solid #E6E8EA}
+        th{text-transform:uppercase;font-size:10px;letter-spacing:.08em;color:#6E767F}
+        code{font-family:ui-monospace,monospace}
+      </style></head><body>
+      <h1>${title}</h1>
+      <p>Student logins — hand each row to the right camper. Keep this sheet secure.</p>
+      <table><thead><tr><th>Student</th><th>Username</th><th>Password</th></tr></thead><tbody>
+      ${rows
+        .map(
+          (r) =>
+            `<tr><td>${escapeHtml(r.child_name)}</td><td><code>${escapeHtml(
+              r.username,
+            )}</code></td><td><code>${escapeHtml(r.password_plain)}</code></td></tr>`,
+        )
+        .join("")}
+      </tbody></table></body></html>`;
+    const w = window.open("", "_blank");
+    if (w) {
+      w.document.write(html);
+      w.document.close();
+      w.focus();
+      w.print();
+    }
+  }
+
+  return (
+    <main className="mx-auto max-w-6xl px-6 py-12">
+      <p className="eyebrow">Admin</p>
+      <h1 className="display mt-2">Camp logins</h1>
+      <p className="lead mt-3 max-w-2xl">
+        Camp students have no email, so EXPLR generates an account per
+        ExplrMore registration — a username and a simple password you print
+        and hand out. Generating accounts also links each student to the camp,
+        so assessments you assign to the camp&apos;s educator reach them.
+      </p>
+
+      {status && (
+        <p className="mt-4 border border-charcoal-200 bg-charcoal-50 px-4 py-2 text-sm text-charcoal-700">
+          {status}
+        </p>
+      )}
+
+      <section className="mt-8">
+        {loading ? (
+          <p className="text-sm text-charcoal-400">Loading…</p>
+        ) : sessions.length === 0 ? (
+          <p className="text-sm text-charcoal-400">
+            No camp sessions synced yet. Run an ExplrMore sync first.
+          </p>
+        ) : (
+          <ul className="divide-y divide-charcoal-100 border-y border-charcoal-100">
+            {sessions.map((s) => {
+              const regN = regCounts[s.id] ?? 0;
+              const logN = loginCounts[s.id] ?? 0;
+              const pending = regN - logN;
+              return (
+                <li key={s.id} className="py-4">
+                  <div className="flex items-center gap-4">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{s.title}</p>
+                      <p className="truncate text-xs text-charcoal-500">
+                        {s.date
+                          ? new Date(s.date).toLocaleDateString()
+                          : "Date TBD"}{" "}
+                        · {regN} registered · {logN} login
+                        {logN === 1 ? "" : "s"} generated
+                        {pending > 0 ? ` · ${pending} pending` : ""}
+                      </p>
+                    </div>
+                    {logN > 0 && (
+                      <button
+                        onClick={() => printSheet(s.id, s.title)}
+                        className="text-xs text-charcoal-500 hover:text-ink underline"
+                      >
+                        Print sheet
+                      </button>
+                    )}
+                    {logN > 0 && (
+                      <button
+                        onClick={() =>
+                          setExpanded(expanded === s.id ? null : s.id)
+                        }
+                        className="text-xs text-charcoal-500 hover:text-ink underline"
+                      >
+                        {expanded === s.id ? "Hide" : "View"}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => generate(s.id)}
+                      disabled={busy === s.id || regN === 0}
+                      className="btn-ink text-xs disabled:opacity-40"
+                    >
+                      {busy === s.id
+                        ? "Generating…"
+                        : pending > 0
+                          ? `Generate ${pending}`
+                          : "Re-check"}
+                    </button>
+                  </div>
+
+                  {expanded === s.id && (
+                    <div className="mt-3 overflow-x-auto border border-charcoal-100">
+                      <table className="w-full border-collapse text-sm">
+                        <thead>
+                          <tr className="border-b border-charcoal-100 bg-charcoal-50 text-left text-xs uppercase tracking-wider text-charcoal-400">
+                            <th className="px-3 py-2 font-normal">Student</th>
+                            <th className="px-3 py-2 font-normal">Username</th>
+                            <th className="px-3 py-2 font-normal">Password</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-charcoal-100">
+                          {logins
+                            .filter((l) => l.explr_camp_id === s.id)
+                            .map((l) => (
+                              <tr key={l.id}>
+                                <td className="px-3 py-2">{l.child_name}</td>
+                                <td className="px-3 py-2 font-mono text-xs">
+                                  {l.username}
+                                </td>
+                                <td className="px-3 py-2 font-mono text-xs">
+                                  {l.password_plain}
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+
+      <p className="mt-8 text-xs text-charcoal-400">
+        Passwords are stored so you can re-print this sheet. Treat the sheet
+        like a class roster — keep it secure and recycle it after camp.
+      </p>
+    </main>
+  );
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}

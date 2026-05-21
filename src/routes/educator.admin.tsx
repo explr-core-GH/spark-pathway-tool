@@ -17,6 +17,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/educator/admin/applications", label: "Applications" },
       { to: "/educator/admin/placements", label: "Placements" },
       { to: "/educator/admin/rosters", label: "Rosters" },
+      { to: "/educator/admin/camp-logins", label: "Camp logins" },
     ],
   },
   {

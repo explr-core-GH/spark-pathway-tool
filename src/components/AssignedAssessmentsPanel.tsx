@@ -4,12 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 
 /**
  * AssignedAssessmentsPanel — the "Assigned to you" section of the student
- * dashboard. Shows assessments an admin targeted directly at this student
- * (assessment_targets, target_type='student').
+ * dashboard. Resolves the assessments this student should take from
+ * assessment_targets, two ways:
  *
- * Educator-targeted assignments cascade to a roster — those will surface
- * here too once camp-student account generation links each student to
- * their educator (Phase 2). For now this panel shows direct targets.
+ *   1. Direct  — target_type='student', target_id = this student.
+ *   2. Cascade — target_type='educator': the student is reached through
+ *      student_camp_links → explr_camp_educators. A student generated for
+ *      a camp session inherits every assignment targeted at that camp's
+ *      educators.
  */
 
 const sb = (table: string) =>
@@ -68,13 +70,52 @@ export function AssignedAssessmentsPanel({ studentId }: { studentId: string }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data } = await sb("assessment_targets")
+      // 1. Direct student-targeted assignments.
+      const { data: direct } = await sb("assessment_targets")
         .select("id, assessment_kind, survey_assignment_id, due_at, notes")
         .eq("target_type", "student")
         .eq("target_id", studentId)
         .order("created_at", { ascending: false });
+
+      // 2. Cascade: this student's camps → those camps' educators →
+      //    assignments targeted at any of those educators.
+      const { data: links } = await sb("student_camp_links")
+        .select("explr_camp_id")
+        .eq("student_id", studentId);
+      const campIds = ((links ?? []) as Array<{ explr_camp_id: string }>).map(
+        (l) => l.explr_camp_id,
+      );
+      let cascade: Target[] = [];
+      if (campIds.length > 0) {
+        const { data: ece } = await sb("explr_camp_educators")
+          .select("educator_id")
+          .in("explr_camp_id", campIds);
+        const educatorIds = [
+          ...new Set(
+            ((ece ?? []) as Array<{ educator_id: string }>).map(
+              (r) => r.educator_id,
+            ),
+          ),
+        ];
+        if (educatorIds.length > 0) {
+          const { data: viaEdu } = await sb("assessment_targets")
+            .select("id, assessment_kind, survey_assignment_id, due_at, notes")
+            .eq("target_type", "educator")
+            .in("target_id", educatorIds)
+            .order("created_at", { ascending: false });
+          cascade = (viaEdu ?? []) as Target[];
+        }
+      }
       if (cancelled) return;
-      const rows = (data ?? []) as Target[];
+
+      // Merge, de-duplicating by row id.
+      const seen = new Set<string>();
+      const rows: Target[] = [];
+      for (const t of [...((direct ?? []) as Target[]), ...cascade]) {
+        if (seen.has(t.id)) continue;
+        seen.add(t.id);
+        rows.push(t);
+      }
       setTargets(rows);
 
       const surveyIds = rows
