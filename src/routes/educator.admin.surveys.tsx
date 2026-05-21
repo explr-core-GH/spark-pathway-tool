@@ -19,7 +19,12 @@ import {
 } from "@/lib/explr-stem/scoring";
 import { RIASEC_ORDER, type RIASECCode } from "@/lib/riasec";
 
-const sb = supabase.from as (n: string) => ReturnType<typeof supabase.from>;
+// Untyped table access for the survey_* tables (not in the generated
+// Database type). Must call supabase.from inline so `this` stays bound to
+// the client — a detached `const sb = supabase.from` loses `this` and
+// throws "cannot read properties of undefined (reading 'rest')".
+const sb = (table: string) =>
+  (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(table);
 
 export const Route = createFileRoute("/educator/admin/surveys")({
   head: () => ({ meta: [{ title: "STEM Surveys — Admin" }] }),
