@@ -46,9 +46,24 @@ function Start() {
         supabase.from("educators").select("id").eq("id", session.user.id).maybeSingle(),
       ]);
       if (cancelled) return;
-      if (ad) navigate({ to: "/educator/admin" });
-      else if (ed) navigate({ to: "/educator/dashboard" });
-      else navigate({ to: "/assessment" });
+      if (ad) {
+        navigate({ to: "/educator/admin" });
+        return;
+      }
+      if (ed) {
+        navigate({ to: "/educator/dashboard" });
+        return;
+      }
+      // Student: if they've already taken (or started) the assessment, go
+      // straight to the dashboard; otherwise to the assessment intro.
+      const { data: sess } = await supabase
+        .from("assessment_sessions")
+        .select("session_id")
+        .eq("student_id", session.user.id)
+        .limit(1)
+        .maybeSingle();
+      if (cancelled) return;
+      navigate({ to: sess ? "/student" : "/assessment" });
     })();
     return () => { cancelled = true; };
   }, [navigate]);

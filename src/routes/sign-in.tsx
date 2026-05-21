@@ -18,10 +18,31 @@ function SignIn() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) {
+      setLoading(false);
+      setError(error.message);
+      return;
+    }
+    // A student who has already taken (or started) the assessment goes
+    // straight to their dashboard. A brand-new student lands on the
+    // assessment intro so the first thing they do is take it.
+    const uid = data.user?.id;
+    let hasSession = false;
+    if (uid) {
+      const { data: sess } = await supabase
+        .from("assessment_sessions")
+        .select("session_id")
+        .eq("student_id", uid)
+        .limit(1)
+        .maybeSingle();
+      hasSession = !!sess;
+    }
     setLoading(false);
-    if (error) setError(error.message);
-    else navigate({ to: "/" });
+    navigate({ to: hasSession ? "/student" : "/assessment" });
   }
 
   return (
