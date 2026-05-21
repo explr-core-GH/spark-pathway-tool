@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { HollandHexagon } from "@/components/HollandHexagon";
 import { RIASEC, type RIASECCode } from "@/lib/riasec";
-import { INTERNSHIPS } from "@/lib/internships-catalog";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -151,8 +150,27 @@ function Landing() {
                 <Link to="/about" className="btn-ghost">How it works</Link>
               </div>
             </div>
-            <div className="flex justify-center">
-              <HollandHexagon size={420} active={active} onSelect={setActive} />
+            <div className="flex flex-col items-center">
+              <HollandHexagon size={380} active={active} onSelect={setActive} />
+              <p className="mt-1 text-xs text-charcoal-400">
+                Tap a circle to see what that interest means.
+              </p>
+              {/* Inline meaning panel — updates the moment a circle is
+                  clicked, so the diagram explains itself right here. */}
+              <div
+                className="mt-5 w-full max-w-sm border-l-2 pl-4"
+                style={{ borderColor: dim.color }}
+              >
+                <p className="eyebrow" style={{ color: dim.color }}>
+                  {dim.code} · {dim.name}
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-charcoal-700">
+                  {dim.hsDescription}
+                </p>
+                <p className="mt-2 text-xs text-charcoal-500">
+                  Careers: {dim.examples.join(" · ")}
+                </p>
+              </div>
             </div>
           </div>
         </section>
@@ -203,57 +221,63 @@ function Landing() {
           </div>
         </section>
 
-        {/* Student preview — what happens after the assessment */}
+        {/* Pathways — what the assessment opens up, across grade bands.
+            The point: this is a discovery tool for all of K-12, not an
+            internship funnel. Middle schoolers explore through camps and
+            robotics; high schoolers go on to internships. */}
         <section className="border-b border-charcoal-100 bg-charcoal-50">
           <div className="mx-auto max-w-6xl px-6 py-24">
             <div className="grid gap-10 lg:grid-cols-[260px_1fr]">
               <div>
-                <p className="eyebrow" style={{ color: "var(--explr)" }}>For students</p>
-                <h2 className="mt-3 text-3xl font-light tracking-tight">After you finish.</h2>
+                <p className="eyebrow" style={{ color: "var(--explr)" }}>Where it leads</p>
+                <h2 className="mt-3 text-3xl font-light tracking-tight">
+                  Explore, don&apos;t just assess.
+                </h2>
                 <p className="mt-3 text-sm text-charcoal-500">
-                  Your results aren't the end. Your interest profile becomes a shortlist
-                  of internships you can actually apply to.
+                  Your Holland code is a starting point — not a label. EXPLR
+                  connects it to real ways to explore, and the right one
+                  changes with your grade.
                 </p>
               </div>
 
               <div>
-                <ol className="grid gap-4 md:grid-cols-4">
-                  {[
-                    { n: "01", t: "Take the assessment", d: "~15 minutes. Six interest dimensions, one Holland code." },
-                    { n: "02", t: "See your matches", d: "Internships ranked by how well they fit your top RIASEC themes." },
-                    { n: "03", t: "Apply", d: "Pick the ones you want. One short application covers them all." },
-                    { n: "04", t: "Review & placement", d: "EXPLR staff review applications and confirm your placement." },
-                  ].map((s) => (
-                    <li key={s.n} className="border border-charcoal-100 bg-white p-5">
-                      <p className="text-xs font-medium tracking-wider text-charcoal-400">{s.n}</p>
-                      <p className="mt-3 font-medium">{s.t}</p>
-                      <p className="mt-2 text-sm text-charcoal-500">{s.d}</p>
-                    </li>
-                  ))}
-                </ol>
-
-                <div className="mt-10">
-                  <p className="eyebrow">A peek at the catalog</p>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {INTERNSHIPS.slice(0, 6).map((i) => (
-                      <div key={i.slug} className="flex items-start gap-3 border border-charcoal-100 bg-white p-4">
-                        <span aria-hidden className="text-2xl leading-none">{i.emoji}</span>
-                        <div className="min-w-0">
-                          <p className="truncate font-medium">{i.name}</p>
-                          <p className="truncate text-xs text-charcoal-500">{i.theme}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="mt-4 text-xs text-charcoal-400">
-                    Your top matches depend on your Holland code. Applications route to
-                    the EXPLR internship lead, who reviews and confirms your placement.
-                  </p>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <article className="border border-charcoal-100 bg-white p-6">
+                    <p className="eyebrow">Middle school</p>
+                    <h3 className="mt-2 text-lg font-medium">Camps &amp; workshops</h3>
+                    <p className="mt-2 text-sm text-charcoal-500">
+                      Hands-on summer camps and short workshops — design,
+                      environmental science, underwater robotics — to try
+                      interests on for size before committing.
+                    </p>
+                  </article>
+                  <article className="border border-charcoal-100 bg-white p-6">
+                    <p className="eyebrow">Grades 4&ndash;12</p>
+                    <h3 className="mt-2 text-lg font-medium">Robotics programs</h3>
+                    <p className="mt-2 text-sm text-charcoal-500">
+                      FIRST LEGO League, FTC, and FRC teams. Build, code, and
+                      compete — and discover which STEM lanes click.
+                    </p>
+                  </article>
+                  <article className="border border-charcoal-100 bg-white p-6">
+                    <p className="eyebrow">High school</p>
+                    <h3 className="mt-2 text-lg font-medium">Internships</h3>
+                    <p className="mt-2 text-sm text-charcoal-500">
+                      Real workplace internships matched to your top RIASEC
+                      themes — one short application covers the catalog.
+                    </p>
+                  </article>
                 </div>
 
+                <p className="mt-6 text-sm text-charcoal-500">
+                  A 5th grader trying a robotics camp and a junior applying for
+                  a biomedical internship are on the same map — just at
+                  different points on it.
+                </p>
+
                 <div className="mt-8 flex gap-3">
-                  <Link to="/assessment" className="btn-mint">Start the assessment</Link>
-                  <Link to="/about" className="btn-ghost">How matching works</Link>
+                  <Link to="/start" className="btn-mint">Start the assessment</Link>
+                  <Link to="/about" className="btn-ghost">How it works</Link>
                 </div>
               </div>
             </div>
@@ -273,12 +297,13 @@ function Landing() {
             <div className="grid gap-6 md:grid-cols-3">
               <article className="border border-charcoal-100 p-6">
                 <p className="eyebrow" style={{ color: "var(--explr)" }}>Students</p>
-                <h3 className="mt-3 text-lg font-medium">Internships &amp; opportunities</h3>
+                <h3 className="mt-3 text-lg font-medium">Discover what fits</h3>
                 <p className="mt-3 text-sm text-charcoal-500">
-                  Interested high schoolers can apply for internships and real-world
-                  opportunities matched to their RIASEC interests.
+                  From middle-school camps and robotics to high-school
+                  internships — see your interests and find programs matched
+                  to them, at any grade.
                 </p>
-                <Link to="/assessment" className="ink-link mt-5 inline-block text-sm">Start the assessment →</Link>
+                <Link to="/start" className="ink-link mt-5 inline-block text-sm">Start the assessment →</Link>
               </article>
 
               <article className="border border-charcoal-100 p-6">
