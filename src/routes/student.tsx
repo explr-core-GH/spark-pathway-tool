@@ -7,6 +7,7 @@ import { INTERNSHIPS } from "@/lib/internships-catalog";
 import { RIASEC, type RIASECCode } from "@/lib/riasec";
 import { StemActivitiesMarquee } from "@/components/StemActivitiesMarquee";
 import { StudentSurveysPanel } from "@/components/StudentSurveysPanel";
+import { AssignedAssessmentsPanel } from "@/components/AssignedAssessmentsPanel";
 
 export const Route = createFileRoute("/student")({
   head: () => ({ meta: [{ title: "Your dashboard — EXPLR" }] }),
@@ -192,6 +193,16 @@ function StudentDashboard() {
               <Link to="/assessment" className="btn-ink shrink-0">Take the assessment</Link>
             )}
           </div>
+        </section>
+
+        {/* Assigned to you — assessments an admin/educator targeted at this student */}
+        <section className="mt-12 border-t border-charcoal-100 pt-10">
+          <p className="eyebrow">Assigned to you</p>
+          <p className="mt-3 text-charcoal-500 max-w-2xl">
+            Assessments and surveys your educator or an EXPLR admin has asked
+            you to complete.
+          </p>
+          <AssignedAssessmentsPanel studentId={user!.id} />
         </section>
 
         {/* STEM Lab activities — animated scroll filtered by Holland code */}

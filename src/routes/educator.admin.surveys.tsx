@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -26,9 +26,13 @@ import { RIASEC_ORDER, type RIASECCode } from "@/lib/riasec";
 const sb = (table: string) =>
   (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(table);
 
+// STEM survey management now lives inside the Assessments page as a tab.
+// This route stays only to redirect any old bookmarks there. The actual
+// UI is the exported <SurveyAdminPanel /> below.
 export const Route = createFileRoute("/educator/admin/surveys")({
-  head: () => ({ meta: [{ title: "STEM Surveys — Admin" }] }),
-  component: SurveysAdmin,
+  beforeLoad: () => {
+    throw redirect({ to: "/educator/admin/assessments" });
+  },
 });
 
 type Assignment = {
@@ -102,7 +106,7 @@ function scoreAll(
   return out;
 }
 
-function SurveysAdmin() {
+export function SurveyAdminPanel() {
   const { user } = useSession();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [responses, setResponses] = useState<ResponseRow[]>([]);
@@ -293,10 +297,8 @@ function SurveysAdmin() {
       .length;
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
-      <p className="eyebrow">Admin</p>
-      <h1 className="display mt-2">STEM Surveys</h1>
-      <p className="lead mt-3">
+    <div>
+      <p className="lead">
         Research-based pre/post surveys (S-STEM) for camps and internships.
         Assign one to a camp or internship; results appear here as students
         complete them.
@@ -478,7 +480,7 @@ function SurveysAdmin() {
           </p>
         )}
       </section>
-    </main>
+    </div>
   );
 }
 

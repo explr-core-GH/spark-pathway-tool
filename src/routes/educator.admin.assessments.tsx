@@ -1,21 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { AssessmentAssignPanel } from "@/components/AssessmentAssignPanel";
+import { SurveyAdminPanel } from "./educator.admin.surveys";
 
 export const Route = createFileRoute("/educator/admin/assessments")({
   head: () => ({ meta: [{ title: "Assessments — Admin" }] }),
   component: AssessmentsAdmin,
 });
 
-// Single place to find every assessment EXPLR ships, framed as a stakeholder
-// demo deck. Tiles open in a new tab so the admin keeps this page as the
-// "navigator" while running a live demo. Item counts pulled from src/lib.
+type Tab = "assign" | "surveys" | "demos";
 
+// The Demo navigator tiles — unchanged, just moved into a tab. Tiles open
+// in a new tab so the admin keeps this page as the index during a live demo.
 type Demo = {
-  kind: string;             // eyebrow text
+  kind: string;
   title: string;
   blurb: string;
-  href: string;             // route to open
-  estItems: number | null;  // approximate item count for context
-  estMinutes: string;       // hand-tuned estimate
+  href: string;
+  estItems: number | null;
+  estMinutes: string;
   notes?: string;
 };
 
@@ -60,18 +63,56 @@ const DEMOS: Demo[] = [
   },
 ];
 
+const TABS: Array<{ id: Tab; label: string }> = [
+  { id: "assign", label: "Assign assessments" },
+  { id: "surveys", label: "STEM surveys" },
+  { id: "demos", label: "Demo links" },
+];
+
 function AssessmentsAdmin() {
+  const [tab, setTab] = useState<Tab>("assign");
+
   return (
     <main className="mx-auto max-w-6xl px-6 py-12">
       <p className="eyebrow">Admin</p>
       <h1 className="display mt-2">Assessments</h1>
-      <p className="lead mt-3 max-w-2xl">
-        Every EXPLR assessment, in one place. Use this page when you&apos;re demoing
-        to funders, school leaders, or partners — open a tile in a new tab to
-        walk through the student experience without leaving this navigator.
+
+      {/* Tabs */}
+      <div className="mt-6 flex flex-wrap gap-1 border-b border-charcoal-100">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className="border-b-2 px-4 py-2 text-sm transition-colors"
+            style={{
+              borderColor: tab === t.id ? "var(--ink)" : "transparent",
+              color: tab === t.id ? "var(--ink)" : "var(--color-charcoal-400)",
+            }}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-8">
+        {tab === "assign" && <AssessmentAssignPanel />}
+        {tab === "surveys" && <SurveyAdminPanel />}
+        {tab === "demos" && <DemoTiles />}
+      </div>
+    </main>
+  );
+}
+
+function DemoTiles() {
+  return (
+    <div>
+      <p className="lead max-w-2xl">
+        Every EXPLR assessment, in one place. Use this when demoing to funders,
+        school leaders, or partners — open a tile in a new tab to walk through
+        the student experience without leaving this navigator.
       </p>
 
-      <ul className="mt-12 grid gap-5 md:grid-cols-2">
+      <ul className="mt-8 grid gap-5 md:grid-cols-2">
         {DEMOS.map((d) => (
           <li key={d.href}>
             <a
@@ -108,41 +149,6 @@ function AssessmentsAdmin() {
           </li>
         ))}
       </ul>
-
-      {/* Demo-running tips for stakeholders */}
-      <section className="mt-16 border border-charcoal-100 p-6">
-        <h2 className="text-sm font-semibold text-ink">Running a live demo</h2>
-        <ul className="mt-3 space-y-2 text-sm text-charcoal-700">
-          <li>
-            <strong className="text-ink">Open each demo in a new tab.</strong> Keep this
-            page as the index so you can jump between assessments without
-            losing your place.
-          </li>
-          <li>
-            <strong className="text-ink">Sign in as the admin account.</strong> The Mini
-            Interest Profiler requires auth — your guests watch you take it.
-            For aptitude demos, no sign-in is required.
-          </li>
-          <li>
-            <strong className="text-ink">Show the report after.</strong> Once an
-            interest session completes, the report at{" "}
-            <code className="bg-charcoal-50 px-1 text-xs">/assessment/&lt;sessionId&gt;/results</code>{" "}
-            is the centerpiece — show it after walking through the items.
-          </li>
-          <li>
-            <strong className="text-ink">Talk through scoring on the Reference tab.</strong>{" "}
-            The Program-RIASEC coder&apos;s Reference tab is the easiest way to
-            explain how scores translate to recommendations.
-          </li>
-        </ul>
-      </section>
-
-      <p className="mt-10 text-xs text-charcoal-400">
-        Item counts are approximate and pulled from{" "}
-        <code className="bg-charcoal-50 px-1 text-[10px]">src/lib/assessment-items.ts</code>{" "}
-        and{" "}
-        <code className="bg-charcoal-50 px-1 text-[10px]">src/lib/aptitude-items.ts</code>.
-      </p>
-    </main>
+    </div>
   );
 }
