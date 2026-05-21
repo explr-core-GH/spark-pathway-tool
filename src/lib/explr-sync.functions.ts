@@ -163,13 +163,17 @@ async function fetchAllFromExplr<T>(table: string, columns: string): Promise<T[]
 }
 
 async function assertAdmin(userId: string) {
-  const { data, error } = await supabaseAdmin
-    .from("educators")
-    .select("role")
+  // Post the admins/educators split, admin status is membership in
+  // public.admins — NOT educators.role (admins have no educators row at
+  // all). Checking educators.role here used to reject every real admin.
+  const { data, error } = await (
+    supabaseAdmin.from as (n: string) => ReturnType<typeof supabaseAdmin.from>
+  )("admins")
+    .select("id")
     .eq("id", userId)
     .maybeSingle();
   if (error) throw new Error(`Role lookup failed: ${error.message}`);
-  if (!data || data.role !== "admin") throw new Error("Admin access required");
+  if (!data) throw new Error("Admin access required");
 }
 
 export const syncExplrMore = createServerFn({ method: "POST" })
