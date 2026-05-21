@@ -150,27 +150,8 @@ function Landing() {
                 <Link to="/about" className="btn-ghost">How it works</Link>
               </div>
             </div>
-            <div className="flex flex-col items-center">
-              <HollandHexagon size={380} active={active} onSelect={setActive} />
-              <p className="mt-1 text-xs text-charcoal-400">
-                Tap a circle to see what that interest means.
-              </p>
-              {/* Inline meaning panel — updates the moment a circle is
-                  clicked, so the diagram explains itself right here. */}
-              <div
-                className="mt-5 w-full max-w-sm border-l-2 pl-4"
-                style={{ borderColor: dim.color }}
-              >
-                <p className="eyebrow" style={{ color: dim.color }}>
-                  {dim.code} · {dim.name}
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-charcoal-700">
-                  {dim.hsDescription}
-                </p>
-                <p className="mt-2 text-xs text-charcoal-500">
-                  Careers: {dim.examples.join(" · ")}
-                </p>
-              </div>
+            <div className="flex justify-center">
+              <HollandHexagon size={420} active={active} onSelect={setActive} />
             </div>
           </div>
         </section>
