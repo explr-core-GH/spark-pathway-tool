@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
+import { getInviteByToken, markInviteAccepted } from "@/lib/invites.functions";
 
 export const Route = createFileRoute("/educator/invite/$token")({
   head: () => ({ meta: [{ title: "Activate educator account — EXPLR" }] }),
@@ -29,15 +30,11 @@ function InviteAccept() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    supabase.from("educator_invites").select("*").eq("token", token).maybeSingle().then(({ data, error }) => {
-      if (error) setError(error.message);
-      else if (!data) setError("Invite not found.");
-      // The generated Database type doesn't yet include educator_invites.role
-      // (added in migration 20260518080038). Cast through unknown until the
-      // type regenerates after Lovable applies the migration.
-      else setInvite((data as unknown) as Invite);
-    });
+    getInviteByToken({ data: { token } })
+      .then((data) => setInvite(data as Invite))
+      .catch((e: Error) => setError(e.message));
   }, [token]);
+
 
   async function accept(e: React.FormEvent) {
     e.preventDefault();
