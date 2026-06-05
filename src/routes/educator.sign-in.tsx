@@ -32,9 +32,8 @@ function EducatorSignIn() {
     // otherwise the educator dashboard.
     const uid = auth.user?.id;
     if (uid) {
-      const { data: adminRow } = await (
-        supabase.from as (n: string) => ReturnType<typeof supabase.from>
-      )("admins")
+      const { data: adminRow } = await (supabase as any)
+        .from("admins")
         .select("id")
         .eq("id", uid)
         .maybeSingle();
