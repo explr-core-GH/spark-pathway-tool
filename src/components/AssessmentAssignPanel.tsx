@@ -55,6 +55,10 @@ export function AssessmentAssignPanel() {
   const [targets, setTargets] = useState<TargetRow[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Split the panel into two sub-tabs so the create form and the list of
+  // existing assignments don't compete for screen space.
+  const [subTab, setSubTab] = useState<"create" | "manage">("create");
+
   // form state
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [targetType, setTargetType] = useState<TargetType>("educator");
@@ -200,10 +204,41 @@ export function AssessmentAssignPanel() {
   return (
     <div>
       <p className="lead">
-        Assign assessments to an educator — it cascades to their whole roster —
-        or to an individual student for one-off and individualized needs.
+        Assign assessments to an educator (cascades to their whole roster),
+        to a camp session (cascades to every linked student), or to an
+        individual student.
       </p>
 
+      {/* Sub-tabs — keep create vs. manage separate so the page doesn't
+          turn into a wall of cards once a handful of things are assigned. */}
+      <div className="mt-6 flex flex-wrap gap-1 border-b border-charcoal-100">
+        {(
+          [
+            { id: "create" as const, label: "Create new" },
+            {
+              id: "manage" as const,
+              label: `Manage existing (${targets.length})`,
+            },
+          ]
+        ).map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setSubTab(t.id)}
+            className="border-b-2 px-4 py-2 text-sm transition-colors"
+            style={{
+              borderColor: subTab === t.id ? "var(--ink)" : "transparent",
+              color: subTab === t.id ? "var(--ink)" : "var(--color-charcoal-400)",
+              fontWeight: subTab === t.id ? 500 : 400,
+            }}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {subTab === "create" && (
+      <>
       {/* Create form */}
       <section className="mt-8 border border-charcoal-100 p-6">
         <h3 className="eyebrow">New assignment</h3>
@@ -345,9 +380,11 @@ export function AssessmentAssignPanel() {
             : `Assign ${picked.size || ""} assessment${picked.size === 1 ? "" : "s"}`}
         </button>
       </section>
+      </>
+      )}
 
-      {/* Existing targets */}
-      <section className="mt-10">
+      {subTab === "manage" && (
+      <section className="mt-8">
         <h3 className="eyebrow">Current assignments</h3>
         {loading ? (
           <p className="mt-4 text-sm text-charcoal-400">Loading…</p>
@@ -386,6 +423,7 @@ export function AssessmentAssignPanel() {
           </ul>
         )}
       </section>
+      )}
     </div>
   );
 }
