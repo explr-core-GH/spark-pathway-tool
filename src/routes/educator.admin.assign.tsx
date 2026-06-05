@@ -89,23 +89,22 @@ function AssignAdmin() {
         .order("full_name"),
       // All sessions. Even if a session has no curriculum linked yet, we want
       // it to be assignable.
-      (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(
-        "explr_camps",
-      )
+      supabase
+        .from("explr_camps")
         .select("id, title, date, end_date, location")
         .order("date", { ascending: true }),
       // The curriculum link join — used for filter_slug + chip display.
-      (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(
-        "explr_camp_curriculum_links",
-      ).select("explr_camp_id, camp_slug"),
+      supabase
+        .from("explr_camp_curriculum_links")
+        .select("explr_camp_id, camp_slug"),
       supabase
         .from("internships")
         .select("slug, name, emoji")
         .order("sort_order")
         .order("name"),
-      (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(
-        "explr_camp_educators",
-      ).select("explr_camp_id, educator_id"),
+      supabase
+        .from("explr_camp_educators")
+        .select("explr_camp_id, educator_id"),
       supabase
         .from("internship_educators")
         .select("internship_slug, educator_id"),
@@ -190,16 +189,13 @@ function AssignAdmin() {
     const has = assignedSet.has(educatorId);
     if (mode === "session") {
       if (has) {
-        await (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(
-          "explr_camp_educators",
-        )
+        await supabase
+          .from("explr_camp_educators")
           .delete()
           .eq("explr_camp_id", selected)
           .eq("educator_id", educatorId);
       } else {
-        await (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(
-          "explr_camp_educators",
-        ).insert({
+        await supabase.from("explr_camp_educators").insert({
           explr_camp_id: selected,
           educator_id: educatorId,
           assigned_by: user?.id ?? null,
