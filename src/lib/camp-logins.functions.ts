@@ -230,3 +230,149 @@ export const generateCampLogins = createServerFn({ method: "POST" })
       errors: errors.slice(0, 20),
     };
   });
+
+/**
+ * Mint a single login for a walk-in / drop-in camper who isn't on the
+ * ExplrMore roster yet. childName is optional — defaults to "Walk-in"
+ * so an educator can grab a login the moment a kid shows up and rename
+ * them later. childAge sets the student's grade; missing → default 6.
+ *
+ * Returns the created username + password so the educator can hand them
+ * straight to the camper without re-opening the credentials sheet.
+ */
+export const generateWalkInCampLogin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: {
+      explrCampId: string;
+      childName?: string;
+      childAge?: number | null;
+    }) => input,
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+
+    // Same pre-flight as the bulk fn — never mint an auth user when the
+    // downstream tables are unreachable.
+    {
+      const linkProbe = await sba("student_camp_links")
+        .select("student_id")
+        .limit(1);
+      if (linkProbe.error)
+        throw new Error(
+          `student_camp_links unreachable — ${linkProbe.error.message}. Apply the camp-logins migration first.`,
+        );
+      const logProbe = await sba("camp_student_logins")
+        .select("id")
+        .limit(1);
+      if (logProbe.error)
+        throw new Error(
+          `camp_student_logins unreachable — ${logProbe.error.message}. Apply the camp-logins migration first.`,
+        );
+    }
+
+    const name = (data.childName ?? "").trim() || "Walk-in";
+    const parts = name.split(/\s+/);
+    const first = slugName(parts[0] ?? "camper");
+    const last = slugName(parts[parts.length - 1] ?? "");
+    const username = `${first}${last ? "-" + last : ""}-${randSuffix()}@camp.explr.local`;
+    const password = makePassword();
+
+    const { data: createdUser, error: cuErr } =
+      await supabaseAdmin.auth.admin.createUser({
+        email: username,
+        password,
+        email_confirm: true,
+        user_metadata: {
+          generated: true,
+          source: "camp_login_walkin",
+          child_name: name,
+        },
+      });
+    if (cuErr || !createdUser.user) {
+      throw new Error(cuErr?.message ?? "createUser failed");
+    }
+    const uid = createdUser.user.id;
+
+    async function rollback(): Promise<string> {
+      const { error } = await supabaseAdmin.auth.admin.deleteUser(uid);
+      return error ? ` (rollback failed: ${error.message})` : "";
+    }
+
+    const { error: stuErr } = await supabaseAdmin.from("students").upsert({
+      id: uid,
+      first_name: (parts[0] ?? "Camper").slice(0, 60),
+      grade: ageToGrade(data.childAge ?? null),
+    });
+    if (stuErr) throw new Error(`students row — ${stuErr.message}${await rollback()}`);
+
+    const linkRes = await sba("student_camp_links").upsert({
+      student_id: uid,
+      explr_camp_id: data.explrCampId,
+    } as never);
+    if (linkRes.error)
+      throw new Error(`link row — ${linkRes.error.message}${await rollback()}`);
+
+    const { error: logErr } = await sba("camp_student_logins").insert({
+      explr_camp_id: data.explrCampId,
+      explr_registration_id: null, // walk-in: not on the ExplrMore roster
+      student_id: uid,
+      child_name: name,
+      username,
+      password_plain: password,
+      generated_by: context.userId,
+    } as never);
+    if (logErr)
+      throw new Error(`credentials row — ${logErr.message}${await rollback()}`);
+
+    return { ok: true, username, password, childName: name };
+  });
+
+/**
+ * Update a camp login's recorded name (and optionally grade). Used to
+ * fill in the real name for a walk-in row that was created as "Walk-in"
+ * before the kid's info was known, or to fix typos. Keeps the username
+ * stable — auth identity doesn't change with the display name.
+ */
+export const updateCampLoginName = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: {
+      loginId: string;
+      childName: string;
+      childAge?: number | null;
+    }) => input,
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const trimmed = data.childName.trim();
+    if (!trimmed) throw new Error("Name required");
+
+    const { data: row, error: rowErr } = await sba("camp_student_logins")
+      .select("student_id")
+      .eq("id", data.loginId)
+      .maybeSingle();
+    if (rowErr) throw new Error(rowErr.message);
+    if (!row) throw new Error("Login not found");
+    const studentId = (row as { student_id: string | null }).student_id;
+
+    const parts = trimmed.split(/\s+/);
+    const firstName = (parts[0] ?? "Camper").slice(0, 60);
+
+    const { error: cslErr } = await sba("camp_student_logins")
+      .update({ child_name: trimmed } as never)
+      .eq("id", data.loginId);
+    if (cslErr) throw new Error(`logins update — ${cslErr.message}`);
+
+    if (studentId) {
+      const stuPatch: Record<string, unknown> = { first_name: firstName };
+      if (data.childAge != null) stuPatch.grade = ageToGrade(data.childAge);
+      const { error: stuErr } = await supabaseAdmin
+        .from("students")
+        .update(stuPatch as never)
+        .eq("id", studentId);
+      if (stuErr) throw new Error(`students update — ${stuErr.message}`);
+    }
+
+    return { ok: true };
+  });

@@ -1,7 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { generateCampLogins } from "@/lib/camp-logins.functions";
+import {
+  generateCampLogins,
+  generateWalkInCampLogin,
+  updateCampLoginName,
+} from "@/lib/camp-logins.functions";
 import {
   familyReportPageHtml,
   familyReportDocument,
@@ -35,6 +39,20 @@ function CampLoginsAdmin() {
   const [busy, setBusy] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+
+  // Walk-in form state (one camp open at a time). Null = no form open.
+  const [walkIn, setWalkIn] = useState<{
+    campId: string;
+    name: string;
+    age: string;
+  } | null>(null);
+
+  // Inline name-edit state for a credentials-table row. Null = nothing being edited.
+  const [editing, setEditing] = useState<{
+    id: string;
+    name: string;
+    age: string;
+  } | null>(null);
 
   async function load() {
     setLoading(true);
@@ -195,6 +213,57 @@ function CampLoginsAdmin() {
     }
   }
 
+  async function submitWalkIn() {
+    if (!walkIn || busy) return;
+    setBusy(`walkin-${walkIn.campId}`);
+    setStatus(null);
+    try {
+      const age = walkIn.age.trim() ? Number(walkIn.age) : null;
+      const res = await generateWalkInCampLogin({
+        data: {
+          explrCampId: walkIn.campId,
+          childName: walkIn.name.trim() || undefined,
+          childAge: age,
+        },
+      });
+      setStatus(
+        `Added ${res.childName}. Username ${res.username} · Password ${res.password}`,
+      );
+      setWalkIn(null);
+      await load();
+      setExpanded(walkIn.campId);
+    } catch (e) {
+      setStatus(
+        e instanceof Error ? e.message : "Walk-in generation failed.",
+      );
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function saveEdit() {
+    if (!editing || busy) return;
+    if (!editing.name.trim()) {
+      setStatus("Name can't be empty.");
+      return;
+    }
+    setBusy(`edit-${editing.id}`);
+    setStatus(null);
+    try {
+      const age = editing.age.trim() ? Number(editing.age) : null;
+      await updateCampLoginName({
+        data: { loginId: editing.id, childName: editing.name.trim(), childAge: age },
+      });
+      setStatus("Name updated.");
+      setEditing(null);
+      await load();
+    } catch (e) {
+      setStatus(e instanceof Error ? e.message : "Update failed.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
   return (
     <main className="mx-auto max-w-6xl px-6 py-12">
       <p className="eyebrow">Admin</p>
@@ -268,6 +337,18 @@ function CampLoginsAdmin() {
                       </button>
                     )}
                     <button
+                      onClick={() =>
+                        setWalkIn(
+                          walkIn?.campId === s.id
+                            ? null
+                            : { campId: s.id, name: "", age: "" },
+                        )
+                      }
+                      className="text-xs text-charcoal-500 hover:text-ink underline"
+                    >
+                      + Walk-in
+                    </button>
+                    <button
                       onClick={() => generate(s.id)}
                       disabled={busy === s.id || regN === 0}
                       className="btn-ink text-xs disabled:opacity-40"
@@ -279,6 +360,56 @@ function CampLoginsAdmin() {
                           : "Re-check"}
                     </button>
                   </div>
+
+                  {/* Walk-in mini-form: add a single drop-in camper not on
+                      the ExplrMore roster. Name optional — defaults to
+                      "Walk-in" and can be renamed in the table below. */}
+                  {walkIn?.campId === s.id && (
+                    <div className="mt-3 border border-charcoal-100 bg-charcoal-50 p-3">
+                      <p className="eyebrow" style={{ margin: 0 }}>
+                        Add walk-in camper
+                      </p>
+                      <div className="mt-2 grid gap-3 sm:grid-cols-[1fr_120px_auto_auto]">
+                        <input
+                          autoFocus
+                          className="field"
+                          placeholder="Name (optional)"
+                          value={walkIn.name}
+                          onChange={(e) =>
+                            setWalkIn({ ...walkIn, name: e.target.value })
+                          }
+                        />
+                        <input
+                          className="field"
+                          type="number"
+                          min={4}
+                          max={18}
+                          placeholder="Age"
+                          value={walkIn.age}
+                          onChange={(e) =>
+                            setWalkIn({ ...walkIn, age: e.target.value })
+                          }
+                        />
+                        <button
+                          onClick={submitWalkIn}
+                          disabled={busy === `walkin-${s.id}`}
+                          className="btn-ink text-xs disabled:opacity-40"
+                        >
+                          {busy === `walkin-${s.id}` ? "Adding…" : "Add login"}
+                        </button>
+                        <button
+                          onClick={() => setWalkIn(null)}
+                          className="btn-ghost text-xs"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                      <p className="mt-2 text-[11px] text-charcoal-500">
+                        Leave the name blank to add a quick &ldquo;Walk-in&rdquo; row;
+                        you can rename it once you know the camper&apos;s name.
+                      </p>
+                    </div>
+                  )}
 
                   {expanded === s.id && (
                     <div className="mt-3 overflow-x-auto border border-charcoal-100">
@@ -297,9 +428,69 @@ function CampLoginsAdmin() {
                             .map((l) => {
                               const hasResult =
                                 !!l.student_id && !!holland[l.student_id];
+                              const isEditing = editing?.id === l.id;
                               return (
                                 <tr key={l.id}>
-                                  <td className="px-3 py-2">{l.child_name}</td>
+                                  <td className="px-3 py-2">
+                                    {isEditing ? (
+                                      <div className="flex items-center gap-2">
+                                        <input
+                                          autoFocus
+                                          className="field py-1 text-xs"
+                                          value={editing!.name}
+                                          onChange={(e) =>
+                                            setEditing({
+                                              ...editing!,
+                                              name: e.target.value,
+                                            })
+                                          }
+                                        />
+                                        <input
+                                          className="field py-1 text-xs w-16"
+                                          type="number"
+                                          min={4}
+                                          max={18}
+                                          placeholder="Age"
+                                          value={editing!.age}
+                                          onChange={(e) =>
+                                            setEditing({
+                                              ...editing!,
+                                              age: e.target.value,
+                                            })
+                                          }
+                                        />
+                                        <button
+                                          onClick={saveEdit}
+                                          disabled={busy === `edit-${l.id}`}
+                                          className="text-xs font-medium text-explr-600 hover:underline disabled:opacity-40"
+                                        >
+                                          {busy === `edit-${l.id}` ? "…" : "Save"}
+                                        </button>
+                                        <button
+                                          onClick={() => setEditing(null)}
+                                          className="text-xs text-charcoal-500 hover:underline"
+                                        >
+                                          Cancel
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center gap-2">
+                                        <span>{l.child_name}</span>
+                                        <button
+                                          onClick={() =>
+                                            setEditing({
+                                              id: l.id,
+                                              name: l.child_name,
+                                              age: "",
+                                            })
+                                          }
+                                          className="text-[11px] text-charcoal-400 hover:text-ink underline"
+                                        >
+                                          edit
+                                        </button>
+                                      </div>
+                                    )}
+                                  </td>
                                   <td className="px-3 py-2 font-mono text-xs">
                                     {l.username}
                                   </td>
