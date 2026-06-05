@@ -130,6 +130,74 @@ function CampLoginsAdmin() {
     }
   }
 
+  /**
+   * Per-student cards — 8 per US Letter page, 2 columns × 4 rows, with
+   * dashed cut borders. Each card shows the site URL the kid types into
+   * their browser, their short username (without the @camp.explr.local
+   * domain — the sign-in form appends it), and their password.
+   */
+  function printCards(campId: string, title: string) {
+    const rows = logins.filter((l) => l.explr_camp_id === campId);
+    if (rows.length === 0) return;
+    const signInUrl = `${window.location.origin}/sign-in`;
+    const cards = rows
+      .map((r) => {
+        const first = escapeHtml(r.child_name.trim().split(/\s+/)[0] || "friend");
+        const localUser = escapeHtml(r.username.split("@")[0] || r.username);
+        const pw = escapeHtml(r.password_plain);
+        return `
+          <div class="card">
+            <div class="brand">EXPLR <span>Pathways</span></div>
+            <div class="hi">Hi, ${first}!</div>
+            <div class="step">1. Go to <code class="url">${escapeHtml(signInUrl)}</code></div>
+            <div class="step">2. Sign in with:</div>
+            <table class="creds">
+              <tr><td>Username</td><td><code>${localUser}</code></td></tr>
+              <tr><td>Password</td><td><code>${pw}</code></td></tr>
+            </table>
+            <div class="foot">Keep this card. Camp: ${escapeHtml(title)}</div>
+          </div>`;
+      })
+      .join("");
+
+    const html = `<!doctype html><html><head><meta charset="utf-8">
+      <title>${escapeHtml(title)} — student cards</title>
+      <style>
+        @page { size: letter; margin: 0.4in; }
+        body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #1A1D1F; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25in; }
+        .card {
+          border: 2px dashed #B8BCC1;
+          padding: 16px 18px;
+          break-inside: avoid;
+          page-break-inside: avoid;
+          min-height: 2.15in;
+          display: flex; flex-direction: column;
+        }
+        .brand { font-size: 12px; font-weight: 600; }
+        .brand span { color: #15A36B; }
+        .hi { font-size: 18px; font-weight: 700; margin-top: 6px; }
+        .step { font-size: 12px; color: #2c3033; margin-top: 6px; line-height: 1.4; }
+        .creds { border-collapse: collapse; width: 100%; margin-top: 4px; }
+        .creds td { padding: 4px 0; font-size: 13px; vertical-align: middle; }
+        .creds td:first-child { color: #6E767F; width: 78px; }
+        code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+          font-size: 14px; font-weight: 600; background: #FFF8C5;
+          padding: 2px 6px; border-radius: 2px; }
+        code.url { font-size: 11px; background: #EDEEF0; font-weight: 500; }
+        .foot { margin-top: auto; padding-top: 8px; font-size: 10px; color: #9aa1a8; }
+      </style></head><body>
+      <div class="grid">${cards}</div>
+      </body></html>`;
+    const w = window.open("", "_blank");
+    if (w) {
+      w.document.write(html);
+      w.document.close();
+      w.focus();
+      w.print();
+    }
+  }
+
   function printSheet(campId: string, title: string) {
     const rows = logins.filter((l) => l.explr_camp_id === campId);
     const html = `<!doctype html><html><head><title>${title} — logins</title>
@@ -185,14 +253,16 @@ function CampLoginsAdmin() {
     const pool = onlyLogin
       ? [onlyLogin]
       : logins.filter((l) => l.explr_camp_id === campId);
-    const signInUrl = window.location.origin;
+    // Send families to the sign-in screen directly, and show the short
+    // username (no @camp.explr.local domain) — that's what they type.
+    const signInUrl = `${window.location.origin}/sign-in`;
     const pages = pool
       .filter((l) => l.student_id && holland[l.student_id])
       .map((l) =>
         familyReportPageHtml({
           childName: l.child_name,
           campTitle: title,
-          username: l.username,
+          username: l.username.split("@")[0] || l.username,
           password: l.password_plain,
           signInUrl,
           hollandCode: holland[l.student_id as string],
@@ -312,10 +382,18 @@ function CampLoginsAdmin() {
                     </div>
                     {logN > 0 && (
                       <button
+                        onClick={() => printCards(s.id, s.title)}
+                        className="text-xs text-charcoal-500 hover:text-ink underline"
+                      >
+                        Print cards
+                      </button>
+                    )}
+                    {logN > 0 && (
+                      <button
                         onClick={() => printSheet(s.id, s.title)}
                         className="text-xs text-charcoal-500 hover:text-ink underline"
                       >
-                        Print sheet
+                        Roster sheet
                       </button>
                     )}
                     {reportableCount(s.id) > 0 && (

@@ -62,6 +62,58 @@ function slugName(raw: string): string {
     .slice(0, 14) || "camper";
 }
 
+/**
+ * Short, kid-typeable first name: lowercase, alphanumeric only, ≤8 chars.
+ * Combined with 2 random digits this gives usernames like "maya42",
+ * "alex07" — easy to read off a card.
+ */
+function slugFirst(raw: string): string {
+  return slugName(raw).slice(0, 8) || "camper";
+}
+
+/** A few random digits. Used as the unique suffix on a camp username. */
+function randDigits(n: number): string {
+  let s = "";
+  for (let i = 0; i < n; i++) s += String(Math.floor(Math.random() * 10));
+  return s;
+}
+
+const CAMP_DOMAIN = "@camp.explr.local";
+
+/**
+ * Mint an auth user for a camp student, retrying on username collisions.
+ * Usernames are "{firstname}{2-3 digits}@camp.explr.local" — a kid types
+ * just "{firstname}{digits}" at the sign-in screen; the form appends the
+ * domain. We try 4 attempts at 2 digits, then 4 more at 3 digits.
+ */
+async function mintCampAuthUser(
+  firstSlug: string,
+  childName: string,
+  password: string,
+  source: "camp_login" | "camp_login_walkin",
+): Promise<{ ok: true; uid: string; username: string } | { ok: false; error: string }> {
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const digits = randDigits(attempt < 4 ? 2 : 3);
+    const username = `${firstSlug}${digits}${CAMP_DOMAIN}`;
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
+      email: username,
+      password,
+      email_confirm: true,
+      user_metadata: { generated: true, source, child_name: childName },
+    });
+    if (!error && data.user) return { ok: true, uid: data.user.id, username };
+    const msg = (error?.message ?? "").toLowerCase();
+    const isDuplicate =
+      msg.includes("already") ||
+      msg.includes("exist") ||
+      msg.includes("registered") ||
+      msg.includes("duplicate");
+    if (!isDuplicate) return { ok: false, error: error?.message ?? "createUser failed" };
+    // collision → loop with a fresh suffix
+  }
+  return { ok: false, error: "Could not find an unused username after several tries" };
+}
+
 /** A simple, readable password kids can type: "brave-otter-7". */
 function makePassword(): string {
   return `${randItem(ADJECTIVES)}-${randItem(ANIMALS)}-${
@@ -149,28 +201,22 @@ export const generateCampLogins = createServerFn({ method: "POST" })
       }
       try {
         const parts = reg.child_name.trim().split(/\s+/);
-        const first = slugName(parts[0] ?? "camper");
-        const last = slugName(parts[parts.length - 1] ?? "");
-        const username = `${first}${last ? "-" + last : ""}-${randSuffix()}@camp.explr.local`;
+        const first = slugFirst(parts[0] ?? "camper");
         const password = makePassword();
 
-        // 2a. Create the auth account.
-        const { data: createdUser, error: cuErr } =
-          await supabaseAdmin.auth.admin.createUser({
-            email: username,
-            password,
-            email_confirm: true,
-            user_metadata: {
-              generated: true,
-              source: "camp_login",
-              child_name: reg.child_name,
-            },
-          });
-        if (cuErr || !createdUser.user) {
-          errors.push(`${reg.child_name}: ${cuErr?.message ?? "createUser failed"}`);
+        // 2a. Create the auth account (retries on username collision).
+        const mint = await mintCampAuthUser(
+          first,
+          reg.child_name,
+          password,
+          "camp_login",
+        );
+        if (!mint.ok) {
+          errors.push(`${reg.child_name}: ${mint.error}`);
           continue;
         }
-        const uid = createdUser.user.id;
+        const uid = mint.uid;
+        const username = mint.username;
 
         // 2b. students row.
         const { error: stuErr } = await supabaseAdmin
@@ -273,26 +319,18 @@ export const generateWalkInCampLogin = createServerFn({ method: "POST" })
 
     const name = (data.childName ?? "").trim() || "Walk-in";
     const parts = name.split(/\s+/);
-    const first = slugName(parts[0] ?? "camper");
-    const last = slugName(parts[parts.length - 1] ?? "");
-    const username = `${first}${last ? "-" + last : ""}-${randSuffix()}@camp.explr.local`;
+    const first = slugFirst(parts[0] ?? "camper");
     const password = makePassword();
 
-    const { data: createdUser, error: cuErr } =
-      await supabaseAdmin.auth.admin.createUser({
-        email: username,
-        password,
-        email_confirm: true,
-        user_metadata: {
-          generated: true,
-          source: "camp_login_walkin",
-          child_name: name,
-        },
-      });
-    if (cuErr || !createdUser.user) {
-      throw new Error(cuErr?.message ?? "createUser failed");
-    }
-    const uid = createdUser.user.id;
+    const mint = await mintCampAuthUser(
+      first,
+      name,
+      password,
+      "camp_login_walkin",
+    );
+    if (!mint.ok) throw new Error(mint.error);
+    const uid = mint.uid;
+    const username = mint.username;
 
     async function rollback(): Promise<string> {
       const { error } = await supabaseAdmin.auth.admin.deleteUser(uid);

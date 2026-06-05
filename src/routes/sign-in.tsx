@@ -18,8 +18,13 @@ function SignIn() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    // Camp-generated student accounts use short usernames (e.g. "maya42")
+    // rather than full email addresses. If the input has no "@", treat it
+    // as a camp username and append the camp domain before authenticating.
+    const v = email.trim();
+    const fullEmail = v.includes("@") ? v : `${v}@camp.explr.local`;
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: fullEmail,
       password,
     });
     if (error) {
@@ -52,8 +57,22 @@ function SignIn() {
       <p className="mt-2 text-sm text-charcoal-500">Student account.</p>
       <form onSubmit={submit} className="mt-10 space-y-5">
         <div>
-          <label className="label">Email</label>
-          <input className="field" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+          <label className="label">Username or email</label>
+          <input
+            className="field"
+            type="text"
+            required
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            autoComplete="username"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="e.g. maya42"
+          />
+          <p className="mt-1 text-[11px] text-charcoal-400">
+            Camp kids: type the short username from your card.
+          </p>
         </div>
         <div>
           <label className="label">Password</label>
