@@ -95,7 +95,32 @@ export const generateCampLogins = createServerFn({ method: "POST" })
     if (regErr) throw new Error(`Roster lookup failed: ${regErr.message}`);
     const registrations = (regs ?? []) as RegistrationRow[];
 
-    // 2. Already-generated logins — skip those (idempotent re-run).
+    // 2. Pre-flight: confirm the auxiliary tables are reachable BEFORE we
+    // start minting auth accounts. Previously a missing table aborted the
+    // function mid-loop, after dozens of orphan auth.users rows had already
+    // been created. Bail clean if either probe errors.
+    {
+      const linkProbe = await sba("student_camp_links")
+        .select("student_id")
+        .limit(1);
+      if (linkProbe.error) {
+        throw new Error(
+          `student_camp_links unreachable — ${linkProbe.error.message}. ` +
+            `Apply the camp-logins migration first.`,
+        );
+      }
+      const logProbe = await sba("camp_student_logins")
+        .select("id")
+        .limit(1);
+      if (logProbe.error) {
+        throw new Error(
+          `camp_student_logins unreachable — ${logProbe.error.message}. ` +
+            `Apply the camp-logins migration first.`,
+        );
+      }
+    }
+
+    // Already-generated logins — skip those (idempotent re-run).
     const { data: existing } = await sba("camp_student_logins")
       .select("explr_registration_id")
       .eq("explr_camp_id", explrCampId);
@@ -108,6 +133,14 @@ export const generateCampLogins = createServerFn({ method: "POST" })
     let created = 0;
     let skipped = 0;
     const errors: string[] = [];
+
+    // Rollback helper — best-effort delete of an auth.users row we just
+    // created when a subsequent step fails, so we don't leave a dangling
+    // account with no recoverable password.
+    async function rollback(uid: string): Promise<string> {
+      const { error } = await supabaseAdmin.auth.admin.deleteUser(uid);
+      return error ? ` (rollback failed: ${error.message})` : "";
+    }
 
     for (const reg of registrations) {
       if (done.has(reg.id)) {
@@ -148,15 +181,22 @@ export const generateCampLogins = createServerFn({ method: "POST" })
             grade: ageToGrade(reg.child_age),
           });
         if (stuErr) {
-          errors.push(`${reg.child_name}: students row — ${stuErr.message}`);
+          const rb = await rollback(uid);
+          errors.push(`${reg.child_name}: students row — ${stuErr.message}${rb}`);
           continue;
         }
 
         // 2c. Link student → camp session (powers the educator cascade).
-        await sba("student_camp_links").upsert({
+        // Now error-checked; previously this silently swallowed failures.
+        const linkRes = await sba("student_camp_links").upsert({
           student_id: uid,
           explr_camp_id: explrCampId,
         } as never);
+        if (linkRes.error) {
+          const rb = await rollback(uid);
+          errors.push(`${reg.child_name}: link row — ${linkRes.error.message}${rb}`);
+          continue;
+        }
 
         // 2d. Store the credentials for the printable sheet.
         const { error: logErr } = await sba("camp_student_logins").insert({
@@ -169,7 +209,8 @@ export const generateCampLogins = createServerFn({ method: "POST" })
           generated_by: context.userId,
         } as never);
         if (logErr) {
-          errors.push(`${reg.child_name}: credentials row — ${logErr.message}`);
+          const rb = await rollback(uid);
+          errors.push(`${reg.child_name}: credentials row — ${logErr.message}${rb}`);
           continue;
         }
         created++;
