@@ -10,6 +10,7 @@ import {
   familyReportPageHtml,
   familyReportDocument,
 } from "@/lib/family-report";
+import { CampAssignmentsPanel } from "@/components/CampAssignmentsPanel";
 
 export const Route = createFileRoute("/educator/admin/camp-logins")({
   head: () => ({ meta: [{ title: "Camp logins — Admin" }] }),
@@ -488,6 +489,25 @@ function CampLoginsAdmin() {
                   )}
 
                   {expanded === s.id && (
+                  <div>
+                    {/* What's assigned to this camp + how far along the
+                        roster is. Camera-targeted assignments live here
+                        alongside ones cascaded via the camp's educators. */}
+                    <div className="mt-3 border border-charcoal-100 bg-charcoal-50 p-4">
+                      <p className="eyebrow" style={{ margin: 0 }}>
+                        Assignments
+                      </p>
+                      <div className="mt-2">
+                        <CampAssignmentsPanel
+                          campId={s.id}
+                          studentIds={logins
+                            .filter((l) => l.explr_camp_id === s.id)
+                            .map((l) => l.student_id)
+                            .filter((x): x is string => !!x)}
+                        />
+                      </div>
+                    </div>
+
                     <div className="mt-3 overflow-x-auto border border-charcoal-100">
                       <table className="w-full border-collapse text-sm">
                         <thead>
@@ -595,6 +615,7 @@ function CampLoginsAdmin() {
                         </tbody>
                       </table>
                     </div>
+                  </div>
                   )}
                 </li>
               );
