@@ -229,6 +229,50 @@ export type Database = {
           },
         ]
       }
+      assessment_targets: {
+        Row: {
+          assessment_kind: string
+          assigned_by: string | null
+          created_at: string
+          due_at: string | null
+          id: string
+          notes: string | null
+          survey_assignment_id: string | null
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          assessment_kind: string
+          assigned_by?: string | null
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          notes?: string | null
+          survey_assignment_id?: string | null
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          assessment_kind?: string
+          assigned_by?: string | null
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          notes?: string | null
+          survey_assignment_id?: string | null
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_targets_survey_assignment_id_fkey"
+            columns: ["survey_assignment_id"]
+            isOneToOne: false
+            referencedRelation: "survey_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       camp_educators: {
         Row: {
           assigned_at: string
@@ -249,6 +293,64 @@ export type Database = {
           educator_id?: string
         }
         Relationships: []
+      }
+      camp_student_logins: {
+        Row: {
+          child_name: string
+          explr_camp_id: string | null
+          explr_registration_id: string | null
+          generated_at: string
+          generated_by: string | null
+          id: string
+          password_plain: string
+          student_id: string | null
+          username: string
+        }
+        Insert: {
+          child_name: string
+          explr_camp_id?: string | null
+          explr_registration_id?: string | null
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          password_plain: string
+          student_id?: string | null
+          username: string
+        }
+        Update: {
+          child_name?: string
+          explr_camp_id?: string | null
+          explr_registration_id?: string | null
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          password_plain?: string
+          student_id?: string | null
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "camp_student_logins_explr_camp_id_fkey"
+            columns: ["explr_camp_id"]
+            isOneToOne: false
+            referencedRelation: "explr_camps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "camp_student_logins_explr_registration_id_fkey"
+            columns: ["explr_registration_id"]
+            isOneToOne: true
+            referencedRelation: "explr_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "camp_student_logins_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       camps: {
         Row: {
@@ -362,6 +464,7 @@ export type Database = {
           invited_by: string | null
           organization: string | null
           program_type: Database["public"]["Enums"]["program_type"]
+          role: string
           token: string
         }
         Insert: {
@@ -374,6 +477,7 @@ export type Database = {
           invited_by?: string | null
           organization?: string | null
           program_type: Database["public"]["Enums"]["program_type"]
+          role?: string
           token: string
         }
         Update: {
@@ -386,6 +490,7 @@ export type Database = {
           invited_by?: string | null
           organization?: string | null
           program_type?: Database["public"]["Enums"]["program_type"]
+          role?: string
           token?: string
         }
         Relationships: [
@@ -1165,6 +1270,39 @@ export type Database = {
           },
         ]
       }
+      student_camp_links: {
+        Row: {
+          explr_camp_id: string
+          linked_at: string
+          student_id: string
+        }
+        Insert: {
+          explr_camp_id: string
+          linked_at?: string
+          student_id: string
+        }
+        Update: {
+          explr_camp_id?: string
+          linked_at?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_camp_links_explr_camp_id_fkey"
+            columns: ["explr_camp_id"]
+            isOneToOne: false
+            referencedRelation: "explr_camps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_camp_links_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           created_at: string
@@ -1191,6 +1329,170 @@ export type Database = {
           scheduled_deletion_at?: string | null
         }
         Relationships: []
+      }
+      survey_assignments: {
+        Row: {
+          administration: string
+          closes_at: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          opens_at: string | null
+          survey_type: string
+          title: string
+          unit_ref: string
+          unit_type: string
+        }
+        Insert: {
+          administration: string
+          closes_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          opens_at?: string | null
+          survey_type: string
+          title: string
+          unit_ref: string
+          unit_type: string
+        }
+        Update: {
+          administration?: string
+          closes_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          opens_at?: string | null
+          survey_type?: string
+          title?: string
+          unit_ref?: string
+          unit_type?: string
+        }
+        Relationships: []
+      }
+      survey_item_responses: {
+        Row: {
+          id: string
+          item_id: string
+          skipped: boolean
+          survey_response_id: string
+          value_now: number | null
+          value_then: number | null
+        }
+        Insert: {
+          id?: string
+          item_id: string
+          skipped?: boolean
+          survey_response_id: string
+          value_now?: number | null
+          value_then?: number | null
+        }
+        Update: {
+          id?: string
+          item_id?: string
+          skipped?: boolean
+          survey_response_id?: string
+          value_now?: number | null
+          value_then?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_item_responses_survey_response_id_fkey"
+            columns: ["survey_response_id"]
+            isOneToOne: false
+            referencedRelation: "survey_responses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "survey_item_responses_survey_response_id_fkey"
+            columns: ["survey_response_id"]
+            isOneToOne: false
+            referencedRelation: "survey_scale_scores"
+            referencedColumns: ["survey_response_id"]
+          },
+        ]
+      }
+      survey_open_responses: {
+        Row: {
+          id: string
+          prompt: string
+          response: string | null
+          survey_response_id: string
+        }
+        Insert: {
+          id?: string
+          prompt: string
+          response?: string | null
+          survey_response_id: string
+        }
+        Update: {
+          id?: string
+          prompt?: string
+          response?: string | null
+          survey_response_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_open_responses_survey_response_id_fkey"
+            columns: ["survey_response_id"]
+            isOneToOne: false
+            referencedRelation: "survey_responses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "survey_open_responses_survey_response_id_fkey"
+            columns: ["survey_response_id"]
+            isOneToOne: false
+            referencedRelation: "survey_scale_scores"
+            referencedColumns: ["survey_response_id"]
+          },
+        ]
+      }
+      survey_responses: {
+        Row: {
+          administration: string
+          assignment_id: string
+          completed_at: string | null
+          demographics: Json | null
+          device_type: string | null
+          id: string
+          progress_index: number
+          started_at: string
+          student_id: string
+          survey_type: string
+        }
+        Insert: {
+          administration: string
+          assignment_id: string
+          completed_at?: string | null
+          demographics?: Json | null
+          device_type?: string | null
+          id?: string
+          progress_index?: number
+          started_at?: string
+          student_id: string
+          survey_type: string
+        }
+        Update: {
+          administration?: string
+          assignment_id?: string
+          completed_at?: string | null
+          demographics?: Json | null
+          device_type?: string | null
+          id?: string
+          progress_index?: number
+          started_at?: string
+          student_id?: string
+          survey_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_responses_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "survey_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       unit_rosters: {
         Row: {
@@ -1226,7 +1528,37 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      survey_scale_scores: {
+        Row: {
+          administration: string | null
+          assignment_id: string | null
+          c21_now_mean: number | null
+          c21_then_mean: number | null
+          career_interest_now_mean: number | null
+          career_interest_then_mean: number | null
+          career_planning_now_mean: number | null
+          completed_at: string | null
+          engtech_now_mean: number | null
+          engtech_then_mean: number | null
+          math_now_mean: number | null
+          math_then_mean: number | null
+          science_now_mean: number | null
+          science_then_mean: number | null
+          student_id: string | null
+          survey_response_id: string | null
+          survey_type: string | null
+          wbl_now_mean: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_responses_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "survey_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       advance_session: { Args: { p_session_id: string }; Returns: undefined }

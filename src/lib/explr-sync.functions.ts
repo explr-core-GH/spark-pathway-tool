@@ -166,9 +166,8 @@ async function assertAdmin(userId: string) {
   // Post the admins/educators split, admin status is membership in
   // public.admins — NOT educators.role (admins have no educators row at
   // all). Checking educators.role here used to reject every real admin.
-  const { data, error } = await (
-    supabaseAdmin.from as (n: string) => ReturnType<typeof supabaseAdmin.from>
-  )("admins")
+  const { data, error } = await supabaseAdmin
+    .from("admins")
     .select("id")
     .eq("id", userId)
     .maybeSingle();
@@ -313,11 +312,7 @@ export const linkExplrCamp = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
 
-    // explr_camp_curriculum_links isn't in the generated Database type yet
-    // (migration 20260518064003). Cast the table name to bypass.
-    const links = (supabaseAdmin.from as (n: string) => ReturnType<typeof supabaseAdmin.from>)(
-      "explr_camp_curriculum_links",
-    );
+    const links = supabaseAdmin.from("explr_camp_curriculum_links");
 
     // Clear existing links for this camp.
     {
@@ -356,12 +351,7 @@ export const setExplrCampEducator = createServerFn({ method: "POST" })
   .inputValidator((input: { explrCampId: string; educatorId: string; on: boolean }) => input)
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    // explr_camp_educators is added in migration 20260518061032 — the generated
-    // Database type may not include it yet on the first sync. Cast the table
-    // name to bypass the typed-client lookup; regen will tidy this up.
-    const ece = (supabaseAdmin.from as (n: string) => ReturnType<typeof supabaseAdmin.from>)(
-      "explr_camp_educators",
-    );
+    const ece = supabaseAdmin.from("explr_camp_educators");
     if (data.on) {
       const { error } = await ece.upsert(
         {

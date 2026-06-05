@@ -13,11 +13,6 @@ import { SURVEY_TYPE_LABEL, type SurveyType } from "@/lib/explr-stem";
  * survey_responses rows.
  */
 
-// Inline call keeps `this` bound to the supabase client (a detached
-// `const sb = supabase.from` throws "cannot read properties of undefined").
-const sb = (table: string) =>
-  (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(table);
-
 type Assignment = {
   id: string;
   survey_type: SurveyType;
@@ -35,10 +30,12 @@ export function StudentSurveysPanel({ studentId }: { studentId: string }) {
     let cancelled = false;
     (async () => {
       const [{ data: a }, { data: r }] = await Promise.all([
-        sb("survey_assignments")
+        supabase
+          .from("survey_assignments")
           .select("id, survey_type, administration, title")
           .order("created_at", { ascending: false }),
-        sb("survey_responses")
+        supabase
+          .from("survey_responses")
           .select("assignment_id, completed_at")
           .eq("student_id", studentId),
       ]);

@@ -41,7 +41,8 @@ function Start() {
       // Look up roles in parallel; first match wins.
       const [{ data: ad }, { data: ed }] = await Promise.all([
         // admins table — cast because the generated Database type may lag.
-        (supabase.from as (n: string) => ReturnType<typeof supabase.from>)("admins")
+        (supabase as any)
+          .from("admins")
           .select("id").eq("id", session.user.id).maybeSingle(),
         supabase.from("educators").select("id").eq("id", session.user.id).maybeSingle(),
       ]);

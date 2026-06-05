@@ -71,7 +71,7 @@ function WorksitesInner() {
     // 20260518081852_worksites_sync.sql — cast through the loose-typed
     // overload until the Database type regenerates after the migration
     // applies in Lovable Cloud.
-    const looseFrom = supabase.from as (n: string) => ReturnType<typeof supabase.from>;
+    const looseFrom = (table: string) => (supabase as any).from(table);
     const [{ data: ws }, { data: st }, { data: runs }] = await Promise.all([
       looseFrom("worksites").select("*").order("name", { ascending: true }),
       looseFrom("worksite_students")

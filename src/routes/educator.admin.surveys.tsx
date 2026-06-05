@@ -19,13 +19,6 @@ import {
 } from "@/lib/explr-stem/scoring";
 import { RIASEC_ORDER, type RIASECCode } from "@/lib/riasec";
 
-// Untyped table access for the survey_* tables (not in the generated
-// Database type). Must call supabase.from inline so `this` stays bound to
-// the client — a detached `const sb = supabase.from` loses `this` and
-// throws "cannot read properties of undefined (reading 'rest')".
-const sb = (table: string) =>
-  (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(table);
-
 // STEM survey management now lives inside the Assessments page as a tab.
 // This route stays only to redirect any old bookmarks there. The actual
 // UI is the exported <SurveyAdminPanel /> below.
@@ -144,10 +137,12 @@ export function SurveyAdminPanel() {
   async function load() {
     setLoading(true);
     const [{ data: a }, { data: r }] = await Promise.all([
-      sb("survey_assignments")
+      supabase
+        .from("survey_assignments")
         .select("id, survey_type, administration, unit_type, unit_ref, title, created_at")
         .order("created_at", { ascending: false }),
-      sb("survey_responses")
+      supabase
+        .from("survey_responses")
         .select("id, assignment_id, student_id, survey_type, administration, demographics, completed_at"),
     ]);
     const asg = (a ?? []) as Assignment[];
@@ -157,7 +152,8 @@ export function SurveyAdminPanel() {
 
     const respIds = resp.map((x) => x.id);
     if (respIds.length > 0) {
-      const { data: items } = await sb("survey_item_responses")
+      const { data: items } = await supabase
+        .from("survey_item_responses")
         .select("survey_response_id, item_id, value_now, value_then, skipped")
         .in("survey_response_id", respIds);
       const map: Record<string, ItemRow[]> = {};
@@ -203,7 +199,8 @@ export function SurveyAdminPanel() {
 
   // Load the unit options once.
   useEffect(() => {
-    sb("explr_camps")
+    supabase
+      .from("explr_camps")
       .select("id, title, date")
       .order("date", { ascending: true })
       .then(({ data }: { data: unknown }) => {
@@ -247,7 +244,9 @@ export function SurveyAdminPanel() {
             title: `${fTitle.trim()} — ${adm === "pre" ? "Start" : "End"}`,
             created_by: user?.id ?? null,
           }));
-    const { error } = await sb("survey_assignments").insert(rows as never);
+    const { error } = await supabase
+      .from("survey_assignments")
+      .insert(rows as never);
     setBusy(false);
     if (error) {
       alert(error.message);
@@ -260,7 +259,10 @@ export function SurveyAdminPanel() {
 
   async function removeAssignment(id: string) {
     if (!confirm("Delete this survey assignment and all its responses?")) return;
-    const { error } = await sb("survey_assignments").delete().eq("id", id);
+    const { error } = await supabase
+      .from("survey_assignments")
+      .delete()
+      .eq("id", id);
     if (error) {
       alert(error.message);
       return;

@@ -14,9 +14,6 @@ import { supabase } from "@/integrations/supabase/client";
  *      educators.
  */
 
-const sb = (table: string) =>
-  (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(table);
-
 type Target = {
   id: string;
   assessment_kind: string;
@@ -71,7 +68,8 @@ export function AssignedAssessmentsPanel({ studentId }: { studentId: string }) {
     let cancelled = false;
     (async () => {
       // 1. Direct student-targeted assignments.
-      const { data: direct } = await sb("assessment_targets")
+      const { data: direct } = await supabase
+        .from("assessment_targets")
         .select("id, assessment_kind, survey_assignment_id, due_at, notes")
         .eq("target_type", "student")
         .eq("target_id", studentId)
@@ -83,7 +81,8 @@ export function AssignedAssessmentsPanel({ studentId }: { studentId: string }) {
       //                                    no educator needed.
       //      (b) target_type='educator'  — assigned to an educator who
       //                                    runs the camp.
-      const { data: links } = await sb("student_camp_links")
+      const { data: links } = await supabase
+        .from("student_camp_links")
         .select("explr_camp_id")
         .eq("student_id", studentId);
       const campIds = ((links ?? []) as Array<{ explr_camp_id: string }>).map(
@@ -92,7 +91,8 @@ export function AssignedAssessmentsPanel({ studentId }: { studentId: string }) {
       let cascade: Target[] = [];
       if (campIds.length > 0) {
         // (a) direct camp targets.
-        const { data: viaCamp } = await sb("assessment_targets")
+        const { data: viaCamp } = await supabase
+          .from("assessment_targets")
           .select("id, assessment_kind, survey_assignment_id, due_at, notes")
           .eq("target_type", "camp")
           .in("target_id", campIds)
@@ -100,7 +100,8 @@ export function AssignedAssessmentsPanel({ studentId }: { studentId: string }) {
         cascade.push(...((viaCamp ?? []) as Target[]));
 
         // (b) educator path — the camp's educators' assignments.
-        const { data: ece } = await sb("explr_camp_educators")
+        const { data: ece } = await supabase
+          .from("explr_camp_educators")
           .select("educator_id")
           .in("explr_camp_id", campIds);
         const educatorIds = [
@@ -111,7 +112,8 @@ export function AssignedAssessmentsPanel({ studentId }: { studentId: string }) {
           ),
         ];
         if (educatorIds.length > 0) {
-          const { data: viaEdu } = await sb("assessment_targets")
+          const { data: viaEdu } = await supabase
+            .from("assessment_targets")
             .select("id, assessment_kind, survey_assignment_id, due_at, notes")
             .eq("target_type", "educator")
             .in("target_id", educatorIds)
@@ -135,7 +137,8 @@ export function AssignedAssessmentsPanel({ studentId }: { studentId: string }) {
         .map((r) => r.survey_assignment_id)
         .filter((x): x is string => !!x);
       if (surveyIds.length > 0) {
-        const { data: sv } = await sb("survey_assignments")
+        const { data: sv } = await supabase
+          .from("survey_assignments")
           .select("id, title")
           .in("id", surveyIds);
         if (!cancelled) {

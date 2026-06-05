@@ -16,9 +16,6 @@ export const Route = createFileRoute("/educator/admin/camp-logins")({
   component: CampLoginsAdmin,
 });
 
-const sb = (table: string) =>
-  (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(table);
-
 type CampSession = { id: string; title: string; date: string | null };
 type Login = {
   id: string;
@@ -57,11 +54,12 @@ function CampLoginsAdmin() {
   async function load() {
     setLoading(true);
     const [{ data: ss }, { data: regs }, { data: lg }] = await Promise.all([
-      sb("explr_camps")
+      supabase
+        .from("explr_camps")
         .select("id, title, date")
         .order("date", { ascending: true }),
-      sb("explr_registrations").select("camp_id"),
-      sb("camp_student_logins").select(
+      supabase.from("explr_registrations").select("camp_id"),
+      supabase.from("camp_student_logins").select(
         "id, explr_camp_id, student_id, child_name, username, password_plain",
       ),
     ]);

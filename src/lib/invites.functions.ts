@@ -12,8 +12,8 @@ export const getInviteByToken = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import(
       "@/integrations/supabase/client.server"
     );
-    const sba = (supabaseAdmin.from as (n: string) => ReturnType<typeof supabaseAdmin.from>);
-    const { data: invite, error } = await sba("educator_invites")
+    const { data: invite, error } = await supabaseAdmin
+      .from("educator_invites")
       .select(
         "id, email, program_type, organization, role, expires_at, accepted_at",
       )

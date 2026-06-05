@@ -47,9 +47,8 @@ function CurriculumIndex() {
   useEffect(() => {
     if (!educator || isAdmin) return;
     (async () => {
-      const { data: myAssignments } = await (
-        supabase.from as (n: string) => ReturnType<typeof supabase.from>
-      )("explr_camp_educators")
+      const { data: myAssignments } = await (supabase as any)
+        .from("explr_camp_educators")
         .select("explr_camp_id")
         .eq("educator_id", educator.id);
       const ids = (myAssignments ?? []).map(
@@ -59,9 +58,8 @@ function CurriculumIndex() {
         setAssigned(new Set());
         return;
       }
-      const { data: links } = await (
-        supabase.from as (n: string) => ReturnType<typeof supabase.from>
-      )("explr_camp_curriculum_links")
+      const { data: links } = await (supabase as any)
+        .from("explr_camp_curriculum_links")
         .select("camp_slug")
         .in("explr_camp_id", ids);
       const slugs = new Set<string>(

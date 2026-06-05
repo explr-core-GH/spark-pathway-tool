@@ -14,15 +14,10 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
  * Service-role only — creating auth.users requires the admin API.
  */
 
-// Untyped table access for tables not in the generated Database type.
-const sba = (table: string) =>
-  (supabaseAdmin.from as (n: string) => ReturnType<typeof supabaseAdmin.from>)(
-    table,
-  );
-
 // Admin check against public.admins (the post-split admin table).
 async function assertAdmin(userId: string) {
-  const { data } = await sba("admins")
+  const { data } = await supabaseAdmin
+    .from("admins")
     .select("id")
     .eq("id", userId)
     .maybeSingle();
@@ -141,7 +136,8 @@ export const generateCampLogins = createServerFn({ method: "POST" })
     const { explrCampId } = data;
 
     // 1. Registrations for this camp session.
-    const { data: regs, error: regErr } = await sba("explr_registrations")
+    const { data: regs, error: regErr } = await supabaseAdmin
+      .from("explr_registrations")
       .select("id, child_name, child_age")
       .eq("camp_id", explrCampId);
     if (regErr) throw new Error(`Roster lookup failed: ${regErr.message}`);
@@ -152,7 +148,8 @@ export const generateCampLogins = createServerFn({ method: "POST" })
     // function mid-loop, after dozens of orphan auth.users rows had already
     // been created. Bail clean if either probe errors.
     {
-      const linkProbe = await sba("student_camp_links")
+      const linkProbe = await supabaseAdmin
+        .from("student_camp_links")
         .select("student_id")
         .limit(1);
       if (linkProbe.error) {
@@ -161,7 +158,8 @@ export const generateCampLogins = createServerFn({ method: "POST" })
             `Apply the camp-logins migration first.`,
         );
       }
-      const logProbe = await sba("camp_student_logins")
+      const logProbe = await supabaseAdmin
+        .from("camp_student_logins")
         .select("id")
         .limit(1);
       if (logProbe.error) {
@@ -173,7 +171,8 @@ export const generateCampLogins = createServerFn({ method: "POST" })
     }
 
     // Already-generated logins — skip those (idempotent re-run).
-    const { data: existing } = await sba("camp_student_logins")
+    const { data: existing } = await supabaseAdmin
+      .from("camp_student_logins")
       .select("explr_registration_id")
       .eq("explr_camp_id", explrCampId);
     const done = new Set(
@@ -234,7 +233,7 @@ export const generateCampLogins = createServerFn({ method: "POST" })
 
         // 2c. Link student → camp session (powers the educator cascade).
         // Now error-checked; previously this silently swallowed failures.
-        const linkRes = await sba("student_camp_links").upsert({
+        const linkRes = await supabaseAdmin.from("student_camp_links").upsert({
           student_id: uid,
           explr_camp_id: explrCampId,
         } as never);
@@ -245,7 +244,7 @@ export const generateCampLogins = createServerFn({ method: "POST" })
         }
 
         // 2d. Store the credentials for the printable sheet.
-        const { error: logErr } = await sba("camp_student_logins").insert({
+        const { error: logErr } = await supabaseAdmin.from("camp_student_logins").insert({
           explr_camp_id: explrCampId,
           explr_registration_id: reg.id,
           student_id: uid,
@@ -301,14 +300,16 @@ export const generateWalkInCampLogin = createServerFn({ method: "POST" })
     // Same pre-flight as the bulk fn — never mint an auth user when the
     // downstream tables are unreachable.
     {
-      const linkProbe = await sba("student_camp_links")
+      const linkProbe = await supabaseAdmin
+        .from("student_camp_links")
         .select("student_id")
         .limit(1);
       if (linkProbe.error)
         throw new Error(
           `student_camp_links unreachable — ${linkProbe.error.message}. Apply the camp-logins migration first.`,
         );
-      const logProbe = await sba("camp_student_logins")
+      const logProbe = await supabaseAdmin
+        .from("camp_student_logins")
         .select("id")
         .limit(1);
       if (logProbe.error)
@@ -344,14 +345,14 @@ export const generateWalkInCampLogin = createServerFn({ method: "POST" })
     });
     if (stuErr) throw new Error(`students row — ${stuErr.message}${await rollback()}`);
 
-    const linkRes = await sba("student_camp_links").upsert({
+    const linkRes = await supabaseAdmin.from("student_camp_links").upsert({
       student_id: uid,
       explr_camp_id: data.explrCampId,
     } as never);
     if (linkRes.error)
       throw new Error(`link row — ${linkRes.error.message}${await rollback()}`);
 
-    const { error: logErr } = await sba("camp_student_logins").insert({
+    const { error: logErr } = await supabaseAdmin.from("camp_student_logins").insert({
       explr_camp_id: data.explrCampId,
       explr_registration_id: null, // walk-in: not on the ExplrMore roster
       student_id: uid,
@@ -386,7 +387,8 @@ export const updateCampLoginName = createServerFn({ method: "POST" })
     const trimmed = data.childName.trim();
     if (!trimmed) throw new Error("Name required");
 
-    const { data: row, error: rowErr } = await sba("camp_student_logins")
+    const { data: row, error: rowErr } = await supabaseAdmin
+      .from("camp_student_logins")
       .select("student_id")
       .eq("id", data.loginId)
       .maybeSingle();
@@ -397,7 +399,8 @@ export const updateCampLoginName = createServerFn({ method: "POST" })
     const parts = trimmed.split(/\s+/);
     const firstName = (parts[0] ?? "Camper").slice(0, 60);
 
-    const { error: cslErr } = await sba("camp_student_logins")
+    const { error: cslErr } = await supabaseAdmin
+      .from("camp_student_logins")
       .update({ child_name: trimmed } as never)
       .eq("id", data.loginId);
     if (cslErr) throw new Error(`logins update — ${cslErr.message}`);

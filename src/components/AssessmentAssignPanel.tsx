@@ -16,10 +16,6 @@ import { SURVEY_TYPE_LABEL, type SurveyType } from "@/lib/explr-stem";
  * Assessments admin page.
  */
 
-// Inline call keeps `this` bound to the supabase client.
-const sb = (table: string) =>
-  (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(table);
-
 type Educator = { id: string; full_name: string; email: string };
 type Student = { id: string; first_name: string | null; grade: number };
 type SurveyAssignment = {
@@ -80,13 +76,16 @@ export function AssessmentAssignPanel() {
           .from("students")
           .select("id, first_name, grade")
           .order("first_name"),
-        sb("explr_camps")
+        supabase
+          .from("explr_camps")
           .select("id, title, date")
           .order("date", { ascending: true }),
-        sb("survey_assignments")
+        supabase
+          .from("survey_assignments")
           .select("id, title, survey_type, administration")
           .order("created_at", { ascending: false }),
-        sb("assessment_targets")
+        supabase
+          .from("assessment_targets")
           .select(
             "id, assessment_kind, survey_assignment_id, target_type, target_id, due_at, notes, created_at",
           )
@@ -161,7 +160,9 @@ export function AssessmentAssignPanel() {
         notes: notes.trim() || null,
       };
     });
-    const { error } = await sb("assessment_targets").insert(rows as never);
+    const { error } = await supabase
+      .from("assessment_targets")
+      .insert(rows as never);
     setBusy(false);
     if (error) {
       alert(error.message);
@@ -174,7 +175,10 @@ export function AssessmentAssignPanel() {
   }
 
   async function remove(id: string) {
-    const { error } = await sb("assessment_targets").delete().eq("id", id);
+    const { error } = await supabase
+      .from("assessment_targets")
+      .delete()
+      .eq("id", id);
     if (error) {
       alert(error.message);
       return;

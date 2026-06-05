@@ -25,8 +25,7 @@ import { EMPTY_ITEM_STATE, type SurveyItemState } from "@/components/survey/type
 // type until it regenerates after this migration applies. Call inline so
 // `this` stays bound to the supabase client (a detached
 // `const sb = supabase.from` throws "cannot read properties of undefined").
-const sb = (table: string) =>
-  (supabase.from as (n: string) => ReturnType<typeof supabase.from>)(table);
+const sb = (table: string) => (supabase as any).from(table);
 
 export const Route = createFileRoute("/survey/$assignmentId")({
   head: () => ({ meta: [{ title: "Survey — EXPLR" }] }),

@@ -90,9 +90,8 @@ function SessionDetail() {
     let cancelled = false;
     (async () => {
       // 1. The session row itself.
-      const { data: sess } = await (
-        supabase.from as (n: string) => ReturnType<typeof supabase.from>
-      )("explr_camps")
+      const { data: sess } = await (supabase as any)
+        .from("explr_camps")
         .select("id, title, date, end_date, location, capacity, description, age_range")
         .eq("id", sessionId)
         .maybeSingle();
@@ -100,9 +99,8 @@ function SessionDetail() {
       setSession((sess as Session) ?? null);
 
       // 2. Linked curricula via the join table → camps metadata.
-      const { data: links } = await (
-        supabase.from as (n: string) => ReturnType<typeof supabase.from>
-      )("explr_camp_curriculum_links")
+      const { data: links } = await (supabase as any)
+        .from("explr_camp_curriculum_links")
         .select("camps (slug, name, emoji, tagline)")
         .eq("explr_camp_id", sessionId);
       if (cancelled) return;

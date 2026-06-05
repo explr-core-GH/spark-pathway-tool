@@ -130,7 +130,8 @@ export function useEducator() {
       supabase.from("educators").select("*").eq("id", userId).maybeSingle(),
       // public.admins is added in migration 20260518053900. Cast for typings
       // until the Database type regenerates.
-      (supabase.from as (n: string) => ReturnType<typeof supabase.from>)("admins")
+      supabase
+        .from("admins")
         .select("*")
         .eq("id", userId)
         .maybeSingle(),
