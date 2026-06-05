@@ -6,11 +6,14 @@ import { SURVEY_TYPE_LABEL, type SurveyType } from "@/lib/explr-stem";
 /**
  * AssessmentAssignPanel — assign one or more assessments to a target.
  *
- * A target is either an educator (the assignment cascades to their whole
- * roster) or an individual student (for kids not attached to an educator
- * or one-off / individualized needs). Writes rows to assessment_targets.
+ * A target is one of three things:
+ *   educator — cascades to that educator's whole roster.
+ *   camp     — cascades to every student linked to that camp session,
+ *              independent of whether an educator has been assigned.
+ *   student  — one specific kid; for individualized / one-off needs.
  *
- * Lives as the "Assign" tab of the Assessments admin page.
+ * Writes rows to assessment_targets. Lives as the "Assign" tab of the
+ * Assessments admin page.
  */
 
 // Inline call keeps `this` bound to the supabase client.
@@ -29,12 +32,15 @@ type TargetRow = {
   id: string;
   assessment_kind: string;
   survey_assignment_id: string | null;
-  target_type: "educator" | "student";
+  target_type: "educator" | "student" | "camp";
   target_id: string;
   due_at: string | null;
   notes: string | null;
   created_at: string;
 };
+
+type CampSession = { id: string; title: string; date: string | null };
+type TargetType = "educator" | "student" | "camp";
 
 // The four fixed (non-survey) assessment kinds.
 const FIXED_KINDS: Array<{ kind: string; label: string }> = [
@@ -48,15 +54,14 @@ export function AssessmentAssignPanel() {
   const { user } = useSession();
   const [educators, setEducators] = useState<Educator[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
+  const [camps, setCamps] = useState<CampSession[]>([]);
   const [surveys, setSurveys] = useState<SurveyAssignment[]>([]);
   const [targets, setTargets] = useState<TargetRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   // form state
   const [picked, setPicked] = useState<Set<string>>(new Set());
-  const [targetType, setTargetType] = useState<"educator" | "student">(
-    "educator",
-  );
+  const [targetType, setTargetType] = useState<TargetType>("educator");
   const [targetId, setTargetId] = useState("");
   const [dueAt, setDueAt] = useState("");
   const [notes, setNotes] = useState("");
@@ -64,7 +69,7 @@ export function AssessmentAssignPanel() {
 
   async function load() {
     setLoading(true);
-    const [{ data: ed }, { data: st }, { data: sv }, { data: tg }] =
+    const [{ data: ed }, { data: st }, { data: cp }, { data: sv }, { data: tg }] =
       await Promise.all([
         supabase
           .from("educators")
@@ -75,6 +80,9 @@ export function AssessmentAssignPanel() {
           .from("students")
           .select("id, first_name, grade")
           .order("first_name"),
+        sb("explr_camps")
+          .select("id, title, date")
+          .order("date", { ascending: true }),
         sb("survey_assignments")
           .select("id, title, survey_type, administration")
           .order("created_at", { ascending: false }),
@@ -86,6 +94,7 @@ export function AssessmentAssignPanel() {
       ]);
     setEducators((ed ?? []) as Educator[]);
     setStudents((st ?? []) as Student[]);
+    setCamps((cp ?? []) as CampSession[]);
     setSurveys((sv ?? []) as SurveyAssignment[]);
     setTargets((tg ?? []) as TargetRow[]);
     setLoading(false);
@@ -122,6 +131,10 @@ export function AssessmentAssignPanel() {
         ]),
       ),
     [students],
+  );
+  const campName = useMemo(
+    () => new Map(camps.map((c) => [c.id, c.title])),
+    [camps],
   );
 
   function toggle(key: string) {
@@ -223,29 +236,39 @@ export function AssessmentAssignPanel() {
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label">Assign to</label>
-            <div className="mt-1 inline-flex border border-charcoal-200">
-              {(["educator", "student"] as const).map((t) => (
+            <div className="mt-1 inline-flex flex-wrap border border-charcoal-200">
+              {(
+                [
+                  { key: "educator" as TargetType, label: "Educator (whole roster)" },
+                  { key: "camp" as TargetType, label: "Camp session (whole roster)" },
+                  { key: "student" as TargetType, label: "Individual student" },
+                ]
+              ).map(({ key, label }) => (
                 <button
-                  key={t}
+                  key={key}
                   type="button"
                   onClick={() => {
-                    setTargetType(t);
+                    setTargetType(key);
                     setTargetId("");
                   }}
                   className="px-3 py-1.5 text-xs"
                   style={{
-                    background: targetType === t ? "var(--ink)" : "white",
-                    color: targetType === t ? "white" : "var(--color-charcoal-500)",
+                    background: targetType === key ? "var(--ink)" : "white",
+                    color: targetType === key ? "white" : "var(--color-charcoal-500)",
                   }}
                 >
-                  {t === "educator" ? "Educator (whole roster)" : "Individual student"}
+                  {label}
                 </button>
               ))}
             </div>
           </div>
           <div>
             <label className="label">
-              {targetType === "educator" ? "Educator" : "Student"}
+              {targetType === "educator"
+                ? "Educator"
+                : targetType === "camp"
+                  ? "Camp session"
+                  : "Student"}
             </label>
             <select
               className="field mt-1"
@@ -253,20 +276,39 @@ export function AssessmentAssignPanel() {
               onChange={(e) => setTargetId(e.target.value)}
             >
               <option value="">
-                Pick {targetType === "educator" ? "an educator" : "a student"}…
+                Pick{" "}
+                {targetType === "educator"
+                  ? "an educator"
+                  : targetType === "camp"
+                    ? "a camp session"
+                    : "a student"}
+                …
               </option>
-              {targetType === "educator"
-                ? educators.map((e) => (
-                    <option key={e.id} value={e.id}>
-                      {e.full_name} · {e.email}
-                    </option>
-                  ))
-                : students.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.first_name ?? "Student"} · grade {s.grade}
-                    </option>
-                  ))}
+              {targetType === "educator" &&
+                educators.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.full_name} · {e.email}
+                  </option>
+                ))}
+              {targetType === "camp" &&
+                camps.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                    {c.date ? ` · ${new Date(c.date).toLocaleDateString()}` : ""}
+                  </option>
+                ))}
+              {targetType === "student" &&
+                students.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.first_name ?? "Student"} · grade {s.grade}
+                  </option>
+                ))}
             </select>
+            {targetType === "camp" && camps.length === 0 && (
+              <p className="mt-1 text-[11px] text-charcoal-400">
+                No camp sessions synced yet — run an ExplrMore sync first.
+              </p>
+            )}
           </div>
           <div>
             <label className="label">Due date (optional)</label>
@@ -320,7 +362,9 @@ export function AssessmentAssignPanel() {
                   <p className="truncate text-xs text-charcoal-500">
                     {t.target_type === "educator"
                       ? `Educator: ${eduName.get(t.target_id) ?? t.target_id} · whole roster`
-                      : `Student: ${studName.get(t.target_id) ?? t.target_id}`}
+                      : t.target_type === "camp"
+                        ? `Camp: ${campName.get(t.target_id) ?? t.target_id} · whole roster`
+                        : `Student: ${studName.get(t.target_id) ?? t.target_id}`}
                     {t.due_at
                       ? ` · due ${new Date(t.due_at).toLocaleDateString()}`
                       : ""}

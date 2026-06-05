@@ -77,8 +77,12 @@ export function AssignedAssessmentsPanel({ studentId }: { studentId: string }) {
         .eq("target_id", studentId)
         .order("created_at", { ascending: false });
 
-      // 2. Cascade: this student's camps → those camps' educators →
-      //    assignments targeted at any of those educators.
+      // 2. Cascade through this student's camps. Two paths, both rooted
+      //    at student_camp_links:
+      //      (a) target_type='camp'      — assigned directly to the camp,
+      //                                    no educator needed.
+      //      (b) target_type='educator'  — assigned to an educator who
+      //                                    runs the camp.
       const { data: links } = await sb("student_camp_links")
         .select("explr_camp_id")
         .eq("student_id", studentId);
@@ -87,6 +91,15 @@ export function AssignedAssessmentsPanel({ studentId }: { studentId: string }) {
       );
       let cascade: Target[] = [];
       if (campIds.length > 0) {
+        // (a) direct camp targets.
+        const { data: viaCamp } = await sb("assessment_targets")
+          .select("id, assessment_kind, survey_assignment_id, due_at, notes")
+          .eq("target_type", "camp")
+          .in("target_id", campIds)
+          .order("created_at", { ascending: false });
+        cascade.push(...((viaCamp ?? []) as Target[]));
+
+        // (b) educator path — the camp's educators' assignments.
         const { data: ece } = await sb("explr_camp_educators")
           .select("educator_id")
           .in("explr_camp_id", campIds);
@@ -103,7 +116,7 @@ export function AssignedAssessmentsPanel({ studentId }: { studentId: string }) {
             .eq("target_type", "educator")
             .in("target_id", educatorIds)
             .order("created_at", { ascending: false });
-          cascade = (viaEdu ?? []) as Target[];
+          cascade.push(...((viaEdu ?? []) as Target[]));
         }
       }
       if (cancelled) return;
