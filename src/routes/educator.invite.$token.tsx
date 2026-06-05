@@ -83,7 +83,8 @@ function InviteAccept() {
       eErr = error;
     }
     if (eErr) { setError(eErr.message); setBusy(false); return; }
-    await supabase.from("educator_invites").update({ accepted_at: new Date().toISOString(), accepted_by: uid }).eq("id", invite.id);
+    await markInviteAccepted({ data: { token, acceptedBy: uid } });
+
     setBusy(false);
     // Admins land on admin tools; educators land on their dashboard.
     navigate({
