@@ -79,9 +79,8 @@ export function MySessionsPanel({ educatorId }: { educatorId: string }) {
       // One deep join pulls the session, its linked curricula, and the
       // curriculum metadata. Registration counts come from a follow-up
       // query because PostgREST doesn't expose GROUP BY directly.
-      const { data, error } = await (
-        supabase.from as (n: string) => ReturnType<typeof supabase.from>
-      )("explr_camp_educators")
+      const { data, error } = await supabase
+        .from("explr_camp_educators")
         .select(
           `
           explr_camps (
