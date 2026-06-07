@@ -29,7 +29,12 @@ export function AssessmentPhotosPanel() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [bulk, setBulk] = useState<{ done: number; total: number } | null>(null);
   const inputs = useRef<Record<string, HTMLInputElement | null>>({});
+  const bulkInput = useRef<HTMLInputElement | null>(null);
+
+  // Valid item ids, for matching uploaded filenames (R1.jpg → R1).
+  const validIds = useMemo(() => new Set(ITEMS.map((i) => i.id)), []);
 
   async function load() {
     setLoading(true);
@@ -52,20 +57,16 @@ export function AssessmentPhotosPanel() {
     return g;
   }, []);
 
-  async function upload(itemId: string, file: File) {
-    setBusy(itemId);
-    setErr(null);
-    // Store under a stable path per item; upsert so re-uploads replace.
+  // Upload one file for one item. Returns the new URL, or null + sets err.
+  async function uploadOne(itemId: string, file: File): Promise<string | null> {
     const { error: upErr } = await supabase.storage
       .from(BUCKET)
       .upload(itemId, file, { upsert: true, contentType: file.type || undefined });
     if (upErr) {
       setErr(`${itemId}: ${upErr.message}`);
-      setBusy(null);
-      return;
+      return null;
     }
     const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(itemId);
-    // Cache-bust so a replaced photo refreshes immediately.
     const url = `${pub.publicUrl}?t=${Date.now()}`;
     const { error: rowErr } = await sb("assessment_item_photos").upsert({
       item_id: itemId,
@@ -75,11 +76,54 @@ export function AssessmentPhotosPanel() {
     } as never);
     if (rowErr) {
       setErr(`${itemId}: ${rowErr.message}`);
-      setBusy(null);
+      return null;
+    }
+    return url;
+  }
+
+  async function upload(itemId: string, file: File) {
+    setBusy(itemId);
+    setErr(null);
+    const url = await uploadOne(itemId, file);
+    if (url) setUrls((m) => ({ ...m, [itemId]: url }));
+    setBusy(null);
+  }
+
+  /**
+   * Bulk import: take a multi-file selection where each filename matches
+   * a question id (R1.jpg, c2.png, …), upload them all, and register
+   * each. Files whose name doesn't match a known item are skipped.
+   */
+  async function bulkImport(files: FileList) {
+    setErr(null);
+    const matched: Array<{ id: string; file: File }> = [];
+    const skipped: string[] = [];
+    for (const f of Array.from(files)) {
+      const base = f.name.replace(/\.[^.]+$/, "").trim().toUpperCase();
+      if (validIds.has(base)) matched.push({ id: base, file: f });
+      else skipped.push(f.name);
+    }
+    if (matched.length === 0) {
+      setErr(
+        "No files matched a question id. Name each file by its id, e.g. R1.jpg.",
+      );
       return;
     }
-    setUrls((m) => ({ ...m, [itemId]: url }));
-    setBusy(null);
+    setBulk({ done: 0, total: matched.length });
+    const next: Record<string, string> = {};
+    for (let i = 0; i < matched.length; i++) {
+      const { id, file } = matched[i];
+      const url = await uploadOne(id, file);
+      if (url) next[id] = url;
+      setBulk({ done: i + 1, total: matched.length });
+    }
+    setUrls((m) => ({ ...m, ...next }));
+    setBulk(null);
+    const okCount = Object.keys(next).length;
+    setErr(
+      `Imported ${okCount} photo${okCount === 1 ? "" : "s"}.` +
+        (skipped.length ? ` Skipped ${skipped.length} (name didn't match an id).` : ""),
+    );
   }
 
   async function remove(itemId: string) {
@@ -107,7 +151,34 @@ export function AssessmentPhotosPanel() {
         {withPhoto} of {ITEMS.length} questions have a photo. Use clear,
         realistic, classroom-appropriate images (JPG, PNG, or WebP).
       </p>
-      {err && <p className="mt-3 text-sm text-red-600">{err}</p>}
+
+      {/* Bulk import: pick many files named by question id at once. */}
+      <div className="mt-4 flex flex-wrap items-center gap-3 border border-charcoal-100 bg-charcoal-50 p-3">
+        <button
+          onClick={() => bulkInput.current?.click()}
+          disabled={!!bulk}
+          className="btn-ink text-xs disabled:opacity-50"
+        >
+          {bulk ? `Importing ${bulk.done}/${bulk.total}…` : "Bulk import photos"}
+        </button>
+        <span className="text-xs text-charcoal-500">
+          Select all files at once — each named by its question id
+          (<code className="font-mono">R1.jpg</code>, <code className="font-mono">C2.png</code>…).
+        </span>
+        <input
+          ref={bulkInput}
+          type="file"
+          accept={ACCEPT}
+          multiple
+          className="hidden"
+          onChange={(e) => {
+            if (e.target.files?.length) bulkImport(e.target.files);
+            e.target.value = "";
+          }}
+        />
+      </div>
+
+      {err && <p className="mt-3 text-sm text-charcoal-600">{err}</p>}
 
       {loading ? (
         <p className="mt-6 text-sm text-charcoal-400">Loading…</p>
