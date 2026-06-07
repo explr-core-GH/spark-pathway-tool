@@ -101,13 +101,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "assessment_assignments_assigned_by_fkey"
-            columns: ["assigned_by"]
-            isOneToOne: false
-            referencedRelation: "educators"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "assessment_assignments_program_id_fkey"
             columns: ["program_id"]
             isOneToOne: false
@@ -443,15 +436,7 @@ export type Database = {
           tagged_at?: string
           tagged_by?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "curriculum_tags_tagged_by_fkey"
-            columns: ["tagged_by"]
-            isOneToOne: false
-            referencedRelation: "educators"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       educator_invites: {
         Row: {
@@ -463,7 +448,7 @@ export type Database = {
           invited_at: string
           invited_by: string | null
           organization: string | null
-          program_type: Database["public"]["Enums"]["program_type"]
+          program_type: Database["public"]["Enums"]["program_type"] | null
           role: string
           token: string
         }
@@ -476,7 +461,7 @@ export type Database = {
           invited_at?: string
           invited_by?: string | null
           organization?: string | null
-          program_type: Database["public"]["Enums"]["program_type"]
+          program_type?: Database["public"]["Enums"]["program_type"] | null
           role?: string
           token: string
         }
@@ -489,26 +474,11 @@ export type Database = {
           invited_at?: string
           invited_by?: string | null
           organization?: string | null
-          program_type?: Database["public"]["Enums"]["program_type"]
+          program_type?: Database["public"]["Enums"]["program_type"] | null
           role?: string
           token?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "educator_invites_accepted_by_fkey"
-            columns: ["accepted_by"]
-            isOneToOne: false
-            referencedRelation: "educators"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "educator_invites_invited_by_fkey"
-            columns: ["invited_by"]
-            isOneToOne: false
-            referencedRelation: "educators"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       educators: {
         Row: {
@@ -587,13 +557,6 @@ export type Database = {
             columns: ["explr_camp_id"]
             isOneToOne: false
             referencedRelation: "explr_camps"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "explr_camp_curriculum_links_linked_by_fkey"
-            columns: ["linked_by"]
-            isOneToOne: false
-            referencedRelation: "educators"
             referencedColumns: ["id"]
           },
         ]
@@ -950,15 +913,7 @@ export type Database = {
           tagged_at?: string
           tagged_by?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "internship_tags_tagged_by_fkey"
-            columns: ["tagged_by"]
-            isOneToOne: false
-            referencedRelation: "educators"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       internship_visibility: {
         Row: {
@@ -1222,15 +1177,7 @@ export type Database = {
           school_name?: string | null
           student_count?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "programs_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "educators"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       responses: {
         Row: {
@@ -1516,15 +1463,7 @@ export type Database = {
           updated_at?: string
           updated_by?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "unit_rosters_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "educators"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
