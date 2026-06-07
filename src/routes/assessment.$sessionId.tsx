@@ -34,6 +34,9 @@ function AssessmentRunner() {
   const [finishing, setFinishing] = useState(false);
 
   const itemMap = useMemo(() => new Map(ITEMS.map((i) => [i.id, i])), []);
+  // item_id → admin-uploaded context photo URL (overrides the static
+  // item.image). Loaded once alongside the session.
+  const [photos, setPhotos] = useState<Record<string, string>>({});
 
   useEffect(() => {
     (async () => {
@@ -49,6 +52,17 @@ function AssessmentRunner() {
       }
       setSession(data as SessionRow);
       setShownAt(Date.now());
+      // Photos are optional — ignore errors (table may be empty / absent).
+      // Loosened to any: assessment_item_photos isn't in the generated type.
+      (supabase.from as unknown as (n: string) => {
+        select: (c: string) => Promise<{ data: Array<{ item_id: string; url: string }> | null }>;
+      })("assessment_item_photos")
+        .select("item_id, url")
+        .then(({ data: rows }) => {
+          const m: Record<string, string> = {};
+          for (const r of rows ?? []) m[r.item_id] = r.url;
+          setPhotos(m);
+        });
     })();
   }, [sessionId, navigate]);
 
@@ -148,9 +162,9 @@ function AssessmentRunner() {
             className="relative mb-8 flex h-44 w-full items-center justify-center overflow-hidden rounded-lg sm:h-56"
             style={{ background: scale.colorSoft }}
           >
-            {item?.image ? (
+            {(item && (photos[item.id] ?? item.image)) ? (
               <img
-                src={item.image}
+                src={item ? (photos[item.id] ?? item.image) : undefined}
                 alt=""
                 className="h-full w-full object-cover"
                 onError={(e) => {

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AssessmentAssignPanel } from "@/components/AssessmentAssignPanel";
+import { AssessmentPhotosPanel } from "@/components/AssessmentPhotosPanel";
 import { SurveyAdminPanel } from "./educator.admin.surveys";
 
 export const Route = createFileRoute("/educator/admin/assessments")({
@@ -8,7 +9,7 @@ export const Route = createFileRoute("/educator/admin/assessments")({
   component: AssessmentsAdmin,
 });
 
-type Tab = "assign" | "surveys" | "demos";
+type Tab = "assign" | "surveys" | "photos" | "demos";
 
 // The Demo navigator tiles — unchanged, just moved into a tab. Tiles open
 // in a new tab so the admin keeps this page as the index during a live demo.
@@ -66,6 +67,7 @@ const DEMOS: Demo[] = [
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: "assign", label: "Assign assessments" },
   { id: "surveys", label: "STEM surveys" },
+  { id: "photos", label: "Question photos" },
   { id: "demos", label: "Demo links" },
 ];
 
@@ -97,6 +99,7 @@ function AssessmentsAdmin() {
       <div className="mt-8">
         {tab === "assign" && <AssessmentAssignPanel />}
         {tab === "surveys" && <SurveyAdminPanel />}
+        {tab === "photos" && <AssessmentPhotosPanel />}
         {tab === "demos" && <DemoTiles />}
       </div>
     </main>
