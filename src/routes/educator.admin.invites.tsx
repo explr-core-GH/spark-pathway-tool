@@ -30,6 +30,10 @@ function InvitesAdmin() {
   const [org, setOrg] = useState("");
   const [role, setRole] = useState<InviteRole>("educator");
   const [busy, setBusy] = useState(false);
+  // Which invite row just had its link copied (for the "Copied!" flash),
+  // and which row is showing its link inline as a copy fallback.
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [revealId, setRevealId] = useState<string | null>(null);
 
   async function load() {
     const { data } = await supabase
@@ -72,8 +76,40 @@ function InvitesAdmin() {
   function inviteUrl(token: string) {
     return `${window.location.origin}/educator/invite/${token}`;
   }
-  function copy(token: string) {
-    navigator.clipboard.writeText(inviteUrl(token));
+
+  // Copy with a fallback: navigator.clipboard is blocked in the Lovable
+  // preview iframe (and any non-secure context), so fall back to a hidden
+  // textarea + execCommand. If even that fails, reveal the link inline so
+  // the admin can select and copy it manually.
+  async function copy(id: string, token: string) {
+    const url = inviteUrl(token);
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(url);
+      ok = true;
+    } catch {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = url;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+      } catch {
+        ok = false;
+      }
+    }
+    if (ok) {
+      setCopiedId(id);
+      setRevealId(null);
+      setTimeout(() => setCopiedId((c) => (c === id ? null : c)), 2000);
+    } else {
+      // Couldn't copy programmatically — show the link to copy by hand.
+      setRevealId(id);
+    }
   }
 
   return (
@@ -159,38 +195,51 @@ function InvitesAdmin() {
               ? "var(--color-charcoal-400)"
               : "var(--ink)";
           return (
-            <li key={r.id} className="flex items-center gap-4 py-3">
-              <span
-                className="w-16 shrink-0 text-[10px] uppercase tracking-wider font-semibold text-charcoal-500"
-                title={r.role === "admin" ? "Admin invite" : "Educator invite"}
-              >
-                {r.role === "admin" ? "Admin" : "Educator"}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium truncate">{r.email}</p>
-                <p className="text-xs text-charcoal-500 truncate">
-                  {r.role === "admin" ? "Admin" : "Educator"}
-                  {r.organization ? ` · ${r.organization}` : ""}
-                  {" · invited "}{new Date(r.invited_at).toLocaleDateString()}
-                </p>
-              </div>
-              <span className="text-xs font-medium" style={{ color: statusColor }}>
-                {status}
-              </span>
-              {!r.accepted_at && !expired && (
-                <button
-                  onClick={() => copy(r.token)}
-                  className="text-xs text-charcoal-500 hover:text-ink underline"
+            <li key={r.id} className="py-3">
+              <div className="flex items-center gap-4">
+                <span
+                  className="w-16 shrink-0 text-[10px] uppercase tracking-wider font-semibold text-charcoal-500"
+                  title={r.role === "admin" ? "Admin invite" : "Educator invite"}
                 >
-                  Copy link
+                  {r.role === "admin" ? "Admin" : "Educator"}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium truncate">{r.email}</p>
+                  <p className="text-xs text-charcoal-500 truncate">
+                    {r.role === "admin" ? "Admin" : "Educator"}
+                    {r.organization ? ` · ${r.organization}` : ""}
+                    {" · invited "}{new Date(r.invited_at).toLocaleDateString()}
+                  </p>
+                </div>
+                <span className="text-xs font-medium" style={{ color: statusColor }}>
+                  {status}
+                </span>
+                {!r.accepted_at && !expired && (
+                  <button
+                    onClick={() => copy(r.id, r.token)}
+                    className="text-xs underline hover:text-ink"
+                    style={{ color: copiedId === r.id ? "var(--color-explr-600)" : "var(--color-charcoal-500)" }}
+                  >
+                    {copiedId === r.id ? "Copied!" : "Copy link"}
+                  </button>
+                )}
+                <button
+                  onClick={() => revoke(r.id)}
+                  className="text-xs text-red-600 hover:underline"
+                >
+                  Revoke
                 </button>
+              </div>
+              {/* Fallback: if programmatic copy was blocked, show the link
+                  so the admin can select it and copy by hand. */}
+              {revealId === r.id && (
+                <input
+                  readOnly
+                  className="field mt-2 text-xs"
+                  value={inviteUrl(r.token)}
+                  onFocus={(e) => e.currentTarget.select()}
+                />
               )}
-              <button
-                onClick={() => revoke(r.id)}
-                className="text-xs text-red-600 hover:underline"
-              >
-                Revoke
-              </button>
             </li>
           );
         })}

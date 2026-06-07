@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { newInviteToken } from "@/lib/educator";
 
 export const Route = createFileRoute("/educator/admin/")({
   head: () => ({ meta: [{ title: "Admin — EXPLR" }] }),
@@ -18,9 +17,6 @@ type Educator = {
 
 function AdminHome() {
   const [educators, setEducators] = useState<Educator[]>([]);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteOrg, setInviteOrg] = useState("");
-  const [generated, setGenerated] = useState<string | null>(null);
 
   function refresh() {
     supabase
@@ -33,24 +29,6 @@ function AdminHome() {
   useEffect(() => {
     refresh();
   }, []);
-
-  async function createInvite(e: React.FormEvent) {
-    e.preventDefault();
-    const token = newInviteToken();
-    const { error } = await supabase.from("educator_invites").insert({
-      email: inviteEmail,
-      organization: inviteOrg || null,
-      program_type: null as never,
-      token,
-    });
-    if (error) {
-      alert(error.message);
-      return;
-    }
-    setGenerated(`${window.location.origin}/educator/invite/${token}`);
-    setInviteEmail("");
-    setInviteOrg("");
-  }
 
   async function approve(id: string) {
     const { error } = await supabase
@@ -98,45 +76,15 @@ function AdminHome() {
 
       <section className="mt-16">
         <h2 className="text-xs uppercase tracking-wider text-charcoal-400 mb-4">
-          Create educator invite
+          Invite educators &amp; admins
         </h2>
-        <p className="mb-3 text-xs text-charcoal-500">
-          Invited educators activate instantly — no further admin approval
-          needed. Use Admin → Catalog → Sessions to assign them to camp
-          sessions afterwards.
+        <p className="text-sm text-charcoal-500">
+          Create and manage invite links on the dedicated{" "}
+          <Link to="/educator/admin/invites" className="ink-link">
+            Invites page
+          </Link>
+          .
         </p>
-        <form
-          onSubmit={createInvite}
-          className="grid gap-4 sm:grid-cols-[1fr_1fr_auto]"
-        >
-          <input
-            className="field"
-            placeholder="email"
-            type="email"
-            required
-            value={inviteEmail}
-            onChange={(e) => setInviteEmail(e.target.value)}
-          />
-          <input
-            className="field"
-            placeholder="organization (optional)"
-            value={inviteOrg}
-            onChange={(e) => setInviteOrg(e.target.value)}
-          />
-          <button className="btn-ink">Generate link</button>
-        </form>
-        {generated && (
-          <div className="mt-4 border border-charcoal-200 bg-white p-3">
-            <p className="eyebrow mb-2">Copyable invite link</p>
-            <code className="block break-all text-sm">{generated}</code>
-            <button
-              onClick={() => navigator.clipboard.writeText(generated)}
-              className="ink-link mt-2 text-xs"
-            >
-              Copy
-            </button>
-          </div>
-        )}
       </section>
 
       <section className="mt-16">
