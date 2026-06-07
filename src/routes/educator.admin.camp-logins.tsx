@@ -12,6 +12,7 @@ import {
 } from "@/lib/family-report";
 import { CampAssignmentsPanel } from "@/components/CampAssignmentsPanel";
 import { RosterDataPanel } from "@/components/RosterDataPanel";
+import { RosterLiveMonitor } from "@/components/RosterLiveMonitor";
 
 export const Route = createFileRoute("/educator/admin/camp-logins")({
   head: () => ({ meta: [{ title: "Camp logins — Admin" }] }),
@@ -41,6 +42,8 @@ function CampLoginsAdmin() {
   // Camp id whose "Results & timing" panel is open (lazy — the panel only
   // mounts, and only fires its queries, when an admin opens it).
   const [dataOpen, setDataOpen] = useState<string | null>(null);
+  // Camp id whose "Live monitor" is open (lazy + polls only while open).
+  const [monitorOpen, setMonitorOpen] = useState<string | null>(null);
 
   // Walk-in form state (one camp open at a time). Null = no form open.
   const [walkIn, setWalkIn] = useState<{
@@ -538,6 +541,40 @@ function CampLoginsAdmin() {
                             .filter((x): x is string => !!x)}
                         />
                       </div>
+                    </div>
+
+                    {/* Live monitor — lazy + polls only while open. */}
+                    <div className="mt-3 border border-charcoal-100 bg-charcoal-50 p-4">
+                      <div className="flex items-center justify-between">
+                        <p className="eyebrow" style={{ margin: 0 }}>
+                          Live monitor
+                        </p>
+                        <button
+                          onClick={() =>
+                            setMonitorOpen(monitorOpen === s.id ? null : s.id)
+                          }
+                          className="text-xs text-charcoal-500 hover:text-ink underline"
+                        >
+                          {monitorOpen === s.id ? "Hide" : "Show"}
+                        </button>
+                      </div>
+                      {monitorOpen === s.id && (
+                        <div className="mt-3">
+                          <RosterLiveMonitor
+                            studentIds={logins
+                              .filter((l) => l.explr_camp_id === s.id)
+                              .map((l) => l.student_id)
+                              .filter((x): x is string => !!x)}
+                            names={Object.fromEntries(
+                              logins
+                                .filter(
+                                  (l) => l.explr_camp_id === s.id && l.student_id,
+                                )
+                                .map((l) => [l.student_id as string, l.child_name]),
+                            )}
+                          />
+                        </div>
+                      )}
                     </div>
 
                     {/* Results & timing — lazy: the panel (and its queries)

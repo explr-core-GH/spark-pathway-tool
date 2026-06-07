@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AdminViewBar } from "@/components/AdminViewBar";
 import { AccessibilityProvider } from "@/components/AccessibilityProvider";
 import { AccessibilityToolbar } from "@/components/AccessibilityToolbar";
+import { usePresenceHeartbeat } from "@/lib/use-presence";
 
 import appCss from "../styles.css?url";
 
@@ -87,6 +88,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+
+  // Heartbeat the signed-in user's location for the admin Live Monitor.
+  usePresenceHeartbeat();
 
   useEffect(() => {
     // Only invalidate route loaders when the *identity* actually changes —
