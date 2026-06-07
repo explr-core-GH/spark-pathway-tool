@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AdminViewBar } from "@/components/AdminViewBar";
 import { AccessibilityProvider } from "@/components/AccessibilityProvider";
 import { AccessibilityToolbar } from "@/components/AccessibilityToolbar";
+import { AssignmentNudge } from "@/components/AssignmentNudge";
 import { usePresenceHeartbeat } from "@/lib/use-presence";
 
 import appCss from "../styles.css?url";
@@ -117,6 +118,7 @@ function RootComponent() {
         <div id="main">
           <Outlet />
         </div>
+        <AssignmentNudge />
         <AccessibilityToolbar />
       </AccessibilityProvider>
     </QueryClientProvider>

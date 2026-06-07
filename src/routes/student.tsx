@@ -8,6 +8,7 @@ import { RIASEC, type RIASECCode } from "@/lib/riasec";
 import { StemActivitiesMarquee } from "@/components/StemActivitiesMarquee";
 import { StudentSurveysPanel } from "@/components/StudentSurveysPanel";
 import { AssignedAssessmentsPanel } from "@/components/AssignedAssessmentsPanel";
+import { useStudentAssignments } from "@/lib/use-assignments";
 
 export const Route = createFileRoute("/student")({
   head: () => ({ meta: [{ title: "Your dashboard — EXPLR" }] }),
@@ -47,6 +48,28 @@ function StudentDashboard() {
   const [hiddenSlugs, setHiddenSlugs] = useState<Set<string>>(new Set());
   const [placement, setPlacement] = useState<PlacementRow | null>(null);
   const [loading, setLoading] = useState(true);
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [reload, setReload] = useState(0);
+
+  // Shared assignment resolver — also tells us whether this student was
+  // assigned the internship survey (which unlocks the internship track even
+  // for students outside grades 8–12).
+  const { hasInternshipAssignment } = useStudentAssignments(user?.id ?? null);
+
+  async function withdrawApplication() {
+    if (!application) return;
+    setWithdrawing(true);
+    const { error } = await supabase
+      .from("internship_applications")
+      .update({ status: "withdrawn", decided_at: new Date().toISOString() })
+      .eq("id", application.id);
+    setWithdrawing(false);
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    setReload((r) => r + 1);
+  }
 
   useEffect(() => {
     if (!user) return;
@@ -96,7 +119,7 @@ function StudentDashboard() {
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user, reload]);
 
   if (authLoading || loading) {
     return <main className="mx-auto max-w-3xl px-6 py-24 text-sm text-charcoal-400">Loading…</main>;
@@ -107,9 +130,18 @@ function StudentDashboard() {
   const topCode = hasResults ? (session!.holland_code![0] as RIASECCode) : null;
   const primary = topCode ? RIASEC[topCode] : null;
 
-  // Internships are only available to grades 8-12 who've finished the interest survey.
+  // Internship track: grades 8-12, OR any student specifically assigned the
+  // internship interest survey. The internship LISTING additionally requires
+  // finishing that survey.
   const eligibleByGrade = grade !== null && grade >= 8 && grade <= 12;
-  const canSeeInternships = eligibleByGrade && interestDone;
+  const canSeeInternshipTrack = eligibleByGrade || hasInternshipAssignment;
+  const canSeeInternships = canSeeInternshipTrack && interestDone;
+  // An application only counts as "active" while it's live — a withdrawn or
+  // declined one frees the student to apply again.
+  const activeApplication =
+    application && application.status !== "withdrawn" && application.status !== "declined";
+  const canWithdraw =
+    application && (application.status === "submitted" || application.status === "reviewing");
   const visibleInternships = INTERNSHIPS.filter((i) => !hiddenSlugs.has(i.slug));
   const placedInternship = placement
     ? INTERNSHIPS.find((i) => i.slug === placement.approved_internship_id)
@@ -129,6 +161,17 @@ function StudentDashboard() {
       <main className="mx-auto max-w-5xl px-6 py-16">
         <p className="eyebrow">Student dashboard</p>
         <h1 className="display mt-3">Your pathway</h1>
+
+        {/* Assigned to you — FIRST thing on the dashboard so nothing assigned
+            gets missed. Resolution + scheduling window live in the panel. */}
+        <section className="mt-10">
+          <p className="eyebrow">Assigned to you</p>
+          <p className="mt-3 text-charcoal-500 max-w-2xl">
+            Assessments and surveys your educator or an EXPLR admin has asked
+            you to complete.
+          </p>
+          <AssignedAssessmentsPanel studentId={user!.id} />
+        </section>
 
         {/* Placement banner — top priority when present */}
         {placedInternship && (
@@ -174,13 +217,18 @@ function StudentDashboard() {
               )}
             </div>
             {hasResults ? (
-              <Link
-                to="/assessment/$sessionId/results"
-                params={{ sessionId: session!.session_id }}
-                className="btn-ghost shrink-0"
-              >
-                View full results
-              </Link>
+              <div className="flex flex-col items-end gap-2 shrink-0">
+                <Link
+                  to="/assessment/$sessionId/results"
+                  params={{ sessionId: session!.session_id }}
+                  className="btn-ghost"
+                >
+                  View full results
+                </Link>
+                <Link to="/assessment" className="text-xs text-charcoal-500 hover:text-ink">
+                  Retake assessment
+                </Link>
+              </div>
             ) : hasInProgress ? (
               <Link
                 to="/assessment/$sessionId"
@@ -193,16 +241,6 @@ function StudentDashboard() {
               <Link to="/assessment" className="btn-ink shrink-0">Take the assessment</Link>
             )}
           </div>
-        </section>
-
-        {/* Assigned to you — assessments an admin/educator targeted at this student */}
-        <section className="mt-12 border-t border-charcoal-100 pt-10">
-          <p className="eyebrow">Assigned to you</p>
-          <p className="mt-3 text-charcoal-500 max-w-2xl">
-            Assessments and surveys your educator or an EXPLR admin has asked
-            you to complete.
-          </p>
-          <AssignedAssessmentsPanel studentId={user!.id} />
         </section>
 
         {/* STEM Lab activities — animated scroll filtered by Holland code */}
@@ -253,45 +291,67 @@ function StudentDashboard() {
           <StudentSurveysPanel studentId={user!.id} />
         </section>
 
-        {/* Application & internships — only for grades 8-12 who finished the interest survey */}
-        {eligibleByGrade && (
+        {/* Application & internships — grades 8-12, or anyone assigned the
+            internship interest survey. */}
+        {canSeeInternshipTrack && (
           <>
             <section className="mt-12 border-t border-charcoal-100 pt-10">
               <p className="eyebrow">Internship application</p>
-              {application ? (
+              {activeApplication ? (
                 <div className="mt-4">
                   <p className="text-2xl font-light">
                     Status:{" "}
                     <span className="text-ink font-medium capitalize">
-                      {application.status.replace(/_/g, " ")}
+                      {application!.status.replace(/_/g, " ")}
                     </span>
                   </p>
                   <p className="mt-2 text-sm text-charcoal-500">
-                    Submitted {new Date(application.submitted_at).toLocaleDateString()} for{" "}
-                    {application.submission_term}. You ranked{" "}
-                    {application.selected_internship_ids.length} internship
-                    {application.selected_internship_ids.length === 1 ? "" : "s"}.
+                    Submitted {new Date(application!.submitted_at).toLocaleDateString()} for{" "}
+                    {application!.submission_term}. You ranked{" "}
+                    {application!.selected_internship_ids.length} internship
+                    {application!.selected_internship_ids.length === 1 ? "" : "s"}.
                   </p>
+                  {canWithdraw && (
+                    <div className="mt-5 flex flex-wrap items-center gap-3">
+                      <button
+                        onClick={withdrawApplication}
+                        disabled={withdrawing}
+                        className="btn-ghost disabled:opacity-50"
+                      >
+                        {withdrawing ? "Withdrawing…" : "Withdraw application"}
+                      </button>
+                      <span className="text-xs text-charcoal-500">
+                        Take it back to change your picks and apply again.
+                      </span>
+                    </div>
+                  )}
                 </div>
               ) : !interestDone ? (
                 <div className="mt-4">
                   <p className="text-charcoal-500 max-w-2xl">
-                    Before you can browse and apply, set your internship preferences — a quick
-                    yes / maybe / no across the catalog so we can rank your application list.
+                    Before you can browse and apply, take a quick 5–7 minute interest survey.
+                    It reads your interests and ranks the EXPLR internships that fit you best.
                   </p>
                   <Link to="/assessment/internship-interest" className="btn-ink mt-5 inline-block">
-                    Set internship preferences
+                    Take the interest survey
                   </Link>
                 </div>
               ) : (
                 <div className="mt-4">
+                  {application && (
+                    <p className="mb-2 text-sm text-charcoal-500">
+                      Your previous application was{" "}
+                      <span className="capitalize text-ink">{application.status}</span>. You can
+                      apply again below.
+                    </p>
+                  )}
                   <p className="text-charcoal-500 max-w-2xl">
                     {hasResults
                       ? "You're ready to apply. Pick the internships that fit and fill in your digital résumé."
                       : "Finish the main assessment too — your Holland code helps match you to internships that fit."}
                   </p>
                   <Link to="/student/apply" className="btn-ink mt-5 inline-block">
-                    Apply now →
+                    {application ? "Apply again →" : "Apply now →"}
                   </Link>
                 </div>
               )}
@@ -301,9 +361,21 @@ function StudentDashboard() {
               <section className="mt-12 border-t border-charcoal-100 pt-10">
                 <div className="flex items-baseline justify-between gap-4">
                   <p className="eyebrow">Internships</p>
-                  <Link to="/assessment/internship-interest" className="text-xs text-charcoal-500 hover:text-ink">
-                    Update preferences →
-                  </Link>
+                  <div className="flex items-center gap-4">
+                    <Link
+                      to="/assessment/internship-interest/results"
+                      className="text-xs text-charcoal-500 hover:text-ink"
+                    >
+                      View your matches →
+                    </Link>
+                    <Link
+                      to="/assessment/internship-interest"
+                      search={{ retake: true }}
+                      className="text-xs text-charcoal-500 hover:text-ink"
+                    >
+                      Retake interest survey
+                    </Link>
+                  </div>
                 </div>
                 <p className="mt-3 text-charcoal-500 max-w-2xl">
                   EXPLR internships span biomedical, design, software, education, and

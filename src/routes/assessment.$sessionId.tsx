@@ -159,14 +159,14 @@ function AssessmentRunner() {
             is consistent for every question. */}
         {scale && (
           <div
-            className="relative mb-8 flex h-44 w-full items-center justify-center overflow-hidden rounded-lg sm:h-56"
+            className="relative mb-8 flex h-64 w-full items-center justify-center overflow-hidden rounded-lg sm:h-80"
             style={{ background: scale.colorSoft }}
           >
             {(item && (photos[item.id] ?? item.image)) ? (
               <img
                 src={item ? (photos[item.id] ?? item.image) : undefined}
                 alt=""
-                className="h-full w-full object-cover"
+                className="max-h-full max-w-full object-contain"
                 onError={(e) => {
                   // Missing photo → fall back to the colored band.
                   (e.currentTarget as HTMLImageElement).style.display = "none";

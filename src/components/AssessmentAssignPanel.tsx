@@ -31,6 +31,8 @@ type TargetRow = {
   target_type: "educator" | "student" | "camp";
   target_id: string;
   due_at: string | null;
+  available_from: string | null;
+  available_until: string | null;
   notes: string | null;
   created_at: string;
 };
@@ -64,6 +66,8 @@ export function AssessmentAssignPanel() {
   const [targetType, setTargetType] = useState<TargetType>("educator");
   const [targetId, setTargetId] = useState("");
   const [dueAt, setDueAt] = useState("");
+  const [availableFrom, setAvailableFrom] = useState("");
+  const [availableUntil, setAvailableUntil] = useState("");
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -88,18 +92,18 @@ export function AssessmentAssignPanel() {
           .from("survey_assignments")
           .select("id, title, survey_type, administration")
           .order("created_at", { ascending: false }),
+        // select("*") so the new window columns degrade gracefully before the
+        // migration is applied.
         supabase
           .from("assessment_targets")
-          .select(
-            "id, assessment_kind, survey_assignment_id, target_type, target_id, due_at, notes, created_at",
-          )
+          .select("*")
           .order("created_at", { ascending: false }),
       ]);
     setEducators((ed ?? []) as Educator[]);
     setStudents((st ?? []) as Student[]);
     setCamps((cp ?? []) as CampSession[]);
     setSurveys((sv ?? []) as SurveyAssignment[]);
-    setTargets((tg ?? []) as TargetRow[]);
+    setTargets((tg ?? []) as unknown as TargetRow[]);
     setLoading(false);
   }
   useEffect(() => {
@@ -154,7 +158,7 @@ export function AssessmentAssignPanel() {
     setBusy(true);
     const rows = [...picked].map((key) => {
       const isSurvey = key.startsWith("survey:");
-      return {
+      const row: Record<string, unknown> = {
         assessment_kind: isSurvey ? "survey" : key,
         survey_assignment_id: isSurvey ? key.slice("survey:".length) : null,
         target_type: targetType,
@@ -163,6 +167,11 @@ export function AssessmentAssignPanel() {
         due_at: dueAt ? new Date(dueAt).toISOString() : null,
         notes: notes.trim() || null,
       };
+      // Only reference the window columns when a window is set, so un-scheduled
+      // assignments still work before the migration that adds those columns.
+      if (availableFrom) row.available_from = new Date(availableFrom).toISOString();
+      if (availableUntil) row.available_until = new Date(availableUntil).toISOString();
+      return row;
     });
     const { error } = await supabase
       .from("assessment_targets")
@@ -174,6 +183,8 @@ export function AssessmentAssignPanel() {
     }
     setPicked(new Set());
     setDueAt("");
+    setAvailableFrom("");
+    setAvailableUntil("");
     setNotes("");
     await load();
   }
@@ -350,6 +361,30 @@ export function AssessmentAssignPanel() {
             )}
           </div>
           <div>
+            <label className="label">Available from (optional)</label>
+            <input
+              type="datetime-local"
+              className="field mt-1"
+              value={availableFrom}
+              onChange={(e) => setAvailableFrom(e.target.value)}
+            />
+            <p className="mt-1 text-[11px] text-charcoal-400">
+              Before this, it&apos;s hidden from the student.
+            </p>
+          </div>
+          <div>
+            <label className="label">Available until (optional)</label>
+            <input
+              type="datetime-local"
+              className="field mt-1"
+              value={availableUntil}
+              onChange={(e) => setAvailableUntil(e.target.value)}
+            />
+            <p className="mt-1 text-[11px] text-charcoal-400">
+              After this, it disappears from the dashboard.
+            </p>
+          </div>
+          <div>
             <label className="label">Due date (optional)</label>
             <input
               type="date"
@@ -408,6 +443,12 @@ export function AssessmentAssignPanel() {
                         : `Student: ${studName.get(t.target_id) ?? t.target_id}`}
                     {t.due_at
                       ? ` · due ${new Date(t.due_at).toLocaleDateString()}`
+                      : ""}
+                    {t.available_from
+                      ? ` · from ${new Date(t.available_from).toLocaleString()}`
+                      : ""}
+                    {t.available_until
+                      ? ` · until ${new Date(t.available_until).toLocaleString()}`
                       : ""}
                     {t.notes ? ` · ${t.notes}` : ""}
                   </p>

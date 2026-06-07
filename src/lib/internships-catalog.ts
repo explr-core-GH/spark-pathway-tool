@@ -12,6 +12,22 @@ export type Internship = {
   externalUrl: string;       // each internship has its own deployed site
   emoji: string;
   riasec: ("R" | "I" | "A" | "S" | "E" | "C")[]; // 1-3 dominant Holland codes for matching
+
+  // ── Optional tags consumed by the Internship Interest Survey matcher ──────
+  // (src/lib/internship-survey/matching.ts). The matcher renormalizes over
+  // whatever tags are present, so leaving these undefined yields RIASEC-only
+  // matching. Fill them in to light up sector / activity / environment / level
+  // components — no code change required.
+  sector?: string;                         // one of SEC1..SEC10 (see internship-survey/items.ts)
+  activities?: string[];                   // e.g. ["build", "code", "research"]
+  environment?: Partial<{
+    handsOn: number;                       // 0..100 target
+    outdoor: number;
+    team: number;
+    structured: number;
+    publicFacing: number;
+  }>;
+  experienceLevel?: "intro" | "some" | "advanced";
 };
 
 export const INTERNSHIPS: Internship[] = [

@@ -161,12 +161,23 @@ function ApplyPage() {
       return;
     }
     setSubmitting(true);
-    const { error: insErr } = await supabase.from("internship_applications").insert({
-      student_id: user.id,
-      selected_internship_ids: Array.from(selected),
-      responses: { resume, interest_snapshot: interest } as never,
-      riasec_snapshot: { holland_code: hollandCode, scale_scores: scaleScores } as never,
-    });
+    // Upsert on (student_id, submission_term): a student who withdrew an earlier
+    // application can apply again — this overwrites the withdrawn row with a
+    // fresh "submitted" one instead of hitting the unique constraint.
+    const { error: insErr } = await supabase.from("internship_applications").upsert(
+      {
+        student_id: user.id,
+        submission_term: "2026-summer",
+        selected_internship_ids: Array.from(selected),
+        responses: { resume, interest_snapshot: interest } as never,
+        riasec_snapshot: { holland_code: hollandCode, scale_scores: scaleScores } as never,
+        status: "submitted",
+        submitted_at: new Date().toISOString(),
+        decided_at: null,
+        staff_notes: null,
+      },
+      { onConflict: "student_id,submission_term" },
+    );
     setSubmitting(false);
     if (insErr) {
       setError(insErr.message);

@@ -142,7 +142,7 @@ function AssessmentIntro() {
         <div>
           <h1 className="display">The assessment.</h1>
           <p className="lead mt-6">
-            Thirty short statements. For each one, say how much you'd like to do it.
+            Forty-eight short statements. For each one, say how much you'd like to do it.
             About ten minutes. Be honest — there are no right answers.
           </p>
           <ul className="mt-8 space-y-2 text-sm text-charcoal-500">
