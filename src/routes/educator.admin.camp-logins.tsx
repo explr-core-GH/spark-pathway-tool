@@ -11,6 +11,7 @@ import {
   familyReportDocument,
 } from "@/lib/family-report";
 import { CampAssignmentsPanel } from "@/components/CampAssignmentsPanel";
+import { RosterDataPanel } from "@/components/RosterDataPanel";
 
 export const Route = createFileRoute("/educator/admin/camp-logins")({
   head: () => ({ meta: [{ title: "Camp logins — Admin" }] }),
@@ -37,6 +38,9 @@ function CampLoginsAdmin() {
   const [busy, setBusy] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+  // Camp id whose "Results & timing" panel is open (lazy — the panel only
+  // mounts, and only fires its queries, when an admin opens it).
+  const [dataOpen, setDataOpen] = useState<string | null>(null);
 
   // Walk-in form state (one camp open at a time). Null = no form open.
   const [walkIn, setWalkIn] = useState<{
@@ -506,6 +510,42 @@ function CampLoginsAdmin() {
                             .filter((x): x is string => !!x)}
                         />
                       </div>
+                    </div>
+
+                    {/* Results & timing — lazy: the panel (and its queries)
+                        only mount when an admin opens this. */}
+                    <div className="mt-3 border border-charcoal-100 bg-charcoal-50 p-4">
+                      <div className="flex items-center justify-between">
+                        <p className="eyebrow" style={{ margin: 0 }}>
+                          Results &amp; timing
+                        </p>
+                        <button
+                          onClick={() =>
+                            setDataOpen(dataOpen === s.id ? null : s.id)
+                          }
+                          className="text-xs text-charcoal-500 hover:text-ink underline"
+                        >
+                          {dataOpen === s.id ? "Hide" : "Show"}
+                        </button>
+                      </div>
+                      {dataOpen === s.id && (
+                        <div className="mt-3">
+                          <RosterDataPanel
+                            studentIds={logins
+                              .filter((l) => l.explr_camp_id === s.id)
+                              .map((l) => l.student_id)
+                              .filter((x): x is string => !!x)}
+                            names={Object.fromEntries(
+                              logins
+                                .filter(
+                                  (l) =>
+                                    l.explr_camp_id === s.id && l.student_id,
+                                )
+                                .map((l) => [l.student_id as string, l.child_name]),
+                            )}
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div className="mt-3 overflow-x-auto border border-charcoal-100">
