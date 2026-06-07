@@ -64,6 +64,17 @@ function AssessmentRunner() {
   const scale = item ? RIASEC[item.scale] : null;
   const pct = Math.round((idx / total) * 100);
 
+  // Emoji faces paired with each Likert value — easier for younger and
+  // diverse learners than bare numbers. Labels stay, so the meaning is
+  // never carried by the emoji alone (accessibility).
+  const FACES: Record<LikertValue, string> = {
+    1: "😣",
+    2: "🙁",
+    3: "😐",
+    4: "🙂",
+    5: "😄",
+  };
+
   async function answer(value: LikertValue) {
     if (!session || !item || submitting) return;
     setSubmitting(true);
@@ -128,25 +139,55 @@ function AssessmentRunner() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-6 py-20">
+      <main className="mx-auto max-w-2xl px-6 py-16">
+        {/* Context image. Shows the item's photo when set; otherwise a
+            dimension-colored band so the layout (and the slot for a photo)
+            is consistent for every question. */}
+        {scale && (
+          <div
+            className="relative mb-8 flex h-44 w-full items-center justify-center overflow-hidden rounded-lg sm:h-56"
+            style={{ background: scale.colorSoft }}
+          >
+            {item?.image ? (
+              <img
+                src={item.image}
+                alt=""
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  // Missing photo → fall back to the colored band.
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+              />
+            ) : (
+              <span
+                className="text-center text-sm font-semibold uppercase tracking-wider"
+                style={{ color: scale.color }}
+              >
+                {scale.name}
+              </span>
+            )}
+          </div>
+        )}
+
         {scale && (
           <p className="eyebrow" style={{ color: scale.color }}>How much would you like to…</p>
         )}
-        <h2 className="mt-6 text-3xl font-light leading-tight md:text-4xl">{prompt}</h2>
+        <h2 className="mt-4 text-3xl font-light leading-tight md:text-4xl">{prompt}</h2>
 
-        <div className="mt-12 grid grid-cols-1 gap-2 sm:grid-cols-5">
+        <div className="mt-10 grid grid-cols-5 gap-2">
           {([1,2,3,4,5] as LikertValue[]).map((v) => (
             <button
               key={v}
               disabled={submitting || finishing}
               onClick={() => answer(v)}
-              className="group flex flex-col items-center gap-2 border border-charcoal-100 px-3 py-5 transition-colors hover:border-ink hover:bg-charcoal-50 disabled:opacity-50"
+              aria-label={LIKERT_LABELS[v]}
+              className="group flex flex-col items-center gap-2 border border-charcoal-100 px-1 py-4 transition-colors hover:border-ink hover:bg-charcoal-50 disabled:opacity-50"
             >
               <span
-                className="flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-medium transition-colors group-hover:border-ink"
-                style={{ borderColor: "var(--color-charcoal-200)" }}
+                className="text-3xl leading-none transition-transform group-hover:scale-110 sm:text-4xl"
+                aria-hidden
               >
-                {v}
+                {FACES[v]}
               </span>
               <span className="text-center text-[11px] leading-tight text-charcoal-500">{LIKERT_LABELS[v]}</span>
             </button>

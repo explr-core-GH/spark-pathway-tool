@@ -70,7 +70,8 @@ export const FAMILY_REPORT_CSS = `
   .r-brand { font-size: 17px; font-weight: 600; }
   .r-brand span { color: #15A36B; }
   .r-meta { font-size: 11px; color: #6E767F; }
-  h1 { font-size: 25px; font-weight: 300; margin: 18px 0 4px; }
+  h1 { font-size: 25px; font-weight: 300; margin: 18px 0 2px; }
+  .r-fullname { font-size: 13px; font-weight: 600; color: #1A1D1F; margin: 0 0 4px; }
   .r-sub { font-size: 12px; color: #6E767F; margin: 0 0 18px; }
   h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
     color: #6E767F; margin: 18px 0 8px; font-weight: 600; }
@@ -137,6 +138,7 @@ export function familyReportPageHtml(a: FamilyReportArgs): string {
     </div>
 
     <h1>${fn}&rsquo;s Interest Profile</h1>
+    <p class="r-fullname">${esc(a.childName.trim())}</p>
     <p class="r-sub">A snapshot of what ${fn} is drawn to &mdash; and a starting point for conversations at home.</p>
 
     <h2>Signing in</h2>

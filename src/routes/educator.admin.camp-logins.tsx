@@ -146,12 +146,14 @@ function CampLoginsAdmin() {
     const cards = rows
       .map((r) => {
         const first = escapeHtml(r.child_name.trim().split(/\s+/)[0] || "friend");
+        const fullName = escapeHtml(r.child_name.trim() || "Student");
         const localUser = escapeHtml(r.username.split("@")[0] || r.username);
         const pw = escapeHtml(r.password_plain);
         return `
           <div class="card">
             <div class="brand">EXPLR <span>Pathways</span></div>
             <div class="hi">Hi, ${first}!</div>
+            <div class="fullname">${fullName}</div>
             <div class="step">1. Go to <code class="url">${escapeHtml(signInUrl)}</code></div>
             <div class="step">2. Sign in with:</div>
             <table class="creds">
@@ -180,6 +182,7 @@ function CampLoginsAdmin() {
         .brand { font-size: 12px; font-weight: 600; }
         .brand span { color: #15A36B; }
         .hi { font-size: 18px; font-weight: 700; margin-top: 6px; }
+        .fullname { font-size: 11px; color: #6E767F; margin-top: 1px; }
         .step { font-size: 12px; color: #2c3033; margin-top: 6px; line-height: 1.4; }
         .creds { border-collapse: collapse; width: 100%; margin-top: 4px; }
         .creds td { padding: 4px 0; font-size: 13px; vertical-align: middle; }
@@ -243,34 +246,30 @@ function CampLoginsAdmin() {
     ).length;
   }
 
-  /**
-   * Print the family 1-pager for one camp's students who have results,
-   * or — when `onlyLogin` is given — just that one student. Each page
-   * carries the login + the RIASEC profile + a how-it-works explainer.
-   */
-  function printFamilyReports(
-    campId: string,
-    title: string,
-    onlyLogin?: Login,
-  ) {
-    const pool = onlyLogin
-      ? [onlyLogin]
-      : logins.filter((l) => l.explr_camp_id === campId);
-    // Send families to the sign-in screen directly, and show the short
-    // username (no @camp.explr.local domain) — that's what they type.
+  // Camp title lookup for the report header.
+  function campTitle(campId: string): string {
+    return sessions.find((s) => s.id === campId)?.title ?? "Camp";
+  }
+
+  /** Build family-report pages for a set of logins (only those with a
+   *  completed assessment / Holland code). */
+  function reportPagesFor(pool: Login[]): string[] {
     const signInUrl = `${window.location.origin}/sign-in`;
-    const pages = pool
+    return pool
       .filter((l) => l.student_id && holland[l.student_id])
       .map((l) =>
         familyReportPageHtml({
           childName: l.child_name,
-          campTitle: title,
+          campTitle: campTitle(l.explr_camp_id),
           username: l.username.split("@")[0] || l.username,
           password: l.password_plain,
           signInUrl,
           hollandCode: holland[l.student_id as string],
         }),
       );
+  }
+
+  function openPrint(pages: string[]) {
     if (pages.length === 0) {
       setStatus(
         "No family reports to print yet — students need to finish the assessment first.",
@@ -284,6 +283,22 @@ function CampLoginsAdmin() {
       w.focus();
       w.print();
     }
+  }
+
+  /**
+   * Print the family 1-pager for one camp's students who have results,
+   * or — when `onlyLogin` is given — just that one student.
+   */
+  function printFamilyReports(campId: string, _title: string, onlyLogin?: Login) {
+    const pool = onlyLogin
+      ? [onlyLogin]
+      : logins.filter((l) => l.explr_camp_id === campId);
+    openPrint(reportPagesFor(pool));
+  }
+
+  /** Print every student's family report across all camps, in one job. */
+  function printAllFamilyReports() {
+    openPrint(reportPagesFor(logins));
   }
 
   async function submitWalkIn() {
@@ -354,6 +369,19 @@ function CampLoginsAdmin() {
         <p className="mt-4 border border-charcoal-200 bg-charcoal-50 px-4 py-2 text-sm text-charcoal-700">
           {status}
         </p>
+      )}
+
+      {/* Bulk action across every camp. */}
+      {!loading && logins.length > 0 && (
+        <div className="mt-6">
+          <button onClick={printAllFamilyReports} className="btn-ink text-xs">
+            Print all family reports
+          </button>
+          <span className="ml-3 text-xs text-charcoal-400">
+            One job, every student across all camps who has finished their
+            assessment.
+          </span>
+        </div>
       )}
 
       <section className="mt-8">
