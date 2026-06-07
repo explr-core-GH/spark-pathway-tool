@@ -1501,6 +1501,14 @@ export type Database = {
     }
     Functions: {
       advance_session: { Args: { p_session_id: string }; Returns: undefined }
+      educator_can_access_camp: {
+        Args: { _educator_id: string; _explr_camp_id: string }
+        Returns: boolean
+      }
+      educator_can_access_student: {
+        Args: { _educator_id: string; _student_id: string }
+        Returns: boolean
+      }
       is_admin: { Args: { uid: string }; Returns: boolean }
       is_educator: { Args: { uid: string }; Returns: boolean }
     }
