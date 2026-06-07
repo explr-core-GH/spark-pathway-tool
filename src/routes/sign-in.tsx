@@ -57,8 +57,9 @@ function SignIn() {
       <p className="mt-2 text-sm text-charcoal-500">Student account.</p>
       <form onSubmit={submit} className="mt-10 space-y-5">
         <div>
-          <label className="label">Username or email</label>
+          <label className="label" htmlFor="signin-username">Username or email</label>
           <input
+            id="signin-username"
             className="field"
             type="text"
             required
@@ -75,10 +76,18 @@ function SignIn() {
           </p>
         </div>
         <div>
-          <label className="label">Password</label>
-          <input className="field" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+          <label className="label" htmlFor="signin-password">Password</label>
+          <input
+            id="signin-password"
+            className="field"
+            type="password"
+            required
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
         <button type="submit" disabled={loading} className="btn-ink w-full justify-center">
           {loading ? "Signing in…" : "Sign in"}
         </button>

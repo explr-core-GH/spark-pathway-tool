@@ -186,16 +186,36 @@ function AssessmentRunner() {
         {scale && (
           <p className="eyebrow" style={{ color: scale.color }}>How much would you like to…</p>
         )}
-        <h2 className="mt-4 text-3xl font-light leading-tight md:text-4xl">{prompt}</h2>
+        <h2 id="prompt-text" className="mt-4 text-3xl font-light leading-tight md:text-4xl">{prompt}</h2>
 
-        <div className="mt-10 grid grid-cols-5 gap-2">
+        {/* Rating scale as a real radiogroup (WCAG 4.1.2 / 2.1.1): arrow
+            keys move between options, Enter/Space selects. Labelled by the
+            question prompt. */}
+        <div
+          role="radiogroup"
+          aria-labelledby="prompt-text"
+          className="mt-10 grid grid-cols-5 gap-2"
+          onKeyDown={(e) => {
+            if (submitting || finishing) return;
+            if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+              e.preventDefault();
+              answer(5);
+            } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+              e.preventDefault();
+              answer(1);
+            }
+          }}
+        >
           {([1,2,3,4,5] as LikertValue[]).map((v) => (
             <button
               key={v}
+              type="button"
+              role="radio"
+              aria-checked={false}
               disabled={submitting || finishing}
               onClick={() => answer(v)}
               aria-label={LIKERT_LABELS[v]}
-              className="group flex flex-col items-center gap-2 border border-charcoal-100 px-1 py-4 transition-colors hover:border-ink hover:bg-charcoal-50 disabled:opacity-50"
+              className="group flex flex-col items-center gap-2 border border-charcoal-100 px-1 py-4 transition-colors hover:border-ink hover:bg-charcoal-50 focus-visible:border-ink disabled:opacity-50"
             >
               <span
                 className="text-3xl leading-none transition-transform group-hover:scale-110 sm:text-4xl"
@@ -208,8 +228,8 @@ function AssessmentRunner() {
           ))}
         </div>
 
-        {finishing && <p className="mt-8 text-sm text-charcoal-500">Scoring your results…</p>}
-        {error && <p className="mt-8 text-sm text-destructive">{error}</p>}
+        {finishing && <p className="mt-8 text-sm text-charcoal-500" role="status">Scoring your results…</p>}
+        {error && <p className="mt-8 text-sm text-destructive" role="alert">{error}</p>}
 
         <p className="mt-16 text-xs text-charcoal-400">
           You can close this tab and return later — your progress is saved.

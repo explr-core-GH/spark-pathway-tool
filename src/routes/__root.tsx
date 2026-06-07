@@ -78,6 +78,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head><HeadContent /></head>
       <body>
+        {/* Skip link (WCAG 2.4.1 Bypass Blocks) — first focusable element,
+            jumps past the header/nav to the page's main content. The CSS
+            for .skip-link keeps it offscreen until focused. */}
+        <a href="#main" className="skip-link">Skip to content</a>
         {children}
         <Scripts />
       </body>
@@ -109,7 +113,10 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AccessibilityProvider>
         <AdminViewBar />
-        <Outlet />
+        {/* Skip-link target — every page's content lives under here. */}
+        <div id="main">
+          <Outlet />
+        </div>
         <AccessibilityToolbar />
       </AccessibilityProvider>
     </QueryClientProvider>

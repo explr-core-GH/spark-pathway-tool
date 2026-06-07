@@ -15,7 +15,7 @@
   --color-charcoal-100: #E6E8EA;
   --color-charcoal-200: #C8CCD0;
   --color-charcoal-300: #A0A6AD;
-  --color-charcoal-400: #6E767F;
+  --color-charcoal-400: #5C636B; /* darkened for WCAG 1.4.3: ≥4.5:1 on the light bg (was #6E767F ≈ 4.4:1) */
   --color-charcoal-500: #3F4549;
   --color-charcoal-600: #2A2E31;
   --color-charcoal-700: #1A1D1F;
@@ -84,7 +84,7 @@
   --bg: #FAFAF8;
   --bg-elevated: #FFFFFF;
   --fg: #1A1D1F;
-  --fg-muted: #6E767F;
+  --fg-muted: #5C636B; /* WCAG 1.4.3 — muted text now clears 4.5:1 on --bg */
   --border: #E6E8EA;
   --explr: #2BEDA1;
   --focus-ring: #2BEDA1;
@@ -157,6 +157,12 @@ body {
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
   border-radius: 6px;
+}
+/* The mint focus ring is invisible on mint surfaces — use a dark ring on
+   mint/explr backgrounds so focus stays visible (WCAG 2.4.7). */
+.btn-mint:focus-visible,
+[style*="--explr"]:focus-visible {
+  outline-color: var(--fg);
 }
 
 /* Mode-driven shape language */
@@ -252,7 +258,7 @@ h1, h2, h3, h4 {
   .ink-link {
     color: var(--fg);
     text-decoration: underline;
-    text-decoration-color: #C8CCD0;
+    text-decoration-color: var(--color-charcoal-400); /* ≥3:1 so the link underline is perceivable (WCAG 1.4.11) */
     text-underline-offset: 4px;
     transition: text-decoration-color 0.15s;
   }

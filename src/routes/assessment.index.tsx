@@ -153,8 +153,8 @@ function AssessmentIntro() {
 
           <div className="mt-10 flex items-end gap-4">
             <div>
-              <label className="label">Grade</label>
-              <select className="field w-28" value={grade ?? ""} onChange={(e) => setGrade(Number(e.target.value))}>
+              <label className="label" htmlFor="assess-grade">Grade</label>
+              <select id="assess-grade" className="field w-28" value={grade ?? ""} onChange={(e) => setGrade(Number(e.target.value))}>
                 <option value="" disabled>—</option>
                 {[5,6,7,8,9,10,11,12].map((g) => <option key={g} value={g}>{g}</option>)}
               </select>
@@ -163,7 +163,7 @@ function AssessmentIntro() {
               {starting ? "Starting…" : "Begin"}
             </button>
           </div>
-          {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
+          {error && <p className="mt-4 text-sm text-destructive" role="alert">{error}</p>}
         </div>
         <div className="flex justify-center">
           <HollandHexagon size={260} />

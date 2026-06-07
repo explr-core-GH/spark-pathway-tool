@@ -26,7 +26,14 @@ export function HollandHexagon({ size = 360, active, onSelect }: Props) {
   const path = points.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ") + " Z";
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="select-none">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      className="select-none"
+      role={onSelect ? "radiogroup" : "img"}
+      aria-label="RIASEC interest dimensions"
+    >
       {/* outer hexagon outline */}
       <path d={path} fill="none" stroke="var(--color-charcoal-200)" strokeWidth={1} />
       {/* contrast diagonals (R↔S, I↔E, A↔C) */}
@@ -48,12 +55,29 @@ export function HollandHexagon({ size = 360, active, onSelect }: Props) {
       {points.map((p) => {
         const isActive = active === p.code;
         const dotR = isActive ? 26 : 22;
+        const interactive = !!onSelect;
         return (
           <g
             key={p.code}
             transform={`translate(${p.x},${p.y})`}
-            style={{ cursor: onSelect ? "pointer" : "default" }}
+            style={{ cursor: interactive ? "pointer" : "default" }}
             onClick={() => onSelect?.(p.code)}
+            // Keyboard + SR support (WCAG 2.1.1 / 4.1.2): each vertex is a
+            // focusable radio when interactive.
+            role={interactive ? "radio" : undefined}
+            aria-checked={interactive ? isActive : undefined}
+            aria-label={interactive ? p.name : undefined}
+            tabIndex={interactive ? 0 : undefined}
+            onKeyDown={
+              interactive
+                ? (e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onSelect?.(p.code);
+                    }
+                  }
+                : undefined
+            }
           >
             <circle r={dotR + 4} fill={p.colorSoft} />
             <circle r={dotR} fill={p.color} />

@@ -44,25 +44,25 @@ function SignUp() {
       <form onSubmit={submit} className="mt-10 space-y-5">
         <div className="grid grid-cols-[1fr_120px] gap-3">
           <div>
-            <label className="label">First name</label>
-            <input className="field" required value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+            <label className="label" htmlFor="su-first">First name</label>
+            <input id="su-first" className="field" required autoComplete="given-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
           </div>
           <div>
-            <label className="label">Grade</label>
-            <select className="field" value={grade} onChange={(e) => setGrade(Number(e.target.value))}>
+            <label className="label" htmlFor="su-grade">Grade</label>
+            <select id="su-grade" className="field" value={grade} onChange={(e) => setGrade(Number(e.target.value))}>
               {[5,6,7,8,9,10,11,12].map((g) => <option key={g} value={g}>{g}</option>)}
             </select>
           </div>
         </div>
         <div>
-          <label className="label">Email</label>
-          <input className="field" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+          <label className="label" htmlFor="su-email">Email</label>
+          <input id="su-email" className="field" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div>
-          <label className="label">Password</label>
-          <input className="field" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
+          <label className="label" htmlFor="su-password">Password</label>
+          <input id="su-password" className="field" type="password" required minLength={8} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
         <button type="submit" disabled={loading} className="btn-ink w-full justify-center">
           {loading ? "Creating…" : "Create account"}
         </button>
