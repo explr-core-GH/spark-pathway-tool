@@ -10,6 +10,17 @@
 
 import { RIASEC, type RIASECCode } from "./riasec";
 
+// The career-explorer site families can use to look up RIASEC codes and
+// see matching careers.
+const EXPLORE_URL = "https://explrpathways.netlify.app/";
+
+// Pre-generated QR code for EXPLORE_URL (static — the URL never changes,
+// so we embed the SVG rather than pulling in a QR library or hitting an
+// external generator at print time). 29-module QR + 4-module quiet zone,
+// viewBox 0 0 37 37; CSS sizes it. Verified to decode to EXPLORE_URL.
+const EXPLORE_QR_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" shape-rendering="crispEdges"><rect width="37" height="37" fill="#fff"/><path d="M4 4h7v1h-7zM14 4h3v1h-3zM18 4h1v1h-1zM21 4h3v1h-3zM26 4h7v1h-7zM4 5h1v1h-1zM10 5h1v1h-1zM14 5h3v1h-3zM20 5h1v1h-1zM22 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM4 6h1v1h-1zM6 6h3v1h-3zM10 6h1v1h-1zM18 6h2v1h-2zM21 6h4v1h-4zM26 6h1v1h-1zM28 6h3v1h-3zM32 6h1v1h-1zM4 7h1v1h-1zM6 7h3v1h-3zM10 7h1v1h-1zM14 7h1v1h-1zM16 7h2v1h-2zM22 7h1v1h-1zM26 7h1v1h-1zM28 7h3v1h-3zM32 7h1v1h-1zM4 8h1v1h-1zM6 8h3v1h-3zM10 8h1v1h-1zM14 8h1v1h-1zM16 8h1v1h-1zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h1v1h-1zM28 8h3v1h-3zM32 8h1v1h-1zM4 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM19 9h1v1h-1zM22 9h2v1h-2zM26 9h1v1h-1zM32 9h1v1h-1zM4 10h7v1h-7zM12 10h1v1h-1zM14 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM20 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM26 10h7v1h-7zM13 11h1v1h-1zM15 11h1v1h-1zM17 11h1v1h-1zM19 11h5v1h-5zM4 12h1v1h-1zM7 12h1v1h-1zM9 12h2v1h-2zM12 12h2v1h-2zM18 12h1v1h-1zM20 12h1v1h-1zM24 12h2v1h-2zM27 12h1v1h-1zM4 13h6v1h-6zM12 13h1v1h-1zM14 13h1v1h-1zM16 13h2v1h-2zM19 13h1v1h-1zM21 13h2v1h-2zM24 13h1v1h-1zM26 13h1v1h-1zM29 13h1v1h-1zM32 13h1v1h-1zM4 14h1v1h-1zM7 14h5v1h-5zM13 14h1v1h-1zM15 14h4v1h-4zM20 14h1v1h-1zM23 14h1v1h-1zM28 14h4v1h-4zM5 15h2v1h-2zM8 15h2v1h-2zM13 15h1v1h-1zM16 15h2v1h-2zM20 15h1v1h-1zM23 15h6v1h-6zM30 15h2v1h-2zM6 16h1v1h-1zM10 16h2v1h-2zM13 16h4v1h-4zM18 16h4v1h-4zM23 16h1v1h-1zM25 16h2v1h-2zM29 16h1v1h-1zM31 16h2v1h-2zM4 17h1v1h-1zM6 17h1v1h-1zM13 17h1v1h-1zM15 17h1v1h-1zM17 17h2v1h-2zM20 17h1v1h-1zM23 17h2v1h-2zM7 18h1v1h-1zM10 18h2v1h-2zM13 18h6v1h-6zM20 18h2v1h-2zM24 18h1v1h-1zM26 18h7v1h-7zM4 19h2v1h-2zM7 19h2v1h-2zM13 19h3v1h-3zM19 19h1v1h-1zM21 19h1v1h-1zM23 19h1v1h-1zM25 19h1v1h-1zM27 19h1v1h-1zM29 19h1v1h-1zM31 19h1v1h-1zM5 20h2v1h-2zM8 20h4v1h-4zM13 20h3v1h-3zM17 20h1v1h-1zM20 20h2v1h-2zM23 20h3v1h-3zM27 20h1v1h-1zM31 20h1v1h-1zM5 21h1v1h-1zM7 21h1v1h-1zM9 21h1v1h-1zM11 21h1v1h-1zM13 21h1v1h-1zM17 21h2v1h-2zM20 21h2v1h-2zM25 21h3v1h-3zM29 21h1v1h-1zM32 21h1v1h-1zM4 22h1v1h-1zM8 22h1v1h-1zM10 22h2v1h-2zM14 22h3v1h-3zM18 22h1v1h-1zM20 22h1v1h-1zM22 22h1v1h-1zM26 22h1v1h-1zM28 22h1v1h-1zM31 22h2v1h-2zM6 23h1v1h-1zM9 23h1v1h-1zM11 23h1v1h-1zM13 23h1v1h-1zM15 23h2v1h-2zM18 23h7v1h-7zM26 23h3v1h-3zM31 23h2v1h-2zM4 24h1v1h-1zM6 24h7v1h-7zM14 24h1v1h-1zM16 24h1v1h-1zM24 24h5v1h-5zM30 24h1v1h-1zM12 25h3v1h-3zM16 25h1v1h-1zM18 25h1v1h-1zM20 25h2v1h-2zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h3v1h-3zM4 26h7v1h-7zM16 26h1v1h-1zM20 26h2v1h-2zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h1v1h-1zM31 26h1v1h-1zM4 27h1v1h-1zM10 27h1v1h-1zM12 27h1v1h-1zM15 27h2v1h-2zM18 27h2v1h-2zM24 27h1v1h-1zM28 27h5v1h-5zM4 28h1v1h-1zM6 28h3v1h-3zM10 28h1v1h-1zM14 28h3v1h-3zM20 28h2v1h-2zM24 28h5v1h-5zM32 28h1v1h-1zM4 29h1v1h-1zM6 29h3v1h-3zM10 29h1v1h-1zM12 29h1v1h-1zM15 29h3v1h-3zM22 29h1v1h-1zM26 29h1v1h-1zM28 29h4v1h-4zM4 30h1v1h-1zM6 30h3v1h-3zM10 30h1v1h-1zM14 30h1v1h-1zM17 30h1v1h-1zM20 30h3v1h-3zM24 30h2v1h-2zM28 30h3v1h-3zM32 30h1v1h-1zM4 31h1v1h-1zM10 31h1v1h-1zM14 31h1v1h-1zM16 31h1v1h-1zM20 31h5v1h-5zM31 31h1v1h-1zM4 32h7v1h-7zM12 32h1v1h-1zM15 32h5v1h-5zM21 32h2v1h-2zM24 32h1v1h-1zM27 32h3v1h-3zM31 32h1v1h-1z" fill="#1A1D1F"/></svg>';
+
 export type FamilyReportArgs = {
   childName: string;
   campTitle: string;
@@ -81,6 +92,16 @@ export const FAMILY_REPORT_CSS = `
   .r-dim p { margin: 4px 0 0; font-size: 12px; line-height: 1.5; }
   .r-careers { color: #6E767F; }
   .r-how p { font-size: 12px; line-height: 1.6; margin: 0 0 8px; color: #2c3033; }
+  .r-explore { display: flex; gap: 14px; align-items: center;
+    border: 1px solid #E6E8EA; background: #F4F5F6; padding: 12px 14px;
+    margin-top: 6px; }
+  .r-explore .qr { width: 92px; height: 92px; flex: 0 0 92px; }
+  .r-explore .qr svg { width: 100%; height: 100%; display: block; }
+  .r-explore .x-body { flex: 1; }
+  .r-explore .x-body p { margin: 0 0 4px; font-size: 12px; line-height: 1.5;
+    color: #2c3033; }
+  .r-explore .x-url { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12px; font-weight: 600; color: #0FA66C; word-break: break-all; }
   .r-foot { margin-top: auto; padding-top: 14px; border-top: 1px solid #E6E8EA;
     font-size: 10px; color: #9aa1a8; }
 `;
@@ -145,6 +166,17 @@ export function familyReportPageHtml(a: FamilyReportArgs): string {
       &ldquo;what did you enjoy, and why?&rdquo; &mdash; not a prediction or a limit.
       Interests grow and change a lot at this age, and that is exactly what
       camps, clubs, and trying new things are for.</p>
+    </div>
+
+    <h2>Explore careers together</h2>
+    <div class="r-explore">
+      <div class="qr">${EXPLORE_QR_SVG}</div>
+      <div class="x-body">
+        <p>Scan the code or visit the link below to look up ${fn}&rsquo;s
+        interest code &mdash; <strong>${esc(dims.join(""))}</strong> &mdash; and
+        explore careers that match what they enjoy.</p>
+        <p class="x-url">${esc(EXPLORE_URL)}</p>
+      </div>
     </div>
 
     <div class="r-foot">
