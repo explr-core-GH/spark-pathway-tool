@@ -47,32 +47,36 @@ type StudentData = {
   surveySeconds: number | null; // total wall-clock across completed surveys
 };
 
-/** Wall-clock seconds between two ISO timestamps, or null. */
+/**
+ * Wall-clock seconds between two ISO timestamps, capped at one hour.
+ * The clock stops at 60 minutes: a session that ran longer is recorded
+ * as exactly an hour, since the extra time is idle (tab left open), not
+ * work. Returns null when not finished.
+ */
 function durationSeconds(start: string, end: string | null): number | null {
   if (!end) return null;
-  return (new Date(end).getTime() - new Date(start).getTime()) / 1000;
+  const raw = (new Date(end).getTime() - new Date(start).getTime()) / 1000;
+  return Math.min(Math.max(raw, 0), ONE_HOUR_SECONDS);
 }
 
-/** Human duration, capped: anything ≥ 1 hour shows as "1 hr+". */
+/** Human duration. Exactly one hour (the cap) shows as "1h". */
 function fmtDuration(seconds: number | null): string {
   if (seconds == null) return "—";
-  if (seconds >= ONE_HOUR_SECONDS) return "1 hr+";
+  if (seconds >= ONE_HOUR_SECONDS) return "1h";
   if (seconds < 60) return `${Math.max(1, Math.round(seconds))}s`;
   const m = Math.floor(seconds / 60);
   const s = Math.round(seconds % 60);
   return s === 0 ? `${m}m` : `${m}m ${s}s`;
 }
 
-/** Median of capped values (each clamped to ≤ 1 hour so idle sessions
- *  don't blow up the average). */
+/** Median + average. Values are already capped at one hour upstream. */
 function summarize(seconds: number[]): { median: number | null; avg: number | null } {
   if (seconds.length === 0) return { median: null, avg: null };
-  const capped = seconds.map((x) => Math.min(x, ONE_HOUR_SECONDS));
-  const sorted = [...capped].sort((a, b) => a - b);
+  const sorted = [...seconds].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
   const median =
     sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-  const avg = capped.reduce((a, b) => a + b, 0) / capped.length;
+  const avg = sorted.reduce((a, b) => a + b, 0) / sorted.length;
   return { median, avg };
 }
 
@@ -125,8 +129,12 @@ export function RosterDataPanel({ studentIds, names }: Props) {
         if (r.completed_at) {
           surveyDone.set(r.student_id, (surveyDone.get(r.student_id) ?? 0) + 1);
           const d = durationSeconds(r.started_at, r.completed_at);
-          if (d != null)
-            surveySecs.set(r.student_id, (surveySecs.get(r.student_id) ?? 0) + d);
+          if (d != null) {
+            // Sum across a student's surveys, but the total clock also
+            // stops at one hour.
+            const next = (surveySecs.get(r.student_id) ?? 0) + d;
+            surveySecs.set(r.student_id, Math.min(next, ONE_HOUR_SECONDS));
+          }
         } else {
           surveyWip.set(r.student_id, (surveyWip.get(r.student_id) ?? 0) + 1);
         }
@@ -248,9 +256,9 @@ export function RosterDataPanel({ studentIds, names }: Props) {
       </div>
 
       <p className="mt-2 text-[11px] text-charcoal-400">
-        Time is wall-clock from start to finish. Anything over an hour shows
-        as &ldquo;1 hr+&rdquo; — a long time almost always means the tab was
-        left open, not active work.
+        Time is wall-clock from start to finish, and the clock stops at one
+        hour — longer almost always means the tab was left open, not active
+        work, so it&apos;s recorded as &ldquo;1h&rdquo;.
       </p>
     </div>
   );
