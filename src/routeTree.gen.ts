@@ -49,6 +49,7 @@ import { Route as EducatorAdminInvitesRouteImport } from './routes/educator.admi
 import { Route as EducatorAdminInternshipsRouteImport } from './routes/educator.admin.internships'
 import { Route as EducatorAdminImportExplrRouteImport } from './routes/educator.admin.import-explr'
 import { Route as EducatorAdminDemographicsRouteImport } from './routes/educator.admin.demographics'
+import { Route as EducatorAdminCompletionRouteImport } from './routes/educator.admin.completion'
 import { Route as EducatorAdminCampsRouteImport } from './routes/educator.admin.camps'
 import { Route as EducatorAdminCampLoginsRouteImport } from './routes/educator.admin.camp-logins'
 import { Route as EducatorAdminAssignRouteImport } from './routes/educator.admin.assign'
@@ -266,6 +267,11 @@ const EducatorAdminDemographicsRoute =
     path: '/demographics',
     getParentRoute: () => EducatorAdminRoute,
   } as any)
+const EducatorAdminCompletionRoute = EducatorAdminCompletionRouteImport.update({
+  id: '/completion',
+  path: '/completion',
+  getParentRoute: () => EducatorAdminRoute,
+} as any)
 const EducatorAdminCampsRoute = EducatorAdminCampsRouteImport.update({
   id: '/camps',
   path: '/camps',
@@ -349,6 +355,7 @@ export interface FileRoutesByFullPath {
   '/educator/admin/assign': typeof EducatorAdminAssignRoute
   '/educator/admin/camp-logins': typeof EducatorAdminCampLoginsRoute
   '/educator/admin/camps': typeof EducatorAdminCampsRoute
+  '/educator/admin/completion': typeof EducatorAdminCompletionRoute
   '/educator/admin/demographics': typeof EducatorAdminDemographicsRoute
   '/educator/admin/import-explr': typeof EducatorAdminImportExplrRoute
   '/educator/admin/internships': typeof EducatorAdminInternshipsRoute
@@ -398,6 +405,7 @@ export interface FileRoutesByTo {
   '/educator/admin/assign': typeof EducatorAdminAssignRoute
   '/educator/admin/camp-logins': typeof EducatorAdminCampLoginsRoute
   '/educator/admin/camps': typeof EducatorAdminCampsRoute
+  '/educator/admin/completion': typeof EducatorAdminCompletionRoute
   '/educator/admin/demographics': typeof EducatorAdminDemographicsRoute
   '/educator/admin/import-explr': typeof EducatorAdminImportExplrRoute
   '/educator/admin/internships': typeof EducatorAdminInternshipsRoute
@@ -450,6 +458,7 @@ export interface FileRoutesById {
   '/educator/admin/assign': typeof EducatorAdminAssignRoute
   '/educator/admin/camp-logins': typeof EducatorAdminCampLoginsRoute
   '/educator/admin/camps': typeof EducatorAdminCampsRoute
+  '/educator/admin/completion': typeof EducatorAdminCompletionRoute
   '/educator/admin/demographics': typeof EducatorAdminDemographicsRoute
   '/educator/admin/import-explr': typeof EducatorAdminImportExplrRoute
   '/educator/admin/internships': typeof EducatorAdminInternshipsRoute
@@ -503,6 +512,7 @@ export interface FileRouteTypes {
     | '/educator/admin/assign'
     | '/educator/admin/camp-logins'
     | '/educator/admin/camps'
+    | '/educator/admin/completion'
     | '/educator/admin/demographics'
     | '/educator/admin/import-explr'
     | '/educator/admin/internships'
@@ -552,6 +562,7 @@ export interface FileRouteTypes {
     | '/educator/admin/assign'
     | '/educator/admin/camp-logins'
     | '/educator/admin/camps'
+    | '/educator/admin/completion'
     | '/educator/admin/demographics'
     | '/educator/admin/import-explr'
     | '/educator/admin/internships'
@@ -603,6 +614,7 @@ export interface FileRouteTypes {
     | '/educator/admin/assign'
     | '/educator/admin/camp-logins'
     | '/educator/admin/camps'
+    | '/educator/admin/completion'
     | '/educator/admin/demographics'
     | '/educator/admin/import-explr'
     | '/educator/admin/internships'
@@ -929,6 +941,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EducatorAdminDemographicsRouteImport
       parentRoute: typeof EducatorAdminRoute
     }
+    '/educator/admin/completion': {
+      id: '/educator/admin/completion'
+      path: '/completion'
+      fullPath: '/educator/admin/completion'
+      preLoaderRoute: typeof EducatorAdminCompletionRouteImport
+      parentRoute: typeof EducatorAdminRoute
+    }
     '/educator/admin/camps': {
       id: '/educator/admin/camps'
       path: '/camps'
@@ -1001,6 +1020,7 @@ interface EducatorAdminRouteChildren {
   EducatorAdminAssignRoute: typeof EducatorAdminAssignRoute
   EducatorAdminCampLoginsRoute: typeof EducatorAdminCampLoginsRoute
   EducatorAdminCampsRoute: typeof EducatorAdminCampsRoute
+  EducatorAdminCompletionRoute: typeof EducatorAdminCompletionRoute
   EducatorAdminDemographicsRoute: typeof EducatorAdminDemographicsRoute
   EducatorAdminImportExplrRoute: typeof EducatorAdminImportExplrRoute
   EducatorAdminInternshipsRoute: typeof EducatorAdminInternshipsRoute
@@ -1020,6 +1040,7 @@ const EducatorAdminRouteChildren: EducatorAdminRouteChildren = {
   EducatorAdminAssignRoute: EducatorAdminAssignRoute,
   EducatorAdminCampLoginsRoute: EducatorAdminCampLoginsRoute,
   EducatorAdminCampsRoute: EducatorAdminCampsRoute,
+  EducatorAdminCompletionRoute: EducatorAdminCompletionRoute,
   EducatorAdminDemographicsRoute: EducatorAdminDemographicsRoute,
   EducatorAdminImportExplrRoute: EducatorAdminImportExplrRoute,
   EducatorAdminInternshipsRoute: EducatorAdminInternshipsRoute,
