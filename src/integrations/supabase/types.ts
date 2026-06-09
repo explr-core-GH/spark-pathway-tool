@@ -109,6 +109,27 @@ export type Database = {
           },
         ]
       }
+      assessment_item_photos: {
+        Row: {
+          item_id: string
+          updated_at: string
+          updated_by: string | null
+          url: string
+        }
+        Insert: {
+          item_id: string
+          updated_at?: string
+          updated_by?: string | null
+          url: string
+        }
+        Update: {
+          item_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
       assessment_responses: {
         Row: {
           created_at: string
@@ -226,6 +247,8 @@ export type Database = {
         Row: {
           assessment_kind: string
           assigned_by: string | null
+          available_from: string | null
+          available_until: string | null
           created_at: string
           due_at: string | null
           id: string
@@ -237,6 +260,8 @@ export type Database = {
         Insert: {
           assessment_kind: string
           assigned_by?: string | null
+          available_from?: string | null
+          available_until?: string | null
           created_at?: string
           due_at?: string | null
           id?: string
@@ -248,6 +273,8 @@ export type Database = {
         Update: {
           assessment_kind?: string
           assigned_by?: string | null
+          available_from?: string | null
+          available_until?: string | null
           created_at?: string
           due_at?: string | null
           id?: string
@@ -894,6 +921,51 @@ export type Database = {
           },
         ]
       }
+      internship_survey_results: {
+        Row: {
+          activity_tags: string[]
+          completed_at: string | null
+          env_vector: Json | null
+          experience: Json | null
+          holland_code: string | null
+          matches: Json | null
+          responses: Json
+          riasec_norm: Json | null
+          riasec_raw: Json | null
+          sector_values: Json | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          activity_tags?: string[]
+          completed_at?: string | null
+          env_vector?: Json | null
+          experience?: Json | null
+          holland_code?: string | null
+          matches?: Json | null
+          responses?: Json
+          riasec_norm?: Json | null
+          riasec_raw?: Json | null
+          sector_values?: Json | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          activity_tags?: string[]
+          completed_at?: string | null
+          env_vector?: Json | null
+          experience?: Json | null
+          holland_code?: string | null
+          matches?: Json | null
+          responses?: Json
+          riasec_norm?: Json | null
+          riasec_raw?: Json | null
+          sector_values?: Json | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       internship_tags: {
         Row: {
           internship_slug: string
@@ -1249,6 +1321,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      student_presence: {
+        Row: {
+          label: string | null
+          last_seen_at: string
+          path: string | null
+          student_id: string
+        }
+        Insert: {
+          label?: string | null
+          last_seen_at?: string
+          path?: string | null
+          student_id: string
+        }
+        Update: {
+          label?: string | null
+          last_seen_at?: string
+          path?: string | null
+          student_id?: string
+        }
+        Relationships: []
       }
       students: {
         Row: {
