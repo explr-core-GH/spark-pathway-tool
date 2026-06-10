@@ -186,7 +186,7 @@ function AssessmentRunner() {
         {scale && (
           <p className="eyebrow" style={{ color: scale.color }}>How much would you like to…</p>
         )}
-        <h2 id="prompt-text" className="mt-4 text-3xl font-light leading-tight md:text-4xl">{prompt}</h2>
+        <h1 id="prompt-text" className="mt-4 text-3xl font-light leading-tight md:text-4xl">{prompt}</h1>
 
         {/* Rating scale as a real radiogroup (WCAG 4.1.2 / 2.1.1): arrow
             keys move between options, Enter/Space selects. Labelled by the

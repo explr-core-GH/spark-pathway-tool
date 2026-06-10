@@ -37,7 +37,7 @@ function SignUp() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
       <Link to="/" className="eyebrow mb-12 inline-block">← EXPLR</Link>
       <h1 className="text-3xl font-light">Create your account</h1>
       <p className="mt-2 text-sm text-charcoal-500">For students grades 5–12.</p>
@@ -70,6 +70,6 @@ function SignUp() {
       <p className="mt-6 text-sm text-charcoal-500">
         Already have one? <Link to="/sign-in" className="ink-link">Sign in</Link>
       </p>
-    </div>
+    </main>
   );
 }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RIASEC, type RIASECCode } from "@/lib/riasec";
 import {
   STEM_ACTIVITIES,
@@ -16,6 +16,14 @@ const CODES: RIASECCode[] = ["R", "I", "A", "S", "E", "C"];
 export function StemActivitiesMarquee({ hollandCode }: Props) {
   const top = (hollandCode?.[0] as RIASECCode | undefined) ?? null;
   const [filter, setFilter] = useState<RIASECCode | "ALL">(top ?? "ALL");
+  // Explicit pause control (WCAG 2.2.2 — auto-moving content >5s must be
+  // pausable by a real control, not hover alone). Starts paused when the user
+  // prefers reduced motion.
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) setPaused(true);
+  }, []);
 
   const ranked = useMemo(
     () => rankByHollandCode(STEM_ACTIVITIES, hollandCode),
@@ -46,12 +54,21 @@ export function StemActivitiesMarquee({ hollandCode }: Props) {
             highlight={top === c}
           />
         ))}
+        <button
+          type="button"
+          onClick={() => setPaused((p) => !p)}
+          aria-pressed={paused}
+          aria-label={paused ? "Play the scrolling activities" : "Pause the scrolling activities"}
+          className="ml-auto rounded-full border border-charcoal-200 px-3 py-1 text-xs text-charcoal-600 hover:border-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+        >
+          {paused ? "▶ Play" : "⏸ Pause"}
+        </button>
       </div>
 
       <div className="mt-6 space-y-4 overflow-hidden">
-        <MarqueeRow items={rowA} hollandCode={hollandCode} direction="left" />
+        <MarqueeRow items={rowA} hollandCode={hollandCode} direction="left" forcePaused={paused} />
         {rowB.length > 0 && (
-          <MarqueeRow items={rowB} hollandCode={hollandCode} direction="right" />
+          <MarqueeRow items={rowB} hollandCode={hollandCode} direction="right" forcePaused={paused} />
         )}
       </div>
 
@@ -98,23 +115,26 @@ function MarqueeRow({
   items,
   hollandCode,
   direction,
+  forcePaused,
 }: {
   items: StemActivity[];
   hollandCode: string | null;
   direction: "left" | "right";
+  forcePaused: boolean;
 }) {
-  const [paused, setPaused] = useState(false);
+  const [hoverPaused, setHoverPaused] = useState(false);
   if (items.length === 0) return null;
   const loop = [...items, ...items];
   const top = (hollandCode?.[0] as RIASECCode | undefined) ?? null;
   // Much slower than before so cards are easy to click.
   const duration = Math.max(120, items.length * 18);
+  const paused = forcePaused || hoverPaused;
 
   return (
     <div
       className="relative overflow-hidden"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onMouseEnter={() => setHoverPaused(true)}
+      onMouseLeave={() => setHoverPaused(false)}
     >
       <div
         className="flex w-max gap-3 py-1"

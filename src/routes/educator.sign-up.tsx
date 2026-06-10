@@ -76,7 +76,7 @@ function EducatorSignUp() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
       <Link to="/" className="eyebrow mb-12 inline-block">← EXPLR</Link>
       <h1 className="text-3xl font-light">Request educator access</h1>
       <p className="mt-2 text-sm text-charcoal-500">
@@ -86,32 +86,34 @@ function EducatorSignUp() {
       </p>
       <form onSubmit={submit} className="mt-10 space-y-5">
         <div>
-          <label className="label">Full name</label>
-          <input className="field" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          <label className="label" htmlFor="edu-fullname">Full name</label>
+          <input id="edu-fullname" className="field" required autoComplete="name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
         </div>
         <div>
-          <label className="label">Organization</label>
-          <input className="field" value={organization} onChange={(e) => setOrganization(e.target.value)} placeholder="School or program (optional)" />
+          <label className="label" htmlFor="edu-org">Organization</label>
+          <input id="edu-org" className="field" autoComplete="organization" value={organization} onChange={(e) => setOrganization(e.target.value)} placeholder="School or program (optional)" />
         </div>
         <div>
-          <label className="label">Email</label>
-          <input className="field" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+          <label className="label" htmlFor="edu-email">Email</label>
+          <input id="edu-email" className="field" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div>
-          <label className="label">Passphrase</label>
-          <input className="field" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
+          <label className="label" htmlFor="edu-password">Passphrase</label>
+          <input id="edu-password" className="field" type="password" required minLength={8} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
         <div>
-          <label className="label">Your school <span className="text-charcoal-400">(optional)</span></label>
+          <span className="label">Your school <span className="text-charcoal-400">(optional)</span></span>
           <SchoolSearch
             initial={school}
             onSelect={(s) => setSchool(s.irn ? s : null)}
             placeholder="Search Ohio schools…"
+            label="Search for your school"
           />
         </div>
         <div>
-          <label className="label">Number of students you teach <span className="text-charcoal-400">(optional)</span></label>
+          <label className="label" htmlFor="edu-studentcount">Number of students you teach <span className="text-charcoal-400">(optional)</span></label>
           <input
+            id="edu-studentcount"
             type="number"
             min={0}
             className="field"
@@ -124,10 +126,10 @@ function EducatorSignUp() {
           </p>
         </div>
         <div>
-          <label className="label">Grade levels you teach <span className="text-charcoal-400">(optional)</span></label>
+          <span className="label">Grade levels you teach <span className="text-charcoal-400">(optional)</span></span>
           <GradeLevelPicker value={gradeLevels} onChange={setGradeLevels} className="mt-1" />
         </div>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
         <button type="submit" disabled={loading} className="btn-ink w-full justify-center">
           {loading ? "Submitting…" : "Request access"}
         </button>
@@ -135,6 +137,6 @@ function EducatorSignUp() {
       <p className="mt-6 text-sm text-charcoal-500">
         Have an account? <Link to="/educator/sign-in" className="ink-link">Sign in</Link>
       </p>
-    </div>
+    </main>
   );
 }

@@ -25,6 +25,8 @@ type Props = {
   onSelect: (s: SchoolPick) => void;
   initial?: SchoolPick | null;
   placeholder?: string;
+  /** Accessible name for the search box (no visible <label> is wired up). */
+  label?: string;
 };
 
 let directoryCache: School[] | null = null;
@@ -44,7 +46,7 @@ async function loadDirectory(): Promise<School[]> {
   return directoryPromise;
 }
 
-export function SchoolSearch({ onSelect, initial = null, placeholder }: Props) {
+export function SchoolSearch({ onSelect, initial = null, placeholder, label = "Search schools" }: Props) {
   const [picked, setPicked] = useState<SchoolPick | null>(initial);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<School[]>([]);
@@ -52,6 +54,26 @@ export function SchoolSearch({ onSelect, initial = null, placeholder }: Props) {
   const [loaded, setLoaded] = useState(false);
   const [open, setOpen] = useState(false);
   const loadedRef = useRef(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+
+  // Keyboard support for the option list (ArrowUp/Down move between options,
+  // Escape closes and returns focus to the input).
+  function onListKeyDown(e: React.KeyboardEvent<HTMLUListElement>) {
+    const buttons = Array.from(listRef.current?.querySelectorAll<HTMLButtonElement>("button[role='option']") ?? []);
+    const idx = buttons.indexOf(document.activeElement as HTMLButtonElement);
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      buttons[Math.min(idx + 1, buttons.length - 1)]?.focus();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (idx <= 0) inputRef.current?.focus();
+      else buttons[idx - 1]?.focus();
+    } else if (e.key === "Escape") {
+      setOpen(false);
+      inputRef.current?.focus();
+    }
+  }
 
   async function ensureLoaded() {
     if (loadedRef.current) return;
@@ -125,8 +147,15 @@ export function SchoolSearch({ onSelect, initial = null, placeholder }: Props) {
   return (
     <div className="relative space-y-2">
       <input
+        ref={inputRef}
         type="text"
         className="field"
+        role="combobox"
+        aria-label={label}
+        aria-expanded={open && results.length > 0}
+        aria-controls="school-listbox"
+        aria-autocomplete="list"
+        autoComplete="off"
         placeholder={
           missing
             ? "School directory not yet loaded"
@@ -139,6 +168,13 @@ export function SchoolSearch({ onSelect, initial = null, placeholder }: Props) {
         }}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setOpen(false);
+          else if (e.key === "ArrowDown" && open && results.length > 0) {
+            e.preventDefault();
+            listRef.current?.querySelector<HTMLButtonElement>("button[role='option']")?.focus();
+          }
+        }}
         disabled={missing}
       />
       {missing && (
@@ -147,14 +183,23 @@ export function SchoolSearch({ onSelect, initial = null, placeholder }: Props) {
         </p>
       )}
       {open && results.length > 0 && (
-        <ul className="absolute z-20 max-h-96 w-full overflow-y-auto rounded-md border border-charcoal-100 bg-white shadow-lg">
+        <ul
+          ref={listRef}
+          id="school-listbox"
+          role="listbox"
+          aria-label={label}
+          onKeyDown={onListKeyDown}
+          className="absolute z-20 max-h-96 w-full overflow-y-auto rounded-md border border-charcoal-100 bg-white shadow-lg"
+        >
           {results.map((s) => (
             <li key={s.irn} className="border-b border-charcoal-100 last:border-0">
               <button
                 type="button"
+                role="option"
+                aria-selected={false}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => pick(s)}
-                className="block w-full px-3 py-2 text-left hover:bg-explr-50"
+                className="block w-full px-3 py-2 text-left hover:bg-explr-50 focus-visible:bg-explr-50 focus-visible:outline focus-visible:outline-2"
               >
                 <div className="font-semibold text-charcoal-700">{s.name}</div>
                 <div className="text-xs text-charcoal-500">

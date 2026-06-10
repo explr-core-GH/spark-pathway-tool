@@ -24,7 +24,7 @@ export function GradeLevelPicker({ value, onChange, className }: Props) {
   }
 
   return (
-    <div className={className}>
+    <div className={className} role="group" aria-label="Grade levels you teach">
       <div className="flex flex-wrap gap-1.5">
         {GRADE_VALUES.map((g) => {
           const on = selected.has(g);
@@ -33,6 +33,7 @@ export function GradeLevelPicker({ value, onChange, className }: Props) {
               key={g}
               type="button"
               aria-pressed={on}
+              aria-label={g === 0 ? "Kindergarten" : `Grade ${g}`}
               onClick={() => toggle(g)}
               className={
                 on

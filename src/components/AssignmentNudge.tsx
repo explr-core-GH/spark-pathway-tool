@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useEducator } from "@/lib/auth";
 import { useStudentAssignments } from "@/lib/use-assignments";
 
@@ -28,6 +28,7 @@ function isSuppressedPath(pathname: string): boolean {
 function StudentNudge({ studentId }: { studentId: string }) {
   const { loading, pending } = useStudentAssignments(studentId);
   const [dismissed, setDismissed] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   // Signature of the current pending set — if it changes (new assignment),
   // a previously-dismissed nudge comes back.
@@ -43,8 +44,18 @@ function StudentNudge({ studentId }: { studentId: string }) {
     }
   }, [sig]);
 
-  if (loading || pending.length === 0) return null;
-  if (dismissed) return null;
+  const show = !loading && pending.length > 0 && !dismissed;
+
+  // Modal focus management (WCAG 2.4.3 / 4.1.2): move focus into the dialog on
+  // open, restore it to the previously-focused element on close.
+  useEffect(() => {
+    if (!show) return;
+    const prev = document.activeElement as HTMLElement | null;
+    dialogRef.current?.focus();
+    return () => prev?.focus?.();
+  }, [show]);
+
+  if (!show) return null;
 
   const first = pending[0];
   const n = pending.length;
@@ -58,17 +69,41 @@ function StudentNudge({ studentId }: { studentId: string }) {
     setDismissed(true);
   }
 
+  // Keep Tab focus inside the dialog while it's open.
+  function trapFocus(e: React.KeyboardEvent) {
+    if (e.key === "Escape") {
+      close();
+      return;
+    }
+    if (e.key !== "Tab" || !dialogRef.current) return;
+    const focusables = Array.from(
+      dialogRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])',
+      ),
+    );
+    if (focusables.length === 0) return;
+    const firstEl = focusables[0];
+    const lastEl = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === firstEl) {
+      e.preventDefault();
+      lastEl.focus();
+    } else if (!e.shiftKey && document.activeElement === lastEl) {
+      e.preventDefault();
+      firstEl.focus();
+    }
+  }
+
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 px-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="nudge-title"
-      onKeyDown={(e) => {
-        if (e.key === "Escape") close();
-      }}
-    >
-      <div className="w-full max-w-md border border-charcoal-100 bg-canvas p-7 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 px-4">
+      <div
+        ref={dialogRef}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="nudge-title"
+        onKeyDown={trapFocus}
+        className="w-full max-w-md border border-charcoal-100 bg-canvas p-7 shadow-xl focus:outline-none"
+      >
         <p className="eyebrow" style={{ color: "var(--explr)" }}>
           {n === 1 ? "1 thing to complete" : `${n} things to complete`}
         </p>

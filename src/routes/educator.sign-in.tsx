@@ -46,20 +46,20 @@ function EducatorSignIn() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
       <Link to="/" className="eyebrow mb-12 inline-block">← EXPLR</Link>
       <h1 className="text-3xl font-light">Sign in</h1>
       <p className="mt-2 text-sm text-charcoal-500">Educator account.</p>
       <form onSubmit={submit} className="mt-10 space-y-5">
         <div>
-          <label className="label">Email</label>
-          <input className="field" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+          <label className="label" htmlFor="edu-signin-email">Email</label>
+          <input id="edu-signin-email" className="field" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div>
-          <label className="label">Passphrase</label>
-          <input className="field" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+          <label className="label" htmlFor="edu-signin-password">Passphrase</label>
+          <input id="edu-signin-password" className="field" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
         <button type="submit" disabled={loading} className="btn-ink w-full justify-center">
           {loading ? "Signing in…" : "Sign in"}
         </button>
@@ -67,6 +67,6 @@ function EducatorSignIn() {
       <p className="mt-6 text-sm text-charcoal-500">
         No account? <Link to="/educator/sign-up" className="ink-link">Request access</Link>
       </p>
-    </div>
+    </main>
   );
 }
