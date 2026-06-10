@@ -23,6 +23,12 @@ dist-ssr
 # Local staging for the bulk curriculum uploader (scripts/upload-curriculum.mjs)
 .curriculum-staging/
 
+# Playwright (a11y baseline) artifacts
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
