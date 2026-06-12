@@ -1,25 +1,18 @@
 // Family-friendly printable 1-pager for camp students.
 //
-// Combines the generated login, the student's RIASEC result, and a short
-// plain-language explainer of how RIASEC works. Educators print one per
-// camper (once they've taken the assessment) and send it home to parents.
+// Built to fit on ONE page and to pull a parent's eye straight to two things:
+// the "Log in to see your results" headline (so they actually sign in) and
+// their child's RIASEC code. The login credentials + a scan-to-login QR sit
+// right beneath the hero; the supporting explainer is condensed.
 //
-// Pure string builders — the DOM/print step lives in the camp-logins
-// admin page. Camp kids are grades ~5-8, so we use the middle-school
-// plain-language names + descriptions from riasec.ts.
+// Pure string builders — the DOM/print step (and the QR data URL) come from
+// the camp-logins admin page. Camp kids are grades ~5-8, so we use the
+// middle-school plain-language names + descriptions from riasec.ts.
 
 import { RIASEC, type RIASECCode } from "./riasec";
 
-// The career-explorer site families can use to look up RIASEC codes and
-// see matching careers.
+// The career-explorer site families can use to look up RIASEC codes.
 const EXPLORE_URL = "https://explrpathways.netlify.app/";
-
-// Pre-generated QR code for EXPLORE_URL (static — the URL never changes,
-// so we embed the SVG rather than pulling in a QR library or hitting an
-// external generator at print time). 29-module QR + 4-module quiet zone,
-// viewBox 0 0 37 37; CSS sizes it. Verified to decode to EXPLORE_URL.
-const EXPLORE_QR_SVG =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" shape-rendering="crispEdges"><rect width="37" height="37" fill="#fff"/><path d="M4 4h7v1h-7zM14 4h3v1h-3zM18 4h1v1h-1zM21 4h3v1h-3zM26 4h7v1h-7zM4 5h1v1h-1zM10 5h1v1h-1zM14 5h3v1h-3zM20 5h1v1h-1zM22 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM4 6h1v1h-1zM6 6h3v1h-3zM10 6h1v1h-1zM18 6h2v1h-2zM21 6h4v1h-4zM26 6h1v1h-1zM28 6h3v1h-3zM32 6h1v1h-1zM4 7h1v1h-1zM6 7h3v1h-3zM10 7h1v1h-1zM14 7h1v1h-1zM16 7h2v1h-2zM22 7h1v1h-1zM26 7h1v1h-1zM28 7h3v1h-3zM32 7h1v1h-1zM4 8h1v1h-1zM6 8h3v1h-3zM10 8h1v1h-1zM14 8h1v1h-1zM16 8h1v1h-1zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h1v1h-1zM28 8h3v1h-3zM32 8h1v1h-1zM4 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM19 9h1v1h-1zM22 9h2v1h-2zM26 9h1v1h-1zM32 9h1v1h-1zM4 10h7v1h-7zM12 10h1v1h-1zM14 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM20 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM26 10h7v1h-7zM13 11h1v1h-1zM15 11h1v1h-1zM17 11h1v1h-1zM19 11h5v1h-5zM4 12h1v1h-1zM7 12h1v1h-1zM9 12h2v1h-2zM12 12h2v1h-2zM18 12h1v1h-1zM20 12h1v1h-1zM24 12h2v1h-2zM27 12h1v1h-1zM4 13h6v1h-6zM12 13h1v1h-1zM14 13h1v1h-1zM16 13h2v1h-2zM19 13h1v1h-1zM21 13h2v1h-2zM24 13h1v1h-1zM26 13h1v1h-1zM29 13h1v1h-1zM32 13h1v1h-1zM4 14h1v1h-1zM7 14h5v1h-5zM13 14h1v1h-1zM15 14h4v1h-4zM20 14h1v1h-1zM23 14h1v1h-1zM28 14h4v1h-4zM5 15h2v1h-2zM8 15h2v1h-2zM13 15h1v1h-1zM16 15h2v1h-2zM20 15h1v1h-1zM23 15h6v1h-6zM30 15h2v1h-2zM6 16h1v1h-1zM10 16h2v1h-2zM13 16h4v1h-4zM18 16h4v1h-4zM23 16h1v1h-1zM25 16h2v1h-2zM29 16h1v1h-1zM31 16h2v1h-2zM4 17h1v1h-1zM6 17h1v1h-1zM13 17h1v1h-1zM15 17h1v1h-1zM17 17h2v1h-2zM20 17h1v1h-1zM23 17h2v1h-2zM7 18h1v1h-1zM10 18h2v1h-2zM13 18h6v1h-6zM20 18h2v1h-2zM24 18h1v1h-1zM26 18h7v1h-7zM4 19h2v1h-2zM7 19h2v1h-2zM13 19h3v1h-3zM19 19h1v1h-1zM21 19h1v1h-1zM23 19h1v1h-1zM25 19h1v1h-1zM27 19h1v1h-1zM29 19h1v1h-1zM31 19h1v1h-1zM5 20h2v1h-2zM8 20h4v1h-4zM13 20h3v1h-3zM17 20h1v1h-1zM20 20h2v1h-2zM23 20h3v1h-3zM27 20h1v1h-1zM31 20h1v1h-1zM5 21h1v1h-1zM7 21h1v1h-1zM9 21h1v1h-1zM11 21h1v1h-1zM13 21h1v1h-1zM17 21h2v1h-2zM20 21h2v1h-2zM25 21h3v1h-3zM29 21h1v1h-1zM32 21h1v1h-1zM4 22h1v1h-1zM8 22h1v1h-1zM10 22h2v1h-2zM14 22h3v1h-3zM18 22h1v1h-1zM20 22h1v1h-1zM22 22h1v1h-1zM26 22h1v1h-1zM28 22h1v1h-1zM31 22h2v1h-2zM6 23h1v1h-1zM9 23h1v1h-1zM11 23h1v1h-1zM13 23h1v1h-1zM15 23h2v1h-2zM18 23h7v1h-7zM26 23h3v1h-3zM31 23h2v1h-2zM4 24h1v1h-1zM6 24h7v1h-7zM14 24h1v1h-1zM16 24h1v1h-1zM24 24h5v1h-5zM30 24h1v1h-1zM12 25h3v1h-3zM16 25h1v1h-1zM18 25h1v1h-1zM20 25h2v1h-2zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h3v1h-3zM4 26h7v1h-7zM16 26h1v1h-1zM20 26h2v1h-2zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h1v1h-1zM31 26h1v1h-1zM4 27h1v1h-1zM10 27h1v1h-1zM12 27h1v1h-1zM15 27h2v1h-2zM18 27h2v1h-2zM24 27h1v1h-1zM28 27h5v1h-5zM4 28h1v1h-1zM6 28h3v1h-3zM10 28h1v1h-1zM14 28h3v1h-3zM20 28h2v1h-2zM24 28h5v1h-5zM32 28h1v1h-1zM4 29h1v1h-1zM6 29h3v1h-3zM10 29h1v1h-1zM12 29h1v1h-1zM15 29h3v1h-3zM22 29h1v1h-1zM26 29h1v1h-1zM28 29h4v1h-4zM4 30h1v1h-1zM6 30h3v1h-3zM10 30h1v1h-1zM14 30h1v1h-1zM17 30h1v1h-1zM20 30h3v1h-3zM24 30h2v1h-2zM28 30h3v1h-3zM32 30h1v1h-1zM4 31h1v1h-1zM10 31h1v1h-1zM14 31h1v1h-1zM16 31h1v1h-1zM20 31h5v1h-5zM31 31h1v1h-1zM4 32h7v1h-7zM12 32h1v1h-1zM15 32h5v1h-5zM21 32h2v1h-2zM24 32h1v1h-1zM27 32h3v1h-3zM31 32h1v1h-1z" fill="#1A1D1F"/></svg>';
 
 export type FamilyReportArgs = {
   childName: string;
@@ -29,6 +22,8 @@ export type FamilyReportArgs = {
   signInUrl: string;
   /** Holland code, e.g. "RIA". Up to 3 letters. */
   hollandCode: string;
+  /** Optional data-URL QR pointing at the sign-in page ("scan to log in"). */
+  loginQrDataUrl?: string;
 };
 
 function esc(s: string): string {
@@ -61,49 +56,66 @@ export const FAMILY_REPORT_CSS = `
   * { box-sizing: border-box; }
   body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #1A1D1F; }
   .report {
-    width: 7.5in; min-height: 9.7in; margin: 0 auto; padding: 0.5in 0;
-    page-break-after: always; display: flex; flex-direction: column;
+    width: 7.5in; height: 10in; margin: 0 auto; padding: 0.42in 0;
+    page-break-after: always; display: flex; flex-direction: column; overflow: hidden;
   }
   .report:last-child { page-break-after: auto; }
-  .r-head { display: flex; justify-content: space-between; align-items: baseline;
-    border-bottom: 2px solid #1A1D1F; padding-bottom: 8px; }
-  .r-brand { font-size: 17px; font-weight: 600; }
+
+  .r-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .r-brand { font-size: 15px; font-weight: 600; }
   .r-brand span { color: #15A36B; }
   .r-meta { font-size: 11px; color: #6E767F; }
-  h1 { font-size: 25px; font-weight: 300; margin: 18px 0 2px; }
-  .r-fullname { font-size: 13px; font-weight: 600; color: #1A1D1F; margin: 0 0 4px; }
-  .r-sub { font-size: 12px; color: #6E767F; margin: 0 0 18px; }
-  h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
-    color: #6E767F; margin: 18px 0 8px; font-weight: 600; }
-  .r-login { border: 1px solid #E6E8EA; background: #F4F5F6; padding: 12px 14px; }
-  .r-login p { margin: 0 0 8px; font-size: 12px; color: #6E767F; }
-  .r-login table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .r-login td { padding: 4px 0; }
-  .r-login td:first-child { color: #6E767F; width: 90px; }
+
+  /* HERO — the eye magnet. */
+  .r-hero { margin-top: 14px; text-align: center; border: 2px solid #1A1D1F;
+    border-radius: 12px; padding: 20px 18px; }
+  .r-hero h1 { margin: 0; font-size: 36px; font-weight: 800; line-height: 1.04;
+    letter-spacing: -0.01em; }
+  .r-hero-sub { margin: 10px 0 0; font-size: 13px; line-height: 1.45; color: #2c3033; }
+
+  /* Login card + the big RIASEC score, side by side. */
+  .r-cols { display: flex; gap: 16px; margin-top: 16px; align-items: stretch; }
+  .r-login { flex: 1.15; border: 1px solid #E6E8EA; background: #F4F5F6;
+    border-radius: 10px; padding: 12px 14px; }
+  .r-card-title { margin: 0 0 8px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #6E767F; font-weight: 700; }
+  .r-qr-row { display: flex; gap: 12px; align-items: center; }
+  .r-qr { width: 92px; height: 92px; flex: 0 0 92px; text-align: center; }
+  .r-qr img { width: 92px; height: 92px; display: block; }
+  .r-qr .r-scan { font-size: 10px; color: #6E767F; margin-top: 3px; }
+  .r-login table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .r-login td { padding: 3px 0; vertical-align: middle; }
+  .r-login td:first-child { color: #6E767F; width: 72px; }
   .r-login code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    font-size: 13px; background: #fff; padding: 1px 5px; border: 1px solid #E6E8EA; }
-  .r-code { font-size: 13px; }
-  .r-code strong { font-size: 22px; letter-spacing: 0.06em; }
-  .r-dim { border-left: 3px solid; padding: 6px 0 6px 12px; margin-top: 10px; }
-  .r-dim-head { display: flex; align-items: center; gap: 8px; }
-  .r-chip { display: inline-flex; align-items: center; justify-content: center;
-    width: 22px; height: 22px; border-radius: 50%; color: #fff;
-    font-size: 12px; font-weight: 600; }
-  .r-dim-name { font-weight: 600; font-size: 14px; }
-  .r-dim p { margin: 4px 0 0; font-size: 12px; line-height: 1.5; }
+    font-size: 13px; background: #fff; padding: 1px 5px; border: 1px solid #E6E8EA;
+    white-space: nowrap; }
+
+  .r-score { flex: 0.85; border: 1px solid #E6E8EA; border-radius: 10px;
+    padding: 12px 14px; text-align: center; display: flex; flex-direction: column;
+    justify-content: center; }
+  .r-score-label { margin: 0; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #6E767F; font-weight: 700; }
+  .r-chips { display: flex; gap: 8px; justify-content: center; margin: 10px 0 6px; }
+  .r-chip { width: 46px; height: 46px; border-radius: 50%; color: #fff;
+    font-size: 22px; font-weight: 700; display: flex; align-items: center;
+    justify-content: center; }
+  .r-score-code { font-size: 26px; font-weight: 800; letter-spacing: 0.1em; }
+  .r-score-name { font-size: 10px; color: #6E767F; margin-top: 4px; line-height: 1.3; }
+
+  .r-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: #6E767F; font-weight: 700; margin: 16px 0 8px; }
+  .r-dims { display: flex; flex-direction: column; gap: 8px; }
+  .r-dim { border-left: 3px solid; padding: 1px 0 1px 10px; }
+  .r-dim-name { font-weight: 700; font-size: 13px; }
+  .r-dim p { margin: 2px 0 0; font-size: 11.5px; line-height: 1.4; color: #2c3033; }
   .r-careers { color: #6E767F; }
-  .r-how p { font-size: 12px; line-height: 1.6; margin: 0 0 8px; color: #2c3033; }
-  .r-explore { display: flex; gap: 14px; align-items: center;
-    border: 1px solid #E6E8EA; background: #F4F5F6; padding: 12px 14px;
-    margin-top: 6px; }
-  .r-explore .qr { width: 92px; height: 92px; flex: 0 0 92px; }
-  .r-explore .qr svg { width: 100%; height: 100%; display: block; }
-  .r-explore .x-body { flex: 1; }
-  .r-explore .x-body p { margin: 0 0 4px; font-size: 12px; line-height: 1.5;
-    color: #2c3033; }
-  .r-explore .x-url { font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    font-size: 12px; font-weight: 600; color: #0FA66C; word-break: break-all; }
-  .r-foot { margin-top: auto; padding-top: 14px; border-top: 1px solid #E6E8EA;
+
+  .r-how { font-size: 11.5px; line-height: 1.5; color: #2c3033; margin: 14px 0 0; }
+  .r-explore-line { font-size: 11.5px; color: #2c3033; margin: 8px 0 0; }
+  .x-url { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 600;
+    color: #0FA66C; white-space: nowrap; }
+
+  .r-foot { margin-top: auto; padding-top: 12px; border-top: 1px solid #E6E8EA;
     font-size: 10px; color: #9aa1a8; }
 `;
 
@@ -113,22 +125,38 @@ export const FAMILY_REPORT_CSS = `
  */
 export function familyReportPageHtml(a: FamilyReportArgs): string {
   const fn = esc(firstName(a.childName));
+  const fullName = esc(a.childName.trim() || "Your child");
   const dims = codeDimensions(a.hollandCode);
+  const code = esc(dims.join(""));
+
+  const chips = dims
+    .map((c) => `<span class="r-chip" style="background:${RIASEC[c].color}">${RIASEC[c].code}</span>`)
+    .join("");
 
   const dimBlocks = dims
     .map((c) => {
       const d = RIASEC[c];
       return `
       <div class="r-dim" style="border-color:${d.color}">
-        <div class="r-dim-head">
-          <span class="r-chip" style="background:${d.color}">${d.code}</span>
-          <span class="r-dim-name">${esc(d.msPlainName)}</span>
-        </div>
-        <p>${esc(d.msDescription)}</p>
-        <p class="r-careers">Jobs that fit: ${esc(d.examples.join(", "))}</p>
+        <span class="r-dim-name" style="color:${d.color}">${d.code} &middot; ${esc(d.msPlainName)}</span>
+        <p>${esc(d.msDescription)} <span class="r-careers">Jobs: ${esc(d.examples.slice(0, 4).join(", "))}.</span></p>
       </div>`;
     })
     .join("");
+
+  const loginRows = `
+    <table>
+      <tr><td>Website</td><td><code>${esc(a.signInUrl)}</code></td></tr>
+      <tr><td>Username</td><td><code>${esc(a.username)}</code></td></tr>
+      <tr><td>Password</td><td><code>${esc(a.password)}</code></td></tr>
+    </table>`;
+
+  const loginInner = a.loginQrDataUrl
+    ? `<div class="r-qr-row">
+         <div class="r-qr"><img src="${a.loginQrDataUrl}" alt="QR code to the sign-in page"/><div class="r-scan">Scan to log in</div></div>
+         <div style="flex:1">${loginRows}</div>
+       </div>`
+    : loginRows;
 
   return `
   <div class="report">
@@ -137,53 +165,38 @@ export function familyReportPageHtml(a: FamilyReportArgs): string {
       <div class="r-meta">${esc(a.campTitle)}</div>
     </div>
 
-    <h1>${fn}&rsquo;s Interest Profile</h1>
-    <p class="r-fullname">${esc(a.childName.trim())}</p>
-    <p class="r-sub">A snapshot of what ${fn} is drawn to &mdash; and a starting point for conversations at home.</p>
-
-    <h2>Signing in</h2>
-    <div class="r-login">
-      <p>${fn} explored their interests with EXPLR. They can sign back in any time to revisit their results.</p>
-      <table>
-        <tr><td>Website</td><td><code>${esc(a.signInUrl)}</code></td></tr>
-        <tr><td>Username</td><td><code>${esc(a.username)}</code></td></tr>
-        <tr><td>Password</td><td><code>${esc(a.password)}</code></td></tr>
-      </table>
+    <div class="r-hero">
+      <h1>Log in to see your results</h1>
+      <p class="r-hero-sub">${fullName} just finished the EXPLR interest assessment. Sign in together to explore what ${fn} discovered.</p>
     </div>
 
-    <h2>What ${fn} discovered</h2>
-    <p class="r-code">${fn}&rsquo;s interest code is <strong>${esc(
-      dims.join(""),
-    )}</strong> &mdash; the three kinds of activities they leaned toward most:</p>
-    ${dimBlocks}
-
-    <h2>How to read this</h2>
-    <div class="r-how">
-      <p>EXPLR uses <strong>RIASEC</strong>, a framework researchers have used for
-      45 years. It sorts interests into six kinds: Realistic (hands-on),
-      Investigative (figuring things out), Artistic (creating), Social
-      (helping people), Enterprising (leading), and Conventional (organizing).</p>
-      <p>Almost everyone is a <em>blend</em>. ${fn}&rsquo;s top three letters make
-      their &ldquo;interest code.&rdquo; It is a conversation starter &mdash; a way to ask
-      &ldquo;what did you enjoy, and why?&rdquo; &mdash; not a prediction or a limit.
-      Interests grow and change a lot at this age, and that is exactly what
-      camps, clubs, and trying new things are for.</p>
-    </div>
-
-    <h2>Explore careers together</h2>
-    <div class="r-explore">
-      <div class="qr">${EXPLORE_QR_SVG}</div>
-      <div class="x-body">
-        <p>Scan the code or visit the link below to look up ${fn}&rsquo;s
-        interest code &mdash; <strong>${esc(dims.join(""))}</strong> &mdash; and
-        explore careers that match what they enjoy.</p>
-        <p class="x-url">${esc(EXPLORE_URL)}</p>
+    <div class="r-cols">
+      <div class="r-login">
+        <p class="r-card-title">How to log in</p>
+        ${loginInner}
+      </div>
+      <div class="r-score">
+        <p class="r-score-label">${fn}&rsquo;s interest code</p>
+        <div class="r-chips">${chips}</div>
+        <div class="r-score-code">${code}</div>
+        <div class="r-score-name">${esc(dims.map((c) => RIASEC[c].msPlainName).join(" &middot; "))}</div>
       </div>
     </div>
 
+    <p class="r-section-title">What ${fn}&rsquo;s code means</p>
+    <div class="r-dims">${dimBlocks}</div>
+
+    <p class="r-how">EXPLR uses <strong>RIASEC</strong>, a research framework used for 45 years.
+    Almost everyone is a blend &mdash; ${fn}&rsquo;s top three letters are a conversation
+    starter (&ldquo;what did you enjoy, and why?&rdquo;), not a prediction or a limit. Interests
+    grow a lot at this age.</p>
+
+    <p class="r-explore-line">Look up the <strong>${code}</strong> code and matching careers at
+    <span class="x-url">${esc(EXPLORE_URL)}</span></p>
+
     <div class="r-foot">
-      EXPLR Pathways &middot; Cleveland State University &times; MAGNET. Keep this
-      sheet &mdash; it has ${fn}&rsquo;s sign-in. Questions? Ask your camp educator.
+      EXPLR Pathways &middot; Cleveland State University &times; MAGNET. Keep this sheet &mdash;
+      it has ${fn}&rsquo;s sign-in. Questions? Ask your camp educator.
     </div>
   </div>`;
 }

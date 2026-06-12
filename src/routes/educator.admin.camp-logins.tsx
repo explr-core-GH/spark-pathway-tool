@@ -267,9 +267,21 @@ function CampLoginsAdmin() {
   }
 
   /** Build family-report pages for a set of logins (only those with a
-   *  completed assessment / Holland code). */
-  function reportPagesFor(pool: Login[]): string[] {
+   *  completed assessment / Holland code). Generates one "scan to log in" QR
+   *  for the sign-in page and reuses it across every report. */
+  async function reportPagesFor(pool: Login[]): Promise<string[]> {
     const signInUrl = `${window.location.origin}/sign-in`;
+    let loginQrDataUrl: string | undefined;
+    try {
+      const QRCode = (await import("qrcode")).default;
+      loginQrDataUrl = await QRCode.toDataURL(signInUrl, {
+        width: 220,
+        margin: 1,
+        color: { dark: "#1A1D1F", light: "#ffffff" },
+      });
+    } catch {
+      /* QR is optional — the report still prints without it. */
+    }
     return pool
       .filter((l) => l.student_id && holland[l.student_id])
       .map((l) =>
@@ -280,40 +292,44 @@ function CampLoginsAdmin() {
           password: l.password_plain,
           signInUrl,
           hollandCode: holland[l.student_id as string],
+          loginQrDataUrl,
         }),
       );
   }
 
-  function openPrint(pages: string[]) {
+  // Fill a print window (opened synchronously in the click, so the popup
+  // blocker doesn't fire after the async QR generation).
+  function finishPrint(w: Window | null, pages: string[]) {
+    if (!w) return;
     if (pages.length === 0) {
+      w.close();
       setStatus(
         "No family reports to print yet — students need to finish the assessment first.",
       );
       return;
     }
-    const w = window.open("", "_blank");
-    if (w) {
-      w.document.write(familyReportDocument(pages));
-      w.document.close();
-      w.focus();
-      w.print();
-    }
+    w.document.write(familyReportDocument(pages));
+    w.document.close();
+    w.focus();
+    w.print();
   }
 
   /**
    * Print the family 1-pager for one camp's students who have results,
    * or — when `onlyLogin` is given — just that one student.
    */
-  function printFamilyReports(campId: string, _title: string, onlyLogin?: Login) {
+  async function printFamilyReports(campId: string, _title: string, onlyLogin?: Login) {
+    const w = window.open("", "_blank");
     const pool = onlyLogin
       ? [onlyLogin]
       : logins.filter((l) => l.explr_camp_id === campId);
-    openPrint(reportPagesFor(pool));
+    finishPrint(w, await reportPagesFor(pool));
   }
 
   /** Print every student's family report across all camps, in one job. */
-  function printAllFamilyReports() {
-    openPrint(reportPagesFor(logins));
+  async function printAllFamilyReports() {
+    const w = window.open("", "_blank");
+    finishPrint(w, await reportPagesFor(logins));
   }
 
   async function submitWalkIn() {
