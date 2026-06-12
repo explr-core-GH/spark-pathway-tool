@@ -13,6 +13,7 @@ function SignIn() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showPw, setShowPw] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -77,15 +78,29 @@ function SignIn() {
         </div>
         <div>
           <label className="label" htmlFor="signin-password">Password</label>
-          <input
-            id="signin-password"
-            className="field"
-            type="password"
-            required
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="relative">
+            <input
+              id="signin-password"
+              className="field pr-16"
+              type={showPw ? "text" : "password"}
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPw((v) => !v)}
+              aria-pressed={showPw}
+              aria-label={showPw ? "Hide password" : "Show password"}
+              className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 text-xs font-medium text-charcoal-500 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            >
+              {showPw ? "Hide" : "Show"}
+            </button>
+          </div>
+          <p className="mt-1 text-[11px] text-charcoal-400">
+            Tap &ldquo;Show&rdquo; to check the password if sign-in isn&apos;t working.
+          </p>
         </div>
         {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
         <button type="submit" disabled={loading} className="btn-ink w-full justify-center">

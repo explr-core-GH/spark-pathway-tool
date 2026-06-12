@@ -29,6 +29,7 @@ import { Route as LabSplatRouteImport } from './routes/lab.$'
 import { Route as EducatorStudentsRouteImport } from './routes/educator.students'
 import { Route as EducatorSignUpRouteImport } from './routes/educator.sign-up'
 import { Route as EducatorSignInRouteImport } from './routes/educator.sign-in'
+import { Route as EducatorLoginDisplayRouteImport } from './routes/educator.login-display'
 import { Route as EducatorDashboardRouteImport } from './routes/educator.dashboard'
 import { Route as EducatorAdminRouteImport } from './routes/educator.admin'
 import { Route as AssessmentInternshipInterestRouteImport } from './routes/assessment.internship-interest'
@@ -158,6 +159,11 @@ const EducatorSignUpRoute = EducatorSignUpRouteImport.update({
 const EducatorSignInRoute = EducatorSignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
+  getParentRoute: () => EducatorRoute,
+} as any)
+const EducatorLoginDisplayRoute = EducatorLoginDisplayRouteImport.update({
+  id: '/login-display',
+  path: '/login-display',
   getParentRoute: () => EducatorRoute,
 } as any)
 const EducatorDashboardRoute = EducatorDashboardRouteImport.update({
@@ -340,6 +346,7 @@ export interface FileRoutesByFullPath {
   '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
   '/educator/admin': typeof EducatorAdminRouteWithChildren
   '/educator/dashboard': typeof EducatorDashboardRoute
+  '/educator/login-display': typeof EducatorLoginDisplayRoute
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
   '/educator/students': typeof EducatorStudentsRoute
@@ -390,6 +397,7 @@ export interface FileRoutesByTo {
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
   '/educator/dashboard': typeof EducatorDashboardRoute
+  '/educator/login-display': typeof EducatorLoginDisplayRoute
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
   '/educator/students': typeof EducatorStudentsRoute
@@ -443,6 +451,7 @@ export interface FileRoutesById {
   '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
   '/educator/admin': typeof EducatorAdminRouteWithChildren
   '/educator/dashboard': typeof EducatorDashboardRoute
+  '/educator/login-display': typeof EducatorLoginDisplayRoute
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
   '/educator/students': typeof EducatorStudentsRoute
@@ -497,6 +506,7 @@ export interface FileRouteTypes {
     | '/assessment/internship-interest'
     | '/educator/admin'
     | '/educator/dashboard'
+    | '/educator/login-display'
     | '/educator/sign-in'
     | '/educator/sign-up'
     | '/educator/students'
@@ -547,6 +557,7 @@ export interface FileRouteTypes {
     | '/assessment/$sessionId'
     | '/assessment/internship-interest'
     | '/educator/dashboard'
+    | '/educator/login-display'
     | '/educator/sign-in'
     | '/educator/sign-up'
     | '/educator/students'
@@ -599,6 +610,7 @@ export interface FileRouteTypes {
     | '/assessment/internship-interest'
     | '/educator/admin'
     | '/educator/dashboard'
+    | '/educator/login-display'
     | '/educator/sign-in'
     | '/educator/sign-up'
     | '/educator/students'
@@ -799,6 +811,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/educator/sign-in'
       preLoaderRoute: typeof EducatorSignInRouteImport
+      parentRoute: typeof EducatorRoute
+    }
+    '/educator/login-display': {
+      id: '/educator/login-display'
+      path: '/login-display'
+      fullPath: '/educator/login-display'
+      preLoaderRoute: typeof EducatorLoginDisplayRouteImport
       parentRoute: typeof EducatorRoute
     }
     '/educator/dashboard': {
@@ -1061,6 +1080,7 @@ const EducatorAdminRouteWithChildren = EducatorAdminRoute._addFileChildren(
 interface EducatorRouteChildren {
   EducatorAdminRoute: typeof EducatorAdminRouteWithChildren
   EducatorDashboardRoute: typeof EducatorDashboardRoute
+  EducatorLoginDisplayRoute: typeof EducatorLoginDisplayRoute
   EducatorSignInRoute: typeof EducatorSignInRoute
   EducatorSignUpRoute: typeof EducatorSignUpRoute
   EducatorStudentsRoute: typeof EducatorStudentsRoute
@@ -1076,6 +1096,7 @@ interface EducatorRouteChildren {
 const EducatorRouteChildren: EducatorRouteChildren = {
   EducatorAdminRoute: EducatorAdminRouteWithChildren,
   EducatorDashboardRoute: EducatorDashboardRoute,
+  EducatorLoginDisplayRoute: EducatorLoginDisplayRoute,
   EducatorSignInRoute: EducatorSignInRoute,
   EducatorSignUpRoute: EducatorSignUpRoute,
   EducatorStudentsRoute: EducatorStudentsRoute,

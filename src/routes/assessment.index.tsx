@@ -153,11 +153,14 @@ function AssessmentIntro() {
 
           <div className="mt-10 flex items-end gap-4">
             <div>
-              <label className="label" htmlFor="assess-grade">Grade</label>
-              <select id="assess-grade" className="field w-28" value={grade ?? ""} onChange={(e) => setGrade(Number(e.target.value))}>
+              <label className="label" htmlFor="assess-grade">Grade this fall</label>
+              <select id="assess-grade" aria-describedby="assess-grade-hint" className="field w-28" value={grade ?? ""} onChange={(e) => setGrade(Number(e.target.value))}>
                 <option value="" disabled>—</option>
                 {[5,6,7,8,9,10,11,12].map((g) => <option key={g} value={g}>{g}</option>)}
               </select>
+              <p id="assess-grade-hint" className="mt-1 text-[11px] text-charcoal-400">
+                The grade you&apos;re entering this fall.
+              </p>
             </div>
             <button className="btn-ink" disabled={!grade || starting} onClick={start}>
               {starting ? "Starting…" : "Begin"}

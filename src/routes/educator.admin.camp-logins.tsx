@@ -27,7 +27,11 @@ type Login = {
   child_name: string;
   username: string;
   password_plain: string;
+  classroom: string | null;
 };
+
+type SortBy = "name" | "classroom" | "finished" | "unfinished";
+type CompareResult = { campId: string; matched: number; missing: string[]; extra: string[] };
 
 function CampLoginsAdmin() {
   const [sessions, setSessions] = useState<CampSession[]>([]);
@@ -59,6 +63,12 @@ function CampLoginsAdmin() {
     age: string;
   } | null>(null);
 
+  // Roster organizing: sort order, in-flight classroom edits, and the result
+  // of a "compare against a list" upload.
+  const [sortBy, setSortBy] = useState<SortBy>("name");
+  const [classDraft, setClassDraft] = useState<Record<string, string>>({});
+  const [compare, setCompare] = useState<CompareResult | null>(null);
+
   async function load() {
     setLoading(true);
     const [{ data: ss }, { data: regs }, { data: lg }] = await Promise.all([
@@ -67,9 +77,9 @@ function CampLoginsAdmin() {
         .select("id, title, date")
         .order("date", { ascending: true }),
       supabase.from("explr_registrations").select("camp_id"),
-      supabase.from("camp_student_logins").select(
-        "id, explr_camp_id, student_id, child_name, username, password_plain",
-      ),
+      // select("*") so the new classroom column degrades gracefully before the
+      // migration is applied.
+      supabase.from("camp_student_logins").select("*"),
     ]);
     setSessions((ss ?? []) as CampSession[]);
     const counts: Record<string, number> = {};
@@ -77,7 +87,7 @@ function CampLoginsAdmin() {
       counts[r.camp_id] = (counts[r.camp_id] ?? 0) + 1;
     }
     setRegCounts(counts);
-    const loginRows = (lg ?? []) as Login[];
+    const loginRows = (lg ?? []) as unknown as Login[];
     setLogins(loginRows);
 
     // Holland codes for the generated students who've finished the
@@ -143,20 +153,21 @@ function CampLoginsAdmin() {
    * domain — the sign-in form appends it), and their password.
    */
   function printCards(campId: string, title: string) {
-    const rows = logins.filter((l) => l.explr_camp_id === campId);
+    const rows = sortLogins(logins.filter((l) => l.explr_camp_id === campId));
     if (rows.length === 0) return;
     const signInUrl = `${window.location.origin}/sign-in`;
     const cards = rows
       .map((r) => {
         const first = escapeHtml(r.child_name.trim().split(/\s+/)[0] || "friend");
         const fullName = escapeHtml(r.child_name.trim() || "Student");
+        const classroom = r.classroom ? escapeHtml(r.classroom) : "";
         const localUser = escapeHtml(r.username.split("@")[0] || r.username);
         const pw = escapeHtml(r.password_plain);
         return `
           <div class="card">
             <div class="brand">EXPLR <span>Pathways</span></div>
             <div class="hi">Hi, ${first}!</div>
-            <div class="fullname">${fullName}</div>
+            <div class="fullname">${fullName}${classroom ? ` <span class="room">· ${classroom}</span>` : ""}</div>
             <div class="step">1. Go to <code class="url">${escapeHtml(signInUrl)}</code></div>
             <div class="step">2. Sign in with:</div>
             <table class="creds">
@@ -184,8 +195,9 @@ function CampLoginsAdmin() {
         }
         .brand { font-size: 12px; font-weight: 600; }
         .brand span { color: #15A36B; }
-        .hi { font-size: 18px; font-weight: 700; margin-top: 6px; }
-        .fullname { font-size: 11px; color: #6E767F; margin-top: 1px; }
+        .hi { font-size: 14px; font-weight: 600; margin-top: 6px; color: #2c3033; }
+        .fullname { font-size: 17px; color: #1A1D1F; font-weight: 700; margin-top: 2px; line-height: 1.15; }
+        .fullname .room { font-size: 12px; font-weight: 500; color: #6E767F; }
         .step { font-size: 12px; color: #2c3033; margin-top: 6px; line-height: 1.4; }
         .creds { border-collapse: collapse; width: 100%; margin-top: 4px; }
         .creds td { padding: 4px 0; font-size: 13px; vertical-align: middle; }
@@ -193,7 +205,7 @@ function CampLoginsAdmin() {
         code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
           font-size: 14px; font-weight: 600; background: #FFF8C5;
           padding: 2px 6px; border-radius: 2px; }
-        code.url { font-size: 11px; background: #EDEEF0; font-weight: 500; }
+        code.url { font-size: 11px; background: #EDEEF0; font-weight: 500; white-space: nowrap; }
         .foot { margin-top: auto; padding-top: 8px; font-size: 10px; color: #9aa1a8; }
       </style></head><body>
       <div class="grid">${cards}</div>
@@ -208,7 +220,7 @@ function CampLoginsAdmin() {
   }
 
   function printSheet(campId: string, title: string) {
-    const rows = logins.filter((l) => l.explr_camp_id === campId);
+    const rows = sortLogins(logins.filter((l) => l.explr_camp_id === campId));
     const html = `<!doctype html><html><head><title>${title} — logins</title>
       <style>
         body{font-family:system-ui,sans-serif;padding:24px;color:#1A1D1F}
@@ -221,11 +233,11 @@ function CampLoginsAdmin() {
       </style></head><body>
       <h1>${title}</h1>
       <p>Student logins — hand each row to the right camper. Keep this sheet secure.</p>
-      <table><thead><tr><th>Student</th><th>Username</th><th>Password</th></tr></thead><tbody>
+      <table><thead><tr><th>Classroom</th><th>Student</th><th>Username</th><th>Password</th></tr></thead><tbody>
       ${rows
         .map(
           (r) =>
-            `<tr><td>${escapeHtml(r.child_name)}</td><td><code>${escapeHtml(
+            `<tr><td>${escapeHtml(r.classroom ?? "")}</td><td>${escapeHtml(r.child_name)}</td><td><code>${escapeHtml(
               r.username,
             )}</code></td><td><code>${escapeHtml(r.password_plain)}</code></td></tr>`,
         )
@@ -355,6 +367,83 @@ function CampLoginsAdmin() {
     }
   }
 
+  // ── Roster organizing helpers ──────────────────────────────────────────
+  const isDone = (l: Login) => !!(l.student_id && holland[l.student_id]);
+
+  function sortLogins(rows: Login[]): Login[] {
+    const byName = (a: Login, b: Login) => a.child_name.localeCompare(b.child_name);
+    const copy = [...rows];
+    switch (sortBy) {
+      case "classroom":
+        return copy.sort(
+          (a, b) => (a.classroom ?? "~").localeCompare(b.classroom ?? "~") || byName(a, b),
+        );
+      case "finished":
+        return copy.sort((a, b) => Number(isDone(b)) - Number(isDone(a)) || byName(a, b));
+      case "unfinished":
+        return copy.sort((a, b) => Number(isDone(a)) - Number(isDone(b)) || byName(a, b));
+      default:
+        return copy.sort(byName);
+    }
+  }
+
+  async function saveClassroom(l: Login, raw: string) {
+    const value = raw.trim();
+    if ((l.classroom ?? "") === value) return;
+    setLogins((prev) => prev.map((x) => (x.id === l.id ? { ...x, classroom: value || null } : x)));
+    const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
+    const { error } = await sb("camp_student_logins").update({ classroom: value || null }).eq("id", l.id);
+    if (error) setStatus(`Couldn't save classroom: ${error.message}`);
+  }
+
+  /** Export this camp's roster (incl. classroom, login, status, RIASEC) to .xlsx. */
+  async function exportXlsx(campId: string, title: string) {
+    const rows = sortLogins(logins.filter((l) => l.explr_camp_id === campId));
+    if (rows.length === 0) return;
+    const XLSX = await import("xlsx");
+    const data = rows.map((l) => ({
+      Classroom: l.classroom ?? "",
+      Name: l.child_name,
+      Username: l.username.split("@")[0] || l.username,
+      Password: l.password_plain,
+      Assessment: isDone(l) ? "Finished" : "Not finished",
+      "Holland code": (l.student_id && holland[l.student_id]) || "",
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Roster");
+    XLSX.writeFile(wb, `${safeFileName(title)}-roster.xlsx`);
+  }
+
+  /** Compare an uploaded CSV/Excel name list against this camp's roster. */
+  async function onCompareFile(campId: string, file: File) {
+    setStatus(null);
+    try {
+      const XLSX = await import("xlsx");
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const grid = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, blankrows: false });
+      const uploaded: string[] = [];
+      for (const row of grid) {
+        const cell = (row ?? []).map((c) => String(c ?? "").trim()).find(Boolean);
+        if (cell) uploaded.push(cell);
+      }
+      // Drop an obvious header row ("name", "student", …).
+      if (uploaded.length && /name|student/i.test(uploaded[0])) uploaded.shift();
+
+      const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").trim();
+      const rosterNames = logins.filter((l) => l.explr_camp_id === campId).map((l) => l.child_name);
+      const rosterSet = new Set(rosterNames.map(norm));
+      const uploadedSet = new Set(uploaded.map(norm));
+      const missing = uploaded.filter((n) => !rosterSet.has(norm(n)));
+      const extra = rosterNames.filter((n) => !uploadedSet.has(norm(n)));
+      setCompare({ campId, matched: uploaded.length - missing.length, missing, extra });
+    } catch (e) {
+      setStatus(e instanceof Error ? `Couldn't read file: ${e.message}` : "Couldn't read file.");
+    }
+  }
+
   return (
     <main className="mx-auto max-w-6xl px-6 py-12">
       <p className="eyebrow">Admin</p>
@@ -366,6 +455,17 @@ function CampLoginsAdmin() {
         so assessments you assign to the camp&apos;s educator reach them. Once
         a student finishes their assessment, print a family 1-pager with their
         login and RIASEC profile to send home.
+      </p>
+
+      <p className="mt-3">
+        <a
+          href="/educator/login-display"
+          target="_blank"
+          rel="noreferrer"
+          className="text-sm text-explr-600 hover:underline"
+        >
+          Open the &ldquo;How to log in&rdquo; display page for students &rarr;
+        </a>
       </p>
 
       {status && (
@@ -613,20 +713,86 @@ function CampLoginsAdmin() {
                       )}
                     </div>
 
+                    {/* Roster toolbar — sort, export to Excel, compare a list. */}
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <label className="text-xs text-charcoal-500">
+                        Sort:{" "}
+                        <select
+                          value={sortBy}
+                          onChange={(e) => setSortBy(e.target.value as SortBy)}
+                          className="border border-charcoal-200 px-2 py-1 text-xs"
+                        >
+                          <option value="name">Name A–Z</option>
+                          <option value="classroom">Classroom</option>
+                          <option value="finished">Finished first</option>
+                          <option value="unfinished">Not finished first</option>
+                        </select>
+                      </label>
+                      <button
+                        onClick={() => exportXlsx(s.id, s.title)}
+                        className="text-xs text-charcoal-500 underline hover:text-ink"
+                      >
+                        Export Excel
+                      </button>
+                      <label className="cursor-pointer text-xs text-charcoal-500 underline hover:text-ink">
+                        Compare against a list…
+                        <input
+                          type="file"
+                          accept=".csv,.xlsx,.xls"
+                          className="sr-only"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) onCompareFile(s.id, f);
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
+                    </div>
+
+                    {compare?.campId === s.id && (
+                      <div className="mt-3 border border-charcoal-200 bg-charcoal-50 p-3 text-xs">
+                        <div className="flex items-center justify-between">
+                          <p className="font-medium">Compared against your list</p>
+                          <button
+                            onClick={() => setCompare(null)}
+                            className="text-charcoal-400 hover:text-ink"
+                          >
+                            Dismiss
+                          </button>
+                        </div>
+                        <p className="mt-1 text-charcoal-600">
+                          {compare.matched} matched · {compare.missing.length} on your list but not in
+                          EXPLR · {compare.extra.length} in EXPLR but not on your list
+                        </p>
+                        {compare.missing.length > 0 && (
+                          <p className="mt-2">
+                            <span className="font-medium">Missing from EXPLR:</span>{" "}
+                            {compare.missing.join(", ")}
+                          </p>
+                        )}
+                        {compare.extra.length > 0 && (
+                          <p className="mt-1">
+                            <span className="font-medium">Extra in EXPLR (not on your list):</span>{" "}
+                            {compare.extra.join(", ")}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
                     <div className="mt-3 overflow-x-auto border border-charcoal-100">
                       <table className="w-full border-collapse text-sm">
                         <thead>
                           <tr className="border-b border-charcoal-100 bg-charcoal-50 text-left text-xs uppercase tracking-wider text-charcoal-400">
                             <th className="px-3 py-2 font-normal">Student</th>
+                            <th className="px-3 py-2 font-normal">Classroom</th>
+                            <th className="px-3 py-2 font-normal">Status</th>
                             <th className="px-3 py-2 font-normal">Username</th>
                             <th className="px-3 py-2 font-normal">Password</th>
                             <th className="px-3 py-2 font-normal">Family report</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-charcoal-100">
-                          {logins
-                            .filter((l) => l.explr_camp_id === s.id)
-                            .map((l) => {
+                          {sortLogins(logins.filter((l) => l.explr_camp_id === s.id)).map((l) => {
                               const hasResult =
                                 !!l.student_id && !!holland[l.student_id];
                               const isEditing = editing?.id === l.id;
@@ -692,6 +858,25 @@ function CampLoginsAdmin() {
                                       </div>
                                     )}
                                   </td>
+                                  <td className="px-3 py-2">
+                                    <input
+                                      className="field w-28 py-1 text-xs"
+                                      placeholder="—"
+                                      aria-label={`Classroom for ${l.child_name}`}
+                                      value={classDraft[l.id] ?? l.classroom ?? ""}
+                                      onChange={(e) =>
+                                        setClassDraft({ ...classDraft, [l.id]: e.target.value })
+                                      }
+                                      onBlur={(e) => saveClassroom(l, e.target.value)}
+                                    />
+                                  </td>
+                                  <td className="px-3 py-2 text-xs">
+                                    {hasResult ? (
+                                      <span style={{ color: "var(--color-explr-600)" }}>Finished</span>
+                                    ) : (
+                                      <span className="text-charcoal-400">Not yet</span>
+                                    )}
+                                  </td>
                                   <td className="px-3 py-2 font-mono text-xs">
                                     {l.username}
                                   </td>
@@ -743,4 +928,8 @@ function escapeHtml(s: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+function safeFileName(s: string): string {
+  return s.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() || "camp";
 }

@@ -15,6 +15,7 @@ function SignUp() {
   const [grade, setGrade] = useState(8);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showPw, setShowPw] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -48,19 +49,33 @@ function SignUp() {
             <input id="su-first" className="field" required autoComplete="given-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
           </div>
           <div>
-            <label className="label" htmlFor="su-grade">Grade</label>
-            <select id="su-grade" className="field" value={grade} onChange={(e) => setGrade(Number(e.target.value))}>
+            <label className="label" htmlFor="su-grade">Grade this fall</label>
+            <select id="su-grade" aria-describedby="su-grade-hint" className="field" value={grade} onChange={(e) => setGrade(Number(e.target.value))}>
               {[5,6,7,8,9,10,11,12].map((g) => <option key={g} value={g}>{g}</option>)}
             </select>
           </div>
         </div>
+        <p id="su-grade-hint" className="-mt-2 text-[11px] text-charcoal-400">
+          Pick the grade you&apos;re <strong>entering this fall</strong> (after summer break).
+        </p>
         <div>
           <label className="label" htmlFor="su-email">Email</label>
           <input id="su-email" className="field" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div>
           <label className="label" htmlFor="su-password">Password</label>
-          <input id="su-password" className="field" type="password" required minLength={8} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <div className="relative">
+            <input id="su-password" className="field pr-16" type={showPw ? "text" : "password"} required minLength={8} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <button
+              type="button"
+              onClick={() => setShowPw((v) => !v)}
+              aria-pressed={showPw}
+              aria-label={showPw ? "Hide password" : "Show password"}
+              className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 text-xs font-medium text-charcoal-500 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            >
+              {showPw ? "Hide" : "Show"}
+            </button>
+          </div>
         </div>
         {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
         <button type="submit" disabled={loading} className="btn-ink w-full justify-center">
