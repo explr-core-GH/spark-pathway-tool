@@ -56,67 +56,67 @@ export const FAMILY_REPORT_CSS = `
   * { box-sizing: border-box; }
   body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #1A1D1F; }
   .report {
-    width: 7.5in; height: 10in; margin: 0 auto; padding: 0.42in 0;
+    width: 7.5in; height: 10in; margin: 0 auto; padding: 0.45in 0;
     page-break-after: always; display: flex; flex-direction: column; overflow: hidden;
   }
   .report:last-child { page-break-after: auto; }
 
   .r-head { display: flex; justify-content: space-between; align-items: baseline; }
-  .r-brand { font-size: 15px; font-weight: 600; }
+  .r-brand { font-size: 16px; font-weight: 600; }
   .r-brand span { color: #15A36B; }
-  .r-meta { font-size: 11px; color: #6E767F; }
+  .r-meta { font-size: 12px; color: #6E767F; }
 
   /* HERO — the eye magnet. */
-  .r-hero { margin-top: 14px; text-align: center; border: 2px solid #1A1D1F;
-    border-radius: 12px; padding: 20px 18px; }
-  .r-hero h1 { margin: 0; font-size: 36px; font-weight: 800; line-height: 1.04;
-    letter-spacing: -0.01em; }
-  .r-hero-sub { margin: 10px 0 0; font-size: 13px; line-height: 1.45; color: #2c3033; }
+  .r-hero { margin-top: 18px; text-align: center; border: 2px solid #1A1D1F;
+    border-radius: 14px; padding: 26px 20px; }
+  .r-hero h1 { margin: 0; font-size: 44px; font-weight: 800; line-height: 1.03;
+    letter-spacing: -0.015em; }
+  .r-hero-sub { margin: 12px 0 0; font-size: 14px; line-height: 1.45; color: #2c3033; }
 
   /* Login card + the big RIASEC score, side by side. */
-  .r-cols { display: flex; gap: 16px; margin-top: 16px; align-items: stretch; }
+  .r-cols { display: flex; gap: 18px; margin-top: 22px; align-items: stretch; }
   .r-login { flex: 1.15; border: 1px solid #E6E8EA; background: #F4F5F6;
-    border-radius: 10px; padding: 12px 14px; }
-  .r-card-title { margin: 0 0 8px; font-size: 11px; text-transform: uppercase;
+    border-radius: 12px; padding: 16px 18px; }
+  .r-card-title { margin: 0 0 10px; font-size: 12px; text-transform: uppercase;
     letter-spacing: 0.08em; color: #6E767F; font-weight: 700; }
-  .r-qr-row { display: flex; gap: 12px; align-items: center; }
-  .r-qr { width: 92px; height: 92px; flex: 0 0 92px; text-align: center; }
-  .r-qr img { width: 92px; height: 92px; display: block; }
-  .r-qr .r-scan { font-size: 10px; color: #6E767F; margin-top: 3px; }
-  .r-login table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .r-login td { padding: 3px 0; vertical-align: middle; }
-  .r-login td:first-child { color: #6E767F; width: 72px; }
+  .r-qr-row { display: flex; gap: 14px; align-items: center; }
+  .r-qr { width: 108px; height: 108px; flex: 0 0 108px; text-align: center; }
+  .r-qr img { width: 108px; height: 108px; display: block; }
+  .r-qr .r-scan { font-size: 11px; color: #6E767F; margin-top: 4px; }
+  .r-login table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .r-login td { padding: 5px 0; vertical-align: middle; }
+  .r-login td:first-child { color: #6E767F; width: 76px; }
   .r-login code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    font-size: 13px; background: #fff; padding: 1px 5px; border: 1px solid #E6E8EA;
+    font-size: 14px; background: #fff; padding: 2px 6px; border: 1px solid #E6E8EA;
     white-space: nowrap; }
 
-  .r-score { flex: 0.85; border: 1px solid #E6E8EA; border-radius: 10px;
-    padding: 12px 14px; text-align: center; display: flex; flex-direction: column;
+  .r-score { flex: 0.85; border: 1px solid #E6E8EA; border-radius: 12px;
+    padding: 16px; text-align: center; display: flex; flex-direction: column;
     justify-content: center; }
-  .r-score-label { margin: 0; font-size: 11px; text-transform: uppercase;
+  .r-score-label { margin: 0; font-size: 12px; text-transform: uppercase;
     letter-spacing: 0.08em; color: #6E767F; font-weight: 700; }
-  .r-chips { display: flex; gap: 8px; justify-content: center; margin: 10px 0 6px; }
-  .r-chip { width: 46px; height: 46px; border-radius: 50%; color: #fff;
-    font-size: 22px; font-weight: 700; display: flex; align-items: center;
+  .r-chips { display: flex; gap: 10px; justify-content: center; margin: 14px 0 8px; }
+  .r-chip { width: 58px; height: 58px; border-radius: 50%; color: #fff;
+    font-size: 28px; font-weight: 700; display: flex; align-items: center;
     justify-content: center; }
-  .r-score-code { font-size: 26px; font-weight: 800; letter-spacing: 0.1em; }
-  .r-score-name { font-size: 10px; color: #6E767F; margin-top: 4px; line-height: 1.3; }
+  .r-score-code { font-size: 34px; font-weight: 800; letter-spacing: 0.12em; }
+  .r-score-name { font-size: 11px; color: #6E767F; margin-top: 6px; line-height: 1.35; }
 
-  .r-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
-    color: #6E767F; font-weight: 700; margin: 16px 0 8px; }
-  .r-dims { display: flex; flex-direction: column; gap: 8px; }
-  .r-dim { border-left: 3px solid; padding: 1px 0 1px 10px; }
-  .r-dim-name { font-weight: 700; font-size: 13px; }
-  .r-dim p { margin: 2px 0 0; font-size: 11.5px; line-height: 1.4; color: #2c3033; }
+  .r-section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: #6E767F; font-weight: 700; margin: 22px 0 10px; }
+  .r-dims { display: flex; flex-direction: column; gap: 12px; }
+  .r-dim { border-left: 4px solid; padding: 2px 0 2px 12px; }
+  .r-dim-name { font-weight: 700; font-size: 14px; }
+  .r-dim p { margin: 3px 0 0; font-size: 12.5px; line-height: 1.5; color: #2c3033; }
   .r-careers { color: #6E767F; }
 
-  .r-how { font-size: 11.5px; line-height: 1.5; color: #2c3033; margin: 14px 0 0; }
-  .r-explore-line { font-size: 11.5px; color: #2c3033; margin: 8px 0 0; }
+  .r-how { font-size: 12.5px; line-height: 1.55; color: #2c3033; margin: 20px 0 0; }
+  .r-explore-line { font-size: 12.5px; color: #2c3033; margin: 12px 0 0; }
   .x-url { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 600;
     color: #0FA66C; white-space: nowrap; }
 
-  .r-foot { margin-top: auto; padding-top: 12px; border-top: 1px solid #E6E8EA;
-    font-size: 10px; color: #9aa1a8; }
+  .r-foot { margin-top: auto; padding-top: 14px; border-top: 1px solid #E6E8EA;
+    font-size: 10.5px; color: #9aa1a8; }
 `;
 
 /**
