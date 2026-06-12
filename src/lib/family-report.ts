@@ -53,10 +53,11 @@ function codeDimensions(code: string): RIASECCode[] {
 
 /** Shared print stylesheet — one <style> for the whole multi-page doc. */
 export const FAMILY_REPORT_CSS = `
+  @page { size: letter; margin: 0.4in; }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #1A1D1F; }
   .report {
-    width: 7.5in; height: 10in; margin: 0 auto; padding: 0.45in 0;
+    width: 100%; max-width: 7.7in; height: 10.2in; margin: 0 auto; padding: 0;
     page-break-after: always; display: flex; flex-direction: column; overflow: hidden;
   }
   .report:last-child { page-break-after: auto; }
