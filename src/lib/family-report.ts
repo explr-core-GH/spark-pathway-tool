@@ -73,6 +73,10 @@ export const FAMILY_REPORT_CSS = `
   @page { size: letter; margin: 0.4in; }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
+  /* Force the RIASEC chip + card colors to print. Browsers drop background
+     colors when printing by default, which made the colored code chips come
+     out black-and-white. */
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #1A1D1F; }
   .report {
     width: 100%; min-height: 9.5in; margin: 0; padding: 0.3in 0.35in;
@@ -95,22 +99,25 @@ export const FAMILY_REPORT_CSS = `
 
   /* Login card + the big RIASEC score, side by side. */
   .r-cols { display: flex; gap: 18px; margin-top: 22px; align-items: stretch; }
-  .r-login { flex: 1.15; border: 1px solid #E6E8EA; background: #F4F5F6;
+  .r-login { flex: 1.15; min-width: 0; border: 1px solid #E6E8EA; background: #F4F5F6;
     border-radius: 12px; padding: 16px 18px; }
   .r-card-title { margin: 0 0 10px; font-size: 12px; text-transform: uppercase;
     letter-spacing: 0.08em; color: #6E767F; font-weight: 700; }
   .r-qr-row { display: flex; gap: 14px; align-items: center; }
-  .r-qr { width: 108px; height: 108px; flex: 0 0 108px; text-align: center; }
+  .r-qr { width: 108px; flex: 0 0 108px; text-align: center; }
   .r-qr img { width: 108px; height: 108px; display: block; }
   .r-qr .r-scan { font-size: 11px; color: #6E767F; margin-top: 4px; }
   .r-login table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .r-login td { padding: 5px 0; vertical-align: middle; }
   .r-login td:first-child { color: #6E767F; width: 76px; }
   .r-login code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    font-size: 14px; background: #fff; padding: 2px 6px; border: 1px solid #E6E8EA;
+    font-size: 13px; background: #fff; padding: 2px 6px; border: 1px solid #E6E8EA;
     white-space: nowrap; }
+  .r-cred { flex: 1; min-width: 0; }
+  .r-website { margin-top: 12px; font-size: 13px; color: #2c3033; }
+  .r-website-label { color: #6E767F; margin-right: 4px; }
 
-  .r-score { flex: 0.85; border: 1px solid #E6E8EA; border-radius: 12px;
+  .r-score { flex: 0.85; min-width: 0; border: 1px solid #E6E8EA; border-radius: 12px;
     padding: 16px; text-align: center; display: flex; flex-direction: column;
     justify-content: center; }
   .r-score-label { margin: 0; font-size: 12px; text-transform: uppercase;
@@ -164,19 +171,24 @@ export function familyReportPageHtml(a: FamilyReportArgs): string {
     })
     .join("");
 
-  const loginRows = `
+  // Drop the protocol from the printed URL (the QR carries the full link). The
+  // long URL goes on its OWN full-width line so it never gets squeezed next to
+  // the QR and pushed off the right edge.
+  const webDisplay = esc(a.signInUrl.replace(/^https?:\/\//, ""));
+  const credRows = `
     <table>
-      <tr><td>Website</td><td><code>${esc(a.signInUrl)}</code></td></tr>
       <tr><td>Username</td><td><code>${esc(a.username)}</code></td></tr>
       <tr><td>Password</td><td><code>${esc(a.password)}</code></td></tr>
     </table>`;
+  const websiteLine = `<div class="r-website"><span class="r-website-label">Website</span><code>${webDisplay}</code></div>`;
 
   const loginInner = a.loginQrDataUrl
     ? `<div class="r-qr-row">
          <div class="r-qr"><img src="${a.loginQrDataUrl}" alt="QR code to the sign-in page"/><div class="r-scan">Scan to log in</div></div>
-         <div style="flex:1">${loginRows}</div>
-       </div>`
-    : loginRows;
+         <div class="r-cred">${credRows}</div>
+       </div>
+       ${websiteLine}`
+    : `${websiteLine}${credRows}`;
 
   return `
   <div class="report">
@@ -216,7 +228,7 @@ export function familyReportPageHtml(a: FamilyReportArgs): string {
 
     <div class="r-foot">
       EXPLR Pathways &middot; Cleveland State University &times; MAGNET. Keep this sheet &mdash;
-      it has ${fn}&rsquo;s sign-in. Questions? Ask your camp educator.
+      it has ${fn}&rsquo;s sign-in. Questions? Ask your camp educator or email support@explr.cc.
     </div>
   </div>`;
 }
