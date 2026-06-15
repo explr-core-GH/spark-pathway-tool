@@ -53,14 +53,19 @@ function codeDimensions(code: string): RIASECCode[] {
 
 /** Shared print stylesheet — one <style> for the whole multi-page doc. */
 export const FAMILY_REPORT_CSS = `
-  @page { size: letter; margin: 0.4in; }
+  /* Let the page own the margins. The report is NOT a fixed height (a fixed
+     10in box overflowed onto a blank 2nd page or got clipped when the browser
+     applied its own print margins). min-height fills the page; content flows. */
+  @page { size: letter; margin: 0.5in; }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #1A1D1F; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #1A1D1F; }
   .report {
-    width: 100%; max-width: 7.7in; height: 10.2in; margin: 0 auto; padding: 0;
-    page-break-after: always; display: flex; flex-direction: column; overflow: hidden;
+    width: 100%; min-height: 9.5in; margin: 0; padding: 0;
+    display: flex; flex-direction: column;
+    page-break-after: always; break-after: page; page-break-inside: avoid;
   }
-  .report:last-child { page-break-after: auto; }
+  .report:last-child { page-break-after: auto; break-after: auto; }
 
   .r-head { display: flex; justify-content: space-between; align-items: baseline; }
   .r-brand { font-size: 16px; font-weight: 600; }
