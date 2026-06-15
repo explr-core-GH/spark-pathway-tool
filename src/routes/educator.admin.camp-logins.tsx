@@ -271,11 +271,13 @@ function CampLoginsAdmin() {
    *  for the sign-in page and reuses it across every report. */
   async function reportPagesFor(pool: Login[]): Promise<string[]> {
     const signInUrl = `${window.location.origin}/sign-in`;
-    let loginQrDataUrl: string | undefined;
+    let loginQrSvg: string | undefined;
     try {
       const QRCode = (await import("qrcode")).default;
-      loginQrDataUrl = await QRCode.toDataURL(signInUrl, {
-        width: 220,
+      // Inline SVG (not a PNG data URL): renders synchronously so it never
+      // prints blank, and avoids the canvas path entirely.
+      loginQrSvg = await QRCode.toString(signInUrl, {
+        type: "svg",
         margin: 1,
         color: { dark: "#1A1D1F", light: "#ffffff" },
       });
@@ -292,7 +294,7 @@ function CampLoginsAdmin() {
           password: l.password_plain,
           signInUrl,
           hollandCode: holland[l.student_id as string],
-          loginQrDataUrl,
+          loginQrSvg,
         }),
       );
   }

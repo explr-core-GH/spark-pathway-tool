@@ -34,8 +34,11 @@ export type FamilyReportArgs = {
   signInUrl: string;
   /** Holland code, e.g. "RIA". Up to 3 letters. */
   hollandCode: string;
-  /** Optional data-URL QR pointing at the sign-in page ("scan to log in"). */
-  loginQrDataUrl?: string;
+  /** Optional inline <svg> QR pointing at the sign-in page ("scan to log in").
+   *  Inline SVG (not an <img> data URL) so it renders synchronously and prints
+   *  reliably — a data-URL image can print blank if print() fires before it
+   *  decodes. */
+  loginQrSvg?: string;
 };
 
 function esc(s: string): string {
@@ -105,7 +108,7 @@ export const FAMILY_REPORT_CSS = `
     letter-spacing: 0.08em; color: #6E767F; font-weight: 700; }
   .r-qr-row { display: flex; gap: 14px; align-items: center; }
   .r-qr { width: 108px; flex: 0 0 108px; text-align: center; }
-  .r-qr img { width: 108px; height: 108px; display: block; }
+  .r-qr svg { width: 108px; height: 108px; display: block; margin: 0 auto; }
   .r-qr .r-scan { font-size: 11px; color: #6E767F; margin-top: 4px; }
   .r-login table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .r-login td { padding: 5px 0; vertical-align: middle; }
@@ -182,9 +185,9 @@ export function familyReportPageHtml(a: FamilyReportArgs): string {
     </table>`;
   const websiteLine = `<div class="r-website"><span class="r-website-label">Website</span><code>${webDisplay}</code></div>`;
 
-  const loginInner = a.loginQrDataUrl
+  const loginInner = a.loginQrSvg
     ? `<div class="r-qr-row">
-         <div class="r-qr"><img src="${a.loginQrDataUrl}" alt="QR code to the sign-in page"/><div class="r-scan">Scan to log in</div></div>
+         <div class="r-qr">${a.loginQrSvg}<div class="r-scan">Scan to log in</div></div>
          <div class="r-cred">${credRows}</div>
        </div>
        ${websiteLine}`
