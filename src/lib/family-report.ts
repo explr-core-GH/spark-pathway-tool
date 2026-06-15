@@ -14,6 +14,18 @@ import { RIASEC, type RIASECCode } from "./riasec";
 // The career-explorer site families can use to look up RIASEC codes.
 const EXPLORE_URL = "https://explrpathways.netlify.app/";
 
+// Parent-facing, plain-language gloss of each interest. (riasec.ts's
+// msDescription is written in second person to the kid — "you like…" — which
+// reads oddly in a take-home letter a parent reads about their child.)
+const FAMILY_DIM_BLURB: Record<RIASECCode, string> = {
+  R: "Hands-on and practical — enjoys building, fixing, and working with tools, machines, or the outdoors.",
+  I: "Curious and analytical — enjoys figuring out how things work, asking questions, and solving problems.",
+  A: "Creative and expressive — enjoys designing, making things, and coming up with original ideas in art, music, writing, or media.",
+  S: "People-centered — enjoys helping, teaching, and supporting other people.",
+  E: "Persuasive and driven — enjoys leading, pitching ideas, organizing, and starting new things.",
+  C: "Organized and precise — enjoys structure, planning, accuracy, and keeping things in order.",
+};
+
 export type FamilyReportArgs = {
   childName: string;
   campTitle: string;
@@ -53,15 +65,17 @@ function codeDimensions(code: string): RIASECCode[] {
 
 /** Shared print stylesheet — one <style> for the whole multi-page doc. */
 export const FAMILY_REPORT_CSS = `
-  /* Let the page own the margins. The report is NOT a fixed height (a fixed
-     10in box overflowed onto a blank 2nd page or got clipped when the browser
-     applied its own print margins). min-height fills the page; content flows. */
-  @page { size: letter; margin: 0.5in; }
+  /* Page margin + the report's OWN inner padding. The inner padding matters:
+     if the user's print dialog forces "None"/"Minimum" margins, @page is
+     overridden and content would hug the paper edge — the .report padding
+     keeps a breathing-room buffer regardless. Not a fixed height (that
+     overflowed/clipped in print); min-height fills the page, content flows. */
+  @page { size: letter; margin: 0.4in; }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #1A1D1F; }
   .report {
-    width: 100%; min-height: 9.5in; margin: 0; padding: 0;
+    width: 100%; min-height: 9.5in; margin: 0; padding: 0.3in 0.35in;
     display: flex; flex-direction: column;
     page-break-after: always; break-after: page; page-break-inside: avoid;
   }
@@ -145,7 +159,7 @@ export function familyReportPageHtml(a: FamilyReportArgs): string {
       return `
       <div class="r-dim" style="border-color:${d.color}">
         <span class="r-dim-name" style="color:${d.color}">${d.code} &middot; ${esc(d.msPlainName)}</span>
-        <p>${esc(d.msDescription)} <span class="r-careers">Jobs: ${esc(d.examples.slice(0, 4).join(", "))}.</span></p>
+        <p>${FAMILY_DIM_BLURB[c]} <span class="r-careers">Example jobs: ${esc(d.examples.slice(0, 4).join(", "))}.</span></p>
       </div>`;
     })
     .join("");
@@ -185,7 +199,7 @@ export function familyReportPageHtml(a: FamilyReportArgs): string {
         <p class="r-score-label">${fn}&rsquo;s interest code</p>
         <div class="r-chips">${chips}</div>
         <div class="r-score-code">${code}</div>
-        <div class="r-score-name">${esc(dims.map((c) => RIASEC[c].msPlainName).join(" &middot; "))}</div>
+        <div class="r-score-name">${dims.map((c) => esc(RIASEC[c].msPlainName)).join(" &middot; ")}</div>
       </div>
     </div>
 
