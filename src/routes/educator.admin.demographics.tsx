@@ -297,9 +297,8 @@ function DemographicsAdmin() {
           </section>
 
           <p className="mt-10 text-xs text-charcoal-400">
-            Source: Ohio Department of Education and Workforce 2024-2025 report
-            card. Cells with fewer than 10 students are suppressed by ODE and
-            excluded from these averages.
+            Source: public school report-card data. A few small groups aren&apos;t
+            reported in the underlying data, so they&apos;re excluded from these averages.
           </p>
         </>
       )}
@@ -332,7 +331,7 @@ function DemoPanel({
       <h3 className="text-sm font-semibold text-ink">{title}</h3>
       {rows.length === 0 ? (
         <p className="mt-3 text-xs text-charcoal-400 italic">
-          No data — every cell suppressed by ODE.
+          No data reported for this group in the source.
         </p>
       ) : (
         <ul className="mt-3 space-y-2">

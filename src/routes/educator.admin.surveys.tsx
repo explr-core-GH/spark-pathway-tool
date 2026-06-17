@@ -580,12 +580,6 @@ function ResultsPanel({
           </p>
         ) : (
           <div className="mt-2 overflow-x-auto">
-            {rows.length < 5 && (
-              <p className="mb-3 border border-charcoal-200 bg-charcoal-50 px-3 py-2 text-[11px] text-charcoal-600">
-                Small sample (n = {rows.length}). Shown because you&apos;re staff — interpret with
-                caution and don&apos;t share or publish these numbers externally.
-              </p>
-            )}
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="border-y border-charcoal-100 text-left text-xs uppercase tracking-wider text-charcoal-400">

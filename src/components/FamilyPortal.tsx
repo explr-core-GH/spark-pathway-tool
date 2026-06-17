@@ -344,8 +344,7 @@ function StemPanel({ studentId }: { studentId: string }) {
         Based on the <strong>S-STEM Survey</strong> (Friday Institute for Educational Innovation,
         2012) — a widely used, validated instrument for evaluating STEM programs — with career-planning
         items adapted from Falco &amp; Summers (2019). Scored at the area level (never single
-        questions); it reflects attitudes and confidence, not ability. Scores are private to your
-        student.
+        questions); it reflects attitudes and confidence, not ability.
       </p>
     </div>
   );
