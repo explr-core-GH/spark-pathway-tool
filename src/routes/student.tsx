@@ -192,9 +192,7 @@ function StudentDashboard() {
           ))}
         </div>
 
-        {tab === "families" && (
-          <FamilyPortal hollandCode={hasResults ? session!.holland_code : null} grade={grade} />
-        )}
+        {tab === "families" && <FamilyPortal studentId={user!.id} grade={grade} />}
 
         {tab === "dashboard" && (
         <>
