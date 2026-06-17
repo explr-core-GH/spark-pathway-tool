@@ -24,7 +24,7 @@ function SignIn() {
     // as a camp username and append the camp domain before authenticating.
     const v = email.trim();
     const fullEmail = v.includes("@") ? v : `${v}@camp.explr.local`;
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email: fullEmail,
       password,
     });
@@ -33,22 +33,12 @@ function SignIn() {
       setError(error.message);
       return;
     }
-    // A student who has already taken (or started) the assessment goes
-    // straight to their dashboard. A brand-new student lands on the
-    // assessment intro so the first thing they do is take it.
-    const uid = data.user?.id;
-    let hasSession = false;
-    if (uid) {
-      const { data: sess } = await supabase
-        .from("assessment_sessions")
-        .select("session_id")
-        .eq("student_id", uid)
-        .limit(1)
-        .maybeSingle();
-      hasSession = !!sess;
-    }
+    // Always land on the dashboard. Returning students see their results;
+    // new students get a clear "Take the assessment" prompt there (and any
+    // assigned assessment shows at the top) — nobody is force-redirected into
+    // the RIASEC assessment.
     setLoading(false);
-    navigate({ to: hasSession ? "/student" : "/assessment" });
+    navigate({ to: "/student" });
   }
 
   return (

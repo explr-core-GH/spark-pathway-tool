@@ -8,6 +8,7 @@ import { RIASEC, type RIASECCode } from "@/lib/riasec";
 import { StemActivitiesMarquee } from "@/components/StemActivitiesMarquee";
 import { StudentSurveysPanel } from "@/components/StudentSurveysPanel";
 import { AssignedAssessmentsPanel } from "@/components/AssignedAssessmentsPanel";
+import { FamilyPortal } from "@/components/FamilyPortal";
 import { useStudentAssignments } from "@/lib/use-assignments";
 
 export const Route = createFileRoute("/student")({
@@ -50,6 +51,7 @@ function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [withdrawing, setWithdrawing] = useState(false);
   const [reload, setReload] = useState(0);
+  const [tab, setTab] = useState<"dashboard" | "families">("dashboard");
 
   // Shared assignment resolver — also tells us whether this student was
   // assigned the internship survey (which unlocks the internship track even
@@ -162,6 +164,40 @@ function StudentDashboard() {
         <p className="eyebrow">Student dashboard</p>
         <h1 className="display mt-3">Your pathway</h1>
 
+        {/* Tabs: the student's pathway vs the family-facing explainer. */}
+        <div
+          role="tablist"
+          aria-label="Dashboard sections"
+          className="mt-6 flex gap-1 border-b border-charcoal-100"
+        >
+          {([
+            ["dashboard", "My pathway"],
+            ["families", "For families"],
+          ] as const).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={tab === id}
+              onClick={() => setTab(id)}
+              className="border-b-2 px-4 py-2 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              style={{
+                borderColor: tab === id ? "var(--ink)" : "transparent",
+                color: tab === id ? "var(--ink)" : "var(--color-charcoal-400)",
+                fontWeight: tab === id ? 500 : 400,
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {tab === "families" && (
+          <FamilyPortal hollandCode={hasResults ? session!.holland_code : null} grade={grade} />
+        )}
+
+        {tab === "dashboard" && (
+        <>
         {/* Assigned to you — FIRST thing on the dashboard so nothing assigned
             gets missed. Resolution + scheduling window live in the panel. */}
         <section className="mt-10">
@@ -411,6 +447,8 @@ function StudentDashboard() {
             )}
 
           </>
+        )}
+        </>
         )}
       </main>
     </div>
