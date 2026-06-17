@@ -132,11 +132,12 @@ export function FamilyPortal({ studentId, grade }: { studentId: string; grade: n
 function CareersCallout() {
   return (
     <div className="mt-6 border border-charcoal-200 bg-charcoal-50 p-5">
-      <p className="eyebrow" style={{ color: "var(--explr)" }}>Search careers by interest code</p>
+      <p className="eyebrow" style={{ color: "var(--explr)" }}>Explore careers &amp; real job data</p>
       <p className="mt-2 max-w-2xl text-sm text-charcoal-600">
-        Your student&rsquo;s interest code uses the same six-interest (RIASEC) system career experts
-        use — it&rsquo;s the framework behind the U.S. Department of Labor&rsquo;s O*NET career database.
-        On the EXPLR Pathways site you can explore careers that match a code.
+        Take your student&rsquo;s interest code to the EXPLR career site to explore careers that match
+        their interests — <strong>what they pay and the pathway to get there</strong>, drawn from the
+        same workforce data districts and employers use. It&rsquo;s built on the same six-interest
+        (RIASEC) framework as the U.S. Department of Labor&rsquo;s O*NET.
       </p>
       <ol className="mt-3 space-y-1 text-sm text-charcoal-600">
         <li>1. Go to{" "}
@@ -145,8 +146,8 @@ function CareersCallout() {
           </a>
           .
         </li>
-        <li>2. On the Holland wheel, tap your student&rsquo;s interest letters (their code).</li>
-        <li>3. See careers that match — and the EXPLR programs that build toward them.</li>
+        <li>2. Choose <strong>&ldquo;Explore as a family.&rdquo;</strong></li>
+        <li>3. Browse careers that match your student&rsquo;s interests, with pay and the steps to get there.</li>
       </ol>
       <a
         href="https://explrpathways.netlify.app/"
@@ -154,7 +155,7 @@ function CareersCallout() {
         rel="noreferrer"
         className="btn-ink mt-4 inline-block text-sm"
       >
-        Explore careers by code →
+        Open the career site →
       </a>
     </div>
   );
