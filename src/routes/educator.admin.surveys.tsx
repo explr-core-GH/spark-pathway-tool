@@ -574,12 +574,18 @@ function ResultsPanel({
         <p className="text-xs font-semibold text-charcoal-600">
           {label} · n = {rows.length}
         </p>
-        {rows.length < 5 ? (
+        {rows.length === 0 ? (
           <p className="mt-2 text-xs text-charcoal-400">
-            Fewer than 5 matched students — hidden to protect privacy.
+            No matched pre/post pairs yet.
           </p>
         ) : (
           <div className="mt-2 overflow-x-auto">
+            {rows.length < 5 && (
+              <p className="mb-3 border border-charcoal-200 bg-charcoal-50 px-3 py-2 text-[11px] text-charcoal-600">
+                Small sample (n = {rows.length}). Shown because you&apos;re staff — interpret with
+                caution and don&apos;t share or publish these numbers externally.
+              </p>
+            )}
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="border-y border-charcoal-100 text-left text-xs uppercase tracking-wider text-charcoal-400">
@@ -605,15 +611,18 @@ function ResultsPanel({
                     }
                   }
                   if (pre.length === 0) return null;
-                  const r = pairedChange(pre, post);
-                  if (!r) return null;
-                  // README: prefer the non-parametric Wilcoxon test for
-                  // small cohorts (n < 30); the paired t-test otherwise.
-                  const useWilcoxon = r.n < 30;
-                  const wil = useWilcoxon
-                    ? wilcoxonSignedRank(pre, post)
-                    : null;
-                  const pVal = useWilcoxon ? (wil?.p ?? null) : r.p;
+                  const nPairs = pre.length;
+                  const meanPre = pre.reduce((x, y) => x + y, 0) / nPairs;
+                  const meanPost = post.reduce((x, y) => x + y, 0) / nPairs;
+                  const meanChange = meanPost - meanPre;
+                  // Change statistics need at least 2 matched students; means
+                  // still show for a single one.
+                  const r = nPairs >= 2 ? pairedChange(pre, post) : null;
+                  // README: prefer the non-parametric Wilcoxon test for small
+                  // cohorts (n < 30); the paired t-test otherwise.
+                  const useWilcoxon = r != null && r.n < 30;
+                  const wil = useWilcoxon ? wilcoxonSignedRank(pre, post) : null;
+                  const pVal = r == null ? null : useWilcoxon ? wil?.p ?? null : r.p;
                   const testName = useWilcoxon ? "Wilcoxon" : "t-test";
                   return (
                     <tr key={c}>
@@ -621,31 +630,37 @@ function ResultsPanel({
                         {getConstruct(c)?.name ?? c}
                       </td>
                       <td className="py-2 pr-4 text-charcoal-600">
-                        {r.meanPre.toFixed(2)}
+                        {meanPre.toFixed(2)}
                       </td>
                       <td className="py-2 pr-4 text-charcoal-600">
-                        {r.meanPost.toFixed(2)}
+                        {meanPost.toFixed(2)}
                       </td>
                       <td
                         className="py-2 pr-4 font-medium"
                         style={{
                           color:
-                            r.meanChange > 0
+                            meanChange > 0
                               ? "var(--color-explr-600)"
-                              : r.meanChange < 0
+                              : meanChange < 0
                                 ? "var(--color-destructive, #b91c1c)"
                                 : undefined,
                         }}
                       >
-                        {r.meanChange > 0 ? "+" : ""}
-                        {r.meanChange.toFixed(2)}
+                        {meanChange > 0 ? "+" : ""}
+                        {meanChange.toFixed(2)}
                       </td>
-                      <td className="py-2 pr-4 text-charcoal-500">{r.n}</td>
+                      <td className="py-2 pr-4 text-charcoal-500">{nPairs}</td>
                       <td className="py-2 pr-4 text-charcoal-600">
-                        {r.cohensD.toFixed(2)}{" "}
-                        <span className="text-xs text-charcoal-400">
-                          ({cohenLabel(r.cohensD)})
-                        </span>
+                        {r ? (
+                          <>
+                            {r.cohensD.toFixed(2)}{" "}
+                            <span className="text-xs text-charcoal-400">
+                              ({cohenLabel(r.cohensD)})
+                            </span>
+                          </>
+                        ) : (
+                          "—"
+                        )}
                       </td>
                       <td className="py-2 pr-4 text-charcoal-600">
                         {pVal != null ? (
@@ -655,6 +670,8 @@ function ResultsPanel({
                               ({testName})
                             </span>
                           </>
+                        ) : nPairs < 2 ? (
+                          <span className="text-xs text-charcoal-400">n ≥ 2 needed</span>
                         ) : (
                           "—"
                         )}
