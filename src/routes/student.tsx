@@ -9,6 +9,7 @@ import { StemActivitiesMarquee } from "@/components/StemActivitiesMarquee";
 import { StudentSurveysPanel } from "@/components/StudentSurveysPanel";
 import { AssignedAssessmentsPanel } from "@/components/AssignedAssessmentsPanel";
 import { FamilyPortal } from "@/components/FamilyPortal";
+import { SurveyResultsPanel } from "@/components/SurveyResultsPanel";
 import { useStudentAssignments } from "@/lib/use-assignments";
 
 export const Route = createFileRoute("/student")({
@@ -320,9 +321,16 @@ function StudentDashboard() {
           <p className="mt-3 text-charcoal-500 max-w-2xl">
             Short research surveys from your camp or internship. They help
             EXPLR understand what&apos;s working — your answers are never
-            shown next to your name.
+            shown next to your name to anyone else.
           </p>
           <StudentSurveysPanel studentId={user!.id} />
+
+          <p className="eyebrow mt-8">Your results</p>
+          <p className="mt-2 text-sm text-charcoal-500 max-w-2xl">
+            How your confidence and interest scored across STEM areas — only you (and your family)
+            can see these.
+          </p>
+          <SurveyResultsPanel studentId={user!.id} />
         </section>
 
         {/* Application & internships — grades 8-12, or anyone assigned the

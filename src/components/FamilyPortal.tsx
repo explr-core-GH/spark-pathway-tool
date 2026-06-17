@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { RIASEC, RIASEC_ORDER, type RIASECCode } from "@/lib/riasec";
 import { INTERNSHIPS } from "@/lib/internships-catalog";
 import { sectorLabel } from "@/lib/internship-survey/items";
+import { SurveyResultsPanel } from "@/components/SurveyResultsPanel";
 
 /**
  * FamilyPortal — the "For families" tab on the student dashboard. Shows the
@@ -29,13 +30,14 @@ export function FamilyPortal({ studentId, grade }: { studentId: string; grade: n
   const [riasec, setRiasec] = useState<Riasec | null>(null);
   const [survey, setSurvey] = useState<SurveyRes | null>(null);
   const [apt, setApt] = useState<Apt | null>(null);
+  const [stemDone, setStemDone] = useState(false);
   const [tab, setTab] = useState<string>("");
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const [{ data: sess }, { data: sv }, { data: ap }] = await Promise.all([
+      const [{ data: sess }, { data: sv }, { data: ap }, { data: stem }] = await Promise.all([
         supabase
           .from("assessment_sessions")
           .select("holland_code, scale_scores, completed_at")
@@ -54,6 +56,11 @@ export function FamilyPortal({ studentId, grade }: { studentId: string; grade: n
           .order("completed_at", { ascending: false })
           .limit(1)
           .maybeSingle(),
+        sb("survey_responses")
+          .select("id")
+          .eq("student_id", studentId)
+          .not("completed_at", "is", null)
+          .limit(1),
       ]);
       if (cancelled) return;
 
@@ -66,11 +73,13 @@ export function FamilyPortal({ studentId, grade }: { studentId: string; grade: n
         ? { band: ap.band, subscaleScores: ap.subscale_scores ?? null, total: ap.total_score ?? 0, items: ap.total_items ?? 0 }
         : null;
 
+      const hasStem = ((stem ?? []) as unknown[]).length > 0;
       setRiasec(r);
       setSurvey(s);
       setApt(a);
+      setStemDone(hasStem);
       // Default to the first available results tab; fall back to the explainer.
-      setTab(r ? "interest" : s ? "internship" : a ? "aptitude" : "about");
+      setTab(r ? "interest" : s ? "internship" : a ? "aptitude" : hasStem ? "stem" : "about");
       setLoading(false);
     })();
     return () => {
@@ -86,6 +95,7 @@ export function FamilyPortal({ studentId, grade }: { studentId: string; grade: n
   if (riasec) tabs.push({ id: "interest", label: "Interest profile" });
   if (survey) tabs.push({ id: "internship", label: "Internship matches" });
   if (apt) tabs.push({ id: "aptitude", label: "Aptitude" });
+  if (stemDone) tabs.push({ id: "stem", label: "STEM survey" });
   tabs.push({ id: "about", label: "About these results" });
 
   const current = tabs.some((t) => t.id === tab) ? tab : tabs[0].id;
@@ -122,6 +132,7 @@ export function FamilyPortal({ studentId, grade }: { studentId: string; grade: n
         {current === "interest" && riasec && <InterestPanel data={riasec} />}
         {current === "internship" && survey && <InternshipPanel data={survey} />}
         {current === "aptitude" && apt && <AptitudePanel data={apt} />}
+        {current === "stem" && <StemPanel studentId={studentId} />}
         {current === "about" && <AboutPanel grade={grade} />}
       </div>
     </div>
@@ -301,6 +312,40 @@ function AptitudePanel({ data }: { data: Apt }) {
         This is a low-stakes snapshot of puzzle-style reasoning — it is <strong>not a grade</strong>,
         not a placement test, and is never used to limit any opportunity. Use it to celebrate a
         strength or spark a conversation.
+      </p>
+    </div>
+  );
+}
+
+// ── STEM survey results + explainer ──────────────────────────────────────
+function StemPanel({ studentId }: { studentId: string }) {
+  return (
+    <div className="space-y-8">
+      <section>
+        <p className="eyebrow">STEM survey</p>
+        <h3 className="mt-2 text-lg font-medium">Your student&rsquo;s STEM attitudes &amp; confidence</h3>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-charcoal-600">
+          Programs give this short survey at the start and end (or as one before-and-after reflection)
+          to see how a student&rsquo;s confidence and interest grow. It measures <strong>attitudes —
+          there are no right or wrong answers</strong> — across several areas:
+        </p>
+        <ul className="mt-3 grid gap-1.5 text-sm text-charcoal-600 sm:grid-cols-2">
+          <li>· <strong>Math / Science</strong> — confidence and attitudes toward each.</li>
+          <li>· <strong>Engineering &amp; Technology</strong> — interest in building and tech.</li>
+          <li>· <strong>21st-Century Learning</strong> — teamwork, communication, persistence.</li>
+          <li>· <strong>STEM career interest</strong> — interest in STEM jobs.</li>
+          <li>· <strong>Career planning</strong> — confidence planning next steps.</li>
+        </ul>
+      </section>
+
+      <SurveyResultsPanel studentId={studentId} />
+
+      <p className="border-t border-charcoal-100 pt-6 text-xs text-charcoal-400">
+        Based on the <strong>S-STEM Survey</strong> (Friday Institute for Educational Innovation,
+        2012) — a widely used, validated instrument for evaluating STEM programs — with career-planning
+        items adapted from Falco &amp; Summers (2019). Scored at the area level (never single
+        questions); it reflects attitudes and confidence, not ability. Scores are private to your
+        student.
       </p>
     </div>
   );
