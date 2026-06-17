@@ -132,12 +132,13 @@ export function FamilyPortal({ studentId, grade }: { studentId: string; grade: n
 function CareersCallout() {
   return (
     <div className="mt-6 border border-charcoal-200 bg-charcoal-50 p-5">
-      <p className="eyebrow" style={{ color: "var(--explr)" }}>Explore careers &amp; real job data</p>
+      <p className="eyebrow" style={{ color: "var(--explr)" }}>Search jobs by your Holland code</p>
       <p className="mt-2 max-w-2xl text-sm text-charcoal-600">
-        Take your student&rsquo;s interest code to the EXPLR career site to explore careers that match
-        their interests — <strong>what they pay and the pathway to get there</strong>, drawn from the
-        same workforce data districts and employers use. It&rsquo;s built on the same six-interest
-        (RIASEC) framework as the U.S. Department of Labor&rsquo;s O*NET.
+        Your student&rsquo;s <strong>Holland code</strong> (their three interest letters) is the key.
+        The EXPLR career-connected site is wired to real workforce data, so families can search for
+        jobs and careers that match the code — <strong>what they pay, where they&rsquo;re growing, and
+        the path to get there</strong>. It&rsquo;s the same six-interest (RIASEC) system as the U.S.
+        Department of Labor&rsquo;s O*NET.
       </p>
       <ol className="mt-3 space-y-1 text-sm text-charcoal-600">
         <li>1. Go to{" "}
@@ -147,7 +148,7 @@ function CareersCallout() {
           .
         </li>
         <li>2. Choose <strong>&ldquo;Explore as a family.&rdquo;</strong></li>
-        <li>3. Browse careers that match your student&rsquo;s interests, with pay and the steps to get there.</li>
+        <li>3. Search by your student&rsquo;s Holland code (e.g. their letters above) to see matching jobs — with pay and pathways.</li>
       </ol>
       <a
         href="https://explrpathways.netlify.app/"
@@ -155,7 +156,7 @@ function CareersCallout() {
         rel="noreferrer"
         className="btn-ink mt-4 inline-block text-sm"
       >
-        Open the career site →
+        Search jobs by code →
       </a>
     </div>
   );
