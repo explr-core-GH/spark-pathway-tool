@@ -128,6 +128,38 @@ export function FamilyPortal({ studentId, grade }: { studentId: string; grade: n
   );
 }
 
+// ── Career explorer callout ──────────────────────────────────────────────
+function CareersCallout() {
+  return (
+    <div className="mt-6 border border-charcoal-200 bg-charcoal-50 p-5">
+      <p className="eyebrow" style={{ color: "var(--explr)" }}>Search careers by interest code</p>
+      <p className="mt-2 max-w-2xl text-sm text-charcoal-600">
+        Your student&rsquo;s interest code uses the same six-interest (RIASEC) system career experts
+        use — it&rsquo;s the framework behind the U.S. Department of Labor&rsquo;s O*NET career database.
+        On the EXPLR Pathways site you can explore careers that match a code.
+      </p>
+      <ol className="mt-3 space-y-1 text-sm text-charcoal-600">
+        <li>1. Go to{" "}
+          <a className="ink-link" href="https://explrpathways.netlify.app/" target="_blank" rel="noreferrer">
+            explrpathways.netlify.app
+          </a>
+          .
+        </li>
+        <li>2. On the Holland wheel, tap your student&rsquo;s interest letters (their code).</li>
+        <li>3. See careers that match — and the EXPLR programs that build toward them.</li>
+      </ol>
+      <a
+        href="https://explrpathways.netlify.app/"
+        target="_blank"
+        rel="noreferrer"
+        className="btn-ink mt-4 inline-block text-sm"
+      >
+        Explore careers by code →
+      </a>
+    </div>
+  );
+}
+
 // ── Interest profile (RIASEC) ────────────────────────────────────────────
 function InterestPanel({ data }: { data: Riasec }) {
   const top = (data.hollandCode.split("").filter((c) => RIASEC[c as RIASECCode]) as RIASECCode[]).slice(0, 3);
@@ -180,6 +212,7 @@ function InterestPanel({ data }: { data: Riasec }) {
           );
         })}
       </ul>
+      <CareersCallout />
     </div>
   );
 }
@@ -305,6 +338,7 @@ function AboutPanel({ grade }: { grade: number | null }) {
             );
           })}
         </ul>
+        <CareersCallout />
       </section>
 
       <section className="border-t border-charcoal-100 pt-8">
