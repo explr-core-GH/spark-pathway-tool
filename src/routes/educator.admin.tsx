@@ -72,6 +72,14 @@ const SECTIONS: Section[] = [
     items: [],
   },
   {
+    key: "partners",
+    label: "Partners",
+    items: [
+      { label: "Opportunity review", to: "/educator/admin/opportunities", match: "/educator/admin/opportunities" },
+      { label: "Wizard fields", to: "/educator/admin/opportunity-fields", match: "/educator/admin/opportunity-fields" },
+    ],
+  },
+  {
     key: "people",
     label: "People",
     items: [

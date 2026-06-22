@@ -102,6 +102,7 @@ function SiteHeader() {
           <Link to="/about" className="text-charcoal-500 hover:text-ink">About</Link>
           <Link to="/sign-in" className="text-charcoal-500 hover:text-ink">Student sign in</Link>
           <Link to="/educator/sign-in" className="text-charcoal-500 hover:text-ink">Educator sign in</Link>
+          <Link to="/org/sign-in" className="text-charcoal-500 hover:text-ink">Organizations</Link>
           <Link to="/start" className="btn-mint">Start</Link>
         </nav>
       </div>

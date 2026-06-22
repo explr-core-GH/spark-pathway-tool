@@ -150,3 +150,51 @@ export function useEducator() {
 
   return { user, educator, admin, isAdmin, loading };
 }
+
+export type OrgRow = {
+  id: string;
+  name: string;
+  contact_name: string | null;
+  contact_email: string | null;
+  website: string | null;
+  logo_url: string | null;
+};
+
+// organizations is newer than the generated Database types.
+const orgTable = (): any =>
+  (supabase.from as unknown as (n: string) => any)("organizations");
+
+/**
+ * useOrg — resolves the signed-in user's organization row (the org portal's
+ * account type). Mirrors useEducator: returns null when the user isn't an org.
+ */
+export function useOrg() {
+  const { user, loading: authLoading } = useSession();
+  const [org, setOrg] = useState<OrgRow | null>(null);
+  const [loading, setLoading] = useState(true);
+  const userId = user?.id ?? null;
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!userId) {
+      setOrg(null);
+      setLoading(authLoading);
+      return;
+    }
+    setLoading(true);
+    orgTable()
+      .select("*")
+      .eq("id", userId)
+      .maybeSingle()
+      .then(({ data }: { data: OrgRow | null }) => {
+        if (cancelled) return;
+        setOrg((data as OrgRow) ?? null);
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, authLoading]);
+
+  return { user, org, loading };
+}
