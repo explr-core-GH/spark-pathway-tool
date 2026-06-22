@@ -7,6 +7,7 @@ import { CampLoginsPanel } from "@/components/CampLoginsPanel";
 import { InternshipPipelinePanel } from "@/components/InternshipPipelinePanel";
 import { GroupMaterialsPanel } from "@/components/GroupMaterialsPanel";
 import { GroupEducatorsPanel } from "@/components/GroupEducatorsPanel";
+import { GroupAssignPanel } from "@/components/GroupAssignPanel";
 import {
   fetchGroup,
   fetchCompletion,
@@ -237,21 +238,26 @@ function AssessmentsTab({
     ? group.studentIds.filter((id) => completion.surveyDone.has(id)).length
     : 0;
   return (
-    <div className="max-w-2xl">
-      <p className="text-sm text-charcoal-600">
+    <div>
+      <p className="max-w-2xl text-sm text-charcoal-600">
         One place for everything this group is asked to complete — the RIASEC
         interest assessment, the internship interest survey, and the STEM survey.
+        Assigning here cascades to {kind === "internships" ? "the placed students" : "this group's students"}.
       </p>
-      <div className="mt-6 grid grid-cols-2 gap-3">
-        <Metric label="RIASEC assessment" value={`${aDone} / ${total} done`} />
-        <Metric label="Surveys" value={`${sDone} / ${total} done`} />
+      <div className="mt-6 grid max-w-2xl grid-cols-2 gap-3">
+        <Metric label="RIASEC done" value={`${aDone} / ${total}`} />
+        <Metric label="Surveys done" value={`${sDone} / ${total}`} />
+      </div>
+
+      <div className="mt-8">
+        <GroupAssignPanel kind={kind} groupId={group.id} />
       </div>
 
       {kind === "camps" && (
-        <div className="mt-8">
-          <h2 className="text-xs uppercase tracking-wider text-charcoal-400">
-            Assigned to this camp
-          </h2>
+        <div className="mt-10 max-w-2xl">
+          <h3 className="text-xs uppercase tracking-wider text-charcoal-400">
+            Including educator cascade · completion
+          </h3>
           <div className="mt-3">
             <CampAssignmentsPanel campId={group.id} studentIds={group.studentIds} />
           </div>
@@ -259,8 +265,8 @@ function AssessmentsTab({
       )}
 
       <div className="mt-8 flex flex-wrap gap-3">
-        <Link to="/educator/admin/assessments" className="btn-ink text-sm">
-          Assign & manage
+        <Link to="/educator/admin/assessments" className="btn-ghost text-sm">
+          Surveys &amp; item banks
         </Link>
         <Link to="/educator/admin/completion" className="btn-ghost text-sm">
           Completion by roster

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { CurriculumFilesPanel } from "@/components/CurriculumFilesPanel";
+import { GroupFilesPanel } from "@/components/GroupFilesPanel";
 import type { GroupKind } from "@/lib/admin-groups";
 
 /**
@@ -16,15 +17,7 @@ import type { GroupKind } from "@/lib/admin-groups";
 export function GroupMaterialsPanel({ kind, id }: { kind: GroupKind; id: string }) {
   if (kind === "camps") return <CampMaterials campId={id} />;
   if (kind === "internships") return <InternshipMaterials slug={id} />;
-  return (
-    <p className="max-w-xl text-sm text-charcoal-600">
-      Class materials aren&apos;t wired up yet. For now, share resources through the{" "}
-      <Link to="/educator/admin/camps" className="ink-link">
-        curriculum library
-      </Link>
-      .
-    </p>
-  );
+  return <GroupFilesPanel prefix={`class/${id}`} />;
 }
 
 function CampMaterials({ campId }: { campId: string }) {

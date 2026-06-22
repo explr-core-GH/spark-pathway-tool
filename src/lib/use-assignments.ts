@@ -14,6 +14,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+// Untyped accessor for tables/columns newer than the generated types
+// (class_students, classes, assessment_targets.target_slug).
+const sb = (table: string): any =>
+  (supabase.from as unknown as (n: string) => any)(table);
+
 export type AssignmentItem = {
   id: string; // assessment_targets row id
   kind: string; // assessment_kind
@@ -119,6 +124,76 @@ export function useStudentAssignments(studentId: string | null): StudentAssignme
           cascade.push(...((viaEdu ?? []) as unknown as RawTarget[]));
         }
       }
+
+      // Class targets: student → class_students → class targets, plus the
+      // class teacher's educator targets.
+      const { data: classLinks } = await sb("class_students")
+        .select("class_id")
+        .eq("student_id", studentId);
+      const classIds = [
+        ...new Set(((classLinks ?? []) as Array<{ class_id: string }>).map((l) => l.class_id)),
+      ];
+      if (classIds.length > 0) {
+        const { data: viaClass } = await supabase
+          .from("assessment_targets")
+          .select("*")
+          .eq("target_type", "class")
+          .in("target_id", classIds);
+        cascade.push(...((viaClass ?? []) as unknown as RawTarget[]));
+        const { data: cls } = await sb("classes").select("educator_id").in("id", classIds);
+        const classEduIds = [
+          ...new Set(
+            ((cls ?? []) as Array<{ educator_id: string | null }>)
+              .map((c) => c.educator_id)
+              .filter(Boolean),
+          ),
+        ] as string[];
+        if (classEduIds.length > 0) {
+          const { data: viaClassEdu } = await supabase
+            .from("assessment_targets")
+            .select("*")
+            .eq("target_type", "educator")
+            .in("target_id", classEduIds);
+          cascade.push(...((viaClassEdu ?? []) as unknown as RawTarget[]));
+        }
+      }
+
+      // Internship targets: student → placements → internship targets, plus
+      // the internship's educators.
+      const { data: places } = await supabase
+        .from("internship_placements")
+        .select("approved_internship_id")
+        .eq("student_id", studentId);
+      const slugs = [
+        ...new Set(
+          ((places ?? []) as Array<{ approved_internship_id: string }>).map(
+            (p) => p.approved_internship_id,
+          ),
+        ),
+      ];
+      if (slugs.length > 0) {
+        const { data: viaIntern } = await sb("assessment_targets")
+          .select("*")
+          .eq("target_type", "internship")
+          .in("target_slug", slugs);
+        cascade.push(...((viaIntern ?? []) as unknown as RawTarget[]));
+        const { data: ie } = await supabase
+          .from("internship_educators")
+          .select("educator_id")
+          .in("internship_slug", slugs);
+        const ieIds = [
+          ...new Set(((ie ?? []) as Array<{ educator_id: string }>).map((r) => r.educator_id)),
+        ];
+        if (ieIds.length > 0) {
+          const { data: viaIE } = await supabase
+            .from("assessment_targets")
+            .select("*")
+            .eq("target_type", "educator")
+            .in("target_id", ieIds);
+          cascade.push(...((viaIE ?? []) as unknown as RawTarget[]));
+        }
+      }
+
       if (cancelled) return;
 
       const seen = new Set<string>();
