@@ -6,8 +6,21 @@ import { RoleGuard } from "@/components/RoleGuard";
 import { INTERNSHIPS, type Internship } from "@/lib/internships-catalog";
 import type { RIASECCode } from "@/lib/riasec";
 import { HollandLetter, buildWhyFits, type ScaleScores } from "@/lib/holland-fit";
+import {
+  oppToCatalogInternship,
+  oppSlug,
+  isOppSlug,
+  oppIdFromSlug,
+  type Opportunity,
+} from "@/lib/opportunities";
+import { OrgInternshipExtras } from "@/components/OrgInternshipExtras";
+
+const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
 
 export const Route = createFileRoute("/student_/apply")({
+  validateSearch: (s: Record<string, unknown>): { opportunity?: string } => ({
+    opportunity: typeof s.opportunity === "string" ? s.opportunity : undefined,
+  }),
   head: () => ({ meta: [{ title: "Apply for an internship — EXPLR" }] }),
   component: () => (
     <RoleGuard requires="student">
@@ -65,6 +78,7 @@ const EMPTY_RESUME: Resume = {
 function ApplyPage() {
   const { user, loading: authLoading } = useSession();
   const navigate = useNavigate();
+  const { opportunity } = Route.useSearch();
 
   const [internships, setInternships] = useState<Internship[]>([]);
   const [interest, setInterest] = useState<InterestMap>({});
@@ -81,7 +95,7 @@ function ApplyPage() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const [{ data: vis }, { data: ints }, { data: sess }] = await Promise.all([
+      const [{ data: vis }, { data: ints }, { data: sess }, { data: orgInts }] = await Promise.all([
         supabase.from("internship_visibility").select("internship_slug, visible"),
         supabase.from("internship_interest_responses").select("internship_slug, response").eq("student_id", user.id),
         supabase
@@ -92,21 +106,28 @@ function ApplyPage() {
           .order("completed_at", { ascending: false })
           .limit(1)
           .maybeSingle(),
+        sb("opportunities").select("*").eq("type", "internship").eq("status", "approved"),
       ]);
       if (cancelled) return;
       const hidden = new Set((vis ?? []).filter((r) => r.visible === false).map((r) => r.internship_slug));
-      setInternships(INTERNSHIPS.filter((i) => !hidden.has(i.slug)));
+      // Org-created approved internships join the catalog in one unified picker.
+      const orgList = ((orgInts as Opportunity[]) ?? []).map(oppToCatalogInternship);
+      setInternships([...INTERNSHIPS.filter((i) => !hidden.has(i.slug)), ...orgList]);
       const map: InterestMap = {};
       for (const r of ints ?? []) map[r.internship_slug] = r.response as "yes" | "maybe" | "no";
       setInterest(map);
       setHollandCode(sess?.holland_code ?? null);
       setScaleScores((sess?.scale_scores as ScaleScores) ?? {});
+      if (opportunity) {
+        const slug = oppSlug(opportunity);
+        if (orgList.some((i) => i.slug === slug)) setSelected(new Set([slug]));
+      }
       // prefill email from auth
       setResume((prev) => ({ ...prev, email: user.email ?? "" }));
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user, opportunity]);
 
   // Ranked list — interest first (yes > maybe > unanswered > no),
   // tie-broken by RIASEC match score against student scale_scores
@@ -164,25 +185,44 @@ function ApplyPage() {
     // Upsert on (student_id, submission_term): a student who withdrew an earlier
     // application can apply again — this overwrites the withdrawn row with a
     // fresh "submitted" one instead of hitting the unique constraint.
-    const { error: insErr } = await supabase.from("internship_applications").upsert(
-      {
-        student_id: user.id,
-        submission_term: "2026-summer",
-        selected_internship_ids: Array.from(selected),
-        responses: { resume, interest_snapshot: interest } as never,
-        riasec_snapshot: { holland_code: hollandCode, scale_scores: scaleScores } as never,
-        status: "submitted",
-        submitted_at: new Date().toISOString(),
-        decided_at: null,
-        staff_notes: null,
-      },
-      { onConflict: "student_id,submission_term" },
-    );
-    setSubmitting(false);
+    const { data: appRow, error: insErr } = await supabase
+      .from("internship_applications")
+      .upsert(
+        {
+          student_id: user.id,
+          submission_term: "2026-summer",
+          selected_internship_ids: Array.from(selected),
+          responses: { resume, interest_snapshot: interest } as never,
+          riasec_snapshot: { holland_code: hollandCode, scale_scores: scaleScores } as never,
+          status: "submitted",
+          submitted_at: new Date().toISOString(),
+          decided_at: null,
+          staff_notes: null,
+        },
+        { onConflict: "student_id,submission_term" },
+      )
+      .select("id")
+      .single();
     if (insErr) {
+      setSubmitting(false);
       setError(insErr.message);
       return;
     }
+    // Register org internships so the partner organization sees the applicant.
+    const oppSlugs = Array.from(selected).filter(isOppSlug);
+    if (oppSlugs.length && appRow) {
+      await sb("opportunity_registrations").upsert(
+        oppSlugs.map((s) => ({
+          opportunity_id: oppIdFromSlug(s),
+          student_id: user.id,
+          application_id: (appRow as { id: string }).id,
+          contact_name: resume.fullName || null,
+          contact_email: resume.email || null,
+        })),
+        { onConflict: "opportunity_id,student_id" },
+      );
+    }
+    setSubmitting(false);
     navigate({ to: "/student" });
   }
 
@@ -261,6 +301,13 @@ function ApplyPage() {
               })}
             </ul>
           </section>
+
+          {[...selected].some(isOppSlug) && user && (
+            <OrgInternshipExtras
+              oppIds={[...selected].filter(isOppSlug).map(oppIdFromSlug)}
+              studentId={user.id}
+            />
+          )}
 
           {/* Resume */}
           <ResumeForm resume={resume} setResume={setResume} />

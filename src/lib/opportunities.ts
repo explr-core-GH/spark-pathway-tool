@@ -1,5 +1,7 @@
 // Shared types + helpers for the organization opportunity portal.
 
+import type { Internship } from "./internships-catalog";
+
 export type OppType = "camp" | "workshop" | "internship" | "ongoing";
 
 export const OPP_TYPES: Array<{
@@ -136,6 +138,8 @@ export type Opportunity = {
   external_url: string | null;
   riasec_code: string | null;
   riasec_weights: Record<string, number> | null;
+  requirements: string[];
+  application_links: AppLink[];
   custom: Record<string, unknown>;
   status: "draft" | "submitted" | "approved" | "rejected";
   review_notes: string | null;
@@ -194,3 +198,70 @@ export function hollandMatch(studentCode: string | null, oppCode: string | null)
 }
 
 export const INTERNSHIP_MIN_GRADE = 8;
+
+// ── Worksite requirements, application links, forms ──────────────────────────
+
+export type AppLink = { label: string; url: string };
+
+export type OpportunityForm = {
+  id: string;
+  opportunity_id: string;
+  name: string;
+  file_url: string | null;
+  requires_signature: boolean;
+  sort_order: number;
+};
+
+export type FormCompletion = {
+  id: string;
+  form_id: string;
+  student_id: string;
+  completed_file_url: string | null;
+  signed_name: string | null;
+  signed_at: string | null;
+};
+
+/** Common worksite requirement presets an org can check on. */
+export const REQUIREMENT_PRESETS = [
+  "Casual dress",
+  "Business casual",
+  "Business / professional dress",
+  "Closed-toed shoes required",
+  "Steel-toed boots required",
+  "Long pants required",
+  "Safety glasses (provided on site)",
+  "Background check required",
+  "Must arrange own transportation",
+];
+
+/** Stable synthetic slug for an org internship inside the apply pipeline. */
+export const OPP_SLUG_PREFIX = "opp:";
+export function oppSlug(id: string): string {
+  return `${OPP_SLUG_PREFIX}${id}`;
+}
+export function isOppSlug(slug: string): boolean {
+  return slug.startsWith(OPP_SLUG_PREFIX);
+}
+export function oppIdFromSlug(slug: string): string {
+  return slug.slice(OPP_SLUG_PREFIX.length);
+}
+
+/** Map an approved org internship into the catalog Internship shape used by
+ *  the apply picker, so org + catalog internships unify in one flow. */
+export function oppToCatalogInternship(o: Opportunity): Internship {
+  const letters = (o.riasec_code ?? "")
+    .toUpperCase()
+    .split("")
+    .filter((c) => "RIASEC".includes(c)) as Internship["riasec"];
+  return {
+    slug: oppSlug(o.id),
+    name: o.name ?? "Internship",
+    theme: o.org_name ?? "Partner internship",
+    lead: null,
+    outsidePartners: o.org_name ?? "",
+    deliverables: o.description ?? "",
+    externalUrl: o.external_url ?? "",
+    emoji: "💼",
+    riasec: letters.length ? letters : (["I"] as Internship["riasec"]),
+  };
+}

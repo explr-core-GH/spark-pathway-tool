@@ -5,9 +5,12 @@ import {
   OPP_TYPES,
   oppTypeMeta,
   RIASEC_ACTIVITIES,
+  REQUIREMENT_PRESETS,
   codeFromWeights,
   emptyRiasecWeights,
+  type AppLink,
   type FieldConfig,
+  type OpportunityForm,
   type OppType,
 } from "@/lib/opportunities";
 
@@ -29,6 +32,8 @@ type FormState = {
   cost: string;
   image_url: string;
   weights: Record<string, number>;
+  requirements: string[];
+  application_links: AppLink[];
   custom: Record<string, unknown>;
 };
 
@@ -48,10 +53,21 @@ const EMPTY: FormState = {
   cost: "",
   image_url: "",
   weights: emptyRiasecWeights(),
+  requirements: [],
+  application_links: [],
   custom: {},
 };
 
-type StepId = "basics" | "when" | "where" | "who" | "interests" | "media" | "custom" | "review";
+type StepId =
+  | "basics"
+  | "when"
+  | "where"
+  | "who"
+  | "interests"
+  | "worksite"
+  | "media"
+  | "custom"
+  | "review";
 const CORE_STEPS: Array<{ id: StepId; title: string; keys: string[] }> = [
   { id: "basics", title: "The basics", keys: ["name", "description"] },
   { id: "when", title: "When", keys: ["dates", "schedule"] },
@@ -78,6 +94,7 @@ export function OpportunityWizard({
   const [config, setConfig] = useState<FieldConfig[]>([]);
   const [form, setForm] = useState<FormState>(EMPTY);
   const [orgLogo, setOrgLogo] = useState<string | null>(logo);
+  const [forms, setForms] = useState<OpportunityForm[]>([]);
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -125,6 +142,8 @@ export function OpportunityWizard({
         cost: data.cost_cents ? String(data.cost_cents / 100) : "",
         image_url: data.image_url ?? "",
         weights: data.riasec_weights ?? emptyRiasecWeights(),
+        requirements: data.requirements ?? [],
+        application_links: data.application_links ?? [],
         custom: data.custom ?? {},
       });
       setHydrating(false);
@@ -168,11 +187,17 @@ export function OpportunityWizard({
       }
       if (s.keys.some((k) => enabled(k))) out.push({ id: s.id, title: s.title });
     }
+    if (type === "internship") {
+      const i = out.findIndex((s) => s.id === "media");
+      const ws = { id: "worksite" as StepId, title: "Worksite & forms" };
+      if (i >= 0) out.splice(i, 0, ws);
+      else out.push(ws);
+    }
     if (customFields.length > 0) out.push({ id: "custom", title: "More details" });
     out.push({ id: "review", title: "Review" });
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config]);
+  }, [config, type]);
 
   const meta = type ? oppTypeMeta(type) : null;
   const code = codeFromWeights(form.weights);
@@ -198,6 +223,92 @@ export function OpportunityWizard({
     if (!url) return;
     await sb("organizations").update({ logo_url: url }).eq("id", orgId);
     setOrgLogo(url);
+  }
+
+  const loadForms = useCallback(async () => {
+    if (!oppId) {
+      setForms([]);
+      return;
+    }
+    const { data } = await sb("opportunity_forms")
+      .select("*")
+      .eq("opportunity_id", oppId)
+      .order("sort_order");
+    setForms((data as OpportunityForm[]) ?? []);
+  }, [oppId]);
+  useEffect(() => {
+    loadForms();
+  }, [loadForms]);
+
+  // Shared payload builder. status=null upserts without touching status/
+  // submitted_at (used to materialize a draft row before attaching forms).
+  function payloadFor(status: "draft" | "submitted" | null): Record<string, unknown> {
+    const p: Record<string, unknown> = {
+      id: oppId,
+      org_id: orgId,
+      org_name: orgName,
+      org_logo_url: orgLogo,
+      type,
+      name: form.name.trim() || null,
+      description: form.description.trim() || null,
+      start_date: form.start_date || null,
+      end_date: form.end_date || null,
+      schedule: form.schedule.trim() || null,
+      location: form.location.trim() || null,
+      registration_mode: meta?.registrationLocked ? "internal" : form.registration_mode,
+      external_url: form.registration_mode === "external" ? form.external_url.trim() || null : null,
+      grade_min: form.grade_min ? Number(form.grade_min) : null,
+      grade_max: form.grade_max ? Number(form.grade_max) : null,
+      capacity: form.capacity ? Number(form.capacity) : null,
+      is_free: form.is_free,
+      cost_cents: form.is_free ? null : Math.round((Number(form.cost) || 0) * 100),
+      image_url: form.image_url || null,
+      riasec_weights: form.weights,
+      riasec_code: code || null,
+      requirements: form.requirements,
+      application_links: form.application_links,
+      custom: form.custom,
+      updated_at: new Date().toISOString(),
+    };
+    if (status) p.status = status;
+    if (status === "submitted") p.submitted_at = new Date().toISOString();
+    return p;
+  }
+
+  async function ensureRow(): Promise<boolean> {
+    const { error } = await sb("opportunities").upsert(payloadFor(null));
+    if (error) {
+      setErr(error.message);
+      return false;
+    }
+    return true;
+  }
+
+  async function addForm(file: File, name: string, requiresSig: boolean) {
+    if (!(await ensureRow())) return;
+    const url = await uploadTo(`opportunity/${oppId}/forms/${Date.now()}-${file.name}`, file);
+    if (!url) return;
+    const { error } = await sb("opportunity_forms").insert({
+      opportunity_id: oppId,
+      name: name.trim() || file.name,
+      file_url: url,
+      requires_signature: requiresSig,
+      sort_order: forms.length * 10,
+    });
+    if (error) {
+      setErr(error.message);
+      return;
+    }
+    loadForms();
+  }
+
+  async function deleteForm(id: string) {
+    const { error } = await sb("opportunity_forms").delete().eq("id", id);
+    if (error) {
+      setErr(error.message);
+      return;
+    }
+    loadForms();
   }
 
   function validateStep(id: StepId): string | null {
@@ -240,34 +351,7 @@ export function OpportunityWizard({
     if (!type) return;
     setBusy(true);
     setErr(null);
-    const payload: Record<string, unknown> = {
-      id: oppId,
-      org_id: orgId,
-      org_name: orgName,
-      org_logo_url: orgLogo,
-      type,
-      name: form.name.trim() || null,
-      description: form.description.trim() || null,
-      start_date: form.start_date || null,
-      end_date: form.end_date || null,
-      schedule: form.schedule.trim() || null,
-      location: form.location.trim() || null,
-      registration_mode: meta?.registrationLocked ? "internal" : form.registration_mode,
-      external_url: form.registration_mode === "external" ? form.external_url.trim() || null : null,
-      grade_min: form.grade_min ? Number(form.grade_min) : null,
-      grade_max: form.grade_max ? Number(form.grade_max) : null,
-      capacity: form.capacity ? Number(form.capacity) : null,
-      is_free: form.is_free,
-      cost_cents: form.is_free ? null : Math.round((Number(form.cost) || 0) * 100),
-      image_url: form.image_url || null,
-      riasec_weights: form.weights,
-      riasec_code: code || null,
-      custom: form.custom,
-      status,
-      updated_at: new Date().toISOString(),
-    };
-    if (status === "submitted") payload.submitted_at = new Date().toISOString();
-    const { error } = await sb("opportunities").upsert(payload);
+    const { error } = await sb("opportunities").upsert(payloadFor(status));
     setBusy(false);
     if (error) {
       setErr(error.message);
@@ -507,6 +591,57 @@ export function OpportunityWizard({
           </Section>
         )}
 
+        {current.id === "worksite" && (
+          <Section title="Worksite requirements & forms">
+            <Field
+              label="Worksite requirements"
+              help="Dress code and anything interns must know before day one."
+            >
+              <div className="space-y-1.5">
+                {REQUIREMENT_PRESETS.map((r) => (
+                  <label key={r} className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={form.requirements.includes(r)}
+                      onChange={(e) =>
+                        set(
+                          "requirements",
+                          e.target.checked
+                            ? [...form.requirements, r]
+                            : form.requirements.filter((x) => x !== r),
+                        )
+                      }
+                    />
+                    {r}
+                  </label>
+                ))}
+              </div>
+              <CustomReqAdder
+                requirements={form.requirements}
+                onAdd={(v) => set("requirements", [...form.requirements, v])}
+                onRemove={(v) => set("requirements", form.requirements.filter((x) => x !== v))}
+              />
+            </Field>
+
+            <Field
+              label="Links to complete"
+              help="Students open / complete these as part of applying (waivers, surveys, external forms)."
+            >
+              <LinksEditor
+                links={form.application_links}
+                onChange={(v) => set("application_links", v)}
+              />
+            </Field>
+
+            <Field
+              label="Forms for interns"
+              help="Upload blank forms; students download, fill out, and/or sign them."
+            >
+              <FormsEditor forms={forms} onAdd={addForm} onDelete={deleteForm} />
+            </Field>
+          </Section>
+        )}
+
         {current.id === "media" && (
           <Section title="Photo & logo">
             {enabled("image") && (
@@ -696,4 +831,172 @@ function CustomInput({
     default:
       return <input className="field" value={String(v)} onChange={(e) => onChange(e.target.value)} />;
   }
+}
+
+function CustomReqAdder({
+  requirements,
+  onAdd,
+  onRemove,
+}: {
+  requirements: string[];
+  onAdd: (v: string) => void;
+  onRemove: (v: string) => void;
+}) {
+  const [val, setVal] = useState("");
+  const custom = requirements.filter((r) => !REQUIREMENT_PRESETS.includes(r));
+  return (
+    <div className="mt-3">
+      <div className="flex gap-2">
+        <input
+          className="field"
+          placeholder="Add another requirement…"
+          value={val}
+          onChange={(e) => setVal(e.target.value)}
+        />
+        <button
+          type="button"
+          className="btn-ghost text-sm"
+          onClick={() => {
+            if (val.trim()) {
+              onAdd(val.trim());
+              setVal("");
+            }
+          }}
+        >
+          Add
+        </button>
+      </div>
+      {custom.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {custom.map((r) => (
+            <span
+              key={r}
+              className="inline-flex items-center gap-2 border border-charcoal-200 bg-white px-2.5 py-1 text-xs"
+            >
+              {r}
+              <button
+                type="button"
+                onClick={() => onRemove(r)}
+                className="text-charcoal-400 hover:text-red-600"
+                aria-label="Remove"
+              >
+                ✕
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LinksEditor({
+  links,
+  onChange,
+}: {
+  links: AppLink[];
+  onChange: (v: AppLink[]) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      {links.map((l, i) => (
+        <div key={i} className="flex gap-2">
+          <input
+            className="field w-40"
+            placeholder="Label"
+            value={l.label}
+            onChange={(e) => onChange(links.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))}
+          />
+          <input
+            className="field flex-1"
+            placeholder="https://"
+            value={l.url}
+            onChange={(e) => onChange(links.map((x, j) => (j === i ? { ...x, url: e.target.value } : x)))}
+          />
+          <button
+            type="button"
+            onClick={() => onChange(links.filter((_, j) => j !== i))}
+            className="px-2 text-charcoal-400 hover:text-ink"
+            aria-label="Remove"
+          >
+            ×
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() => onChange([...links, { label: "", url: "" }])}
+        className="text-sm text-charcoal-500 hover:text-ink"
+      >
+        + Add link
+      </button>
+    </div>
+  );
+}
+
+function FormsEditor({
+  forms,
+  onAdd,
+  onDelete,
+}: {
+  forms: OpportunityForm[];
+  onAdd: (file: File, name: string, requiresSig: boolean) => void;
+  onDelete: (id: string) => void;
+}) {
+  const [name, setName] = useState("");
+  const [sig, setSig] = useState(false);
+  return (
+    <div>
+      {forms.length > 0 && (
+        <ul className="mb-3 divide-y divide-charcoal-100 border-y border-charcoal-100">
+          {forms.map((f) => (
+            <li key={f.id} className="flex items-center gap-3 py-2 text-sm">
+              <span className="flex-1">
+                {f.name}
+                {f.requires_signature && (
+                  <span className="ml-2 text-xs text-charcoal-400">· signature</span>
+                )}
+              </span>
+              {f.file_url && (
+                <a href={f.file_url} target="_blank" rel="noreferrer" className="text-xs text-explr-600 hover:underline">
+                  View
+                </a>
+              )}
+              <button type="button" onClick={() => onDelete(f.id)} className="text-xs text-red-600 hover:underline">
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          className="field w-48"
+          placeholder="Form name (e.g. Waiver)"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <label className="flex items-center gap-1.5 text-xs text-charcoal-600">
+          <input type="checkbox" checked={sig} onChange={(e) => setSig(e.target.checked)} />
+          Needs signature
+        </label>
+        <label className="cursor-pointer border border-dashed border-charcoal-300 bg-white px-3 py-1.5 text-xs hover:border-charcoal-500">
+          Upload form
+          <input
+            type="file"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) {
+                onAdd(f, name, sig);
+                setName("");
+                setSig(false);
+              }
+              e.target.value = "";
+            }}
+          />
+        </label>
+      </div>
+    </div>
+  );
 }

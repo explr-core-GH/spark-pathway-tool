@@ -23,9 +23,19 @@ const STATUS_STYLE: Record<Opportunity["status"], string> = {
   rejected: "bg-rose-50 text-rose-700 border border-rose-200",
 };
 
+type Reg = {
+  id: string;
+  opportunity_id: string;
+  contact_name: string | null;
+  contact_email: string | null;
+  application_id: string | null;
+  created_at: string;
+};
+
 function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
   const { user } = useOrg();
   const [opps, setOpps] = useState<Opportunity[] | null>(null);
+  const [regs, setRegs] = useState<Reg[] | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -34,7 +44,13 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
       .eq("org_id", user.id)
       .order("updated_at", { ascending: false })
       .then(({ data }: { data: Opportunity[] | null }) => setOpps((data as Opportunity[]) ?? []));
+    sb("opportunity_registrations")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .then(({ data }: { data: Reg[] | null }) => setRegs((data as Reg[]) ?? []));
   }, [user]);
+
+  const oppName = (id: string) => opps?.find((o) => o.id === id)?.name || "Opportunity";
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-12">
@@ -95,6 +111,37 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
                     {STATUS_LABEL[o.status]}
                   </span>
                 </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="mt-16">
+        <h2 className="text-xs uppercase tracking-wider text-charcoal-400">
+          Registrations &amp; applicants
+        </h2>
+        {regs === null ? (
+          <p className="mt-4 text-sm text-charcoal-400">Loading…</p>
+        ) : regs.length === 0 ? (
+          <p className="mt-4 text-sm text-charcoal-400">
+            No one has registered or applied yet.
+          </p>
+        ) : (
+          <ul className="mt-4 divide-y divide-charcoal-100 border-y border-charcoal-100">
+            {regs.map((r) => (
+              <li key={r.id} className="flex items-center justify-between py-3 text-sm">
+                <span className="min-w-0">
+                  <span className="font-medium">{r.contact_name || "Student"}</span>
+                  <span className="ml-2 text-xs text-charcoal-400">{oppName(r.opportunity_id)}</span>
+                  {r.contact_email && (
+                    <span className="ml-2 text-xs text-charcoal-400">· {r.contact_email}</span>
+                  )}
+                </span>
+                <span className="shrink-0 text-xs text-charcoal-500">
+                  {r.application_id ? "Applied" : "Registered"} ·{" "}
+                  {new Date(r.created_at).toLocaleDateString()}
+                </span>
               </li>
             ))}
           </ul>

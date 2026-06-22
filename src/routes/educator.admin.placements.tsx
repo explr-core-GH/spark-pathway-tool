@@ -2,6 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { INTERNSHIPS } from "@/lib/internships-catalog";
+import { isOppSlug, oppIdFromSlug } from "@/lib/opportunities";
+
+const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
 
 export const Route = createFileRoute("/educator/admin/placements")({
   head: () => ({ meta: [{ title: "Internship placements — Admin" }] }),
@@ -21,6 +24,16 @@ type Student = { id: string; first_name: string | null; grade: number | null };
 
 const SLUG_TO_NAME: Record<string, string> = Object.fromEntries(INTERNSHIPS.map((i) => [i.slug, i.name]));
 const SLUG_TO_EMOJI: Record<string, string> = Object.fromEntries(INTERNSHIPS.map((i) => [i.slug, i.emoji]));
+
+const OPP_NAMES: Record<string, string> = {};
+function nameFor(slug: string): string {
+  if (isOppSlug(slug)) return OPP_NAMES[oppIdFromSlug(slug)] ?? "Partner internship";
+  return SLUG_TO_NAME[slug] ?? slug;
+}
+function emojiFor(slug: string): string {
+  if (isOppSlug(slug)) return "💼";
+  return SLUG_TO_EMOJI[slug] ?? "•";
+}
 
 function initials(name?: string | null) {
   if (!name) return "—";
@@ -42,6 +55,14 @@ function PlacementsPage() {
       .order("approved_at", { ascending: false });
     const list = (data as Placement[]) ?? [];
     setRows(list);
+    const oppIds = [
+      ...new Set(list.map((r) => r.approved_internship_id).filter(isOppSlug).map(oppIdFromSlug)),
+    ];
+    if (oppIds.length) {
+      const { data: oppRows } = await sb("opportunities").select("id, name").in("id", oppIds);
+      for (const o of (oppRows as Array<{ id: string; name: string | null }>) ?? [])
+        OPP_NAMES[o.id] = o.name ?? "Partner internship";
+    }
     const ids = Array.from(new Set(list.map((r) => r.student_id)));
     if (ids.length) {
       const { data: studs } = await supabase
@@ -68,7 +89,7 @@ function PlacementsPage() {
   }, [rows]);
 
   const internshipOptions = useMemo(
-    () => Object.keys(grouped).sort((a, b) => (SLUG_TO_NAME[a] ?? a).localeCompare(SLUG_TO_NAME[b] ?? b)),
+    () => Object.keys(grouped).sort((a, b) => nameFor(a).localeCompare(nameFor(b))),
     [grouped],
   );
 
@@ -89,7 +110,7 @@ function PlacementsPage() {
   }, [grouped, internshipOptions, filter, search, students]);
 
   async function removePlacement(p: Placement) {
-    if (!confirm(`Remove ${students[p.student_id]?.first_name ?? "this student"} from ${SLUG_TO_NAME[p.approved_internship_id] ?? p.approved_internship_id}? Their application will return to pending.`)) {
+    if (!confirm(`Remove ${students[p.student_id]?.first_name ?? "this student"} from ${nameFor(p.approved_internship_id)}? Their application will return to pending.`)) {
       return;
     }
     const { error: delErr } = await supabase.from("internship_placements").delete().eq("id", p.id);
@@ -144,8 +165,8 @@ function PlacementsPage() {
                 border: `1px solid ${active ? "var(--ink)" : "var(--color-charcoal-200)"}`,
               }}
             >
-              <span className="mr-1">{SLUG_TO_EMOJI[slug] ?? "•"}</span>
-              {SLUG_TO_NAME[slug] ?? slug}
+              <span className="mr-1">{emojiFor(slug)}</span>
+              {nameFor(slug)}
               <span className="ml-1 opacity-70">{grouped[slug].length}</span>
             </button>
           );
@@ -178,8 +199,8 @@ function PlacementsPage() {
             <section key={group.slug}>
               <div className="flex items-baseline justify-between border-b border-charcoal-100 pb-2">
                 <h2 className="text-lg font-medium">
-                  <span className="mr-2">{SLUG_TO_EMOJI[group.slug] ?? "•"}</span>
-                  {SLUG_TO_NAME[group.slug] ?? group.slug}
+                  <span className="mr-2">{emojiFor(group.slug)}</span>
+                  {nameFor(group.slug)}
                 </h2>
                 <p className="text-xs uppercase tracking-wider text-charcoal-400">
                   {group.items.length} {group.items.length === 1 ? "student" : "students"}

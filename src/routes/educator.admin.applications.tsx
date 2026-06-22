@@ -2,6 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { INTERNSHIPS } from "@/lib/internships-catalog";
+import { isOppSlug, oppIdFromSlug } from "@/lib/opportunities";
+
+const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
 
 export const Route = createFileRoute("/educator/admin/applications")({
   head: () => ({ meta: [{ title: "Internship applications — Admin" }] }),
@@ -46,6 +49,18 @@ const SLUG_TO_EMOJI: Record<string, string> = Object.fromEntries(
   INTERNSHIPS.map((i) => [i.slug, i.emoji]),
 );
 
+// Org-created internships apply with synthetic `opp:<id>` slugs; resolve their
+// names from the opportunities table (populated on load).
+const OPP_NAMES: Record<string, string> = {};
+function nameFor(slug: string): string {
+  if (isOppSlug(slug)) return OPP_NAMES[oppIdFromSlug(slug)] ?? "Partner internship";
+  return SLUG_TO_NAME[slug] ?? slug;
+}
+function emojiFor(slug: string): string {
+  if (isOppSlug(slug)) return "💼";
+  return SLUG_TO_EMOJI[slug] ?? "•";
+}
+
 const RIASEC_LETTERS = ["R", "I", "A", "S", "E", "C"] as const;
 const RIASEC_LABEL: Record<string, string> = {
   R: "Realistic", I: "Investigative", A: "Artistic", S: "Social", E: "Enterprising", C: "Conventional",
@@ -79,6 +94,18 @@ function ApplicationsPage() {
     const list = (appRows as Application[]) ?? [];
     setApps(list);
 
+    // Resolve names for any org-created internships referenced in these apps.
+    const oppIds = [
+      ...new Set(
+        list.flatMap((a) => a.selected_internship_ids).filter(isOppSlug).map(oppIdFromSlug),
+      ),
+    ];
+    if (oppIds.length) {
+      const { data: oppRows } = await sb("opportunities").select("id, name").in("id", oppIds);
+      for (const o of (oppRows as Array<{ id: string; name: string | null }>) ?? [])
+        OPP_NAMES[o.id] = o.name ?? "Partner internship";
+    }
+
     const ids = Array.from(new Set(list.map((a) => a.student_id)));
     if (ids.length) {
       const { data: studs } = await supabase
@@ -110,7 +137,7 @@ function ApplicationsPage() {
       const s = students[a.student_id];
       const name = s?.first_name?.toLowerCase() ?? "";
       const internships = a.selected_internship_ids
-        .map((id) => SLUG_TO_NAME[id]?.toLowerCase() ?? "")
+        .map((id) => nameFor(id).toLowerCase())
         .join(" ");
       return name.includes(q) || internships.includes(q);
     });
@@ -226,8 +253,8 @@ function ApplicationsPage() {
                 <div className="mt-4 flex flex-wrap gap-1.5">
                   {top.map((id) => (
                     <span key={id} className="inline-flex items-center gap-1 rounded-full bg-charcoal-50 px-2.5 py-1 text-xs text-charcoal-700">
-                      <span>{SLUG_TO_EMOJI[id] ?? "•"}</span>
-                      <span className="truncate max-w-[160px]">{SLUG_TO_NAME[id] ?? id}</span>
+                      <span>{emojiFor(id)}</span>
+                      <span className="truncate max-w-[160px]">{nameFor(id)}</span>
                     </span>
                   ))}
                   {extra > 0 && (
@@ -353,9 +380,9 @@ function ApplicationDetail({
                 const interestNote = interest[id];
                 return (
                   <li key={id} className="flex items-start gap-2 rounded-md border border-charcoal-100 bg-charcoal-50/50 px-3 py-2 text-sm">
-                    <span className="mt-0.5">{SLUG_TO_EMOJI[id] ?? "•"}</span>
+                    <span className="mt-0.5">{emojiFor(id)}</span>
                     <div className="flex-1">
-                      <p className="font-medium text-charcoal-700">{SLUG_TO_NAME[id] ?? id}</p>
+                      <p className="font-medium text-charcoal-700">{nameFor(id)}</p>
                       {interestNote && (
                         <p className="mt-0.5 text-xs italic text-charcoal-500">"{interestNote}"</p>
                       )}
@@ -536,7 +563,7 @@ function ApplicationDetail({
                   onChange={(e) => setPlacement(e.target.value)}
                 >
                   {app.selected_internship_ids.map((id) => (
-                    <option key={id} value={id}>{SLUG_TO_NAME[id] ?? id}</option>
+                    <option key={id} value={id}>{nameFor(id)}</option>
                   ))}
                 </select>
                 <div className="ml-auto flex gap-2">

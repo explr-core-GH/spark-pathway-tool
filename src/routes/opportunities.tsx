@@ -293,7 +293,21 @@ function OppCard({
         </p>
 
         <div className="mt-auto pt-4">
-          {o.registration_mode === "external" && o.external_url ? (
+          {o.type === "internship" ? (
+            canRegister ? (
+              <Link
+                to="/student/apply"
+                search={{ opportunity: o.id }}
+                className="btn-ink w-full justify-center text-sm"
+              >
+                Apply
+              </Link>
+            ) : (
+              <Link to="/sign-in" className="btn-ghost w-full justify-center text-sm">
+                Sign in to apply
+              </Link>
+            )
+          ) : o.registration_mode === "external" && o.external_url ? (
             <a
               href={o.external_url}
               target="_blank"
