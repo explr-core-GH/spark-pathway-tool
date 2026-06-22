@@ -444,6 +444,83 @@ export type Database = {
         }
         Relationships: []
       }
+      class_students: {
+        Row: {
+          added_at: string
+          class_id: string
+          id: string
+          student_id: string
+        }
+        Insert: {
+          added_at?: string
+          class_id: string
+          id?: string
+          student_id: string
+        }
+        Update: {
+          added_at?: string
+          class_id?: string
+          id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_students_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_students_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          educator_id: string | null
+          grade: number | null
+          id: string
+          name: string
+          period: string | null
+          school_irn: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          educator_id?: string | null
+          grade?: number | null
+          id?: string
+          name: string
+          period?: string | null
+          school_irn?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          educator_id?: string | null
+          grade?: number | null
+          id?: string
+          name?: string
+          period?: string | null
+          school_irn?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classes_educator_id_fkey"
+            columns: ["educator_id"]
+            isOneToOne: false
+            referencedRelation: "educators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       curriculum_tags: {
         Row: {
           camp_slug: string
