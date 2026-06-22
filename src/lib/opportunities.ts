@@ -65,15 +65,79 @@ export const RIASEC_ACTIVITIES: Array<{
   key: string;
   label: string;
   letter: string;
+  holland: string;
   blurb: string;
+  examples: string;
 }> = [
-  { key: "building", label: "Building & making", letter: "R", blurb: "hands-on, tools, machines" },
-  { key: "investigating", label: "Investigating & experimenting", letter: "I", blurb: "research, analyze, solve" },
-  { key: "designing", label: "Designing & creating", letter: "A", blurb: "art, media, design" },
-  { key: "helping", label: "Helping & teaching", letter: "S", blurb: "mentor, serve, collaborate" },
-  { key: "leading", label: "Leading & pitching", letter: "E", blurb: "persuade, sell, entrepreneurship" },
-  { key: "organizing", label: "Organizing & data", letter: "C", blurb: "records, details, procedures" },
+  {
+    key: "building",
+    letter: "R",
+    holland: "Realistic",
+    label: "Building & making",
+    blurb: "Hands-on work with tools, machines, materials, or the outdoors.",
+    examples: "Welding, wiring a robot, running a CNC mill, assembling, repairing, fieldwork.",
+  },
+  {
+    key: "investigating",
+    letter: "I",
+    holland: "Investigative",
+    label: "Investigating & experimenting",
+    blurb: "Researching, analyzing, testing ideas, and solving technical problems.",
+    examples: "Running experiments, analyzing data, debugging code, diagnosing, modeling.",
+  },
+  {
+    key: "designing",
+    letter: "A",
+    holland: "Artistic",
+    label: "Designing & creating",
+    blurb: "Open-ended creating, designing, and self-expression.",
+    examples: "UX / graphic design, prototyping, video, animation, writing, music, art.",
+  },
+  {
+    key: "helping",
+    letter: "S",
+    holland: "Social",
+    label: "Helping & teaching",
+    blurb: "Working with and for people — guiding, teaching, and supporting them.",
+    examples: "Tutoring, mentoring younger students, patient or customer care, facilitating.",
+  },
+  {
+    key: "leading",
+    letter: "E",
+    holland: "Enterprising",
+    label: "Leading & persuading",
+    blurb: "Leading, pitching, persuading, and organizing people toward a goal.",
+    examples: "Pitching an idea, managing a team, sales, marketing, running an event.",
+  },
+  {
+    key: "organizing",
+    letter: "C",
+    holland: "Conventional",
+    label: "Organizing & data",
+    blurb: "Working accurately with data, records, and clear procedures.",
+    examples: "Spreadsheets, inventory, scheduling, quality checks, documentation, bookkeeping.",
+  },
 ];
+
+export const RIASEC_INTRO =
+  "EXPLR matches students to opportunities by RIASEC (Holland) interest type — the same six types your students' interest assessment produces. Rather than guess at a code, estimate how a typical participant's time is split across these six kinds of activity. We weight the sliders and take the top one to three as this opportunity's interest code, so students who'll thrive here can find it. The closer this reflects the real day-to-day, the better the match.";
+
+export const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+function fmtTime(hhmm: string): string {
+  const [h, m] = hhmm.split(":").map(Number);
+  if (Number.isNaN(h)) return hhmm;
+  const ampm = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${String(m ?? 0).padStart(2, "0")} ${ampm}`;
+}
+
+/** Human schedule line from the structured picker. */
+export function composeSchedule(days: string[], start: string, end: string): string {
+  const d = days.length ? days.join(", ") : "";
+  const t = start && end ? `${fmtTime(start)}–${fmtTime(end)}` : start ? `from ${fmtTime(start)}` : "";
+  return [d, t].filter(Boolean).join(" · ");
+}
 
 const RIASEC_ORDER = ["R", "I", "A", "S", "E", "C"];
 
@@ -127,6 +191,9 @@ export type Opportunity = {
   start_date: string | null;
   end_date: string | null;
   schedule: string | null;
+  schedule_json: { days?: string[]; start?: string; end?: string } | null;
+  lat: number | null;
+  lng: number | null;
   grade_min: number | null;
   grade_max: number | null;
   is_free: boolean;

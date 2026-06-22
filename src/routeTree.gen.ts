@@ -30,6 +30,7 @@ import { Route as StudentApplyRouteImport } from './routes/student_.apply'
 import { Route as OrgSignUpRouteImport } from './routes/org.sign-up'
 import { Route as OrgSignInRouteImport } from './routes/org.sign-in'
 import { Route as OrgNewRouteImport } from './routes/org.new'
+import { Route as OpportunityIdRouteImport } from './routes/opportunity.$id'
 import { Route as LabSplatRouteImport } from './routes/lab.$'
 import { Route as EducatorStudentsRouteImport } from './routes/educator.students'
 import { Route as EducatorSignUpRouteImport } from './routes/educator.sign-up'
@@ -173,6 +174,11 @@ const OrgSignInRoute = OrgSignInRouteImport.update({
 const OrgNewRoute = OrgNewRouteImport.update({
   id: '/org/new',
   path: '/org/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OpportunityIdRoute = OpportunityIdRouteImport.update({
+  id: '/opportunity/$id',
+  path: '/opportunity/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LabSplatRoute = LabSplatRouteImport.update({
@@ -410,6 +416,7 @@ export interface FileRoutesByFullPath {
   '/educator/sign-up': typeof EducatorSignUpRoute
   '/educator/students': typeof EducatorStudentsRoute
   '/lab/$': typeof LabSplatRoute
+  '/opportunity/$id': typeof OpportunityIdRoute
   '/org/new': typeof OrgNewRoute
   '/org/sign-in': typeof OrgSignInRoute
   '/org/sign-up': typeof OrgSignUpRoute
@@ -470,6 +477,7 @@ export interface FileRoutesByTo {
   '/educator/sign-up': typeof EducatorSignUpRoute
   '/educator/students': typeof EducatorStudentsRoute
   '/lab/$': typeof LabSplatRoute
+  '/opportunity/$id': typeof OpportunityIdRoute
   '/org/new': typeof OrgNewRoute
   '/org/sign-in': typeof OrgSignInRoute
   '/org/sign-up': typeof OrgSignUpRoute
@@ -533,6 +541,7 @@ export interface FileRoutesById {
   '/educator/sign-up': typeof EducatorSignUpRoute
   '/educator/students': typeof EducatorStudentsRoute
   '/lab/$': typeof LabSplatRoute
+  '/opportunity/$id': typeof OpportunityIdRoute
   '/org/new': typeof OrgNewRoute
   '/org/sign-in': typeof OrgSignInRoute
   '/org/sign-up': typeof OrgSignUpRoute
@@ -597,6 +606,7 @@ export interface FileRouteTypes {
     | '/educator/sign-up'
     | '/educator/students'
     | '/lab/$'
+    | '/opportunity/$id'
     | '/org/new'
     | '/org/sign-in'
     | '/org/sign-up'
@@ -657,6 +667,7 @@ export interface FileRouteTypes {
     | '/educator/sign-up'
     | '/educator/students'
     | '/lab/$'
+    | '/opportunity/$id'
     | '/org/new'
     | '/org/sign-in'
     | '/org/sign-up'
@@ -719,6 +730,7 @@ export interface FileRouteTypes {
     | '/educator/sign-up'
     | '/educator/students'
     | '/lab/$'
+    | '/opportunity/$id'
     | '/org/new'
     | '/org/sign-in'
     | '/org/sign-up'
@@ -776,6 +788,7 @@ export interface RootRouteChildren {
   AssessmentSessionIdRoute: typeof AssessmentSessionIdRoute
   AssessmentInternshipInterestRoute: typeof AssessmentInternshipInterestRoute
   LabSplatRoute: typeof LabSplatRoute
+  OpportunityIdRoute: typeof OpportunityIdRoute
   OrgNewRoute: typeof OrgNewRoute
   OrgSignInRoute: typeof OrgSignInRoute
   OrgSignUpRoute: typeof OrgSignUpRoute
@@ -935,6 +948,13 @@ declare module '@tanstack/react-router' {
       path: '/org/new'
       fullPath: '/org/new'
       preLoaderRoute: typeof OrgNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/opportunity/$id': {
+      id: '/opportunity/$id'
+      path: '/opportunity/$id'
+      fullPath: '/opportunity/$id'
+      preLoaderRoute: typeof OpportunityIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lab/$': {
@@ -1318,6 +1338,7 @@ const rootRouteChildren: RootRouteChildren = {
   AssessmentSessionIdRoute: AssessmentSessionIdRoute,
   AssessmentInternshipInterestRoute: AssessmentInternshipInterestRoute,
   LabSplatRoute: LabSplatRoute,
+  OpportunityIdRoute: OpportunityIdRoute,
   OrgNewRoute: OrgNewRoute,
   OrgSignInRoute: OrgSignInRoute,
   OrgSignUpRoute: OrgSignUpRoute,

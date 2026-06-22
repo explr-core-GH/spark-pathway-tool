@@ -279,7 +279,13 @@ function OppCard({
             </span>
           )}
         </div>
-        <p className="mt-2 text-sm font-medium leading-snug">{o.name || "Opportunity"}</p>
+        <Link
+          to="/opportunity/$id"
+          params={{ id: o.id }}
+          className="mt-2 block text-sm font-medium leading-snug hover:underline"
+        >
+          {o.name || "Opportunity"}
+        </Link>
         <div className="mt-1 flex items-center gap-1.5 text-xs text-charcoal-500">
           {o.org_logo_url && <img src={o.org_logo_url} alt="" className="h-4 w-4 rounded object-cover" />}
           <span className="truncate">{o.org_name || "Organization"}</span>

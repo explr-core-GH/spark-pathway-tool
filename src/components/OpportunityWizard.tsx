@@ -5,8 +5,11 @@ import {
   OPP_TYPES,
   oppTypeMeta,
   RIASEC_ACTIVITIES,
+  RIASEC_INTRO,
   REQUIREMENT_PRESETS,
+  WEEKDAYS,
   codeFromWeights,
+  composeSchedule,
   emptyRiasecWeights,
   type AppLink,
   type FieldConfig,
@@ -21,8 +24,12 @@ type FormState = {
   description: string;
   start_date: string;
   end_date: string;
-  schedule: string;
+  days: string[];
+  start_time: string;
+  end_time: string;
   location: string;
+  lat: number | null;
+  lng: number | null;
   registration_mode: "internal" | "external";
   external_url: string;
   grade_min: string;
@@ -42,8 +49,12 @@ const EMPTY: FormState = {
   description: "",
   start_date: "",
   end_date: "",
-  schedule: "",
+  days: [],
+  start_time: "",
+  end_time: "",
   location: "",
+  lat: null,
+  lng: null,
   registration_mode: "internal",
   external_url: "",
   grade_min: "",
@@ -131,8 +142,12 @@ export function OpportunityWizard({
         description: data.description ?? "",
         start_date: data.start_date ?? "",
         end_date: data.end_date ?? "",
-        schedule: data.schedule ?? "",
+        days: data.schedule_json?.days ?? [],
+        start_time: data.schedule_json?.start ?? "",
+        end_time: data.schedule_json?.end ?? "",
         location: data.location ?? "",
+        lat: data.lat ?? null,
+        lng: data.lng ?? null,
         registration_mode: data.registration_mode ?? "internal",
         external_url: data.external_url ?? "",
         grade_min: data.grade_min != null ? String(data.grade_min) : "",
@@ -253,8 +268,11 @@ export function OpportunityWizard({
       description: form.description.trim() || null,
       start_date: form.start_date || null,
       end_date: form.end_date || null,
-      schedule: form.schedule.trim() || null,
+      schedule: composeSchedule(form.days, form.start_time, form.end_time) || null,
+      schedule_json: { days: form.days, start: form.start_time, end: form.end_time },
       location: form.location.trim() || null,
+      lat: form.lat,
+      lng: form.lng,
       registration_mode: meta?.registrationLocked ? "internal" : form.registration_mode,
       external_url: form.registration_mode === "external" ? form.external_url.trim() || null : null,
       grade_min: form.grade_min ? Number(form.grade_min) : null,
@@ -455,8 +473,33 @@ export function OpportunityWizard({
               </Field>
             )}
             {enabled("schedule") && (
-              <Field label={labelOf("schedule", "Times / schedule")} help={helpOf("schedule")}>
-                <input className="field" value={form.schedule} onChange={(e) => set("schedule", e.target.value)} placeholder="e.g. Mon–Fri 9am–12pm" />
+              <Field label={labelOf("schedule", "Days & times")} help={helpOf("schedule")}>
+                <WeekdayPicker days={form.days} onChange={(v) => set("days", v)} />
+                <div className="mt-3 flex flex-wrap items-end gap-4">
+                  <label className="text-xs text-charcoal-500">
+                    Start time
+                    <input
+                      type="time"
+                      className="field mt-1 w-36"
+                      value={form.start_time}
+                      onChange={(e) => set("start_time", e.target.value)}
+                    />
+                  </label>
+                  <label className="text-xs text-charcoal-500">
+                    End time
+                    <input
+                      type="time"
+                      className="field mt-1 w-36"
+                      value={form.end_time}
+                      onChange={(e) => set("end_time", e.target.value)}
+                    />
+                  </label>
+                </div>
+                {composeSchedule(form.days, form.start_time, form.end_time) && (
+                  <p className="mt-2 text-xs text-charcoal-500">
+                    {composeSchedule(form.days, form.start_time, form.end_time)}
+                  </p>
+                )}
               </Field>
             )}
           </Section>
@@ -465,8 +508,22 @@ export function OpportunityWizard({
         {current.id === "where" && (
           <Section title="Where & registration">
             {enabled("location") && (
-              <Field label={labelOf("location", "Location")} help={helpOf("location")} required={cfg.get("location")?.required}>
-                <input className="field" value={form.location} onChange={(e) => set("location", e.target.value)} />
+              <Field
+                label={labelOf("location", "Location")}
+                help={helpOf("location") ?? "Start typing, then pick an address — it drops a map pin students will see."}
+                required={cfg.get("location")?.required}
+              >
+                <AddressAutocomplete
+                  value={form.location}
+                  onPick={(addr, lat, lng) => {
+                    set("location", addr);
+                    set("lat", lat);
+                    set("lng", lng);
+                  }}
+                />
+                {form.lat != null && form.lng != null && (
+                  <p className="mt-1 text-xs text-emerald-700">✓ Pinned on the map</p>
+                )}
               </Field>
             )}
             <Field label={labelOf("registration", "How students register")} help={helpOf("registration")}>
@@ -550,21 +607,24 @@ export function OpportunityWizard({
         )}
 
         {current.id === "interests" && (
-          <Section title="Activities — auto-codes a RIASEC profile">
-            <p className="text-sm text-charcoal-500">
-              Drag each to match how students spend their time. We turn it into a Holland (RIASEC)
-              code so the right students discover it.
-            </p>
-            <div className="mt-5 space-y-4">
+          <Section title="Activities — auto-codes a RIASEC interest profile">
+            <p className="text-sm leading-relaxed text-charcoal-600">{RIASEC_INTRO}</p>
+            <div className="mt-6 space-y-4">
               {RIASEC_ACTIVITIES.map((a) => (
-                <div key={a.key}>
-                  <div className="flex items-baseline justify-between text-sm">
-                    <span>
-                      {a.label}{" "}
-                      <span className="text-xs text-charcoal-400">· {a.blurb} ({a.letter})</span>
+                <div key={a.key} className="border border-charcoal-100 p-4">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <p className="text-sm font-medium">
+                      {a.label}
+                      <span className="ml-2 text-xs font-normal text-charcoal-400">
+                        {a.holland} · {a.letter}
+                      </span>
+                    </p>
+                    <span className="tabular-nums text-sm text-charcoal-600">
+                      {form.weights[a.key] ?? 0}%
                     </span>
-                    <span className="tabular-nums text-charcoal-500">{form.weights[a.key] ?? 0}%</span>
                   </div>
+                  <p className="mt-1 text-xs text-charcoal-500">{a.blurb}</p>
+                  <p className="mt-0.5 text-xs text-charcoal-400">e.g. {a.examples}</p>
                   <input
                     type="range"
                     min={0}
@@ -574,20 +634,26 @@ export function OpportunityWizard({
                     onChange={(e) =>
                       set("weights", { ...form.weights, [a.key]: Number(e.target.value) })
                     }
-                    className="mt-1 w-full"
+                    className="mt-3 w-full"
                   />
                 </div>
               ))}
             </div>
-            <div className="mt-5 flex items-center justify-between border-t border-charcoal-100 pt-3 text-sm">
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-charcoal-100 pt-4 text-sm">
               <span className={weightTotal === 100 ? "text-charcoal-500" : "text-amber-700"}>
-                Total {weightTotal}%{weightTotal !== 100 ? " (aim for 100%)" : ""}
+                Total {weightTotal}%
+                {weightTotal !== 100 ? " — aim for about 100% (we normalize either way)" : ""}
               </span>
               <span>
-                Holland code:{" "}
+                This opportunity&apos;s interest code:{" "}
                 <span className="font-mono font-medium tracking-wider">{code || "—"}</span>
               </span>
             </div>
+            <p className="mt-3 text-xs text-charcoal-400">
+              The code is the top one to three activity types by time. A student whose interest
+              assessment shares those letters sees this as a match. Leave any slider at 0 if it
+              doesn&apos;t apply.
+            </p>
           </Section>
         )}
 
@@ -997,6 +1063,98 @@ function FormsEditor({
           />
         </label>
       </div>
+    </div>
+  );
+}
+
+function WeekdayPicker({ days, onChange }: { days: string[]; onChange: (v: string[]) => void }) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {WEEKDAYS.map((d) => {
+        const on = days.includes(d);
+        return (
+          <button
+            key={d}
+            type="button"
+            onClick={() => onChange(on ? days.filter((x) => x !== d) : [...days, d])}
+            className="border px-3 py-1.5 text-xs"
+            style={
+              on
+                ? { background: "var(--ink)", color: "white", borderColor: "var(--ink)" }
+                : { borderColor: "var(--color-charcoal-200)" }
+            }
+          >
+            {d}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+type NominatimResult = { display_name: string; lat: string; lon: string };
+
+function AddressAutocomplete({
+  value,
+  onPick,
+}: {
+  value: string;
+  onPick: (addr: string, lat: number | null, lng: number | null) => void;
+}) {
+  const [q, setQ] = useState(value);
+  const [results, setResults] = useState<NominatimResult[]>([]);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (q.trim().length < 4) {
+      setResults([]);
+      return;
+    }
+    const t = setTimeout(async () => {
+      try {
+        const r = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(q)}`,
+        );
+        if (r.ok) setResults((await r.json()) as NominatimResult[]);
+      } catch {
+        /* offline / blocked — free typing still works */
+      }
+    }, 450);
+    return () => clearTimeout(t);
+  }, [q]);
+
+  return (
+    <div className="relative">
+      <input
+        className="field"
+        value={q}
+        placeholder="Start typing an address…"
+        onChange={(e) => {
+          setQ(e.target.value);
+          setOpen(true);
+          onPick(e.target.value, null, null);
+        }}
+      />
+      {open && results.length > 0 && (
+        <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-auto border border-charcoal-200 bg-white text-sm shadow-sm">
+          {results.map((r, i) => (
+            <li key={i}>
+              <button
+                type="button"
+                className="block w-full px-3 py-2 text-left hover:bg-charcoal-50"
+                onClick={() => {
+                  onPick(r.display_name, Number(r.lat), Number(r.lon));
+                  setQ(r.display_name);
+                  setResults([]);
+                  setOpen(false);
+                }}
+              >
+                {r.display_name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
