@@ -2,6 +2,11 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { RosterDataPanel } from "@/components/RosterDataPanel";
+import { CampAssignmentsPanel } from "@/components/CampAssignmentsPanel";
+import { CampLoginsPanel } from "@/components/CampLoginsPanel";
+import { InternshipPipelinePanel } from "@/components/InternshipPipelinePanel";
+import { GroupMaterialsPanel } from "@/components/GroupMaterialsPanel";
+import { GroupEducatorsPanel } from "@/components/GroupEducatorsPanel";
 import {
   fetchGroup,
   fetchCompletion,
@@ -136,11 +141,11 @@ function Inner({ kind, id }: { kind: GroupKind; id: string }) {
             <RosterDataPanel studentIds={group.studentIds} names={group.names} />
           </>
         )}
-        {tab === "assessments" && <AssessmentsTab group={group} completion={completion} />}
-        {tab === "materials" && <MaterialsTab kind={kind} />}
-        {tab === "educators" && <EducatorsTab />}
-        {tab === "logins" && <LoginsTab />}
-        {tab === "pipeline" && <PipelineTab />}
+        {tab === "assessments" && <AssessmentsTab kind={kind} group={group} completion={completion} />}
+        {tab === "materials" && <GroupMaterialsPanel kind={kind} id={group.id} />}
+        {tab === "educators" && <GroupEducatorsPanel kind={kind} id={group.id} />}
+        {tab === "logins" && <CampLoginsPanel campId={group.id} title={group.name} />}
+        {tab === "pipeline" && <InternshipPipelinePanel slug={group.id} />}
       </div>
     </main>
   );
@@ -216,9 +221,11 @@ function Overview({
 }
 
 function AssessmentsTab({
+  kind,
   group,
   completion,
 }: {
+  kind: GroupKind;
   group: GroupSummary;
   completion: Completion | null;
 }) {
@@ -239,7 +246,19 @@ function AssessmentsTab({
         <Metric label="RIASEC assessment" value={`${aDone} / ${total} done`} />
         <Metric label="Surveys" value={`${sDone} / ${total} done`} />
       </div>
-      <div className="mt-6 flex flex-wrap gap-3">
+
+      {kind === "camps" && (
+        <div className="mt-8">
+          <h2 className="text-xs uppercase tracking-wider text-charcoal-400">
+            Assigned to this camp
+          </h2>
+          <div className="mt-3">
+            <CampAssignmentsPanel campId={group.id} studentIds={group.studentIds} />
+          </div>
+        </div>
+      )}
+
+      <div className="mt-8 flex flex-wrap gap-3">
         <Link to="/educator/admin/assessments" className="btn-ink text-sm">
           Assign & manage
         </Link>
@@ -247,84 +266,6 @@ function AssessmentsTab({
           Completion by roster
         </Link>
       </div>
-    </div>
-  );
-}
-
-function MaterialsTab({ kind }: { kind: GroupKind }) {
-  return (
-    <div className="max-w-2xl text-sm text-charcoal-600">
-      {kind === "camps" && (
-        <p>
-          Slide decks and resources live with the curriculum item.{" "}
-          <Link to="/educator/admin/camps" className="ink-link">
-            Open Curriculum
-          </Link>{" "}
-          to upload or edit materials.
-        </p>
-      )}
-      {kind === "internships" && (
-        <p>
-          Partner info, deliverables, and the external project link are on the
-          offering.{" "}
-          <Link to="/educator/admin/internships" className="ink-link">
-            Edit this offering
-          </Link>
-          .
-        </p>
-      )}
-      {kind === "classes" && (
-        <p>
-          Class materials aren&apos;t wired up yet — for now, share resources
-          through the camp/curriculum library.
-        </p>
-      )}
-    </div>
-  );
-}
-
-function EducatorsTab() {
-  return (
-    <div className="max-w-2xl text-sm text-charcoal-600">
-      <p>
-        Connect educators so they can see this group&apos;s roster and results.{" "}
-        <Link to="/educator/admin/assign" className="ink-link">
-          Open the assign page
-        </Link>
-        .
-      </p>
-    </div>
-  );
-}
-
-function LoginsTab() {
-  return (
-    <div className="max-w-2xl text-sm text-charcoal-600">
-      <p>
-        Generate, print, and manage student logins on the{" "}
-        <Link to="/educator/admin/camp-logins" className="ink-link">
-          Camp logins
-        </Link>{" "}
-        page.
-      </p>
-    </div>
-  );
-}
-
-function PipelineTab() {
-  return (
-    <div className="max-w-2xl text-sm text-charcoal-600">
-      <p>
-        Review who applied and place students from the{" "}
-        <Link to="/educator/admin/applications" className="ink-link">
-          applications
-        </Link>{" "}
-        and{" "}
-        <Link to="/educator/admin/placements" className="ink-link">
-          placements
-        </Link>{" "}
-        queues.
-      </p>
     </div>
   );
 }
