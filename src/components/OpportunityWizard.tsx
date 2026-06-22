@@ -63,10 +63,12 @@ const CORE_STEPS: Array<{ id: StepId; title: string; keys: string[] }> = [
 
 export function OpportunityWizard({
   orgId,
+  orgName,
   logo,
   opportunityId,
 }: {
   orgId: string;
+  orgName: string;
   logo: string | null;
   opportunityId?: string;
 }) {
@@ -241,6 +243,8 @@ export function OpportunityWizard({
     const payload: Record<string, unknown> = {
       id: oppId,
       org_id: orgId,
+      org_name: orgName,
+      org_logo_url: orgLogo,
       type,
       name: form.name.trim() || null,
       description: form.description.trim() || null,

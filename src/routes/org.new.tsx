@@ -15,7 +15,12 @@ function NewOpportunity() {
   return (
     <OrgGuard>
       {(org) => (
-        <OpportunityWizard orgId={org.id} logo={org.logo_url} opportunityId={id} />
+        <OpportunityWizard
+          orgId={org.id}
+          orgName={org.name}
+          logo={org.logo_url}
+          opportunityId={id}
+        />
       )}
     </OrgGuard>
   );

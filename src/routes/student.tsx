@@ -191,6 +191,12 @@ function StudentDashboard() {
               {label}
             </button>
           ))}
+          <Link
+            to="/opportunities"
+            className="ml-auto self-center text-sm text-explr-600 hover:underline"
+          >
+            Explore opportunities →
+          </Link>
         </div>
 
         {tab === "families" && <FamilyPortal studentId={user!.id} grade={grade} />}

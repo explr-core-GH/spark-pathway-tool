@@ -99,6 +99,7 @@ function SiteHeader() {
           </span>
         </Link>
         <nav className="flex items-center gap-7 text-sm">
+          <Link to="/opportunities" className="text-charcoal-500 hover:text-ink">Opportunities</Link>
           <Link to="/about" className="text-charcoal-500 hover:text-ink">About</Link>
           <Link to="/sign-in" className="text-charcoal-500 hover:text-ink">Student sign in</Link>
           <Link to="/educator/sign-in" className="text-charcoal-500 hover:text-ink">Educator sign in</Link>

@@ -117,6 +117,8 @@ export type FieldConfig = {
 export type Opportunity = {
   id: string;
   org_id: string;
+  org_name: string | null;
+  org_logo_url: string | null;
   type: OppType;
   name: string | null;
   description: string | null;
@@ -154,3 +156,41 @@ export function dollars(cents: number | null | undefined): string {
   if (!cents) return "Free";
   return `$${(cents / 100).toFixed(2)}`;
 }
+
+// ── Internship age gate ──────────────────────────────────────────────────────
+// Students must be 14 by June 1 of the internship's year, and in grade 8+.
+
+/**
+ * The cohort year for an internship with no explicit date: if today is on/after
+ * June 1, the next cohort is next year (this year's already started).
+ */
+export function nextInternshipCohortYear(now: Date): number {
+  const juneFirst = new Date(now.getFullYear(), 5, 1); // month 5 = June
+  return now >= juneFirst ? now.getFullYear() + 1 : now.getFullYear();
+}
+
+/** The year whose June 1 cutoff applies to this internship. */
+export function internshipYearOf(startDate: string | null, now: Date): number {
+  if (startDate) return Number(startDate.slice(0, 4));
+  return nextInternshipCohortYear(now);
+}
+
+/** True if a student with this DOB turns 14 on or before June 1 of `year`. */
+export function turns14ByJune1(dob: string, year: number): boolean {
+  const [y, m, d] = dob.split("-").map(Number);
+  if (!y || !m || !d) return false;
+  const fourteenth = new Date(y + 14, m - 1, d);
+  const cutoff = new Date(year, 5, 1); // June 1 of the cohort year
+  return fourteenth <= cutoff;
+}
+
+/** Shared-letter count between a student's Holland code and an opportunity's. */
+export function hollandMatch(studentCode: string | null, oppCode: string | null): number {
+  if (!studentCode || !oppCode) return 0;
+  const have = new Set(studentCode.toUpperCase().split(""));
+  let n = 0;
+  for (const c of oppCode.toUpperCase()) if (have.has(c)) n += 1;
+  return n;
+}
+
+export const INTERNSHIP_MIN_GRADE = 8;
