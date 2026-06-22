@@ -60,6 +60,8 @@ import { Route as AssessmentInternshipInterestResultsRouteImport } from './route
 import { Route as AssessmentSessionIdResultsRouteImport } from './routes/assessment.$sessionId_.results'
 import { Route as EducatorAdminEducatorsIdRouteImport } from './routes/educator.admin.educators.$id'
 import { Route as DemoAptitudeBandTakeRouteImport } from './routes/demo.aptitude.$band.take'
+import { Route as EducatorAdminGroupsKindIndexRouteImport } from './routes/educator.admin.groups.$kind.index'
+import { Route as EducatorAdminGroupsKindIdRouteImport } from './routes/educator.admin.groups.$kind.$id'
 
 const WorksitesRoute = WorksitesRouteImport.update({
   id: '/worksites',
@@ -328,6 +330,18 @@ const DemoAptitudeBandTakeRoute = DemoAptitudeBandTakeRouteImport.update({
   path: '/demo/aptitude/$band/take',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EducatorAdminGroupsKindIndexRoute =
+  EducatorAdminGroupsKindIndexRouteImport.update({
+    id: '/groups/$kind/',
+    path: '/groups/$kind/',
+    getParentRoute: () => EducatorAdminRoute,
+  } as any)
+const EducatorAdminGroupsKindIdRoute =
+  EducatorAdminGroupsKindIdRouteImport.update({
+    id: '/groups/$kind/$id',
+    path: '/groups/$kind/$id',
+    getParentRoute: () => EducatorAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -381,6 +395,8 @@ export interface FileRoutesByFullPath {
   '/educator/internships/': typeof EducatorInternshipsIndexRoute
   '/demo/aptitude/$band/take': typeof DemoAptitudeBandTakeRoute
   '/educator/admin/educators/$id': typeof EducatorAdminEducatorsIdRoute
+  '/educator/admin/groups/$kind/$id': typeof EducatorAdminGroupsKindIdRoute
+  '/educator/admin/groups/$kind/': typeof EducatorAdminGroupsKindIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -432,6 +448,8 @@ export interface FileRoutesByTo {
   '/educator/internships': typeof EducatorInternshipsIndexRoute
   '/demo/aptitude/$band/take': typeof DemoAptitudeBandTakeRoute
   '/educator/admin/educators/$id': typeof EducatorAdminEducatorsIdRoute
+  '/educator/admin/groups/$kind/$id': typeof EducatorAdminGroupsKindIdRoute
+  '/educator/admin/groups/$kind': typeof EducatorAdminGroupsKindIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -486,6 +504,8 @@ export interface FileRoutesById {
   '/educator/internships/': typeof EducatorInternshipsIndexRoute
   '/demo/aptitude/$band/take': typeof DemoAptitudeBandTakeRoute
   '/educator/admin/educators/$id': typeof EducatorAdminEducatorsIdRoute
+  '/educator/admin/groups/$kind/$id': typeof EducatorAdminGroupsKindIdRoute
+  '/educator/admin/groups/$kind/': typeof EducatorAdminGroupsKindIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -541,6 +561,8 @@ export interface FileRouteTypes {
     | '/educator/internships/'
     | '/demo/aptitude/$band/take'
     | '/educator/admin/educators/$id'
+    | '/educator/admin/groups/$kind/$id'
+    | '/educator/admin/groups/$kind/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -592,6 +614,8 @@ export interface FileRouteTypes {
     | '/educator/internships'
     | '/demo/aptitude/$band/take'
     | '/educator/admin/educators/$id'
+    | '/educator/admin/groups/$kind/$id'
+    | '/educator/admin/groups/$kind'
   id:
     | '__root__'
     | '/'
@@ -645,6 +669,8 @@ export interface FileRouteTypes {
     | '/educator/internships/'
     | '/demo/aptitude/$band/take'
     | '/educator/admin/educators/$id'
+    | '/educator/admin/groups/$kind/$id'
+    | '/educator/admin/groups/$kind/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1030,6 +1056,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoAptitudeBandTakeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/educator/admin/groups/$kind/': {
+      id: '/educator/admin/groups/$kind/'
+      path: '/groups/$kind'
+      fullPath: '/educator/admin/groups/$kind/'
+      preLoaderRoute: typeof EducatorAdminGroupsKindIndexRouteImport
+      parentRoute: typeof EducatorAdminRoute
+    }
+    '/educator/admin/groups/$kind/$id': {
+      id: '/educator/admin/groups/$kind/$id'
+      path: '/groups/$kind/$id'
+      fullPath: '/educator/admin/groups/$kind/$id'
+      preLoaderRoute: typeof EducatorAdminGroupsKindIdRouteImport
+      parentRoute: typeof EducatorAdminRoute
+    }
   }
 }
 
@@ -1051,6 +1091,8 @@ interface EducatorAdminRouteChildren {
   EducatorAdminSurveysRoute: typeof EducatorAdminSurveysRoute
   EducatorAdminIndexRoute: typeof EducatorAdminIndexRoute
   EducatorAdminEducatorsIdRoute: typeof EducatorAdminEducatorsIdRoute
+  EducatorAdminGroupsKindIdRoute: typeof EducatorAdminGroupsKindIdRoute
+  EducatorAdminGroupsKindIndexRoute: typeof EducatorAdminGroupsKindIndexRoute
 }
 
 const EducatorAdminRouteChildren: EducatorAdminRouteChildren = {
@@ -1071,6 +1113,8 @@ const EducatorAdminRouteChildren: EducatorAdminRouteChildren = {
   EducatorAdminSurveysRoute: EducatorAdminSurveysRoute,
   EducatorAdminIndexRoute: EducatorAdminIndexRoute,
   EducatorAdminEducatorsIdRoute: EducatorAdminEducatorsIdRoute,
+  EducatorAdminGroupsKindIdRoute: EducatorAdminGroupsKindIdRoute,
+  EducatorAdminGroupsKindIndexRoute: EducatorAdminGroupsKindIndexRoute,
 }
 
 const EducatorAdminRouteWithChildren = EducatorAdminRoute._addFileChildren(

@@ -1,54 +1,92 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  useRouterState,
+} from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { RoleGuard } from "@/components/RoleGuard";
 
 export const Route = createFileRoute("/educator/admin")({
   component: AdminLayout,
 });
 
-type NavItem = { to: string; label: string };
-type NavGroup = { label: string; items: NavItem[] };
+type Item = {
+  label: string;
+  to: string;
+  params?: Record<string, string>;
+  /** Resolved path used for active/auto-open detection. */
+  match: string;
+};
+type Section = {
+  key: string;
+  label: string;
+  /** Entity sections link their header to the card grid; utility sections don't. */
+  header?: Item;
+  items: Item[];
+};
 
-// Grouped admin nav. Add new routes inside an existing group, or create a
-// new group if the route doesn't belong to one of these four.
-const NAV_GROUPS: NavGroup[] = [
+// Entity-first admin nav. Camps / Internships / Classes each open onto a card
+// grid of rostered groups (the header link); the sub-items are the management
+// pages that act on that entity. People + Library hold cross-cutting tools.
+const SECTIONS: Section[] = [
   {
-    label: "Students",
+    key: "camps",
+    label: "Camps",
+    header: {
+      label: "All camps",
+      to: "/educator/admin/groups/$kind",
+      params: { kind: "camps" },
+      match: "/educator/admin/groups/camps",
+    },
     items: [
-      { to: "/educator/admin/applications", label: "Applications" },
-      { to: "/educator/admin/placements", label: "Placements" },
-      { to: "/educator/admin/rosters", label: "Rosters" },
-      { to: "/educator/admin/camp-logins", label: "Camp logins" },
-      { to: "/educator/admin/completion", label: "Completion by roster" },
+      { label: "Curriculum", to: "/educator/admin/camps", match: "/educator/admin/camps" },
+      { label: "Camp logins", to: "/educator/admin/camp-logins", match: "/educator/admin/camp-logins" },
+      { label: "Completion", to: "/educator/admin/completion", match: "/educator/admin/completion" },
     ],
   },
   {
-    label: "Catalog",
+    key: "internships",
+    label: "Internships",
+    header: {
+      label: "All internships",
+      to: "/educator/admin/groups/$kind",
+      params: { kind: "internships" },
+      match: "/educator/admin/groups/internships",
+    },
     items: [
-      // 'Curriculum' is the renamed camps admin — supports add / edit and
-      // hosts the program-type tag pills inline (no separate tags page).
-      { to: "/educator/admin/camps", label: "Curriculum" },
-      { to: "/educator/admin/internships", label: "Internships" },
-      { to: "/educator/admin/programs", label: "Programs" },
+      { label: "Offerings", to: "/educator/admin/internships", match: "/educator/admin/internships" },
+      { label: "Applications", to: "/educator/admin/applications", match: "/educator/admin/applications" },
+      { label: "Placements", to: "/educator/admin/placements", match: "/educator/admin/placements" },
     ],
   },
   {
-    // Single Invites page handles both educators and admins via a role
-    // toggle. Assigning educators to a camp / internship / program is done
-    // inline on those pages now, so there's no separate Assign entry.
+    key: "classes",
+    label: "Classes",
+    header: {
+      label: "All classes",
+      to: "/educator/admin/groups/$kind",
+      params: { kind: "classes" },
+      match: "/educator/admin/groups/classes",
+    },
+    items: [],
+  },
+  {
+    key: "people",
     label: "People",
     items: [
-      { to: "/educator/admin/invites", label: "Invites" },
+      { label: "Invites & approvals", to: "/educator/admin/invites", match: "/educator/admin/invites" },
     ],
   },
   {
-    label: "Tools",
+    key: "library",
+    label: "Library",
     items: [
-      // Assessments now hosts the assign flow, STEM surveys, and demo links
-      // as tabs — no separate STEM Surveys entry.
-      { to: "/educator/admin/assessments", label: "Assessments" },
-      { to: "/educator/admin/demographics", label: "Demographics" },
-      { to: "/educator/admin/program-riasec", label: "Program-RIASEC" },
-      { to: "/educator/admin/import-explr", label: "Import from ExplrMore" },
+      { label: "Assessments & surveys", to: "/educator/admin/assessments", match: "/educator/admin/assessments" },
+      { label: "Demographics", to: "/educator/admin/demographics", match: "/educator/admin/demographics" },
+      { label: "Program-RIASEC", to: "/educator/admin/program-riasec", match: "/educator/admin/program-riasec" },
+      { label: "Programs", to: "/educator/admin/programs", match: "/educator/admin/programs" },
+      { label: "Import from ExplrMore", to: "/educator/admin/import-explr", match: "/educator/admin/import-explr" },
     ],
   },
 ];
@@ -56,7 +94,38 @@ const NAV_GROUPS: NavGroup[] = [
 const linkBase = "block text-sm leading-tight text-charcoal-500 hover:text-ink";
 const linkActive = "block text-sm leading-tight text-ink font-semibold";
 
+function sectionMatches(section: Section, pathname: string): boolean {
+  const all = [...(section.header ? [section.header] : []), ...section.items];
+  return all.some((i) => pathname === i.match || pathname.startsWith(i.match + "/"));
+}
+
 function AdminLayout() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  const activeKey = useMemo(
+    () => SECTIONS.find((s) => sectionMatches(s, pathname))?.key ?? null,
+    [pathname],
+  );
+
+  const [open, setOpen] = useState<Set<string>>(() =>
+    activeKey ? new Set([activeKey]) : new Set(["camps"]),
+  );
+
+  // Keep the active section expanded as the route changes, without collapsing
+  // anything the admin opened manually.
+  useEffect(() => {
+    if (activeKey) setOpen((prev) => new Set(prev).add(activeKey));
+  }, [activeKey]);
+
+  function toggle(key: string) {
+    setOpen((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
   return (
     <RoleGuard requires="admin">
       <div className="flex flex-col md:flex-row">
@@ -71,29 +140,73 @@ function AdminLayout() {
               className={linkBase}
               activeProps={{ className: linkActive }}
             >
-              Home
+              Overview
             </Link>
-            <div className="mt-6 space-y-6">
-              {NAV_GROUPS.map((group) => (
-                <div key={group.label}>
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-charcoal-400">
-                    {group.label}
-                  </p>
-                  <ul className="space-y-1.5">
-                    {group.items.map((item) => (
-                      <li key={item.to}>
+
+            <div className="mt-6 space-y-4">
+              {SECTIONS.map((section) => {
+                const isOpen = open.has(section.key);
+                return (
+                  <div key={section.key}>
+                    <div className="flex items-center justify-between gap-2">
+                      {section.header ? (
                         <Link
-                          to={item.to}
-                          className={linkBase}
-                          activeProps={{ className: linkActive }}
+                          to={section.header.to}
+                          params={section.header.params}
+                          className="text-[11px] font-semibold uppercase tracking-wider text-charcoal-500 hover:text-ink"
+                          activeProps={{ className: "text-[11px] font-semibold uppercase tracking-wider text-ink" }}
                         >
-                          {item.label}
+                          {section.label}
                         </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+                      ) : (
+                        <span className="text-[11px] font-semibold uppercase tracking-wider text-charcoal-400">
+                          {section.label}
+                        </span>
+                      )}
+                      {(section.items.length > 0 || section.header) && (
+                        <button
+                          onClick={() => toggle(section.key)}
+                          aria-expanded={isOpen}
+                          aria-label={`${isOpen ? "Collapse" : "Expand"} ${section.label}`}
+                          className="text-xs text-charcoal-400 hover:text-ink"
+                        >
+                          {isOpen ? "▾" : "▸"}
+                        </button>
+                      )}
+                    </div>
+
+                    {isOpen && (
+                      <ul className="mt-2 space-y-1.5 border-l border-charcoal-200 pl-3">
+                        {section.header && (
+                          <li>
+                            <Link
+                              to={section.header.to}
+                              params={section.header.params}
+                              className={linkBase}
+                              activeProps={{ className: linkActive }}
+                              activeOptions={{ exact: true }}
+                            >
+                              {section.header.label}
+                            </Link>
+                          </li>
+                        )}
+                        {section.items.map((item) => (
+                          <li key={item.match}>
+                            <Link
+                              to={item.to}
+                              params={item.params}
+                              className={linkBase}
+                              activeProps={{ className: linkActive }}
+                            >
+                              {item.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </nav>
         </aside>
