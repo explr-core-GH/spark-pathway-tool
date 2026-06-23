@@ -89,6 +89,15 @@ const CORE_STEPS: Array<{ id: StepId; title: string; keys: string[] }> = [
   { id: "media", title: "Photo & logo", keys: ["image"] },
 ];
 
+// Type-appropriate label for the name field (the seed uses a generic
+// "Event name" for every type, which reads wrong for an internship or camp).
+const NAME_LABEL: Record<OppType, string> = {
+  camp: "Camp name",
+  workshop: "Workshop name",
+  internship: "Internship name",
+  ongoing: "Program name",
+};
+
 export function OpportunityWizard({
   orgId,
   orgName,
@@ -193,6 +202,13 @@ export function OpportunityWizard({
   const enabled = (key: string) => cfg.has(key);
   const labelOf = (key: string, fallback: string) => cfg.get(key)?.label ?? fallback;
   const helpOf = (key: string) => cfg.get(key)?.help_text ?? null;
+  // Name label: use the admin's custom label if they set one, otherwise a
+  // type-appropriate default (treats the generic seeded "Event name" as unset).
+  const nameLabel = () => {
+    const configured = cfg.get("name")?.label;
+    if (configured && configured !== "Event name") return configured;
+    return type ? NAME_LABEL[type] : "Name";
+  };
   const customFields = useMemo(
     () => config.filter((c) => !c.is_core),
     [config],
@@ -458,7 +474,7 @@ export function OpportunityWizard({
         {current.id === "basics" && (
           <Section title="The basics">
             {enabled("name") && (
-              <Field label={labelOf("name", "Event name")} help={helpOf("name")} required={cfg.get("name")?.required}>
+              <Field label={nameLabel()} help={helpOf("name")} required={cfg.get("name")?.required}>
                 <input className="field" value={form.name} onChange={(e) => set("name", e.target.value)} />
               </Field>
             )}
