@@ -288,7 +288,7 @@ export type FormCompletion = {
   signed_at: string | null;
 };
 
-/** Common worksite requirement presets an org can check on. */
+/** Common requirement presets an org can check on (any opportunity type). */
 export const REQUIREMENT_PRESETS = [
   "Casual dress",
   "Business casual",
@@ -297,9 +297,17 @@ export const REQUIREMENT_PRESETS = [
   "Steel-toed boots required",
   "Long pants required",
   "Safety glasses (provided on site)",
-  "Background check required",
+  "Pack a lunch",
+  "Lunch available for purchase",
+  "Lunch provided",
+  "Transportation provided",
   "Must arrange own transportation",
+  "Field trips included",
+  "Background check required",
 ];
+
+/** Requirement entries that name certifications are stored with this prefix. */
+export const CERT_PREFIX = "Certifications: ";
 
 /** Stable synthetic slug for an org internship inside the apply pipeline. */
 export const OPP_SLUG_PREFIX = "opp:";

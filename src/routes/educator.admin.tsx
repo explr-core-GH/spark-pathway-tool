@@ -156,32 +156,20 @@ function AdminLayout() {
                 const isOpen = open.has(section.key);
                 return (
                   <div key={section.key}>
-                    <div className="flex items-center justify-between gap-2">
-                      {section.header ? (
-                        <Link
-                          to={section.header.to}
-                          params={section.header.params}
-                          className="text-[11px] font-semibold uppercase tracking-wider text-charcoal-500 hover:text-ink"
-                          activeProps={{ className: "text-[11px] font-semibold uppercase tracking-wider text-ink" }}
-                        >
-                          {section.label}
-                        </Link>
-                      ) : (
-                        <span className="text-[11px] font-semibold uppercase tracking-wider text-charcoal-400">
-                          {section.label}
-                        </span>
-                      )}
-                      {(section.items.length > 0 || section.header) && (
-                        <button
-                          onClick={() => toggle(section.key)}
-                          aria-expanded={isOpen}
-                          aria-label={`${isOpen ? "Collapse" : "Expand"} ${section.label}`}
-                          className="text-xs text-charcoal-400 hover:text-ink"
-                        >
-                          {isOpen ? "▾" : "▸"}
-                        </button>
-                      )}
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => toggle(section.key)}
+                      aria-expanded={isOpen}
+                      aria-label={`${isOpen ? "Collapse" : "Expand"} ${section.label}`}
+                      className={`flex w-full items-center justify-between gap-2 py-1 text-left text-[11px] font-semibold uppercase tracking-wider hover:text-ink ${
+                        activeKey === section.key ? "text-ink" : "text-charcoal-500"
+                      }`}
+                    >
+                      <span>{section.label}</span>
+                      <span className="text-xs text-charcoal-400" aria-hidden="true">
+                        {isOpen ? "▾" : "▸"}
+                      </span>
+                    </button>
 
                     {isOpen && (
                       <ul className="mt-2 space-y-1.5 border-l border-charcoal-200 pl-3">

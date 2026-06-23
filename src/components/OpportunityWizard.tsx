@@ -7,6 +7,7 @@ import {
   RIASEC_ACTIVITIES,
   RIASEC_INTRO,
   REQUIREMENT_PRESETS,
+  CERT_PREFIX,
   WEEKDAYS,
   codeFromWeights,
   composeSchedule,
@@ -202,12 +203,11 @@ export function OpportunityWizard({
       }
       if (s.keys.some((k) => enabled(k))) out.push({ id: s.id, title: s.title });
     }
-    if (type === "internship") {
-      const i = out.findIndex((s) => s.id === "media");
-      const ws = { id: "worksite" as StepId, title: "Worksite & forms" };
-      if (i >= 0) out.splice(i, 0, ws);
-      else out.push(ws);
-    }
+    // Requirements / links / forms apply to every opportunity type.
+    const mediaIdx = out.findIndex((s) => s.id === "media");
+    const ws = { id: "worksite" as StepId, title: "Requirements & forms" };
+    if (mediaIdx >= 0) out.splice(mediaIdx, 0, ws);
+    else out.push(ws);
     if (customFields.length > 0) out.push({ id: "custom", title: "More details" });
     out.push({ id: "review", title: "Review" });
     return out;
@@ -658,12 +658,16 @@ export function OpportunityWizard({
         )}
 
         {current.id === "worksite" && (
-          <Section title="Worksite requirements & forms">
+          <Section title="Requirements & forms">
+            <p className="-mt-2 text-sm text-charcoal-500">
+              All optional — check what applies and leave the rest blank if there&apos;s nothing
+              extra to require.
+            </p>
             <Field
-              label="Worksite requirements"
-              help="Dress code and anything interns must know before day one."
+              label="Requirements"
+              help="Dress code, lunch, transportation, field trips — check whatever students or families should know."
             >
-              <div className="space-y-1.5">
+              <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                 {REQUIREMENT_PRESETS.map((r) => (
                   <label key={r} className="flex items-center gap-2 text-sm">
                     <input
@@ -682,6 +686,23 @@ export function OpportunityWizard({
                   </label>
                 ))}
               </div>
+              <div className="mt-3">
+                <label className="label">Certifications included (optional)</label>
+                <input
+                  className="field mt-1"
+                  placeholder="e.g. OSHA 10, Forklift, First Aid — leave blank if none"
+                  value={(form.requirements.find((r) => r.startsWith(CERT_PREFIX)) ?? "").slice(
+                    CERT_PREFIX.length,
+                  )}
+                  onChange={(e) => {
+                    const others = form.requirements.filter((r) => !r.startsWith(CERT_PREFIX));
+                    set(
+                      "requirements",
+                      e.target.value.trim() ? [...others, CERT_PREFIX + e.target.value] : others,
+                    );
+                  }}
+                />
+              </div>
               <CustomReqAdder
                 requirements={form.requirements}
                 onAdd={(v) => set("requirements", [...form.requirements, v])}
@@ -691,7 +712,7 @@ export function OpportunityWizard({
 
             <Field
               label="Links to complete"
-              help="Students open / complete these as part of applying (waivers, surveys, external forms)."
+              help="Links students open / complete (waivers, surveys, registration forms). Leave empty if there are none."
             >
               <LinksEditor
                 links={form.application_links}
@@ -700,8 +721,8 @@ export function OpportunityWizard({
             </Field>
 
             <Field
-              label="Forms for interns"
-              help="Upload blank forms; students download, fill out, and/or sign them."
+              label="Forms / paperwork"
+              help="Upload blank forms students download, fill out, and/or sign. Leave empty if there are none."
             >
               <FormsEditor forms={forms} onAdd={addForm} onDelete={deleteForm} />
             </Field>
@@ -909,7 +930,9 @@ function CustomReqAdder({
   onRemove: (v: string) => void;
 }) {
   const [val, setVal] = useState("");
-  const custom = requirements.filter((r) => !REQUIREMENT_PRESETS.includes(r));
+  const custom = requirements.filter(
+    (r) => !REQUIREMENT_PRESETS.includes(r) && !r.startsWith(CERT_PREFIX),
+  );
   return (
     <div className="mt-3">
       <div className="flex gap-2">
