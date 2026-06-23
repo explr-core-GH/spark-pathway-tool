@@ -28,10 +28,12 @@ import { Route as OrgIndexRouteImport } from './routes/org.index'
 import { Route as EducatorIndexRouteImport } from './routes/educator.index'
 import { Route as AssessmentIndexRouteImport } from './routes/assessment.index'
 import { Route as SurveyAssignmentIdRouteImport } from './routes/survey.$assignmentId'
+import { Route as StudentApplyCompleteRouteImport } from './routes/student_.apply-complete'
 import { Route as StudentApplyRouteImport } from './routes/student_.apply'
 import { Route as OrgSignUpRouteImport } from './routes/org.sign-up'
 import { Route as OrgSignInRouteImport } from './routes/org.sign-in'
 import { Route as OrgNewRouteImport } from './routes/org.new'
+import { Route as OrgApplicantsRouteImport } from './routes/org.applicants'
 import { Route as OpportunityIdRouteImport } from './routes/opportunity.$id'
 import { Route as LabSplatRouteImport } from './routes/lab.$'
 import { Route as EducatorStudentsRouteImport } from './routes/educator.students'
@@ -66,6 +68,7 @@ import { Route as EducatorAdminCampsRouteImport } from './routes/educator.admin.
 import { Route as EducatorAdminCampLoginsRouteImport } from './routes/educator.admin.camp-logins'
 import { Route as EducatorAdminAssignRouteImport } from './routes/educator.admin.assign'
 import { Route as EducatorAdminAssessmentsRouteImport } from './routes/educator.admin.assessments'
+import { Route as EducatorAdminApplyRequestsRouteImport } from './routes/educator.admin.apply-requests'
 import { Route as EducatorAdminApplicationsRouteImport } from './routes/educator.admin.applications'
 import { Route as AssessmentInternshipInterestResultsRouteImport } from './routes/assessment.internship-interest_.results'
 import { Route as AssessmentSessionIdResultsRouteImport } from './routes/assessment.$sessionId_.results'
@@ -169,6 +172,11 @@ const SurveyAssignmentIdRoute = SurveyAssignmentIdRouteImport.update({
   path: '/survey/$assignmentId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StudentApplyCompleteRoute = StudentApplyCompleteRouteImport.update({
+  id: '/student_/apply-complete',
+  path: '/student/apply-complete',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StudentApplyRoute = StudentApplyRouteImport.update({
   id: '/student_/apply',
   path: '/student/apply',
@@ -187,6 +195,11 @@ const OrgSignInRoute = OrgSignInRouteImport.update({
 const OrgNewRoute = OrgNewRouteImport.update({
   id: '/org/new',
   path: '/org/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrgApplicantsRoute = OrgApplicantsRouteImport.update({
+  id: '/org/applicants',
+  path: '/org/applicants',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OpportunityIdRoute = OpportunityIdRouteImport.update({
@@ -369,6 +382,12 @@ const EducatorAdminAssessmentsRoute =
     path: '/assessments',
     getParentRoute: () => EducatorAdminRoute,
   } as any)
+const EducatorAdminApplyRequestsRoute =
+  EducatorAdminApplyRequestsRouteImport.update({
+    id: '/apply-requests',
+    path: '/apply-requests',
+    getParentRoute: () => EducatorAdminRoute,
+  } as any)
 const EducatorAdminApplicationsRoute =
   EducatorAdminApplicationsRouteImport.update({
     id: '/applications',
@@ -437,10 +456,12 @@ export interface FileRoutesByFullPath {
   '/educator/students': typeof EducatorStudentsRoute
   '/lab/$': typeof LabSplatRoute
   '/opportunity/$id': typeof OpportunityIdRoute
+  '/org/applicants': typeof OrgApplicantsRoute
   '/org/new': typeof OrgNewRoute
   '/org/sign-in': typeof OrgSignInRoute
   '/org/sign-up': typeof OrgSignUpRoute
   '/student/apply': typeof StudentApplyRoute
+  '/student/apply-complete': typeof StudentApplyCompleteRoute
   '/survey/$assignmentId': typeof SurveyAssignmentIdRoute
   '/assessment/': typeof AssessmentIndexRoute
   '/educator/': typeof EducatorIndexRoute
@@ -448,6 +469,7 @@ export interface FileRoutesByFullPath {
   '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
   '/assessment/internship-interest/results': typeof AssessmentInternshipInterestResultsRoute
   '/educator/admin/applications': typeof EducatorAdminApplicationsRoute
+  '/educator/admin/apply-requests': typeof EducatorAdminApplyRequestsRoute
   '/educator/admin/assessments': typeof EducatorAdminAssessmentsRoute
   '/educator/admin/assign': typeof EducatorAdminAssignRoute
   '/educator/admin/camp-logins': typeof EducatorAdminCampLoginsRoute
@@ -501,10 +523,12 @@ export interface FileRoutesByTo {
   '/educator/students': typeof EducatorStudentsRoute
   '/lab/$': typeof LabSplatRoute
   '/opportunity/$id': typeof OpportunityIdRoute
+  '/org/applicants': typeof OrgApplicantsRoute
   '/org/new': typeof OrgNewRoute
   '/org/sign-in': typeof OrgSignInRoute
   '/org/sign-up': typeof OrgSignUpRoute
   '/student/apply': typeof StudentApplyRoute
+  '/student/apply-complete': typeof StudentApplyCompleteRoute
   '/survey/$assignmentId': typeof SurveyAssignmentIdRoute
   '/assessment': typeof AssessmentIndexRoute
   '/educator': typeof EducatorIndexRoute
@@ -512,6 +536,7 @@ export interface FileRoutesByTo {
   '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
   '/assessment/internship-interest/results': typeof AssessmentInternshipInterestResultsRoute
   '/educator/admin/applications': typeof EducatorAdminApplicationsRoute
+  '/educator/admin/apply-requests': typeof EducatorAdminApplyRequestsRoute
   '/educator/admin/assessments': typeof EducatorAdminAssessmentsRoute
   '/educator/admin/assign': typeof EducatorAdminAssignRoute
   '/educator/admin/camp-logins': typeof EducatorAdminCampLoginsRoute
@@ -568,10 +593,12 @@ export interface FileRoutesById {
   '/educator/students': typeof EducatorStudentsRoute
   '/lab/$': typeof LabSplatRoute
   '/opportunity/$id': typeof OpportunityIdRoute
+  '/org/applicants': typeof OrgApplicantsRoute
   '/org/new': typeof OrgNewRoute
   '/org/sign-in': typeof OrgSignInRoute
   '/org/sign-up': typeof OrgSignUpRoute
   '/student_/apply': typeof StudentApplyRoute
+  '/student_/apply-complete': typeof StudentApplyCompleteRoute
   '/survey/$assignmentId': typeof SurveyAssignmentIdRoute
   '/assessment/': typeof AssessmentIndexRoute
   '/educator/': typeof EducatorIndexRoute
@@ -579,6 +606,7 @@ export interface FileRoutesById {
   '/assessment/$sessionId_/results': typeof AssessmentSessionIdResultsRoute
   '/assessment/internship-interest_/results': typeof AssessmentInternshipInterestResultsRoute
   '/educator/admin/applications': typeof EducatorAdminApplicationsRoute
+  '/educator/admin/apply-requests': typeof EducatorAdminApplyRequestsRoute
   '/educator/admin/assessments': typeof EducatorAdminAssessmentsRoute
   '/educator/admin/assign': typeof EducatorAdminAssignRoute
   '/educator/admin/camp-logins': typeof EducatorAdminCampLoginsRoute
@@ -636,10 +664,12 @@ export interface FileRouteTypes {
     | '/educator/students'
     | '/lab/$'
     | '/opportunity/$id'
+    | '/org/applicants'
     | '/org/new'
     | '/org/sign-in'
     | '/org/sign-up'
     | '/student/apply'
+    | '/student/apply-complete'
     | '/survey/$assignmentId'
     | '/assessment/'
     | '/educator/'
@@ -647,6 +677,7 @@ export interface FileRouteTypes {
     | '/assessment/$sessionId/results'
     | '/assessment/internship-interest/results'
     | '/educator/admin/applications'
+    | '/educator/admin/apply-requests'
     | '/educator/admin/assessments'
     | '/educator/admin/assign'
     | '/educator/admin/camp-logins'
@@ -700,10 +731,12 @@ export interface FileRouteTypes {
     | '/educator/students'
     | '/lab/$'
     | '/opportunity/$id'
+    | '/org/applicants'
     | '/org/new'
     | '/org/sign-in'
     | '/org/sign-up'
     | '/student/apply'
+    | '/student/apply-complete'
     | '/survey/$assignmentId'
     | '/assessment'
     | '/educator'
@@ -711,6 +744,7 @@ export interface FileRouteTypes {
     | '/assessment/$sessionId/results'
     | '/assessment/internship-interest/results'
     | '/educator/admin/applications'
+    | '/educator/admin/apply-requests'
     | '/educator/admin/assessments'
     | '/educator/admin/assign'
     | '/educator/admin/camp-logins'
@@ -766,10 +800,12 @@ export interface FileRouteTypes {
     | '/educator/students'
     | '/lab/$'
     | '/opportunity/$id'
+    | '/org/applicants'
     | '/org/new'
     | '/org/sign-in'
     | '/org/sign-up'
     | '/student_/apply'
+    | '/student_/apply-complete'
     | '/survey/$assignmentId'
     | '/assessment/'
     | '/educator/'
@@ -777,6 +813,7 @@ export interface FileRouteTypes {
     | '/assessment/$sessionId_/results'
     | '/assessment/internship-interest_/results'
     | '/educator/admin/applications'
+    | '/educator/admin/apply-requests'
     | '/educator/admin/assessments'
     | '/educator/admin/assign'
     | '/educator/admin/camp-logins'
@@ -827,10 +864,12 @@ export interface RootRouteChildren {
   AssessmentInternshipInterestRoute: typeof AssessmentInternshipInterestRoute
   LabSplatRoute: typeof LabSplatRoute
   OpportunityIdRoute: typeof OpportunityIdRoute
+  OrgApplicantsRoute: typeof OrgApplicantsRoute
   OrgNewRoute: typeof OrgNewRoute
   OrgSignInRoute: typeof OrgSignInRoute
   OrgSignUpRoute: typeof OrgSignUpRoute
   StudentApplyRoute: typeof StudentApplyRoute
+  StudentApplyCompleteRoute: typeof StudentApplyCompleteRoute
   SurveyAssignmentIdRoute: typeof SurveyAssignmentIdRoute
   AssessmentIndexRoute: typeof AssessmentIndexRoute
   OrgIndexRoute: typeof OrgIndexRoute
@@ -974,6 +1013,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SurveyAssignmentIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/student_/apply-complete': {
+      id: '/student_/apply-complete'
+      path: '/student/apply-complete'
+      fullPath: '/student/apply-complete'
+      preLoaderRoute: typeof StudentApplyCompleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/student_/apply': {
       id: '/student_/apply'
       path: '/student/apply'
@@ -1000,6 +1046,13 @@ declare module '@tanstack/react-router' {
       path: '/org/new'
       fullPath: '/org/new'
       preLoaderRoute: typeof OrgNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/org/applicants': {
+      id: '/org/applicants'
+      path: '/org/applicants'
+      fullPath: '/org/applicants'
+      preLoaderRoute: typeof OrgApplicantsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/opportunity/$id': {
@@ -1240,6 +1293,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EducatorAdminAssessmentsRouteImport
       parentRoute: typeof EducatorAdminRoute
     }
+    '/educator/admin/apply-requests': {
+      id: '/educator/admin/apply-requests'
+      path: '/apply-requests'
+      fullPath: '/educator/admin/apply-requests'
+      preLoaderRoute: typeof EducatorAdminApplyRequestsRouteImport
+      parentRoute: typeof EducatorAdminRoute
+    }
     '/educator/admin/applications': {
       id: '/educator/admin/applications'
       path: '/applications'
@@ -1294,6 +1354,7 @@ declare module '@tanstack/react-router' {
 
 interface EducatorAdminRouteChildren {
   EducatorAdminApplicationsRoute: typeof EducatorAdminApplicationsRoute
+  EducatorAdminApplyRequestsRoute: typeof EducatorAdminApplyRequestsRoute
   EducatorAdminAssessmentsRoute: typeof EducatorAdminAssessmentsRoute
   EducatorAdminAssignRoute: typeof EducatorAdminAssignRoute
   EducatorAdminCampLoginsRoute: typeof EducatorAdminCampLoginsRoute
@@ -1319,6 +1380,7 @@ interface EducatorAdminRouteChildren {
 
 const EducatorAdminRouteChildren: EducatorAdminRouteChildren = {
   EducatorAdminApplicationsRoute: EducatorAdminApplicationsRoute,
+  EducatorAdminApplyRequestsRoute: EducatorAdminApplyRequestsRoute,
   EducatorAdminAssessmentsRoute: EducatorAdminAssessmentsRoute,
   EducatorAdminAssignRoute: EducatorAdminAssignRoute,
   EducatorAdminCampLoginsRoute: EducatorAdminCampLoginsRoute,
@@ -1402,10 +1464,12 @@ const rootRouteChildren: RootRouteChildren = {
   AssessmentInternshipInterestRoute: AssessmentInternshipInterestRoute,
   LabSplatRoute: LabSplatRoute,
   OpportunityIdRoute: OpportunityIdRoute,
+  OrgApplicantsRoute: OrgApplicantsRoute,
   OrgNewRoute: OrgNewRoute,
   OrgSignInRoute: OrgSignInRoute,
   OrgSignUpRoute: OrgSignUpRoute,
   StudentApplyRoute: StudentApplyRoute,
+  StudentApplyCompleteRoute: StudentApplyCompleteRoute,
   SurveyAssignmentIdRoute: SurveyAssignmentIdRoute,
   AssessmentIndexRoute: AssessmentIndexRoute,
   OrgIndexRoute: OrgIndexRoute,

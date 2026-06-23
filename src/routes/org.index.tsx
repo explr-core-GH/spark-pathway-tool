@@ -68,9 +68,14 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
             <h1 className="text-2xl font-light">{orgName}</h1>
           </div>
         </div>
-        <Link to="/org/new" className="btn-ink">
-          + New opportunity
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link to="/org/applicants" className="btn-ghost text-sm">
+            Applicants
+          </Link>
+          <Link to="/org/new" className="btn-ink">
+            + New opportunity
+          </Link>
+        </div>
       </div>
 
       <section className="mt-12">

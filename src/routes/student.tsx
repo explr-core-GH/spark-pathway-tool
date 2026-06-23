@@ -10,6 +10,7 @@ import { StudentSurveysPanel } from "@/components/StudentSurveysPanel";
 import { AssignedAssessmentsPanel } from "@/components/AssignedAssessmentsPanel";
 import { FamilyPortal } from "@/components/FamilyPortal";
 import { SurveyResultsPanel } from "@/components/SurveyResultsPanel";
+import { ApplyStatusBanner } from "@/components/ApplyStatusBanner";
 import { useStudentAssignments } from "@/lib/use-assignments";
 
 export const Route = createFileRoute("/student")({
@@ -203,6 +204,7 @@ function StudentDashboard() {
 
         {tab === "dashboard" && (
         <>
+          <ApplyStatusBanner studentId={user!.id} />
         {/* Assigned to you — FIRST thing on the dashboard so nothing assigned
             gets missed. Resolution + scheduling window live in the panel. */}
         <section className="mt-10">

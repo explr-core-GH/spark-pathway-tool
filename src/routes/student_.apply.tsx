@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
 import { INTERNSHIPS, type Internship } from "@/lib/internships-catalog";
-import type { RIASECCode } from "@/lib/riasec";
 import { HollandLetter, buildWhyFits, type ScaleScores } from "@/lib/holland-fit";
 import {
   oppToCatalogInternship,
@@ -13,69 +12,30 @@ import {
   oppIdFromSlug,
   type Opportunity,
 } from "@/lib/opportunities";
-import { OrgInternshipExtras } from "@/components/OrgInternshipExtras";
-
-const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
 
 export const Route = createFileRoute("/student_/apply")({
   validateSearch: (s: Record<string, unknown>): { opportunity?: string } => ({
     opportunity: typeof s.opportunity === "string" ? s.opportunity : undefined,
   }),
-  head: () => ({ meta: [{ title: "Apply for an internship — EXPLR" }] }),
+  head: () => ({ meta: [{ title: "Apply for internships — EXPLR" }] }),
   component: () => (
     <RoleGuard requires="student">
-      <ApplyPage />
+      <SelectPage />
     </RoleGuard>
   ),
 });
 
+const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
+
 type InterestMap = Record<string, "yes" | "maybe" | "no">;
-
-type Resume = {
-  // contact (retained so staff can reach the student about the application)
-  fullName: string;
-  email: string;
-  phone: string;
-  address: string;
-  cityStateZip: string;
-  // narrative
-  whyThisInternship: string;
-  // education
-  schoolName: string;
-  schoolCity: string;
-  gpa: string;
-  expectedGraduation: string;
-  coursework: string[];
-  // featured project
-  projectTitle: string;
-  projectWhen: string;
-  projectContext: string;
-  projectDescription: string;
-  // activities
-  activities: Array<{ title: string; org: string; dates: string; description: string }>;
-  // skills
-  skillsTechnical: string[];
-  skillsSoftware: string[];
-  skillsHandsOn: string[];
-  skillsTeamwork: string[];
-  // optional
-  awards: string[];
-  workHistory: Array<{ title: string; org: string; dates: string; description: string }>;
+const STATUS_LABEL: Record<string, string> = {
+  requested: "Requested",
+  approved: "Approved — complete it",
+  denied: "Not approved",
+  submitted: "Application submitted",
 };
 
-const EMPTY_RESUME: Resume = {
-  fullName: "", email: "", phone: "", address: "", cityStateZip: "",
-  whyThisInternship: "",
-  schoolName: "", schoolCity: "", gpa: "", expectedGraduation: "",
-  coursework: [""],
-  projectTitle: "", projectWhen: "", projectContext: "", projectDescription: "",
-  activities: [{ title: "", org: "", dates: "", description: "" }],
-  skillsTechnical: [""], skillsSoftware: [""], skillsHandsOn: [""], skillsTeamwork: [""],
-  awards: [],
-  workHistory: [],
-};
-
-function ApplyPage() {
+function SelectPage() {
   const { user, loading: authLoading } = useSession();
   const navigate = useNavigate();
   const { opportunity } = Route.useSearch();
@@ -85,32 +45,34 @@ function ApplyPage() {
   const [hollandCode, setHollandCode] = useState<string | null>(null);
   const [scaleScores, setScaleScores] = useState<ScaleScores>({});
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [resume, setResume] = useState<Resume>(EMPTY_RESUME);
+  const [existing, setExisting] = useState<Record<string, string>>({}); // ref → status
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const [{ data: vis }, { data: ints }, { data: sess }, { data: orgInts }] = await Promise.all([
-        supabase.from("internship_visibility").select("internship_slug, visible"),
-        supabase.from("internship_interest_responses").select("internship_slug, response").eq("student_id", user.id),
-        supabase
-          .from("assessment_sessions")
-          .select("holland_code, scale_scores, completed_at")
-          .eq("student_id", user.id)
-          .not("completed_at", "is", null)
-          .order("completed_at", { ascending: false })
-          .limit(1)
-          .maybeSingle(),
-        sb("opportunities").select("*").eq("type", "internship").eq("status", "approved"),
-      ]);
+      const [{ data: vis }, { data: ints }, { data: sess }, { data: orgInts }, { data: sels }] =
+        await Promise.all([
+          supabase.from("internship_visibility").select("internship_slug, visible"),
+          supabase.from("internship_interest_responses").select("internship_slug, response").eq("student_id", user.id),
+          supabase
+            .from("assessment_sessions")
+            .select("holland_code, scale_scores, completed_at")
+            .eq("student_id", user.id)
+            .not("completed_at", "is", null)
+            .order("completed_at", { ascending: false })
+            .limit(1)
+            .maybeSingle(),
+          sb("opportunities").select("*").eq("type", "internship").eq("status", "approved"),
+          sb("internship_selections").select("internship_ref, status").eq("student_id", user.id),
+        ]);
       if (cancelled) return;
       const hidden = new Set((vis ?? []).filter((r) => r.visible === false).map((r) => r.internship_slug));
-      // Org-created approved internships join the catalog in one unified picker.
       const orgList = ((orgInts as Opportunity[]) ?? []).map(oppToCatalogInternship);
       setInternships([...INTERNSHIPS.filter((i) => !hidden.has(i.slug)), ...orgList]);
       const map: InterestMap = {};
@@ -118,20 +80,26 @@ function ApplyPage() {
       setInterest(map);
       setHollandCode(sess?.holland_code ?? null);
       setScaleScores((sess?.scale_scores as ScaleScores) ?? {});
+
+      const existingMap: Record<string, string> = {};
+      const preselect = new Set<string>();
+      for (const s of (sels as Array<{ internship_ref: string; status: string }>) ?? []) {
+        existingMap[s.internship_ref] = s.status;
+        if (s.status !== "denied") preselect.add(s.internship_ref);
+      }
+      setExisting(existingMap);
       if (opportunity) {
         const slug = oppSlug(opportunity);
-        if (orgList.some((i) => i.slug === slug)) setSelected(new Set([slug]));
+        if (orgList.some((i) => i.slug === slug)) preselect.add(slug);
       }
-      // prefill email from auth
-      setResume((prev) => ({ ...prev, email: user.email ?? "" }));
+      setSelected(preselect);
       setLoading(false);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [user, opportunity]);
 
-  // Ranked list — interest first (yes > maybe > unanswered > no),
-  // tie-broken by RIASEC match score against student scale_scores
-  // (falls back to holland_code overlap if scores are missing).
   const ranked = useMemo(() => {
     const interestWeight = (slug: string) => {
       const r = interest[slug];
@@ -141,15 +109,10 @@ function ApplyPage() {
       return 1;
     };
     const riasecScore = (i: Internship) => {
-      if (Object.keys(scaleScores).length > 0) {
-        return i.riasec.reduce((s, c) => s + (scaleScores[c] ?? 0), 0);
-      }
+      if (Object.keys(scaleScores).length > 0) return i.riasec.reduce((s, c) => s + (scaleScores[c] ?? 0), 0);
       if (hollandCode) {
         const codes = hollandCode.split("");
-        return i.riasec.reduce(
-          (s, c) => s + (codes.includes(c) ? (3 - codes.indexOf(c)) : 0),
-          0,
-        );
+        return i.riasec.reduce((s, c) => s + (codes.includes(c) ? 3 - codes.indexOf(c) : 0), 0);
       }
       return 0;
     };
@@ -160,11 +123,11 @@ function ApplyPage() {
     });
   }, [internships, interest, scaleScores, hollandCode]);
 
-  function toggleSelected(slug: string) {
+  function toggle(ref: string) {
     setSelected((prev) => {
       const next = new Set(prev);
-      if (next.has(slug)) next.delete(slug);
-      else next.add(slug);
+      if (next.has(ref)) next.delete(ref);
+      else next.add(ref);
       return next;
     });
   }
@@ -173,58 +136,35 @@ function ApplyPage() {
     e.preventDefault();
     setError(null);
     if (!user) return;
-    if (selected.size === 0) {
-      setError("Pick at least one internship to apply to.");
-      return;
-    }
-    if (!resume.fullName.trim() || !resume.email.trim()) {
-      setError("Full name and email are required so we can contact you.");
+    // New requests = checked refs that aren't already on file.
+    const fresh = [...selected].filter((ref) => !existing[ref]);
+    if (fresh.length === 0) {
+      setError("Pick at least one internship you haven't already requested.");
       return;
     }
     setSubmitting(true);
-    // Upsert on (student_id, submission_term): a student who withdrew an earlier
-    // application can apply again — this overwrites the withdrawn row with a
-    // fresh "submitted" one instead of hitting the unique constraint.
-    const { data: appRow, error: insErr } = await supabase
-      .from("internship_applications")
-      .upsert(
-        {
-          student_id: user.id,
-          submission_term: "2026-summer",
-          selected_internship_ids: Array.from(selected),
-          responses: { resume, interest_snapshot: interest } as never,
-          riasec_snapshot: { holland_code: hollandCode, scale_scores: scaleScores } as never,
-          status: "submitted",
-          submitted_at: new Date().toISOString(),
-          decided_at: null,
-          staff_notes: null,
-        },
-        { onConflict: "student_id,submission_term" },
-      )
-      .select("id")
-      .single();
+    const rows = fresh.map((ref) => ({
+      student_id: user.id,
+      internship_ref: ref,
+      opportunity_id: isOppSlug(ref) ? oppIdFromSlug(ref) : null,
+      status: "requested",
+    }));
+    const { error: insErr } = await sb("internship_selections").upsert(rows, {
+      onConflict: "student_id,internship_ref",
+      ignoreDuplicates: true,
+    });
+    setSubmitting(false);
     if (insErr) {
-      setSubmitting(false);
       setError(insErr.message);
       return;
     }
-    // Register org internships so the partner organization sees the applicant.
-    const oppSlugs = Array.from(selected).filter(isOppSlug);
-    if (oppSlugs.length && appRow) {
-      await sb("opportunity_registrations").upsert(
-        oppSlugs.map((s) => ({
-          opportunity_id: oppIdFromSlug(s),
-          student_id: user.id,
-          application_id: (appRow as { id: string }).id,
-          contact_name: resume.fullName || null,
-          contact_email: resume.email || null,
-        })),
-        { onConflict: "opportunity_id,student_id" },
-      );
-    }
-    setSubmitting(false);
-    navigate({ to: "/student" });
+    setDone(true);
   }
+
+  const nameByRef = useMemo(() => {
+    const m = new Map(internships.map((i) => [i.slug, i.name]));
+    return (ref: string) => m.get(ref) ?? ref;
+  }, [internships]);
 
   if (authLoading || loading) {
     return <main className="mx-auto max-w-3xl px-6 py-24 text-sm text-charcoal-400">Loading…</main>;
@@ -240,53 +180,75 @@ function ApplyPage() {
       </header>
 
       <main className="mx-auto max-w-4xl px-6 py-16">
-        <p className="eyebrow">Internship application</p>
-        <h1 className="display mt-3">Apply</h1>
+        <p className="eyebrow">Internships · step 1 of 2</p>
+        <h1 className="display mt-3">Choose internships to apply to</h1>
         <p className="mt-4 max-w-2xl text-charcoal-500">
-          Pick the internships you want to apply to, then fill in your digital résumé.
-          Your information is kept private and used only by EXPLR staff to contact you
-          about your application.
+          Pick the internships you&apos;re interested in. An EXPLR admin reviews your picks and
+          approves which ones you can apply to. Once approved, you&apos;ll come back to complete
+          your application.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-12 space-y-16">
-          {/* Internship picker — pre-sorted by interest + Holland match */}
-          <section className="border-t border-charcoal-100 pt-10">
-            <p className="eyebrow">Choose internships</p>
-            <p className="mt-3 text-sm text-charcoal-500">
-              Listed in order of fit — based on your interest survey
-              {hollandCode ? <> and your Holland code <span className="font-medium text-ink">{hollandCode}</span></> : null}.
+        {Object.keys(existing).length > 0 && (
+          <div className="mt-8 border border-charcoal-100 bg-charcoal-50 p-4">
+            <p className="text-xs uppercase tracking-wider text-charcoal-400">Your requests so far</p>
+            <ul className="mt-2 space-y-1 text-sm">
+              {Object.entries(existing).map(([ref, status]) => (
+                <li key={ref} className="flex items-center justify-between">
+                  <span>{nameByRef(ref)}</span>
+                  <span className="text-xs text-charcoal-500">{STATUS_LABEL[status] ?? status}</span>
+                </li>
+              ))}
+            </ul>
+            {Object.values(existing).some((s) => s === "approved") && (
+              <Link to="/student/apply-complete" className="btn-ink mt-3 inline-flex text-sm">
+                Complete approved applications →
+              </Link>
+            )}
+          </div>
+        )}
+
+        {done ? (
+          <div className="mt-10 border border-emerald-200 bg-emerald-50 p-6">
+            <p className="text-sm font-medium text-emerald-800">Requests submitted.</p>
+            <p className="mt-1 text-sm text-emerald-800">
+              An admin will review them. You&apos;ll be able to complete the application for each one
+              that&apos;s approved.
+            </p>
+            <button onClick={() => navigate({ to: "/student" })} className="btn-ink mt-4 text-sm">
+              Back to dashboard
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="mt-10">
+            <p className="text-sm text-charcoal-500">
+              Listed by fit — from your interest survey{hollandCode ? <> and Holland code <span className="font-medium text-ink">{hollandCode}</span></> : null}.
             </p>
             <ul className="mt-6 grid gap-3">
               {ranked.map((i, idx) => {
                 const r = interest[i.slug];
                 const tag = r === "yes" ? "Interested" : r === "maybe" ? "Maybe" : r === "no" ? "Not for me" : "Unrated";
                 const checked = selected.has(i.slug);
+                const status = existing[i.slug];
                 const why = buildWhyFits(i, r, scaleScores, hollandCode);
                 return (
                   <li key={i.slug}>
                     <label className={`flex cursor-pointer items-start gap-4 border p-4 transition-colors ${checked ? "border-ink bg-charcoal-50" : "border-charcoal-100 hover:border-charcoal-300"}`}>
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => toggleSelected(i.slug)}
-                        className="mt-1"
-                      />
+                      <input type="checkbox" checked={checked} onChange={() => toggle(i.slug)} className="mt-1" />
                       <span className="flex-1">
                         <span className="flex items-baseline justify-between gap-3">
                           <span className="font-medium">
                             <span className="text-charcoal-400 mr-2">{idx + 1}.</span>
                             {i.emoji} {i.name}
                           </span>
-                          <span className="text-xs uppercase tracking-wider text-charcoal-500">{tag}</span>
+                          <span className="text-xs uppercase tracking-wider text-charcoal-500">
+                            {status ? STATUS_LABEL[status] ?? status : tag}
+                          </span>
                         </span>
                         <span className="mt-1 block text-sm text-charcoal-500">{i.deliverables}</span>
                         <span className="mt-1 block text-xs text-charcoal-400">
                           Holland fit:{" "}
                           {i.riasec.map((c, idx2) => (
-                            <span key={c}>
-                              {idx2 > 0 && " · "}
-                              <HollandLetter code={c} />
-                            </span>
+                            <span key={c}>{idx2 > 0 && " · "}<HollandLetter code={c} /></span>
                           ))}
                         </span>
                         {why && (
@@ -300,255 +262,18 @@ function ApplyPage() {
                 );
               })}
             </ul>
-          </section>
 
-          {[...selected].some(isOppSlug) && user && (
-            <OrgInternshipExtras
-              oppIds={[...selected].filter(isOppSlug).map(oppIdFromSlug)}
-              studentId={user.id}
-            />
-          )}
+            {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
-          {/* Resume */}
-          <ResumeForm resume={resume} setResume={setResume} />
-
-          {error && <p className="text-sm text-red-600">{error}</p>}
-
-          <div className="flex items-center justify-between border-t border-charcoal-100 pt-8">
-            <p className="text-sm text-charcoal-500">
-              {selected.size} internship{selected.size === 1 ? "" : "s"} selected
-            </p>
-            <button type="submit" disabled={submitting} className="btn-ink disabled:opacity-50">
-              {submitting ? "Submitting…" : "Submit application"}
-            </button>
-          </div>
-        </form>
+            <div className="mt-8 flex items-center justify-between border-t border-charcoal-100 pt-8">
+              <p className="text-sm text-charcoal-500">{selected.size} selected</p>
+              <button type="submit" disabled={submitting} className="btn-ink disabled:opacity-50">
+                {submitting ? "Submitting…" : "Request approval to apply"}
+              </button>
+            </div>
+          </form>
+        )}
       </main>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Resume form
-// ─────────────────────────────────────────────────────────────────────────────
-
-function ResumeForm({ resume, setResume }: { resume: Resume; setResume: React.Dispatch<React.SetStateAction<Resume>> }) {
-  const u = <K extends keyof Resume>(k: K, v: Resume[K]) => setResume((p) => ({ ...p, [k]: v }));
-
-  return (
-    <>
-      <Section title="Personal info" hint="So we can reach you about your application.">
-        <Grid2>
-          <Field label="Full name *" value={resume.fullName} onChange={(v) => u("fullName", v)} />
-          <Field label="Email *" type="email" value={resume.email} onChange={(v) => u("email", v)} />
-          <Field label="Phone" value={resume.phone} onChange={(v) => u("phone", v)} />
-          <Field label="Street address" value={resume.address} onChange={(v) => u("address", v)} />
-          <Field label="City, State ZIP" value={resume.cityStateZip} onChange={(v) => u("cityStateZip", v)} />
-        </Grid2>
-      </Section>
-
-      <Section title="Why this internship" hint="3–5 sentences. What excites you about the work? What do you hope to learn or contribute?">
-        <TextArea value={resume.whyThisInternship} onChange={(v) => u("whyThisInternship", v)} rows={5} />
-      </Section>
-
-      <Section title="Education">
-        <Grid2>
-          <Field label="High school name" value={resume.schoolName} onChange={(v) => u("schoolName", v)} />
-          <Field label="City, State" value={resume.schoolCity} onChange={(v) => u("schoolCity", v)} />
-          <Field label="GPA" value={resume.gpa} onChange={(v) => u("gpa", v)} />
-          <Field label="Expected graduation" value={resume.expectedGraduation} onChange={(v) => u("expectedGraduation", v)} />
-        </Grid2>
-        <p className="mt-6 text-xs uppercase tracking-wider text-charcoal-500">Relevant coursework</p>
-        <RepeatingList items={resume.coursework} onChange={(v) => u("coursework", v)} placeholder="e.g. AP Biology" />
-      </Section>
-
-      <Section title="Featured project or experience" hint="Pick the one project, role, or experience you're most proud of.">
-        <Grid2>
-          <Field label="Title" value={resume.projectTitle} onChange={(v) => u("projectTitle", v)} />
-          <Field label="When" value={resume.projectWhen} onChange={(v) => u("projectWhen", v)} />
-        </Grid2>
-        <div className="mt-4">
-          <Field label="Context / where this happened (optional)" value={resume.projectContext} onChange={(v) => u("projectContext", v)} />
-        </div>
-        <div className="mt-4">
-          <TextArea value={resume.projectDescription} onChange={(v) => u("projectDescription", v)} rows={4} placeholder="What you did and what you learned. Use action verbs and include numbers when you can." />
-        </div>
-      </Section>
-
-      <Section title="Activities, projects & experiences" hint="Clubs, volunteer work, sports, side projects, summer programs.">
-        <RepeatingBlocks
-          items={resume.activities}
-          onChange={(v) => u("activities", v)}
-          empty={{ title: "", org: "", dates: "", description: "" }}
-          render={(item, set) => (
-            <>
-              <Grid2>
-                <Field label="Title / role" value={item.title} onChange={(v) => set({ ...item, title: v })} />
-                <Field label="Organization" value={item.org} onChange={(v) => set({ ...item, org: v })} />
-              </Grid2>
-              <div className="mt-3">
-                <Field label="Dates" value={item.dates} onChange={(v) => set({ ...item, dates: v })} />
-              </div>
-              <div className="mt-3">
-                <TextArea value={item.description} onChange={(v) => set({ ...item, description: v })} rows={3} placeholder="What you did / accomplished" />
-              </div>
-            </>
-          )}
-        />
-      </Section>
-
-      <Section title="Skills" hint="Be honest about your level — 'Learning' and 'Familiar with' are fine.">
-        <SkillGroup label="Technical & engineering" items={resume.skillsTechnical} onChange={(v) => u("skillsTechnical", v)} />
-        <SkillGroup label="Software & tools" items={resume.skillsSoftware} onChange={(v) => u("skillsSoftware", v)} />
-        <SkillGroup label="Lab & hands-on" items={resume.skillsHandsOn} onChange={(v) => u("skillsHandsOn", v)} />
-        <SkillGroup label="Teamwork & communication" items={resume.skillsTeamwork} onChange={(v) => u("skillsTeamwork", v)} />
-      </Section>
-
-      <Section title="Awards & honors (optional)">
-        <RepeatingList items={resume.awards} onChange={(v) => u("awards", v)} placeholder="e.g. Honor Roll, 2024" />
-      </Section>
-
-      <Section title="Work & volunteer experience (optional)" hint="Paid jobs, regular volunteering, tutoring, babysitting — anything where you showed up consistently.">
-        <RepeatingBlocks
-          items={resume.workHistory}
-          onChange={(v) => u("workHistory", v)}
-          empty={{ title: "", org: "", dates: "", description: "" }}
-          render={(item, set) => (
-            <>
-              <Grid2>
-                <Field label="Title / role" value={item.title} onChange={(v) => set({ ...item, title: v })} />
-                <Field label="Organization" value={item.org} onChange={(v) => set({ ...item, org: v })} />
-              </Grid2>
-              <div className="mt-3">
-                <Field label="Dates" value={item.dates} onChange={(v) => set({ ...item, dates: v })} />
-              </div>
-              <div className="mt-3">
-                <TextArea value={item.description} onChange={(v) => set({ ...item, description: v })} rows={3} placeholder="What you did" />
-              </div>
-            </>
-          )}
-        />
-      </Section>
-    </>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Small input primitives
-// ─────────────────────────────────────────────────────────────────────────────
-
-function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
-  return (
-    <section className="border-t border-charcoal-100 pt-10">
-      <h2 className="text-xl font-light">{title}</h2>
-      {hint && <p className="mt-2 max-w-2xl text-sm text-charcoal-500">{hint}</p>}
-      <div className="mt-6">{children}</div>
-    </section>
-  );
-}
-
-function Grid2({ children }: { children: React.ReactNode }) {
-  return <div className="grid gap-4 sm:grid-cols-2">{children}</div>;
-}
-
-function Field({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (v: string) => void; type?: string }) {
-  return (
-    <label className="block">
-      <span className="text-xs uppercase tracking-wider text-charcoal-500">{label}</span>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        maxLength={500}
-        className="mt-1 w-full border border-charcoal-200 bg-white px-3 py-2 text-sm focus:border-ink focus:outline-none"
-      />
-    </label>
-  );
-}
-
-function TextArea({ value, onChange, rows = 4, placeholder }: { value: string; onChange: (v: string) => void; rows?: number; placeholder?: string }) {
-  return (
-    <textarea
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      rows={rows}
-      placeholder={placeholder}
-      maxLength={4000}
-      className="w-full border border-charcoal-200 bg-white px-3 py-2 text-sm focus:border-ink focus:outline-none"
-    />
-  );
-}
-
-function RepeatingList({ items, onChange, placeholder }: { items: string[]; onChange: (v: string[]) => void; placeholder?: string }) {
-  return (
-    <div className="space-y-2">
-      {items.map((it, idx) => (
-        <div key={idx} className="flex gap-2">
-          <input
-            value={it}
-            onChange={(e) => {
-              const next = [...items]; next[idx] = e.target.value; onChange(next);
-            }}
-            placeholder={placeholder}
-            maxLength={300}
-            className="flex-1 border border-charcoal-200 bg-white px-3 py-2 text-sm focus:border-ink focus:outline-none"
-          />
-          <button
-            type="button"
-            onClick={() => onChange(items.filter((_, i) => i !== idx))}
-            className="px-3 text-sm text-charcoal-400 hover:text-ink"
-            aria-label="Remove"
-          >×</button>
-        </div>
-      ))}
-      <button
-        type="button"
-        onClick={() => onChange([...items, ""])}
-        className="text-sm text-charcoal-500 hover:text-ink"
-      >+ Add</button>
-    </div>
-  );
-}
-
-function RepeatingBlocks<T>({
-  items, onChange, empty, render,
-}: {
-  items: T[];
-  onChange: (v: T[]) => void;
-  empty: T;
-  render: (item: T, set: (v: T) => void) => React.ReactNode;
-}) {
-  return (
-    <div className="space-y-6">
-      {items.map((item, idx) => (
-        <div key={idx} className="border border-charcoal-100 p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <span className="text-xs uppercase tracking-wider text-charcoal-500">#{idx + 1}</span>
-            <button
-              type="button"
-              onClick={() => onChange(items.filter((_, i) => i !== idx))}
-              className="text-xs text-charcoal-400 hover:text-ink"
-            >Remove</button>
-          </div>
-          {render(item, (next) => {
-            const arr = [...items]; arr[idx] = next; onChange(arr);
-          })}
-        </div>
-      ))}
-      <button
-        type="button"
-        onClick={() => onChange([...items, empty])}
-        className="text-sm text-charcoal-500 hover:text-ink"
-      >+ Add</button>
-    </div>
-  );
-}
-
-function SkillGroup({ label, items, onChange }: { label: string; items: string[]; onChange: (v: string[]) => void }) {
-  return (
-    <div className="mt-6 first:mt-0">
-      <p className="text-xs uppercase tracking-wider text-charcoal-500">{label}</p>
-      <div className="mt-2"><RepeatingList items={items} onChange={onChange} placeholder="Skill" /></div>
     </div>
   );
 }
