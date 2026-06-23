@@ -17,6 +17,7 @@ type Sel = {
   internship_ref: string;
   opportunity_id: string | null;
   status: string;
+  rank: number | null;
 };
 type Student = { id: string; first_name: string | null; grade: number | null; date_of_birth: string | null };
 
@@ -147,21 +148,28 @@ function ApplyRequests() {
                   </button>
                 </div>
                 <ul className="mt-3 space-y-1.5">
-                  {rows.map((s) => (
-                    <li key={s.id}>
-                      <label className="flex items-center gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={approveSet.has(s.internship_ref)}
-                          onChange={() => toggle(studentId, s.internship_ref)}
-                        />
-                        {nameFor(s)}
-                        {s.opportunity_id && (
-                          <span className="text-xs text-charcoal-400">· partner internship</span>
-                        )}
-                      </label>
-                    </li>
-                  ))}
+                  {[...rows]
+                    .sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99))
+                    .map((s) => (
+                      <li key={s.id}>
+                        <label className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={approveSet.has(s.internship_ref)}
+                            onChange={() => toggle(studentId, s.internship_ref)}
+                          />
+                          {s.rank != null && (
+                            <span className="w-5 shrink-0 text-center text-xs font-medium text-charcoal-400 tabular-nums">
+                              #{s.rank}
+                            </span>
+                          )}
+                          {nameFor(s)}
+                          {s.opportunity_id && (
+                            <span className="text-xs text-charcoal-400">· partner internship</span>
+                          )}
+                        </label>
+                      </li>
+                    ))}
                 </ul>
               </div>
             );

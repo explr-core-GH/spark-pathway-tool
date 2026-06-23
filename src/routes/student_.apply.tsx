@@ -26,6 +26,7 @@ export const Route = createFileRoute("/student_/apply")({
 });
 
 const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
+const MIN_CHOICES = 4;
 
 type InterestMap = Record<string, "yes" | "maybe" | "no">;
 const STATUS_LABEL: Record<string, string> = {
@@ -44,7 +45,8 @@ function SelectPage() {
   const [interest, setInterest] = useState<InterestMap>({});
   const [hollandCode, setHollandCode] = useState<string | null>(null);
   const [scaleScores, setScaleScores] = useState<ScaleScores>({});
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  // Ordered = rank order (index 0 = #1 choice).
+  const [selected, setSelected] = useState<string[]>([]);
   const [existing, setExisting] = useState<Record<string, string>>({}); // ref → status
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +71,7 @@ function SelectPage() {
             .limit(1)
             .maybeSingle(),
           sb("opportunities").select("*").eq("type", "internship").eq("status", "approved"),
-          sb("internship_selections").select("internship_ref, status").eq("student_id", user.id),
+          sb("internship_selections").select("internship_ref, status, rank").eq("student_id", user.id),
         ]);
       if (cancelled) return;
       const hidden = new Set((vis ?? []).filter((r) => r.visible === false).map((r) => r.internship_slug));
@@ -82,17 +84,20 @@ function SelectPage() {
       setScaleScores((sess?.scale_scores as ScaleScores) ?? {});
 
       const existingMap: Record<string, string> = {};
-      const preselect = new Set<string>();
+      const existingRows = ((sels as Array<{ internship_ref: string; status: string; rank: number | null }>) ?? [])
+        .filter((s) => s.status !== "denied")
+        .sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
+      const order: string[] = [];
       for (const s of (sels as Array<{ internship_ref: string; status: string }>) ?? []) {
         existingMap[s.internship_ref] = s.status;
-        if (s.status !== "denied") preselect.add(s.internship_ref);
       }
-      setExisting(existingMap);
+      for (const s of existingRows) order.push(s.internship_ref);
       if (opportunity) {
         const slug = oppSlug(opportunity);
-        if (orgList.some((i) => i.slug === slug)) preselect.add(slug);
+        if (orgList.some((i) => i.slug === slug) && !order.includes(slug)) order.push(slug);
       }
-      setSelected(preselect);
+      setExisting(existingMap);
+      setSelected(order);
       setLoading(false);
     })();
     return () => {
@@ -124,47 +129,65 @@ function SelectPage() {
   }, [internships, interest, scaleScores, hollandCode]);
 
   function toggle(ref: string) {
+    setSelected((prev) => (prev.includes(ref) ? prev.filter((r) => r !== ref) : [...prev, ref]));
+  }
+  function move(ref: string, dir: -1 | 1) {
     setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(ref)) next.delete(ref);
-      else next.add(ref);
+      const i = prev.indexOf(ref);
+      const j = i + dir;
+      if (i < 0 || j < 0 || j >= prev.length) return prev;
+      const next = [...prev];
+      [next[i], next[j]] = [next[j], next[i]];
       return next;
     });
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    if (!user) return;
-    // New requests = checked refs that aren't already on file.
-    const fresh = [...selected].filter((ref) => !existing[ref]);
-    if (fresh.length === 0) {
-      setError("Pick at least one internship you haven't already requested.");
-      return;
-    }
-    setSubmitting(true);
-    const rows = fresh.map((ref) => ({
-      student_id: user.id,
-      internship_ref: ref,
-      opportunity_id: isOppSlug(ref) ? oppIdFromSlug(ref) : null,
-      status: "requested",
-    }));
-    const { error: insErr } = await sb("internship_selections").upsert(rows, {
-      onConflict: "student_id,internship_ref",
-      ignoreDuplicates: true,
-    });
-    setSubmitting(false);
-    if (insErr) {
-      setError(insErr.message);
-      return;
-    }
-    setDone(true);
   }
 
   const nameByRef = useMemo(() => {
     const m = new Map(internships.map((i) => [i.slug, i.name]));
     return (ref: string) => m.get(ref) ?? ref;
   }, [internships]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (!user) return;
+    if (selected.length < MIN_CHOICES) {
+      setError(`Choose and rank at least ${MIN_CHOICES} internships.`);
+      return;
+    }
+    setSubmitting(true);
+    // Insert fresh requests with their rank; re-rank existing still-requested rows.
+    const fresh = selected.filter((ref) => !existing[ref]);
+    const rows = fresh.map((ref) => ({
+      student_id: user.id,
+      internship_ref: ref,
+      opportunity_id: isOppSlug(ref) ? oppIdFromSlug(ref) : null,
+      status: "requested",
+      rank: selected.indexOf(ref) + 1,
+    }));
+    if (rows.length > 0) {
+      const { error: insErr } = await sb("internship_selections").upsert(rows, {
+        onConflict: "student_id,internship_ref",
+        ignoreDuplicates: true,
+      });
+      if (insErr) {
+        setSubmitting(false);
+        setError(insErr.message);
+        return;
+      }
+    }
+    // Update rank on existing requests that are still pending.
+    for (const ref of selected) {
+      if (existing[ref] === "requested") {
+        await sb("internship_selections")
+          .update({ rank: selected.indexOf(ref) + 1 })
+          .eq("student_id", user.id)
+          .eq("internship_ref", ref);
+      }
+    }
+    setSubmitting(false);
+    setDone(true);
+  }
 
   if (authLoading || loading) {
     return <main className="mx-auto max-w-3xl px-6 py-24 text-sm text-charcoal-400">Loading…</main>;
@@ -181,11 +204,11 @@ function SelectPage() {
 
       <main className="mx-auto max-w-4xl px-6 py-16">
         <p className="eyebrow">Internships · step 1 of 2</p>
-        <h1 className="display mt-3">Choose internships to apply to</h1>
+        <h1 className="display mt-3">Choose &amp; rank internships</h1>
         <p className="mt-4 max-w-2xl text-charcoal-500">
-          Pick the internships you&apos;re interested in. An EXPLR admin reviews your picks and
-          approves which ones you can apply to. Once approved, you&apos;ll come back to complete
-          your application.
+          Pick at least <span className="font-medium text-ink">{MIN_CHOICES}</span> internships
+          you&apos;re interested in and put them in order of preference. An EXPLR admin reviews your
+          picks and approves which ones you can apply to — then you complete the application.
         </p>
 
         {Object.keys(existing).length > 0 && (
@@ -220,14 +243,44 @@ function SelectPage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="mt-10">
-            <p className="text-sm text-charcoal-500">
-              Listed by fit — from your interest survey{hollandCode ? <> and Holland code <span className="font-medium text-ink">{hollandCode}</span></> : null}.
+            {/* Ranked choices */}
+            <section className="border border-charcoal-100 p-5">
+              <div className="flex items-baseline justify-between">
+                <p className="eyebrow" style={{ margin: 0 }}>Your ranked choices</p>
+                <span className={`text-xs ${selected.length >= MIN_CHOICES ? "text-explr-600" : "text-amber-700"}`}>
+                  {selected.length} of {MIN_CHOICES}+ chosen
+                </span>
+              </div>
+              {selected.length === 0 ? (
+                <p className="mt-3 text-sm text-charcoal-400">
+                  Check internships below to add them here, then order them #1 (top) and down.
+                </p>
+              ) : (
+                <ol className="mt-3 space-y-1.5">
+                  {selected.map((ref, idx) => (
+                    <li key={ref} className="flex items-center gap-3 border border-charcoal-100 px-3 py-2 text-sm">
+                      <span className="w-6 shrink-0 text-center font-medium tabular-nums">{idx + 1}</span>
+                      <span className="flex-1">{nameByRef(ref)}</span>
+                      {existing[ref] && (
+                        <span className="text-xs text-charcoal-400">{STATUS_LABEL[existing[ref]] ?? existing[ref]}</span>
+                      )}
+                      <button type="button" onClick={() => move(ref, -1)} disabled={idx === 0} className="px-1 text-charcoal-400 hover:text-ink disabled:opacity-30" aria-label="Move up">▲</button>
+                      <button type="button" onClick={() => move(ref, 1)} disabled={idx === selected.length - 1} className="px-1 text-charcoal-400 hover:text-ink disabled:opacity-30" aria-label="Move down">▼</button>
+                      <button type="button" onClick={() => toggle(ref)} className="px-1 text-charcoal-400 hover:text-red-600" aria-label="Remove">✕</button>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </section>
+
+            <p className="mt-8 text-sm text-charcoal-500">
+              Listed by fit — from your interest survey{hollandCode ? <> and Holland code <span className="font-medium text-ink">{hollandCode}</span></> : null}. Check the ones you want.
             </p>
-            <ul className="mt-6 grid gap-3">
-              {ranked.map((i, idx) => {
+            <ul className="mt-4 grid gap-3">
+              {ranked.map((i) => {
                 const r = interest[i.slug];
                 const tag = r === "yes" ? "Interested" : r === "maybe" ? "Maybe" : r === "no" ? "Not for me" : "Unrated";
-                const checked = selected.has(i.slug);
+                const checked = selected.includes(i.slug);
                 const status = existing[i.slug];
                 const why = buildWhyFits(i, r, scaleScores, hollandCode);
                 return (
@@ -236,10 +289,7 @@ function SelectPage() {
                       <input type="checkbox" checked={checked} onChange={() => toggle(i.slug)} className="mt-1" />
                       <span className="flex-1">
                         <span className="flex items-baseline justify-between gap-3">
-                          <span className="font-medium">
-                            <span className="text-charcoal-400 mr-2">{idx + 1}.</span>
-                            {i.emoji} {i.name}
-                          </span>
+                          <span className="font-medium">{i.emoji} {i.name}</span>
                           <span className="text-xs uppercase tracking-wider text-charcoal-500">
                             {status ? STATUS_LABEL[status] ?? status : tag}
                           </span>
@@ -266,8 +316,8 @@ function SelectPage() {
             {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
             <div className="mt-8 flex items-center justify-between border-t border-charcoal-100 pt-8">
-              <p className="text-sm text-charcoal-500">{selected.size} selected</p>
-              <button type="submit" disabled={submitting} className="btn-ink disabled:opacity-50">
+              <p className="text-sm text-charcoal-500">{selected.length} selected · need {MIN_CHOICES}+</p>
+              <button type="submit" disabled={submitting || selected.length < MIN_CHOICES} className="btn-ink disabled:opacity-50">
                 {submitting ? "Submitting…" : "Request approval to apply"}
               </button>
             </div>
