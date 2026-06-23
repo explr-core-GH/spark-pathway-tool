@@ -104,6 +104,9 @@ export function OpportunityWizard({
   const [type, setType] = useState<OppType | null>(null);
   const [oppId, setOppId] = useState<string>("");
   const [config, setConfig] = useState<FieldConfig[]>([]);
+  // The type whose field config is currently loaded — gates step rendering so
+  // we never flash a step before its config arrives.
+  const [configFor, setConfigFor] = useState<OppType | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY);
   const [orgLogo, setOrgLogo] = useState<string | null>(logo);
   const [forms, setForms] = useState<OpportunityForm[]>([]);
@@ -124,6 +127,7 @@ export function OpportunityWizard({
       .eq("enabled", true)
       .order("sort_order");
     setConfig((data as FieldConfig[]) ?? []);
+    setConfigFor(t);
   }, []);
 
   // Editing: hydrate from the existing row.
@@ -169,6 +173,7 @@ export function OpportunityWizard({
   async function pickType(t: OppType) {
     const meta = oppTypeMeta(t);
     setType(t);
+    setConfigFor(null);
     setOppId(crypto.randomUUID());
     setForm((f) => ({
       ...f,
@@ -408,6 +413,14 @@ export function OpportunityWizard({
           </button>
         </p>
       </main>
+    );
+  }
+
+  // Don't render any step until this type's field config has loaded — otherwise
+  // the step list is momentarily empty and flashes the wrong slide.
+  if (configFor !== type) {
+    return (
+      <main className="mx-auto max-w-3xl px-6 py-16 text-sm text-charcoal-400">Loading…</main>
     );
   }
 
