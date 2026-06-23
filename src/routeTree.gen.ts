@@ -16,8 +16,10 @@ import { Route as StartRouteImport } from './routes/start'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignOutRouteImport } from './routes/sign-out'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as OpportunitiesRouteImport } from './routes/opportunities'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ExplrRostersRouteImport } from './routes/explr-rosters'
 import { Route as EducatorRouteImport } from './routes/educator'
 import { Route as AboutRouteImport } from './routes/about'
@@ -52,6 +54,7 @@ import { Route as EducatorAdminRostersRouteImport } from './routes/educator.admi
 import { Route as EducatorAdminProgramsRouteImport } from './routes/educator.admin.programs'
 import { Route as EducatorAdminProgramRiasecRouteImport } from './routes/educator.admin.program-riasec'
 import { Route as EducatorAdminPlacementsRouteImport } from './routes/educator.admin.placements'
+import { Route as EducatorAdminPasswordsRouteImport } from './routes/educator.admin.passwords'
 import { Route as EducatorAdminOpportunityFieldsRouteImport } from './routes/educator.admin.opportunity-fields'
 import { Route as EducatorAdminOpportunitiesRouteImport } from './routes/educator.admin.opportunities'
 import { Route as EducatorAdminInvitesRouteImport } from './routes/educator.admin.invites'
@@ -106,6 +109,11 @@ const SignInRoute = SignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -114,6 +122,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const OpportunitiesRoute = OpportunitiesRouteImport.update({
   id: '/opportunities',
   path: '/opportunities',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExplrRostersRoute = ExplrRostersRouteImport.update({
@@ -290,6 +303,11 @@ const EducatorAdminPlacementsRoute = EducatorAdminPlacementsRouteImport.update({
   path: '/placements',
   getParentRoute: () => EducatorAdminRoute,
 } as any)
+const EducatorAdminPasswordsRoute = EducatorAdminPasswordsRouteImport.update({
+  id: '/passwords',
+  path: '/passwords',
+  getParentRoute: () => EducatorAdminRoute,
+} as any)
 const EducatorAdminOpportunityFieldsRoute =
   EducatorAdminOpportunityFieldsRouteImport.update({
     id: '/opportunity-fields',
@@ -398,8 +416,10 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/educator': typeof EducatorRouteWithChildren
   '/explr-rosters': typeof ExplrRostersRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/opportunities': typeof OpportunitiesRoute
   '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
   '/sign-up': typeof SignUpRoute
@@ -439,6 +459,7 @@ export interface FileRoutesByFullPath {
   '/educator/admin/invites': typeof EducatorAdminInvitesRoute
   '/educator/admin/opportunities': typeof EducatorAdminOpportunitiesRoute
   '/educator/admin/opportunity-fields': typeof EducatorAdminOpportunityFieldsRoute
+  '/educator/admin/passwords': typeof EducatorAdminPasswordsRoute
   '/educator/admin/placements': typeof EducatorAdminPlacementsRoute
   '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
   '/educator/admin/programs': typeof EducatorAdminProgramsRoute
@@ -460,8 +481,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/explr-rosters': typeof ExplrRostersRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/opportunities': typeof OpportunitiesRoute
   '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
   '/sign-up': typeof SignUpRoute
@@ -500,6 +523,7 @@ export interface FileRoutesByTo {
   '/educator/admin/invites': typeof EducatorAdminInvitesRoute
   '/educator/admin/opportunities': typeof EducatorAdminOpportunitiesRoute
   '/educator/admin/opportunity-fields': typeof EducatorAdminOpportunityFieldsRoute
+  '/educator/admin/passwords': typeof EducatorAdminPasswordsRoute
   '/educator/admin/placements': typeof EducatorAdminPlacementsRoute
   '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
   '/educator/admin/programs': typeof EducatorAdminProgramsRoute
@@ -523,8 +547,10 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/educator': typeof EducatorRouteWithChildren
   '/explr-rosters': typeof ExplrRostersRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/opportunities': typeof OpportunitiesRoute
   '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sign-in': typeof SignInRoute
   '/sign-out': typeof SignOutRoute
   '/sign-up': typeof SignUpRoute
@@ -564,6 +590,7 @@ export interface FileRoutesById {
   '/educator/admin/invites': typeof EducatorAdminInvitesRoute
   '/educator/admin/opportunities': typeof EducatorAdminOpportunitiesRoute
   '/educator/admin/opportunity-fields': typeof EducatorAdminOpportunityFieldsRoute
+  '/educator/admin/passwords': typeof EducatorAdminPasswordsRoute
   '/educator/admin/placements': typeof EducatorAdminPlacementsRoute
   '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
   '/educator/admin/programs': typeof EducatorAdminProgramsRoute
@@ -588,8 +615,10 @@ export interface FileRouteTypes {
     | '/about'
     | '/educator'
     | '/explr-rosters'
+    | '/forgot-password'
     | '/opportunities'
     | '/privacy'
+    | '/reset-password'
     | '/sign-in'
     | '/sign-out'
     | '/sign-up'
@@ -629,6 +658,7 @@ export interface FileRouteTypes {
     | '/educator/admin/invites'
     | '/educator/admin/opportunities'
     | '/educator/admin/opportunity-fields'
+    | '/educator/admin/passwords'
     | '/educator/admin/placements'
     | '/educator/admin/program-riasec'
     | '/educator/admin/programs'
@@ -650,8 +680,10 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/explr-rosters'
+    | '/forgot-password'
     | '/opportunities'
     | '/privacy'
+    | '/reset-password'
     | '/sign-in'
     | '/sign-out'
     | '/sign-up'
@@ -690,6 +722,7 @@ export interface FileRouteTypes {
     | '/educator/admin/invites'
     | '/educator/admin/opportunities'
     | '/educator/admin/opportunity-fields'
+    | '/educator/admin/passwords'
     | '/educator/admin/placements'
     | '/educator/admin/program-riasec'
     | '/educator/admin/programs'
@@ -712,8 +745,10 @@ export interface FileRouteTypes {
     | '/about'
     | '/educator'
     | '/explr-rosters'
+    | '/forgot-password'
     | '/opportunities'
     | '/privacy'
+    | '/reset-password'
     | '/sign-in'
     | '/sign-out'
     | '/sign-up'
@@ -753,6 +788,7 @@ export interface FileRouteTypes {
     | '/educator/admin/invites'
     | '/educator/admin/opportunities'
     | '/educator/admin/opportunity-fields'
+    | '/educator/admin/passwords'
     | '/educator/admin/placements'
     | '/educator/admin/program-riasec'
     | '/educator/admin/programs'
@@ -776,8 +812,10 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   EducatorRoute: typeof EducatorRouteWithChildren
   ExplrRostersRoute: typeof ExplrRostersRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   OpportunitiesRoute: typeof OpportunitiesRoute
   PrivacyRoute: typeof PrivacyRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SignInRoute: typeof SignInRoute
   SignOutRoute: typeof SignOutRoute
   SignUpRoute: typeof SignUpRoute
@@ -852,6 +890,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignInRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -864,6 +909,13 @@ declare module '@tanstack/react-router' {
       path: '/opportunities'
       fullPath: '/opportunities'
       preLoaderRoute: typeof OpportunitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/explr-rosters': {
@@ -1104,6 +1156,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EducatorAdminPlacementsRouteImport
       parentRoute: typeof EducatorAdminRoute
     }
+    '/educator/admin/passwords': {
+      id: '/educator/admin/passwords'
+      path: '/passwords'
+      fullPath: '/educator/admin/passwords'
+      preLoaderRoute: typeof EducatorAdminPasswordsRouteImport
+      parentRoute: typeof EducatorAdminRoute
+    }
     '/educator/admin/opportunity-fields': {
       id: '/educator/admin/opportunity-fields'
       path: '/opportunity-fields'
@@ -1246,6 +1305,7 @@ interface EducatorAdminRouteChildren {
   EducatorAdminInvitesRoute: typeof EducatorAdminInvitesRoute
   EducatorAdminOpportunitiesRoute: typeof EducatorAdminOpportunitiesRoute
   EducatorAdminOpportunityFieldsRoute: typeof EducatorAdminOpportunityFieldsRoute
+  EducatorAdminPasswordsRoute: typeof EducatorAdminPasswordsRoute
   EducatorAdminPlacementsRoute: typeof EducatorAdminPlacementsRoute
   EducatorAdminProgramRiasecRoute: typeof EducatorAdminProgramRiasecRoute
   EducatorAdminProgramsRoute: typeof EducatorAdminProgramsRoute
@@ -1270,6 +1330,7 @@ const EducatorAdminRouteChildren: EducatorAdminRouteChildren = {
   EducatorAdminInvitesRoute: EducatorAdminInvitesRoute,
   EducatorAdminOpportunitiesRoute: EducatorAdminOpportunitiesRoute,
   EducatorAdminOpportunityFieldsRoute: EducatorAdminOpportunityFieldsRoute,
+  EducatorAdminPasswordsRoute: EducatorAdminPasswordsRoute,
   EducatorAdminPlacementsRoute: EducatorAdminPlacementsRoute,
   EducatorAdminProgramRiasecRoute: EducatorAdminProgramRiasecRoute,
   EducatorAdminProgramsRoute: EducatorAdminProgramsRoute,
@@ -1326,8 +1387,10 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   EducatorRoute: EducatorRouteWithChildren,
   ExplrRostersRoute: ExplrRostersRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   OpportunitiesRoute: OpportunitiesRoute,
   PrivacyRoute: PrivacyRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SignInRoute: SignInRoute,
   SignOutRoute: SignOutRoute,
   SignUpRoute: SignUpRoute,

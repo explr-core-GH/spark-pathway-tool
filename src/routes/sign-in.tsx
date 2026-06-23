@@ -99,6 +99,8 @@ function SignIn() {
       </form>
       <p className="mt-6 text-sm text-charcoal-500">
         New here? <Link to="/sign-up" className="ink-link">Create an account</Link>
+        <span className="mx-2 text-charcoal-300">·</span>
+        <Link to="/forgot-password" className="ink-link">Forgot password?</Link>
       </p>
     </main>
   );

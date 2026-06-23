@@ -66,6 +66,8 @@ function EducatorSignIn() {
       </form>
       <p className="mt-6 text-sm text-charcoal-500">
         No account? <Link to="/educator/sign-up" className="ink-link">Request access</Link>
+        <span className="mx-2 text-charcoal-300">·</span>
+        <Link to="/forgot-password" className="ink-link">Forgot password?</Link>
       </p>
     </main>
   );

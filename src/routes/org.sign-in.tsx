@@ -67,6 +67,8 @@ function OrgSignIn() {
       </form>
       <p className="mt-6 text-sm text-charcoal-500">
         New partner? <Link to="/org/sign-up" className="ink-link">Register your organization</Link>
+        <span className="mx-2 text-charcoal-300">·</span>
+        <Link to="/forgot-password" className="ink-link">Forgot password?</Link>
       </p>
     </main>
   );

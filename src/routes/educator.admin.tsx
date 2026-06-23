@@ -84,6 +84,7 @@ const SECTIONS: Section[] = [
     label: "People",
     items: [
       { label: "Invites & approvals", to: "/educator/admin/invites", match: "/educator/admin/invites" },
+      { label: "Reset passwords", to: "/educator/admin/passwords", match: "/educator/admin/passwords" },
     ],
   },
   {
