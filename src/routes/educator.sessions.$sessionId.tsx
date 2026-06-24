@@ -43,11 +43,9 @@ type Registration = {
   id: string;
   child_name: string;
   child_age: number | null;
-  parent_name: string | null;
-  parent_email: string | null;
-  parent_phone: string | null;
   status: string | null;
 };
+
 
 export const Route = createFileRoute("/educator/sessions/$sessionId")({
   head: ({ params }) => ({
@@ -112,11 +110,10 @@ function SessionDetail() {
       // 3. Roster for this session.
       const { data: regs } = await supabase
         .from("explr_registrations")
-        .select(
-          "id, child_name, child_age, parent_name, parent_email, parent_phone, status",
-        )
+        .select("id, child_name, child_age, status")
         .eq("camp_id", sessionId)
         .order("child_name");
+
       if (cancelled) return;
       setRegistrations((regs ?? []) as Registration[]);
 
@@ -215,8 +212,6 @@ function SessionDetail() {
                 <tr className="border-y border-charcoal-100 text-left text-xs uppercase tracking-wider text-charcoal-400">
                   <th className="py-2 pr-4 font-normal">Student</th>
                   <th className="py-2 pr-4 font-normal">Age</th>
-                  <th className="py-2 pr-4 font-normal">Parent</th>
-                  <th className="py-2 pr-4 font-normal">Contact</th>
                   <th className="py-2 pr-4 font-normal">Status</th>
                 </tr>
               </thead>
@@ -228,18 +223,13 @@ function SessionDetail() {
                       {r.child_age ?? "—"}
                     </td>
                     <td className="py-2 pr-4 text-charcoal-500">
-                      {r.parent_name ?? "—"}
-                    </td>
-                    <td className="py-2 pr-4 text-charcoal-500">
-                      {r.parent_email || r.parent_phone || "—"}
-                    </td>
-                    <td className="py-2 pr-4 text-charcoal-500">
                       {r.status ?? "—"}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+
           </div>
         )}
       </section>
