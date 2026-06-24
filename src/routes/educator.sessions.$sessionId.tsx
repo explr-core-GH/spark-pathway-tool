@@ -43,11 +43,9 @@ type Registration = {
   id: string;
   child_name: string;
   child_age: number | null;
-  parent_name: string | null;
-  parent_email: string | null;
-  parent_phone: string | null;
   status: string | null;
 };
+
 
 export const Route = createFileRoute("/educator/sessions/$sessionId")({
   head: ({ params }) => ({
