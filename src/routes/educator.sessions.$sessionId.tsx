@@ -110,11 +110,10 @@ function SessionDetail() {
       // 3. Roster for this session.
       const { data: regs } = await supabase
         .from("explr_registrations")
-        .select(
-          "id, child_name, child_age, parent_name, parent_email, parent_phone, status",
-        )
+        .select("id, child_name, child_age, status")
         .eq("camp_id", sessionId)
         .order("child_name");
+
       if (cancelled) return;
       setRegistrations((regs ?? []) as Registration[]);
 
