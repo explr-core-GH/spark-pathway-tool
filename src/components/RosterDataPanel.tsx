@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { StudentAssessmentDetail } from "@/components/StudentAssessmentDetail";
 
 /**
  * RosterDataPanel — per-student results + overall timing for a roster,
@@ -84,6 +85,7 @@ export function RosterDataPanel({ studentIds, names }: Props) {
   const [rows, setRows] = useState<StudentData[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -204,11 +206,13 @@ export function RosterDataPanel({ studentIds, names }: Props) {
               <th className="px-3 py-2 font-normal">Time</th>
               <th className="px-3 py-2 font-normal">Surveys</th>
               <th className="px-3 py-2 font-normal">Survey time</th>
+              <th className="px-3 py-2 font-normal">Results</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-charcoal-100">
             {rows.map((r) => (
-              <tr key={r.studentId}>
+              <Fragment key={r.studentId}>
+              <tr>
                 <td className="px-3 py-2 font-medium">{r.name}</td>
                 <td className="px-3 py-2">
                   {r.hollandCode ? (
@@ -249,7 +253,23 @@ export function RosterDataPanel({ studentIds, names }: Props) {
                 <td className="px-3 py-2 tabular-nums">
                   {fmtDuration(r.surveySeconds)}
                 </td>
+                <td className="px-3 py-2">
+                  <button
+                    onClick={() => setOpen(open === r.studentId ? null : r.studentId)}
+                    className="text-xs text-explr-600 hover:underline"
+                  >
+                    {open === r.studentId ? "Hide" : "View"}
+                  </button>
+                </td>
               </tr>
+              {open === r.studentId && (
+                <tr>
+                  <td colSpan={7} className="border-t border-charcoal-100 bg-charcoal-50 p-0">
+                    <StudentAssessmentDetail studentId={r.studentId} />
+                  </td>
+                </tr>
+              )}
+              </Fragment>
             ))}
           </tbody>
         </table>
