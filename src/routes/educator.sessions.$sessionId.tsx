@@ -212,8 +212,6 @@ function SessionDetail() {
                 <tr className="border-y border-charcoal-100 text-left text-xs uppercase tracking-wider text-charcoal-400">
                   <th className="py-2 pr-4 font-normal">Student</th>
                   <th className="py-2 pr-4 font-normal">Age</th>
-                  <th className="py-2 pr-4 font-normal">Parent</th>
-                  <th className="py-2 pr-4 font-normal">Contact</th>
                   <th className="py-2 pr-4 font-normal">Status</th>
                 </tr>
               </thead>
@@ -225,18 +223,13 @@ function SessionDetail() {
                       {r.child_age ?? "—"}
                     </td>
                     <td className="py-2 pr-4 text-charcoal-500">
-                      {r.parent_name ?? "—"}
-                    </td>
-                    <td className="py-2 pr-4 text-charcoal-500">
-                      {r.parent_email || r.parent_phone || "—"}
-                    </td>
-                    <td className="py-2 pr-4 text-charcoal-500">
                       {r.status ?? "—"}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+
           </div>
         )}
       </section>
