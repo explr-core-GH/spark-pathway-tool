@@ -792,6 +792,51 @@ export type Database = {
           },
         ]
       }
+      form_completions: {
+        Row: {
+          completed_file_url: string | null
+          created_at: string
+          form_id: string
+          id: string
+          signed_at: string | null
+          signed_name: string | null
+          student_id: string
+        }
+        Insert: {
+          completed_file_url?: string | null
+          created_at?: string
+          form_id: string
+          id?: string
+          signed_at?: string | null
+          signed_name?: string | null
+          student_id: string
+        }
+        Update: {
+          completed_file_url?: string | null
+          created_at?: string
+          form_id?: string
+          id?: string
+          signed_at?: string | null
+          signed_name?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_completions_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "opportunity_forms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "form_completions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       internship_applications: {
         Row: {
           decided_at: string | null
@@ -1253,6 +1298,283 @@ export type Database = {
           },
         ]
       }
+      opportunities: {
+        Row: {
+          application_links: Json
+          capacity: number | null
+          cost_cents: number | null
+          created_at: string
+          custom: Json
+          decided_at: string | null
+          description: string | null
+          end_date: string | null
+          external_url: string | null
+          grade_max: number | null
+          grade_min: number | null
+          id: string
+          image_url: string | null
+          is_free: boolean
+          lat: number | null
+          lng: number | null
+          location: string | null
+          name: string | null
+          org_id: string
+          org_logo_url: string | null
+          org_name: string | null
+          registration_mode: string
+          requirements: Json
+          review_notes: string | null
+          riasec_code: string | null
+          riasec_weights: Json | null
+          schedule: string | null
+          schedule_json: Json | null
+          start_date: string | null
+          status: string
+          submitted_at: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          application_links?: Json
+          capacity?: number | null
+          cost_cents?: number | null
+          created_at?: string
+          custom?: Json
+          decided_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          external_url?: string | null
+          grade_max?: number | null
+          grade_min?: number | null
+          id?: string
+          image_url?: string | null
+          is_free?: boolean
+          lat?: number | null
+          lng?: number | null
+          location?: string | null
+          name?: string | null
+          org_id: string
+          org_logo_url?: string | null
+          org_name?: string | null
+          registration_mode?: string
+          requirements?: Json
+          review_notes?: string | null
+          riasec_code?: string | null
+          riasec_weights?: Json | null
+          schedule?: string | null
+          schedule_json?: Json | null
+          start_date?: string | null
+          status?: string
+          submitted_at?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          application_links?: Json
+          capacity?: number | null
+          cost_cents?: number | null
+          created_at?: string
+          custom?: Json
+          decided_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          external_url?: string | null
+          grade_max?: number | null
+          grade_min?: number | null
+          id?: string
+          image_url?: string | null
+          is_free?: boolean
+          lat?: number | null
+          lng?: number | null
+          location?: string | null
+          name?: string | null
+          org_id?: string
+          org_logo_url?: string | null
+          org_name?: string | null
+          registration_mode?: string
+          requirements?: Json
+          review_notes?: string | null
+          riasec_code?: string | null
+          riasec_weights?: Json | null
+          schedule?: string | null
+          schedule_json?: Json | null
+          start_date?: string | null
+          status?: string
+          submitted_at?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunity_form_fields: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          field_key: string
+          field_type: string
+          help_text: string | null
+          id: string
+          is_core: boolean
+          label: string
+          opportunity_type: string
+          options: Json | null
+          required: boolean
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          field_key: string
+          field_type?: string
+          help_text?: string | null
+          id?: string
+          is_core?: boolean
+          label: string
+          opportunity_type: string
+          options?: Json | null
+          required?: boolean
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          field_key?: string
+          field_type?: string
+          help_text?: string | null
+          id?: string
+          is_core?: boolean
+          label?: string
+          opportunity_type?: string
+          options?: Json | null
+          required?: boolean
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      opportunity_forms: {
+        Row: {
+          created_at: string
+          file_url: string | null
+          id: string
+          name: string
+          opportunity_id: string
+          requires_signature: boolean
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          name: string
+          opportunity_id: string
+          requires_signature?: boolean
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          name?: string
+          opportunity_id?: string
+          requires_signature?: boolean
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_forms_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunity_registrations: {
+        Row: {
+          application_id: string | null
+          contact_email: string | null
+          contact_name: string | null
+          created_at: string
+          id: string
+          note: string | null
+          opportunity_id: string
+          student_id: string | null
+        }
+        Insert: {
+          application_id?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          opportunity_id: string
+          student_id?: string | null
+        }
+        Update: {
+          application_id?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          opportunity_id?: string
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_registrations_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunity_registrations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          contact_email: string | null
+          contact_name: string | null
+          created_at: string
+          id: string
+          logo_url: string | null
+          name: string
+          website: string | null
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          id: string
+          logo_url?: string | null
+          name: string
+          website?: string | null
+        }
+        Update: {
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       program_educators: {
         Row: {
           added_at: string
@@ -1423,6 +1745,7 @@ export type Database = {
       students: {
         Row: {
           created_at: string
+          date_of_birth: string | null
           first_name: string | null
           grade: number
           grade_band: string | null
@@ -1431,6 +1754,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          date_of_birth?: string | null
           first_name?: string | null
           grade: number
           grade_band?: string | null
@@ -1439,6 +1763,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          date_of_birth?: string | null
           first_name?: string | null
           grade?: number
           grade_band?: string | null
@@ -1681,6 +2006,7 @@ export type Database = {
       }
       is_admin: { Args: { uid: string }; Returns: boolean }
       is_educator: { Args: { uid: string }; Returns: boolean }
+      is_organization: { Args: { uid: string }; Returns: boolean }
     }
     Enums: {
       assessment_kind:
