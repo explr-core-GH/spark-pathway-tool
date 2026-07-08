@@ -184,11 +184,16 @@ export const syncExplrMore = createServerFn({ method: "POST" })
       "camps",
       "id,title,description,date,end_date,time,location,age_range,capacity,image,category,updated_at",
     );
-    // Pull rosters via external-data per camp (one request each). Try
-    // all_rosters first — if EXPLR returns it as a flat list we save N calls.
+    // Pull rosters via external-data. Try all_rosters first, then fetch
+    // per-camp for EVERY camp the bulk payload didn't cover — previously any
+    // non-empty all_rosters response was trusted completely, so camps missing
+    // from that payload silently lost their whole roster.
     const regs: ExplrRegistration[] = [];
     const rosterErrors: { campId: string; error: string }[] = [];
-    let allRostersWorked = false;
+    // Camps whose roster we fetched authoritatively this run (even when
+    // empty). Only these are reconciled for deletions below — a failed or
+    // unparseable fetch must never wipe a roster.
+    const authoritative = new Set<string>();
     try {
       const all = await callExplrExternal("all_rosters");
       // Shape: { camps: [{ id, registrations: [...] }] } — flatten.
@@ -196,42 +201,48 @@ export const syncExplrMore = createServerFn({ method: "POST" })
         all && typeof all === "object" && Array.isArray((all as Record<string, unknown>).camps)
           ? ((all as Record<string, unknown>).camps as Record<string, unknown>[])
           : [];
-      let flatCount = 0;
       for (const c of campsArr) {
         const cid = pickStr(c, "id", "camp_id") ?? "";
+        if (!cid) continue;
         const regsArr = Array.isArray(c.registrations) ? (c.registrations as Record<string, unknown>[]) : [];
-        for (const row of regsArr) {
-          flatCount++;
-          const mapped = mapRosterRow(row, cid);
-          if (mapped) regs.push(mapped);
-        }
+        const mapped = regsArr
+          .map((row) => mapRosterRow(row, cid))
+          .filter((x): x is ExplrRegistration => !!x);
+        regs.push(...mapped);
+        // Authoritative when the list is genuinely empty or we parsed rows;
+        // rows we couldn't parse must not be treated as "kid removed".
+        if (regsArr.length === 0 || mapped.length > 0) authoritative.add(cid);
       }
-      // Fallback to flat list shape if no camps key.
-      if (flatCount === 0) {
-        const rows = unwrapList(all);
-        for (const row of rows) {
+      // Fallback to flat list shape if no camps key. Flat lists don't show
+      // empties, so only camps with parsed rows become authoritative.
+      if (campsArr.length === 0) {
+        for (const row of unwrapList(all)) {
           const campId = pickStr(row, "camp_id", "campId") ?? "";
           if (!campId) continue;
           const mapped = mapRosterRow(row, campId);
-          if (mapped) regs.push(mapped);
+          if (mapped) {
+            regs.push(mapped);
+            authoritative.add(campId);
+          }
         }
       }
-      allRostersWorked = regs.length > 0;
     } catch (e) {
       rosterErrors.push({ campId: "all_rosters", error: (e as Error).message });
     }
 
-    if (!allRostersWorked) {
-      for (const c of camps) {
-        try {
-          const roster = await callExplrExternal("roster", c.id);
-          for (const row of unwrapList(roster)) {
-            const mapped = mapRosterRow(row, c.id);
-            if (mapped) regs.push(mapped);
-          }
-        } catch (e) {
-          rosterErrors.push({ campId: c.id, error: (e as Error).message });
-        }
+    // Per-camp fetch for every camp all_rosters didn't cover.
+    for (const c of camps) {
+      if (authoritative.has(c.id)) continue;
+      try {
+        const roster = await callExplrExternal("roster", c.id);
+        const rows = unwrapList(roster);
+        const mapped = rows
+          .map((row) => mapRosterRow(row, c.id))
+          .filter((x): x is ExplrRegistration => !!x);
+        regs.push(...mapped);
+        if (rows.length === 0 || mapped.length > 0) authoritative.add(c.id);
+      } catch (e) {
+        rosterErrors.push({ campId: c.id, error: (e as Error).message });
       }
     }
 
@@ -286,6 +297,33 @@ export const syncExplrMore = createServerFn({ method: "POST" })
       if (error) throw new Error(`Registration upsert failed: ${error.message}`);
     }
 
+    // Reconcile removals: for camps whose roster we fetched authoritatively,
+    // delete imported registrations that no longer exist at the source (kids
+    // who cancelled or were moved to another session). Previously the sync
+    // only ever added, so stale kids stayed on rosters forever. Generated
+    // logins are untouched — camp_student_logins.explr_registration_id is
+    // ON DELETE SET NULL — and show as "not on the ExplrMore roster" in the
+    // Roster health panel.
+    let removed = 0;
+    const keepByCamp = new Map<string, string[]>();
+    for (const r of matchedRegs) {
+      const arr = keepByCamp.get(r.camp_id);
+      if (arr) arr.push(r.id);
+      else keepByCamp.set(r.camp_id, [r.id]);
+    }
+    for (const cid of authoritative) {
+      if (!validCampIds.has(cid)) continue;
+      const keep = keepByCamp.get(cid) ?? [];
+      let q = supabaseAdmin
+        .from("explr_registrations")
+        .delete({ count: "exact" })
+        .eq("camp_id", cid);
+      if (keep.length > 0) q = q.not("id", "in", `(${keep.join(",")})`);
+      const { error, count } = await q;
+      if (error) rosterErrors.push({ campId: cid, error: `reconcile: ${error.message}` });
+      else removed += count ?? 0;
+    }
+
     // Log this run so the import page (and the daily edge function) share one
     // "last synced" record. Reuses the sync_runs table from the worksites sync.
     // (sync_runs is newer than the generated types — untyped cast.)
@@ -307,6 +345,7 @@ export const syncExplrMore = createServerFn({ method: "POST" })
       campsImported: camps.length,
       registrationsFetched: regs.length,
       registrationsImported: matchedRegs.length,
+      registrationsRemoved: removed,
       registrationsOrphaned: orphanedRegs,
       rosterErrors,
       syncedAt: new Date().toISOString(),

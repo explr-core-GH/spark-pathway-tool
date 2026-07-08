@@ -151,8 +151,12 @@ function ImportExplrPage() {
         res.registrationsOrphaned > 0
           ? ` · ${res.registrationsOrphaned} skipped (no matching camp_id)`
           : "";
+      const removedNote =
+        res.registrationsRemoved > 0
+          ? ` · ${res.registrationsRemoved} removed (no longer on the ExplrMore roster)`
+          : "";
       setMsg(
-        `Camps: ${res.campsImported} imported. Registrations: ${res.registrationsImported} imported of ${res.registrationsFetched} fetched from ExplrMore${orphanedNote}.`,
+        `Camps: ${res.campsImported} imported. Registrations: ${res.registrationsImported} imported of ${res.registrationsFetched} fetched from ExplrMore${removedNote}${orphanedNote}.`,
       );
       setDebugInfo(
         res.rosterErrors.length > 0
@@ -243,6 +247,11 @@ function ImportExplrPage() {
           <pre className="mt-2 whitespace-pre-wrap break-words text-charcoal-700">{debugInfo}</pre>
         </details>
       )}
+
+      <p className="mt-4 text-xs text-charcoal-500">
+        A student missing from a roster? Open the camp&apos;s row — Roster health shows whether
+        they came over from ExplrMore and whether their login has been generated yet.
+      </p>
 
       <div className="mt-8 overflow-x-auto">
         <table className="w-full text-sm">
@@ -341,6 +350,12 @@ function ImportExplrPage() {
                     {isOpen && (
                       <tr className="border-b border-charcoal-100 bg-charcoal-50/40">
                         <td className="py-5 pl-3 pr-3" colSpan={6}>
+                          {/* Roster health — ExplrMore registrations vs generated
+                              logins, so a missing kid is diagnosable at a glance. */}
+                          <section className="mb-6">
+                            <p className="eyebrow">Roster health</p>
+                            <RosterHealth campId={c.id} />
+                          </section>
                           <div className="grid gap-6 md:grid-cols-2">
                             {/* Educator assignment */}
                             <section>
@@ -415,6 +430,92 @@ function ImportExplrPage() {
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+/**
+ * RosterHealth — compares this camp's imported ExplrMore registrations
+ * against the generated logins, and names the mismatches in both directions:
+ * registered kids with no login yet (needs Generate on Camp logins), and
+ * logins that aren't on the ExplrMore roster (walk-ins, or kids removed /
+ * moved to another session at the source).
+ */
+type HealthReg = { id: string; child_name: string };
+type HealthLogin = { id: string; child_name: string; explr_registration_id: string | null };
+
+function RosterHealth({ campId }: { campId: string }) {
+  const [regs, setRegs] = useState<HealthReg[] | null>(null);
+  const [logins, setLogins] = useState<HealthLogin[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const [{ data: r }, { data: l }] = await Promise.all([
+        supabase.from("explr_registrations").select("id, child_name").eq("camp_id", campId),
+        supabase
+          .from("camp_student_logins")
+          .select("id, child_name, explr_registration_id")
+          .eq("explr_camp_id", campId),
+      ]);
+      if (cancelled) return;
+      setRegs((r ?? []) as HealthReg[]);
+      setLogins((l ?? []) as HealthLogin[]);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [campId]);
+
+  if (!regs || !logins) {
+    return <p className="mt-2 text-xs text-charcoal-400">Checking roster health…</p>;
+  }
+
+  const regIds = new Set(regs.map((r) => r.id));
+  const withLogin = new Set(
+    logins.map((l) => l.explr_registration_id).filter((x): x is string => !!x),
+  );
+  const needLogin = regs.filter((r) => !withLogin.has(r.id));
+  const notOnRoster = logins.filter(
+    (l) => !l.explr_registration_id || !regIds.has(l.explr_registration_id),
+  );
+  const healthy = needLogin.length === 0 && notOnRoster.length === 0;
+
+  return (
+    <div className="mt-2 text-sm">
+      <p className="text-xs text-charcoal-500">
+        {regs.length} on the ExplrMore roster · {logins.length} logins generated
+        {healthy && <span className="ml-2 text-explr-600">✓ in sync</span>}
+      </p>
+
+      {needLogin.length > 0 && (
+        <div className="mt-2 border border-amber-200 bg-amber-50 px-3 py-2">
+          <p className="text-xs font-medium text-amber-900">
+            On the ExplrMore roster, no login yet ({needLogin.length}) — run
+            &ldquo;Generate&rdquo; on the Camp logins page:
+          </p>
+          <p className="mt-1 text-xs text-amber-800">
+            {needLogin.map((r) => r.child_name).join(", ")}
+          </p>
+        </div>
+      )}
+
+      {notOnRoster.length > 0 && (
+        <div className="mt-2 border border-charcoal-200 bg-charcoal-50 px-3 py-2">
+          <p className="text-xs font-medium text-charcoal-700">
+            Has a login here but isn&apos;t on the ExplrMore roster ({notOnRoster.length}) —
+            walk-ins, or removed / moved to another session in ExplrMore:
+          </p>
+          <p className="mt-1 text-xs text-charcoal-600">
+            {notOnRoster.map((l) => l.child_name).join(", ")}
+          </p>
+        </div>
+      )}
+
+      <p className="mt-2 text-[11px] text-charcoal-400">
+        Someone missing from both lists? They didn&apos;t come over from ExplrMore — run Sync
+        now and check the roster sync errors above.
+      </p>
     </div>
   );
 }

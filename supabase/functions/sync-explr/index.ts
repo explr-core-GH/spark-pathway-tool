@@ -152,35 +152,46 @@ Deno.serve(async (req) => {
   try {
     const camps = await fetchCamps();
 
-    // Rosters: try all_rosters, fall back to per-camp.
+    // Rosters: try all_rosters, then fetch per-camp for every camp the bulk
+    // payload didn't cover (a partial bulk response must not drop camps).
+    // `authoritative` = camps whose roster we fetched successfully this run
+    // (even when empty); only those get deletion-reconciled below.
     const regs: ReturnType<typeof mapRosterRow>[] = [];
-    let ok = false;
+    const authoritative = new Set<string>();
     try {
       const all = await callExplrExternal("all_rosters");
       const campsArr: Row[] = all && typeof all === "object" && Array.isArray((all as Row).camps)
         ? ((all as Row).camps as Row[]) : [];
-      let flat = 0;
       for (const c of campsArr) {
         const cid = pickStr(c, "id", "camp_id") ?? "";
+        if (!cid) continue;
         const arr = Array.isArray(c.registrations) ? (c.registrations as Row[]) : [];
-        for (const row of arr) { flat++; const m = mapRosterRow(row, cid); if (m) regs.push(m); }
+        const mapped = arr.map((row) => mapRosterRow(row, cid)).filter((m) => !!m);
+        for (const m of mapped) regs.push(m);
+        // Empty list or parsed rows → authoritative; unparseable rows are not
+        // treated as removals.
+        if (arr.length === 0 || mapped.length > 0) authoritative.add(cid);
       }
-      if (flat === 0) {
+      if (campsArr.length === 0) {
+        // Flat-list shape can't show empties — only camps with rows count.
         for (const row of unwrapList(all)) {
           const cid = pickStr(row, "camp_id", "campId") ?? "";
           if (!cid) continue;
-          const m = mapRosterRow(row, cid); if (m) regs.push(m);
+          const m = mapRosterRow(row, cid);
+          if (m) { regs.push(m); authoritative.add(cid); }
         }
       }
-      ok = regs.length > 0;
     } catch { /* fall through to per-camp */ }
-    if (!ok) {
-      for (const c of camps) {
-        try {
-          const roster = await callExplrExternal("roster", pickStr(c, "id") ?? "");
-          for (const row of unwrapList(roster)) { const m = mapRosterRow(row, pickStr(c, "id") ?? ""); if (m) regs.push(m); }
-        } catch { /* skip this camp */ }
-      }
+    for (const c of camps) {
+      const cid = pickStr(c, "id") ?? "";
+      if (!cid || authoritative.has(cid)) continue;
+      try {
+        const roster = await callExplrExternal("roster", cid);
+        const rows = unwrapList(roster);
+        const mapped = rows.map((row) => mapRosterRow(row, cid)).filter((m) => !!m);
+        for (const m of mapped) regs.push(m);
+        if (rows.length === 0 || mapped.length > 0) authoritative.add(cid);
+      } catch { /* skip this camp — stays non-authoritative */ }
     }
 
     const nowIso = new Date().toISOString();
@@ -210,8 +221,27 @@ Deno.serve(async (req) => {
       if (error) throw new Error(`Registration upsert failed: ${error.message}`);
     }
 
+    // Reconcile removals for authoritatively-fetched camps: registrations no
+    // longer at the source (cancelled / moved sessions) are deleted. Generated
+    // logins are untouched (FK is ON DELETE SET NULL).
+    let removed = 0;
+    const keepByCamp = new Map<string, string[]>();
+    for (const r of matched) {
+      const arr = keepByCamp.get(r.camp_id);
+      if (arr) arr.push(r.id);
+      else keepByCamp.set(r.camp_id, [r.id]);
+    }
+    for (const cid of authoritative) {
+      if (!validIds.has(cid)) continue;
+      const keep = keepByCamp.get(cid) ?? [];
+      let q = db.from("explr_registrations").delete({ count: "exact" }).eq("camp_id", cid);
+      if (keep.length > 0) q = q.not("id", "in", `(${keep.join(",")})`);
+      const { count } = await q;
+      removed += count ?? 0;
+    }
+
     await finish({ ok: true, camps: camps.length, regs: matched.length });
-    return json({ ok: true, campsImported: camps.length, registrationsImported: matched.length, syncedAt: nowIso });
+    return json({ ok: true, campsImported: camps.length, registrationsImported: matched.length, registrationsRemoved: removed, syncedAt: nowIso });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     await finish({ ok: false, error: msg });
