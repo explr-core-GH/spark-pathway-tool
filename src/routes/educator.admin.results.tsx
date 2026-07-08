@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ALL_CONSTRUCTS, getConstruct } from "@/lib/explr-stem";
 import { scoreConstruct, type ItemResponseValue } from "@/lib/explr-stem/scoring";
 import { INTERNSHIPS } from "@/lib/internships-catalog";
+import { fetchGroups, type GroupKind, type GroupSummary } from "@/lib/admin-groups";
 
 export const Route = createFileRoute("/educator/admin/results")({
   head: () => ({ meta: [{ title: "Results & downloads — Admin" }] }),
@@ -38,6 +39,7 @@ async function fetchAll<T>(make: () => any): Promise<T[]> {
 }
 
 type RiasecRow = {
+  sid: string;
   student: string;
   grade: number | string;
   holland: string;
@@ -45,6 +47,7 @@ type RiasecRow = {
   completed: string;
 };
 type StemRow = {
+  sid: string;
   student: string;
   survey: string;
   administration: string;
@@ -52,8 +55,9 @@ type StemRow = {
   /** constructId → { before, after } (before null unless retro/then) */
   scores: Record<string, { before: number | null; after: number | null }>;
 };
-type InterestRow = { student: string; internship: string; response: string; date: string };
+type InterestRow = { sid: string; student: string; internship: string; response: string; date: string };
 type AptRow = {
+  sid: string;
   student: string;
   band: string;
   subscale: Record<string, number>;
@@ -78,6 +82,22 @@ function ResultsHub() {
   const [apt, setApt] = useState<AptRow[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+
+  // Filter: a rostered group (or the whole population) + optional date range.
+  const [groups, setGroups] = useState<Array<{ kind: GroupKind; g: GroupSummary }>>([]);
+  const [groupKey, setGroupKey] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      const kinds: GroupKind[] = ["camps", "classes", "internships"];
+      const loaded = await Promise.all(
+        kinds.map((k) => fetchGroups(k).then((gs) => gs.map((g) => ({ kind: k, g }))).catch(() => [])),
+      );
+      setGroups(loaded.flat());
+    })();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -115,6 +135,7 @@ function ResultsHub() {
         if (cancelled) return;
         setRiasec(
           sessions.map((s) => ({
+            sid: s.student_id,
             student: nm(s.student_id),
             grade: s.grade_at_session ?? gradeMap[s.student_id] ?? "",
             holland: s.holland_code ?? "",
@@ -166,6 +187,7 @@ function ResultsHub() {
               scores[cid] = { before: then?.[cid] ?? null, after: now[cid] ?? null };
             }
             return {
+              sid: r.student_id,
               student: nm(r.student_id),
               survey: titleOf.get(r.assignment_id) ?? "STEM survey",
               administration: r.administration,
@@ -184,6 +206,7 @@ function ResultsHub() {
         if (cancelled) return;
         setInterest(
           ints.map((i) => ({
+            sid: i.student_id,
             student: nm(i.student_id),
             internship: SLUG_NAME[i.internship_slug] ?? i.internship_slug,
             response: i.response,
@@ -203,6 +226,7 @@ function ResultsHub() {
         if (cancelled) return;
         setApt(
           aps.map((a) => ({
+            sid: a.student_id,
             student: nm(a.student_id),
             band: a.band,
             subscale: a.subscale_scores ?? {},
@@ -226,9 +250,47 @@ function ResultsHub() {
     return [...keys].sort();
   }, [apt]);
 
-  // ── Excel export ────────────────────────────────────────────────────────
+  // Membership set for the selected group (null = whole population).
+  const memberSet = useMemo(() => {
+    if (groupKey === "all") return null;
+    const found = groups.find((x) => `${x.kind}:${x.g.id}` === groupKey);
+    return new Set(found?.g.studentIds ?? []);
+  }, [groupKey, groups]);
+
+  const selectedGroup = groupKey === "all" ? null : groups.find((x) => `${x.kind}:${x.g.id}` === groupKey) ?? null;
+
+  function makeFilter() {
+    return (sid: string, date: string) =>
+      (!memberSet || memberSet.has(sid)) &&
+      (!dateFrom || date >= dateFrom) &&
+      (!dateTo || date <= dateTo);
+  }
+  const fRiasec = useMemo(() => {
+    const pass = makeFilter();
+    return riasec?.filter((r) => pass(r.sid, r.completed)) ?? null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [riasec, memberSet, dateFrom, dateTo]);
+  const fStem = useMemo(() => {
+    const pass = makeFilter();
+    return stem?.filter((r) => pass(r.sid, r.completed)) ?? null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stem, memberSet, dateFrom, dateTo]);
+  const fInterest = useMemo(() => {
+    const pass = makeFilter();
+    return interest?.filter((r) => pass(r.sid, r.date)) ?? null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [interest, memberSet, dateFrom, dateTo]);
+  const fApt = useMemo(() => {
+    const pass = makeFilter();
+    return apt?.filter((r) => pass(r.sid, r.completed)) ?? null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apt, memberSet, dateFrom, dateTo]);
+
+  const filterActive = groupKey !== "all" || !!dateFrom || !!dateTo;
+
+  // ── Excel export (always exports the FILTERED set) ─────────────────────
   function riasecSheetRows() {
-    return (riasec ?? []).map((r) => ({
+    return (fRiasec ?? []).map((r) => ({
       Student: r.student,
       Grade: r.grade,
       "Holland code": r.holland,
@@ -237,7 +299,7 @@ function ResultsHub() {
     }));
   }
   function stemSheetRows() {
-    return (stem ?? []).map((r) => {
+    return (fStem ?? []).map((r) => {
       const row: Record<string, unknown> = {
         Student: r.student,
         Survey: r.survey,
@@ -254,7 +316,7 @@ function ResultsHub() {
     });
   }
   function interestSheetRows() {
-    return (interest ?? []).map((r) => ({
+    return (fInterest ?? []).map((r) => ({
       Student: r.student,
       Internship: r.internship,
       Response: r.response,
@@ -262,7 +324,7 @@ function ResultsHub() {
     }));
   }
   function aptSheetRows() {
-    return (apt ?? []).map((a) => ({
+    return (fApt ?? []).map((a) => ({
       Student: a.student,
       Band: a.band,
       ...Object.fromEntries(aptSubscales.map((k) => [k.replace(/_/g, " "), a.subscale[k] ?? ""])),
@@ -270,6 +332,18 @@ function ResultsHub() {
       Items: a.items,
       Completed: a.completed,
     }));
+  }
+
+  function fileTag(): string {
+    const parts: string[] = [];
+    if (selectedGroup) {
+      parts.push(
+        selectedGroup.g.name.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase().slice(0, 40) || "group",
+      );
+    }
+    if (dateFrom || dateTo) parts.push(`${dateFrom || "start"}_to_${dateTo || "now"}`);
+    parts.push(new Date().toISOString().slice(0, 10));
+    return parts.join("-");
   }
 
   async function exportAll() {
@@ -281,7 +355,7 @@ function ResultsHub() {
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stemSheetRows()), "STEM survey");
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(interestSheetRows()), "Internship interest");
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(aptSheetRows()), "Aptitude");
-      XLSX.writeFile(wb, `explr-results-${new Date().toISOString().slice(0, 10)}.xlsx`);
+      XLSX.writeFile(wb, `explr-results-${fileTag()}.xlsx`);
     } finally {
       setExporting(false);
     }
@@ -295,17 +369,17 @@ function ResultsHub() {
         tab === "riasec" ? riasecSheetRows() : tab === "stem" ? stemSheetRows() : tab === "interest" ? interestSheetRows() : aptSheetRows();
       const label = TABS.find((t) => t.id === tab)?.label ?? "Results";
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), label.slice(0, 31));
-      XLSX.writeFile(wb, `explr-${tab}-${new Date().toISOString().slice(0, 10)}.xlsx`);
+      XLSX.writeFile(wb, `explr-${tab}-${fileTag()}.xlsx`);
     } finally {
       setExporting(false);
     }
   }
 
   const counts: Record<TabId, number | null> = {
-    riasec: riasec?.length ?? null,
-    stem: stem?.length ?? null,
-    interest: interest?.length ?? null,
-    aptitude: apt?.length ?? null,
+    riasec: fRiasec?.length ?? null,
+    stem: fStem?.length ?? null,
+    interest: fInterest?.length ?? null,
+    aptitude: fApt?.length ?? null,
   };
 
   return (
@@ -326,7 +400,58 @@ function ResultsHub() {
 
       {err && <p className="mt-6 text-sm text-red-600">Couldn&apos;t load results: {err}</p>}
 
-      <div className="mt-8 flex flex-wrap gap-1 border-b border-charcoal-100">
+      {/* Filter — a group (or the whole population) + optional date range.
+          Applies to the tables AND the downloads. */}
+      <div className="mt-8 flex flex-wrap items-end gap-3 border border-charcoal-100 bg-charcoal-50 px-4 py-3">
+        <label className="text-xs text-charcoal-500">
+          Group
+          <select
+            className="field mt-1 max-w-xs"
+            value={groupKey}
+            onChange={(e) => setGroupKey(e.target.value)}
+          >
+            <option value="all">All students (everyone)</option>
+            {(["camps", "classes", "internships"] as GroupKind[]).map((kind) => {
+              const of = groups.filter((x) => x.kind === kind && x.g.studentIds.length > 0);
+              if (of.length === 0) return null;
+              return (
+                <optgroup key={kind} label={kind[0].toUpperCase() + kind.slice(1)}>
+                  {of.map(({ g }) => (
+                    <option key={`${kind}:${g.id}`} value={`${kind}:${g.id}`}>
+                      {g.name} ({g.studentIds.length})
+                    </option>
+                  ))}
+                </optgroup>
+              );
+            })}
+          </select>
+        </label>
+        <label className="text-xs text-charcoal-500">
+          From
+          <input type="date" className="field mt-1 w-40" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
+        </label>
+        <label className="text-xs text-charcoal-500">
+          To
+          <input type="date" className="field mt-1 w-40" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+        </label>
+        {filterActive && (
+          <button
+            onClick={() => {
+              setGroupKey("all");
+              setDateFrom("");
+              setDateTo("");
+            }}
+            className="btn-ghost text-xs"
+          >
+            Clear — show everyone
+          </button>
+        )}
+        <span className="ml-auto self-center text-xs text-charcoal-400">
+          {filterActive ? "Filter applies to tables and downloads." : "Showing the whole population."}
+        </span>
+      </div>
+
+      <div className="mt-6 flex flex-wrap gap-1 border-b border-charcoal-100">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -348,10 +473,10 @@ function ResultsHub() {
       </div>
 
       <div className="mt-6 overflow-x-auto">
-        {tab === "riasec" && <RiasecTable rows={riasec} />}
-        {tab === "stem" && <StemTable rows={stem} />}
-        {tab === "interest" && <InterestTable rows={interest} />}
-        {tab === "aptitude" && <AptTable rows={apt} subscales={aptSubscales} />}
+        {tab === "riasec" && <RiasecTable rows={fRiasec} />}
+        {tab === "stem" && <StemTable rows={fStem} />}
+        {tab === "interest" && <InterestTable rows={fInterest} />}
+        {tab === "aptitude" && <AptTable rows={fApt} subscales={aptSubscales} />}
       </div>
     </main>
   );
