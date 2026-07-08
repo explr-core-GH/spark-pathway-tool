@@ -286,6 +286,21 @@ export const syncExplrMore = createServerFn({ method: "POST" })
       if (error) throw new Error(`Registration upsert failed: ${error.message}`);
     }
 
+    // Log this run so the import page (and the daily edge function) share one
+    // "last synced" record. Reuses the sync_runs table from the worksites sync.
+    // (sync_runs is newer than the generated types — untyped cast.)
+    await ((supabaseAdmin.from as unknown as (n: string) => any)("sync_runs")).insert({
+      kind: "explr_roster",
+      finished_at: new Date().toISOString(),
+      ok: rosterErrors.length === 0,
+      worksites_synced: camps.length,
+      students_synced: matchedRegs.length,
+      error:
+        rosterErrors.length > 0
+          ? rosterErrors.slice(0, 3).map((e) => `${e.campId}: ${e.error}`).join(" | ")
+          : null,
+    } as never);
+
     return {
       ok: true,
       campsFetched: camps.length,
@@ -294,7 +309,6 @@ export const syncExplrMore = createServerFn({ method: "POST" })
       registrationsImported: matchedRegs.length,
       registrationsOrphaned: orphanedRegs,
       rosterErrors,
-      
       syncedAt: new Date().toISOString(),
     };
   });

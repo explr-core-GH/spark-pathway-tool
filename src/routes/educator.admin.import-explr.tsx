@@ -30,6 +30,26 @@ type Educator = { id: string; full_name: string; email: string };
 type Assignment = { explr_camp_id: string; educator_id: string };
 type CurriculumLink = { explr_camp_id: string; camp_slug: string };
 type RegCount = { camp_id: string };
+type SyncRun = {
+  finished_at: string | null;
+  started_at: string;
+  ok: boolean;
+  worksites_synced: number | null;
+  students_synced: number | null;
+  error: string | null;
+};
+
+function timeAgo(iso: string | null): string {
+  if (!iso) return "just now";
+  const s = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
+  if (s < 60) return "just now";
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m} min ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} hr ago`;
+  const d = Math.floor(h / 24);
+  return `${d} day${d === 1 ? "" : "s"} ago`;
+}
 
 function ImportExplrPage() {
   const sync = useServerFn(syncExplrMore);
@@ -48,6 +68,7 @@ function ImportExplrPage() {
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
+  const [lastSync, setLastSync] = useState<SyncRun | null | undefined>(undefined);
 
   async function load() {
     const [
@@ -89,6 +110,15 @@ function ImportExplrPage() {
     setEducators((educs ?? []) as Educator[]);
     setAssignments(((assigns ?? []) as unknown) as Assignment[]);
     setCurriculumLinks(((links ?? []) as unknown) as CurriculumLink[]);
+
+    // sync_runs is newer than the generated types — untyped cast.
+    const { data: run } = await (supabase.from as unknown as (n: string) => any)("sync_runs")
+      .select("finished_at, started_at, ok, worksites_synced, students_synced, error")
+      .eq("kind", "explr_roster")
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    setLastSync((run as SyncRun) ?? null);
   }
   useEffect(() => { load(); }, []);
 
@@ -194,6 +224,18 @@ function ImportExplrPage() {
         {msg && <span className="text-sm text-emerald-700">{msg}</span>}
         {err && <span className="text-sm text-red-700">{err}</span>}
       </div>
+
+      <p className="mt-3 text-sm text-charcoal-500">
+        {lastSync === undefined
+          ? "Checking last sync…"
+          : lastSync === null
+            ? "Never synced yet."
+            : `Last synced ${timeAgo(lastSync.finished_at ?? lastSync.started_at)} · ${lastSync.worksites_synced ?? 0} camps · ${lastSync.students_synced ?? 0} registrations${lastSync.ok ? "" : " · last run had errors"}`}
+      </p>
+      <p className="mt-1 text-xs text-charcoal-400">
+        Updates automatically each day once the <code className="font-mono">sync-explr</code> daily
+        schedule is enabled in Supabase (see setup). You can also Sync now anytime.
+      </p>
 
       {debugInfo && (
         <details className="mt-4 rounded border border-charcoal-200 bg-charcoal-50 p-3 text-xs">
