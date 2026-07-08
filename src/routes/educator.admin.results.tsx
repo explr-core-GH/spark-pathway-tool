@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { ALL_CONSTRUCTS, getConstruct } from "@/lib/explr-stem";
+import { ALL_CONSTRUCTS, getConstruct, getScale } from "@/lib/explr-stem";
 import { scoreConstruct, type ItemResponseValue } from "@/lib/explr-stem/scoring";
 import { INTERNSHIPS } from "@/lib/internships-catalog";
 import { fetchGroups, type GroupKind, type GroupSummary } from "@/lib/admin-groups";
@@ -66,8 +66,9 @@ type AptRow = {
   completed: string;
 };
 
-type TabId = "riasec" | "stem" | "interest" | "aptitude";
+type TabId = "charts" | "riasec" | "stem" | "interest" | "aptitude";
 const TABS: Array<{ id: TabId; label: string }> = [
+  { id: "charts", label: "Charts & impact" },
   { id: "riasec", label: "RIASEC assessment" },
   { id: "stem", label: "STEM survey" },
   { id: "interest", label: "Internship interest" },
@@ -75,7 +76,7 @@ const TABS: Array<{ id: TabId; label: string }> = [
 ];
 
 function ResultsHub() {
-  const [tab, setTab] = useState<TabId>("riasec");
+  const [tab, setTab] = useState<TabId>("charts");
   const [riasec, setRiasec] = useState<RiasecRow[] | null>(null);
   const [stem, setStem] = useState<StemRow[] | null>(null);
   const [interest, setInterest] = useState<InterestRow[] | null>(null);
@@ -376,6 +377,7 @@ function ResultsHub() {
   }
 
   const counts: Record<TabId, number | null> = {
+    charts: null,
     riasec: fRiasec?.length ?? null,
     stem: fStem?.length ?? null,
     interest: fInterest?.length ?? null,
@@ -393,7 +395,7 @@ function ResultsHub() {
             everything as one Excel workbook (a sheet per instrument).
           </p>
         </div>
-        <button onClick={exportAll} disabled={exporting || !riasec || !stem || !interest || !apt} className="btn-ink disabled:opacity-40">
+        <button onClick={exportAll} disabled={exporting || !riasec || !stem || !interest || !apt} className="print:hidden btn-ink disabled:opacity-40">
           {exporting ? "Exporting…" : "Download all (Excel)"}
         </button>
       </div>
@@ -402,7 +404,7 @@ function ResultsHub() {
 
       {/* Filter — a group (or the whole population) + optional date range.
           Applies to the tables AND the downloads. */}
-      <div className="mt-8 flex flex-wrap items-end gap-3 border border-charcoal-100 bg-charcoal-50 px-4 py-3">
+      <div className="print:hidden mt-8 flex flex-wrap items-end gap-3 border border-charcoal-100 bg-charcoal-50 px-4 py-3">
         <label className="text-xs text-charcoal-500">
           Group
           <select
@@ -451,7 +453,7 @@ function ResultsHub() {
         </span>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-1 border-b border-charcoal-100">
+      <div className="print:hidden mt-6 flex flex-wrap gap-1 border-b border-charcoal-100">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -467,12 +469,29 @@ function ResultsHub() {
             {counts[t.id] != null && <span className="ml-1.5 text-xs text-charcoal-400">({counts[t.id]})</span>}
           </button>
         ))}
-        <button onClick={exportTab} disabled={exporting} className="ml-auto self-center text-xs text-explr-600 hover:underline disabled:opacity-40">
-          Export this tab
-        </button>
+        {tab === "charts" ? (
+          <button onClick={() => window.print()} className="ml-auto self-center text-xs text-explr-600 hover:underline">
+            Print / save as PDF
+          </button>
+        ) : (
+          <button onClick={exportTab} disabled={exporting} className="ml-auto self-center text-xs text-explr-600 hover:underline disabled:opacity-40">
+            Export this tab
+          </button>
+        )}
       </div>
 
       <div className="mt-6 overflow-x-auto">
+        {tab === "charts" && (
+          <ImpactCharts
+            riasec={fRiasec}
+            stem={fStem}
+            interest={fInterest}
+            scope={
+              (selectedGroup ? selectedGroup.g.name : "All students") +
+              (dateFrom || dateTo ? ` · ${dateFrom || "start"} → ${dateTo || "now"}` : "")
+            }
+          />
+        )}
         {tab === "riasec" && <RiasecTable rows={fRiasec} />}
         {tab === "stem" && <StemTable rows={fStem} />}
         {tab === "interest" && <InterestTable rows={fInterest} />}
@@ -589,6 +608,249 @@ function InterestTable({ rows }: { rows: InterestRow[] | null }) {
       </table>
       <Capped total={rows.length} />
     </>
+  );
+}
+
+/**
+ * ImpactCharts — funder-shareable visual summary of the (filtered) results.
+ * STEM efficacy pairs "start" and "end" per construct from BOTH sources:
+ * matched pre+post responses (same student + survey) and retrospective
+ * then→now responses. Print / save as PDF hides the admin chrome.
+ */
+function ImpactCharts({
+  riasec,
+  stem,
+  interest,
+  scope,
+}: {
+  riasec: RiasecRow[] | null;
+  stem: StemRow[] | null;
+  interest: InterestRow[] | null;
+  scope: string;
+}) {
+  const loading = !riasec || !stem || !interest;
+
+  // ── STEM start→end pairs per construct ──────────────────────────────────
+  const efficacy = useMemo(() => {
+    const pairs: Record<string, Array<{ b: number; a: number }>> = {};
+    for (const cid of ALL_CONSTRUCTS) pairs[cid] = [];
+    const bySidSurvey = new Map<string, StemRow[]>();
+    for (const r of stem ?? []) {
+      const k = `${r.sid}::${r.survey}`;
+      const arr = bySidSurvey.get(k);
+      if (arr) arr.push(r);
+      else bySidSurvey.set(k, [r]);
+    }
+    for (const rows of bySidSurvey.values()) {
+      // Retrospective rows carry before/after together.
+      for (const r of rows.filter((x) => x.administration === "retrospective")) {
+        for (const cid of ALL_CONSTRUCTS) {
+          const s = r.scores[cid];
+          if (s.before != null && s.after != null) pairs[cid].push({ b: s.before, a: s.after });
+        }
+      }
+      // Matched pre + post: pre's score is the start, post's is the end.
+      const pre = rows.find((x) => x.administration === "pre");
+      const post = rows.find((x) => x.administration === "post");
+      if (pre && post) {
+        for (const cid of ALL_CONSTRUCTS) {
+          const b = pre.scores[cid].after;
+          const a = post.scores[cid].after;
+          if (b != null && a != null) pairs[cid].push({ b, a });
+        }
+      }
+    }
+    return ALL_CONSTRUCTS.map((cid) => {
+      const p = pairs[cid];
+      const n = p.length;
+      const avg = (xs: number[]) => xs.reduce((s, x) => s + x, 0) / xs.length;
+      return {
+        cid,
+        name: getConstruct(cid).name,
+        max: getScale(getConstruct(cid).scale).max,
+        n,
+        before: n ? avg(p.map((x) => x.b)) : null,
+        after: n ? avg(p.map((x) => x.a)) : null,
+      };
+    }).filter((r) => r.n > 0);
+  }, [stem]);
+
+  const avgGrowth = useMemo(() => {
+    const deltas = efficacy.map((e) => (e.after ?? 0) - (e.before ?? 0));
+    if (deltas.length === 0) return null;
+    return deltas.reduce((s, d) => s + d, 0) / deltas.length;
+  }, [efficacy]);
+
+  // ── RIASEC dominant-interest distribution ────────────────────────────────
+  const riasecDist = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const r of riasec ?? []) {
+      const top = (r.holland[0] ?? "").toUpperCase();
+      if (!"RIASEC".includes(top) || !top) continue;
+      counts.set(top, (counts.get(top) ?? 0) + 1);
+    }
+    const labels: Record<string, string> = {
+      R: "Realistic", I: "Investigative", A: "Artistic", S: "Social", E: "Enterprising", C: "Conventional",
+    };
+    const total = [...counts.values()].reduce((s, x) => s + x, 0);
+    return RIASEC_LETTERS.map((l) => ({
+      letter: l,
+      label: labels[l],
+      count: counts.get(l) ?? 0,
+      pct: total ? Math.round(((counts.get(l) ?? 0) / total) * 100) : 0,
+    }));
+  }, [riasec]);
+  const riasecMax = Math.max(1, ...riasecDist.map((d) => d.count));
+
+  // ── Internship demand (top yes counts) ───────────────────────────────────
+  const demand = useMemo(() => {
+    const yes = new Map<string, number>();
+    for (const i of interest ?? []) {
+      if (i.response !== "yes") continue;
+      yes.set(i.internship, (yes.get(i.internship) ?? 0) + 1);
+    }
+    return [...yes.entries()]
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 8);
+  }, [interest]);
+  const demandMax = Math.max(1, ...demand.map((d) => d.count));
+
+  const assessed = new Set((riasec ?? []).map((r) => r.sid)).size;
+
+  if (loading) return <p className="py-8 text-sm text-charcoal-400">Loading…</p>;
+
+  return (
+    <div className="max-w-4xl">
+      <p className="text-sm text-charcoal-500">
+        <span className="font-medium text-ink">{scope}</span>
+        <span className="ml-2 text-xs text-charcoal-400">
+          generated {new Date().toLocaleDateString()}
+        </span>
+      </p>
+
+      {/* Stat tiles */}
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Tile label="Students assessed" value={String(assessed)} />
+        <Tile label="STEM surveys" value={String(stem!.length)} />
+        <Tile
+          label="Avg STEM growth"
+          value={avgGrowth == null ? "—" : `${avgGrowth >= 0 ? "+" : ""}${avgGrowth.toFixed(2)}`}
+          accent={avgGrowth != null && avgGrowth > 0}
+        />
+        <Tile label="Interest responses" value={String(interest!.length)} />
+      </div>
+
+      {/* STEM efficacy start → end */}
+      <section className="mt-10">
+        <h3 className="text-sm font-semibold">STEM efficacy — start vs. end of program</h3>
+        <p className="mt-1 text-xs text-charcoal-500">
+          Average construct score before and after, from matched pre/post surveys and
+          retrospective before/after items. Higher = more confidence and interest.
+        </p>
+        {efficacy.length === 0 ? (
+          <p className="mt-4 text-sm text-charcoal-400">
+            No matched start/end surveys in this selection yet.
+          </p>
+        ) : (
+          <div className="mt-5 space-y-5">
+            {efficacy.map((e) => {
+              const delta = (e.after ?? 0) - (e.before ?? 0);
+              return (
+                <div key={e.cid}>
+                  <div className="flex items-baseline justify-between text-sm">
+                    <span>{e.name}</span>
+                    <span className="text-xs text-charcoal-500">
+                      {e.before!.toFixed(2)} → {e.after!.toFixed(2)} / {e.max}
+                      <span
+                        className="ml-2 font-semibold"
+                        style={{ color: delta >= 0 ? "var(--color-explr-600)" : "#B85042" }}
+                      >
+                        {delta >= 0 ? "+" : ""}
+                        {delta.toFixed(2)}
+                      </span>
+                      <span className="ml-2 text-charcoal-400">n={e.n}</span>
+                    </span>
+                  </div>
+                  <div className="mt-1.5 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="w-10 shrink-0 text-[10px] uppercase tracking-wider text-charcoal-400">start</span>
+                      <div className="h-3 flex-1 bg-charcoal-100">
+                        <div className="h-3 bg-charcoal-400" style={{ width: `${Math.min(100, (e.before! / e.max) * 100)}%` }} />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-10 shrink-0 text-[10px] uppercase tracking-wider text-charcoal-400">end</span>
+                      <div className="h-3 flex-1 bg-charcoal-100">
+                        <div className="h-3" style={{ width: `${Math.min(100, (e.after! / e.max) * 100)}%`, background: "var(--color-explr-500)" }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* RIASEC distribution */}
+      <section className="mt-10">
+        <h3 className="text-sm font-semibold">Interest profile of this group</h3>
+        <p className="mt-1 text-xs text-charcoal-500">
+          Students by dominant Holland (RIASEC) interest type.
+        </p>
+        <div className="mt-4 space-y-2">
+          {riasecDist.map((d) => (
+            <div key={d.letter} className="flex items-center gap-3 text-sm">
+              <span className="w-28 shrink-0 text-charcoal-600">{d.label}</span>
+              <div className="h-4 flex-1 bg-charcoal-100">
+                <div className="h-4" style={{ width: `${(d.count / riasecMax) * 100}%`, background: "var(--color-explr-500)" }} />
+              </div>
+              <span className="w-20 shrink-0 text-right text-xs tabular-nums text-charcoal-500">
+                {d.count} · {d.pct}%
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Internship demand */}
+      {demand.length > 0 && (
+        <section className="mt-10">
+          <h3 className="text-sm font-semibold">Internship demand</h3>
+          <p className="mt-1 text-xs text-charcoal-500">
+            Programs students said &ldquo;yes&rdquo; to on the interest survey.
+          </p>
+          <div className="mt-4 space-y-2">
+            {demand.map((d) => (
+              <div key={d.name} className="flex items-center gap-3 text-sm">
+                <span className="w-44 shrink-0 truncate text-charcoal-600">{d.name}</span>
+                <div className="h-4 flex-1 bg-charcoal-100">
+                  <div className="h-4" style={{ width: `${(d.count / demandMax) * 100}%`, background: "var(--color-explr-500)" }} />
+                </div>
+                <span className="w-10 shrink-0 text-right text-xs tabular-nums text-charcoal-500">{d.count}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <p className="mt-10 text-[11px] text-charcoal-400">
+        EXPLR Pathways · RIASEC interest assessment &amp; S-STEM survey · Use
+        &ldquo;Print / save as PDF&rdquo; to share this page.
+      </p>
+    </div>
+  );
+}
+
+function Tile({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div className="border border-charcoal-100 bg-white p-4">
+      <p className="text-[10px] uppercase tracking-wider text-charcoal-400">{label}</p>
+      <p className="mt-1 text-3xl font-light tabular-nums" style={accent ? { color: "var(--color-explr-600)" } : undefined}>
+        {value}
+      </p>
+    </div>
   );
 }
 

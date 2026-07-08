@@ -140,7 +140,7 @@ function AdminLayout() {
   return (
     <RoleGuard requires="admin">
       <div className="flex flex-col md:flex-row">
-        <aside className="border-b border-charcoal-100 bg-charcoal-50 md:w-56 md:shrink-0 md:border-b-0 md:border-r">
+        <aside className="print:hidden border-b border-charcoal-100 bg-charcoal-50 md:w-56 md:shrink-0 md:border-b-0 md:border-r">
           <nav
             aria-label="Admin"
             className="px-6 py-6 md:sticky md:top-0 md:max-h-screen md:overflow-y-auto"
