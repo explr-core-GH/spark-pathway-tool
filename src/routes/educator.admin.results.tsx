@@ -50,6 +50,7 @@ type StemRow = {
   sid: string;
   student: string;
   survey: string;
+  surveyType: string;
   administration: string;
   completed: string;
   /** constructId → { before, after } (before null unless retro/then) */
@@ -147,9 +148,9 @@ function ResultsHub() {
 
         // STEM survey — score each completed response client-side.
         const [responses, assignments] = await Promise.all([
-          fetchAll<{ id: string; student_id: string; assignment_id: string; administration: string; completed_at: string | null }>(() =>
+          fetchAll<{ id: string; student_id: string; assignment_id: string; survey_type: string | null; administration: string; completed_at: string | null }>(() =>
             sb("survey_responses")
-              .select("id, student_id, assignment_id, administration, completed_at")
+              .select("id, student_id, assignment_id, survey_type, administration, completed_at")
               .not("completed_at", "is", null)
               .order("completed_at", { ascending: false }),
           ),
@@ -191,6 +192,7 @@ function ResultsHub() {
               sid: r.student_id,
               student: nm(r.student_id),
               survey: titleOf.get(r.assignment_id) ?? "STEM survey",
+              surveyType: r.survey_type ?? "stem",
               administration: r.administration,
               completed: (r.completed_at ?? "").slice(0, 10),
               scores,
@@ -634,25 +636,41 @@ function ImpactCharts({
   const efficacy = useMemo(() => {
     const pairs: Record<string, Array<{ b: number; a: number }>> = {};
     for (const cid of ALL_CONSTRUCTS) pairs[cid] = [];
-    const bySidSurvey = new Map<string, StemRow[]>();
+    // Normalize the administration. Programs often create the start and end
+    // as two SEPARATE assignments titled "… START" / "… END" — honor the
+    // pre/post administration when present, otherwise infer it from the
+    // title/label keywords.
+    const norm = (r: StemRow): string => {
+      const a = r.administration.toLowerCase();
+      if (a === "pre" || a === "post" || a === "retrospective") return a;
+      const t = `${a} ${r.survey.toLowerCase()}`;
+      if (/(^|\W)(start|pre|before|beginning)(\W|$)/.test(t)) return "pre";
+      if (/(^|\W)(end|post|after|final)(\W|$)/.test(t)) return "post";
+      return a;
+    };
+    // Pair by student + survey TYPE — not by title, so a "START" assignment
+    // and a separate "END" assignment still match up as one pre/post pair.
+    const byKey = new Map<string, StemRow[]>();
     for (const r of stem ?? []) {
-      const k = `${r.sid}::${r.survey}`;
-      const arr = bySidSurvey.get(k);
+      const k = `${r.sid}::${r.surveyType}`;
+      const arr = byKey.get(k);
       if (arr) arr.push(r);
-      else bySidSurvey.set(k, [r]);
+      else byKey.set(k, [r]);
     }
-    for (const rows of bySidSurvey.values()) {
+    for (const rows of byKey.values()) {
       // Retrospective rows carry before/after together.
-      for (const r of rows.filter((x) => x.administration === "retrospective")) {
+      for (const r of rows.filter((x) => norm(x) === "retrospective")) {
         for (const cid of ALL_CONSTRUCTS) {
           const s = r.scores[cid];
           if (s.before != null && s.after != null) pairs[cid].push({ b: s.before, a: s.after });
         }
       }
-      // Matched pre + post: pre's score is the start, post's is the end.
-      const pre = rows.find((x) => x.administration === "pre");
-      const post = rows.find((x) => x.administration === "post");
-      if (pre && post) {
+      // Matched pre + post: earliest start paired with latest end.
+      const pres = rows.filter((x) => norm(x) === "pre").sort((x, y) => x.completed.localeCompare(y.completed));
+      const posts = rows.filter((x) => norm(x) === "post").sort((x, y) => y.completed.localeCompare(x.completed));
+      if (pres.length > 0 && posts.length > 0) {
+        const pre = pres[0];
+        const post = posts[0];
         for (const cid of ALL_CONSTRUCTS) {
           const b = pre.scores[cid].after;
           const a = post.scores[cid].after;
