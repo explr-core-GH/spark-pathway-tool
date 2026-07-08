@@ -93,6 +93,7 @@ const SECTIONS: Section[] = [
     label: "Library",
     items: [
       { label: "Assessments & surveys", to: "/educator/admin/assessments", match: "/educator/admin/assessments" },
+      { label: "Results & downloads", to: "/educator/admin/results", match: "/educator/admin/results" },
       { label: "Demographics", to: "/educator/admin/demographics", match: "/educator/admin/demographics" },
       { label: "Program-RIASEC", to: "/educator/admin/program-riasec", match: "/educator/admin/program-riasec" },
       { label: "Programs", to: "/educator/admin/programs", match: "/educator/admin/programs" },
