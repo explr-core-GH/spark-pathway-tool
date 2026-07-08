@@ -1,1 +1,6 @@
 project_id = "jpgxslmwuiamjabsxbuz"
+# sync-explr runs on a pg_cron schedule via net.http_post with no auth
+# header, so it must be invokable without a JWT. It exposes no data (returns
+# counts only) and the sync is idempotent.
+[functions.sync-explr]
+verify_jwt = false
