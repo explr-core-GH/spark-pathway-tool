@@ -57,6 +57,7 @@ type StemRow = {
   scores: Record<string, { before: number | null; after: number | null }>;
 };
 type InterestRow = { sid: string; student: string; internship: string; response: string; date: string };
+type OpenRow = { sid: string; student: string; survey: string; prompt: string; response: string; date: string };
 type AptRow = {
   sid: string;
   student: string;
@@ -82,6 +83,7 @@ function ResultsHub() {
   const [stem, setStem] = useState<StemRow[] | null>(null);
   const [interest, setInterest] = useState<InterestRow[] | null>(null);
   const [apt, setApt] = useState<AptRow[] | null>(null);
+  const [openResp, setOpenResp] = useState<OpenRow[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
 
@@ -200,6 +202,31 @@ function ResultsHub() {
           }),
         );
 
+        // Open-ended survey answers (e.g. "What did you like about your
+        // camp?", "What are 1-3 careers you are interested in?") — joined
+        // back to the response for student + survey + date.
+        const opens = await fetchAll<{ survey_response_id: string; prompt: string; response: string }>(() =>
+          sb("survey_open_responses")
+            .select("survey_response_id, prompt, response")
+            .order("survey_response_id"),
+        );
+        if (cancelled) return;
+        const respById = new Map(responses.map((r) => [r.id, r]));
+        setOpenResp(
+          opens.flatMap((o) => {
+            const r = respById.get(o.survey_response_id);
+            if (!r) return [];
+            return [{
+              sid: r.student_id,
+              student: nm(r.student_id),
+              survey: titleOf.get(r.assignment_id) ?? "STEM survey",
+              prompt: o.prompt,
+              response: o.response,
+              date: (r.completed_at ?? "").slice(0, 10),
+            }];
+          }),
+        );
+
         // Internship interest — long format.
         const ints = await fetchAll<{ student_id: string; internship_slug: string; response: string; responded_at: string }>(() =>
           sb("internship_interest_responses")
@@ -288,6 +315,11 @@ function ResultsHub() {
     return apt?.filter((r) => pass(r.sid, r.completed)) ?? null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apt, memberSet, dateFrom, dateTo]);
+  const fOpen = useMemo(() => {
+    const pass = makeFilter();
+    return openResp?.filter((r) => pass(r.sid, r.date)) ?? null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openResp, memberSet, dateFrom, dateTo]);
 
   const filterActive = groupKey !== "all" || !!dateFrom || !!dateTo;
 
@@ -326,6 +358,15 @@ function ResultsHub() {
       Date: r.date,
     }));
   }
+  function openSheetRows() {
+    return (fOpen ?? []).map((r) => ({
+      Student: r.student,
+      Survey: r.survey,
+      Question: r.prompt,
+      Answer: r.response,
+      Date: r.date,
+    }));
+  }
   function aptSheetRows() {
     return (fApt ?? []).map((a) => ({
       Student: a.student,
@@ -356,6 +397,7 @@ function ResultsHub() {
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(riasecSheetRows()), "RIASEC");
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stemSheetRows()), "STEM survey");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(openSheetRows()), "Open responses");
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(interestSheetRows()), "Internship interest");
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(aptSheetRows()), "Aptitude");
       XLSX.writeFile(wb, `explr-results-${fileTag()}.xlsx`);
@@ -372,6 +414,9 @@ function ResultsHub() {
         tab === "riasec" ? riasecSheetRows() : tab === "stem" ? stemSheetRows() : tab === "interest" ? interestSheetRows() : aptSheetRows();
       const label = TABS.find((t) => t.id === tab)?.label ?? "Results";
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), label.slice(0, 31));
+      if (tab === "stem") {
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(openSheetRows()), "Open responses");
+      }
       XLSX.writeFile(wb, `explr-${tab}-${fileTag()}.xlsx`);
     } finally {
       setExporting(false);
@@ -495,7 +540,12 @@ function ResultsHub() {
           />
         )}
         {tab === "riasec" && <RiasecTable rows={fRiasec} />}
-        {tab === "stem" && <StemTable rows={fStem} />}
+        {tab === "stem" && (
+          <>
+            <StemTable rows={fStem} />
+            <OpenResponsesList rows={fOpen} />
+          </>
+        )}
         {tab === "interest" && <InterestTable rows={fInterest} />}
         {tab === "aptitude" && <AptTable rows={fApt} subscales={aptSubscales} />}
       </div>
@@ -582,6 +632,31 @@ function StemTable({ rows }: { rows: StemRow[] | null }) {
       </table>
       <Capped total={rows.length} />
     </>
+  );
+}
+
+/** Open-ended survey answers ("what did you like", career interests, …). */
+function OpenResponsesList({ rows }: { rows: OpenRow[] | null }) {
+  if (!rows || rows.length === 0) return null;
+  return (
+    <section className="mt-10">
+      <h3 className="text-sm font-semibold">Open responses ({rows.length})</h3>
+      <p className="mt-1 text-xs text-charcoal-500">
+        What students wrote in their own words — also in the Excel download as its own sheet.
+      </p>
+      <div className="mt-4 space-y-3">
+        {rows.slice(0, DISPLAY_CAP).map((r, i) => (
+          <div key={i} className="border border-charcoal-100 p-3">
+            <p className="text-xs text-charcoal-500">
+              <span className="font-medium text-ink">{r.student}</span> · {r.survey} · {r.date}
+            </p>
+            <p className="mt-1 text-xs text-charcoal-400">{r.prompt}</p>
+            <p className="mt-1 whitespace-pre-wrap text-sm text-charcoal-700">{r.response}</p>
+          </div>
+        ))}
+      </div>
+      <Capped total={rows.length} />
+    </section>
   );
 }
 

@@ -572,9 +572,11 @@
       },
       "response_format": "For each item, collect TWO response values: { then: <1-5>, now: <1-5> }",
       "open_ended_questions": [
+        "What did you like about your camp?",
         "What is the most important thing you learned at camp this week?",
         "Did anything happen at camp that surprised you or changed how you think about science, engineering, or technology?",
-        "What would you tell a friend about this camp?"
+        "What would you tell a friend about this camp?",
+        "What are 1-3 careers you are interested in?"
       ]
     },
     "middle_school_prepost": {
