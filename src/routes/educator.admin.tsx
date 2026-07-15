@@ -56,6 +56,7 @@ const SECTIONS: Section[] = [
     },
     items: [
       { label: "Offerings", to: "/educator/admin/internships", match: "/educator/admin/internships" },
+      { label: "Rosters & logins", to: "/educator/admin/internship-logins", match: "/educator/admin/internship-logins" },
       { label: "Apply requests", to: "/educator/admin/apply-requests", match: "/educator/admin/apply-requests" },
       { label: "Applications", to: "/educator/admin/applications", match: "/educator/admin/applications" },
       { label: "Placements", to: "/educator/admin/placements", match: "/educator/admin/placements" },
