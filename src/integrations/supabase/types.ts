@@ -1043,6 +1043,96 @@ export type Database = {
           },
         ]
       }
+      internship_rosters: {
+        Row: {
+          id: string
+          imported_at: string
+          imported_by: string | null
+          internship_slug: string
+          student_name: string
+        }
+        Insert: {
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          internship_slug: string
+          student_name: string
+        }
+        Update: {
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          internship_slug?: string
+          student_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internship_rosters_internship_slug_fkey"
+            columns: ["internship_slug"]
+            isOneToOne: false
+            referencedRelation: "internships"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      internship_student_logins: {
+        Row: {
+          child_name: string
+          generated_at: string
+          generated_by: string | null
+          id: string
+          internship_slug: string
+          password_plain: string
+          roster_id: string | null
+          student_id: string | null
+          username: string
+        }
+        Insert: {
+          child_name: string
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          internship_slug: string
+          password_plain: string
+          roster_id?: string | null
+          student_id?: string | null
+          username: string
+        }
+        Update: {
+          child_name?: string
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          internship_slug?: string
+          password_plain?: string
+          roster_id?: string | null
+          student_id?: string | null
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internship_student_logins_internship_slug_fkey"
+            columns: ["internship_slug"]
+            isOneToOne: false
+            referencedRelation: "internships"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "internship_student_logins_roster_id_fkey"
+            columns: ["roster_id"]
+            isOneToOne: true
+            referencedRelation: "internship_rosters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "internship_student_logins_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       internship_survey_results: {
         Row: {
           activity_tags: string[]
