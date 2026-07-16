@@ -112,7 +112,9 @@ export function SurveyAdminPanel() {
   // create-form state
   const [fSurveyType, setFSurveyType] = useState<SurveyType>("retrospective");
   const [fUnitType, setFUnitType] = useState<"camp" | "internship">("camp");
-  const [fUnitRef, setFUnitRef] = useState("");
+  // Multiple units can be picked — one assignment (or pre/post pair) is
+  // created per unit.
+  const [fUnitRefs, setFUnitRefs] = useState<string[]>([]);
   const [fTitle, setFTitle] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -220,21 +222,30 @@ export function SurveyAdminPanel() {
 
   async function createAssignment(e: React.FormEvent) {
     e.preventDefault();
-    if (!fUnitRef.trim() || !fTitle.trim()) return;
+    if (fUnitRefs.length === 0) return;
     setBusy(true);
     // Retrospective-style surveys (camp retro, end-of-internship exit) are a
     // single administration with THEN/NOW dual rating; pre/post surveys get a
     // separate assignment per administration so the admin controls when the
-    // post opens. For a pre/post type we create BOTH here.
-    const rows =
-      fSurveyType === "retrospective" || fSurveyType === "internship_exit"
+    // post opens. One assignment (or pre/post pair) is created PER PICKED
+    // UNIT. The typed title applies to all; left blank, each assignment
+    // defaults to its unit's own name.
+    const unitName = (ref: string) =>
+      fUnitType === "camp"
+        ? campSessions.find((c) => c.id === ref)?.title ?? ref
+        : internships.find((i) => i.slug === ref)?.name ?? ref;
+    const single =
+      fSurveyType === "retrospective" || fSurveyType === "internship_exit";
+    const rows = fUnitRefs.flatMap((ref): Array<Record<string, unknown>> => {
+      const title = fTitle.trim() || unitName(ref);
+      return single
         ? [
             {
               survey_type: fSurveyType,
               administration: "retrospective",
               unit_type: fUnitType,
-              unit_ref: fUnitRef.trim(),
-              title: fTitle.trim(),
+              unit_ref: ref,
+              title,
               created_by: user?.id ?? null,
             },
           ]
@@ -242,10 +253,11 @@ export function SurveyAdminPanel() {
             survey_type: fSurveyType,
             administration: adm,
             unit_type: fUnitType,
-            unit_ref: fUnitRef.trim(),
-            title: `${fTitle.trim()} — ${adm === "pre" ? "Start" : "End"}`,
+            unit_ref: ref,
+            title: `${title} — ${adm === "pre" ? "Start" : "End"}`,
             created_by: user?.id ?? null,
           }));
+    });
     const { error } = await supabase
       .from("survey_assignments")
       .insert(rows as never);
@@ -254,7 +266,7 @@ export function SurveyAdminPanel() {
       alert(error.message);
       return;
     }
-    setFUnitRef("");
+    setFUnitRefs([]);
     setFTitle("");
     await load();
   }
@@ -342,7 +354,7 @@ export function SurveyAdminPanel() {
                   type="button"
                   onClick={() => {
                     setFUnitType(u);
-                    setFUnitRef(""); // ref is unit-type specific
+                    setFUnitRefs([]); // refs are unit-type specific
                   }}
                   className="px-3 py-1.5 text-xs"
                   style={{
@@ -357,60 +369,55 @@ export function SurveyAdminPanel() {
           </div>
           <div>
             <label className="label">
-              {fUnitType === "camp" ? "Camp session" : "Internship"}
+              {fUnitType === "camp" ? "Camp sessions" : "Internships"} — pick one or more
             </label>
-            <select
-              className="field mt-1"
-              value={fUnitRef}
-              onChange={(e) => {
-                setFUnitRef(e.target.value);
-                // Prefill the student-facing title from the picked unit if
-                // the admin hasn't typed one yet.
-                if (!fTitle.trim()) {
-                  if (fUnitType === "camp") {
-                    const s = campSessions.find((c) => c.id === e.target.value);
-                    if (s) setFTitle(s.title);
-                  } else {
-                    const i = internships.find((x) => x.slug === e.target.value);
-                    if (i) setFTitle(i.name);
-                  }
-                }
-              }}
-            >
-              <option value="">
-                Pick a {fUnitType === "camp" ? "camp session" : "internship"}…
-              </option>
-              {fUnitType === "camp"
-                ? campSessions.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.title}
-                      {s.date ? ` · ${new Date(s.date).toLocaleDateString()}` : ""}
-                    </option>
-                  ))
-                : internships.map((i) => (
-                    <option key={i.slug} value={i.slug}>
-                      {i.name}
-                    </option>
-                  ))}
-            </select>
-            {fUnitType === "camp" && campSessions.length === 0 && (
-              <p className="mt-1 text-[11px] text-charcoal-400">
-                No camp sessions synced yet — run an ExplrMore sync first.
-              </p>
-            )}
+            <div className="mt-1 max-h-48 space-y-1 overflow-y-auto border border-charcoal-200 bg-white p-2">
+              {(fUnitType === "camp"
+                ? campSessions.map((s) => ({
+                    ref: s.id,
+                    label: `${s.title}${s.date ? ` · ${new Date(s.date).toLocaleDateString()}` : ""}`,
+                  }))
+                : internships.map((i) => ({ ref: i.slug, label: i.name }))
+              ).map(({ ref, label }) => (
+                <label key={ref} className="flex items-center gap-2 px-1 py-0.5 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={fUnitRefs.includes(ref)}
+                    onChange={(e) =>
+                      setFUnitRefs((prev) =>
+                        e.target.checked ? [...prev, ref] : prev.filter((r) => r !== ref),
+                      )
+                    }
+                  />
+                  {label}
+                </label>
+              ))}
+              {fUnitType === "camp" && campSessions.length === 0 && (
+                <p className="px-1 py-2 text-[11px] text-charcoal-400">
+                  No camp sessions synced yet — run an ExplrMore sync first.
+                </p>
+              )}
+            </div>
+            <p className="mt-1 text-[11px] text-charcoal-400">
+              {fUnitRefs.length} selected — one assignment per selection.
+            </p>
           </div>
           <div>
-            <label className="label">Title shown to students</label>
+            <label className="label">
+              Title shown to students <span className="text-charcoal-400">(optional)</span>
+            </label>
             <input
               className="field mt-1"
               value={fTitle}
               onChange={(e) => setFTitle(e.target.value)}
-              placeholder="BoxCraft — Week 2"
+              placeholder="Blank = each camp / internship's own name"
             />
           </div>
           <div className="sm:col-span-2">
-            <button type="submit" disabled={busy} className="btn-ink">
-              {busy ? "Creating…" : "Create assignment"}
+            <button type="submit" disabled={busy || fUnitRefs.length === 0} className="btn-ink disabled:opacity-40">
+              {busy
+                ? "Creating…"
+                : `Create ${fUnitRefs.length || ""} assignment${fUnitRefs.length === 1 ? "" : "s"}`.replace("  ", " ")}
             </button>
           </div>
         </form>
