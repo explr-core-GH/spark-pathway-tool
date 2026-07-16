@@ -44,8 +44,7 @@ export type ConstructId =
   | "twentyfirst_century"
   | "career_interest"
   | "career_planning"
-  | "work_based_learning"
-  | "riasec_snapshot";
+  | "work_based_learning";
 
 export type Construct = {
   name: string;
@@ -216,7 +215,6 @@ export const ALL_CONSTRUCTS: ConstructId[] = [
   "career_interest",
   "career_planning",
   "work_based_learning",
-  "riasec_snapshot",
 ];
 
 /** Human label for a survey type. */

@@ -329,7 +329,7 @@ export function SurveyAdminPanel() {
               {fSurveyType === "retrospective"
                 ? "Single sitting on the last day (then/now ratings)."
                 : fSurveyType === "internship_exit"
-                  ? "Single sitting at the end of the internship — STEM efficacy (then/now), career interests, RIASEC snapshot, next steps, and open reflection."
+                  ? "Single sitting at the end of the internship — STEM efficacy (then/now), career interests, skills checklist, mentor feedback, next steps, and open reflection."
                   : "Creates a Start and an End assignment; the End is gated behind the Start."}
             </p>
           </div>

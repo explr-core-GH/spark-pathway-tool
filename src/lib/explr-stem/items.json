@@ -530,20 +530,6 @@
           "reverse_coded": false
         }
       ]
-    },
-    "riasec_snapshot": {
-      "name": "Career interest areas (RIASEC)",
-      "scale": "interest_4pt",
-      "preamble": "Last set! How interested are you in each kind of work?",
-      "instructions": "Rate your interest in each kind of work — there are no right answers.",
-      "items": [
-        { "id": "riasec_r", "text": "Hands-on work — building, fixing, or working with tools and machines", "reverse_coded": false },
-        { "id": "riasec_i", "text": "Investigating — science, research, and solving hard problems", "reverse_coded": false },
-        { "id": "riasec_a", "text": "Creating — art, design, music, writing, or media", "reverse_coded": false },
-        { "id": "riasec_s", "text": "Helping people — teaching, coaching, or health care", "reverse_coded": false },
-        { "id": "riasec_e", "text": "Leading — persuading, selling, or starting something new", "reverse_coded": false },
-        { "id": "riasec_c", "text": "Organizing — working with data, details, and keeping things on track", "reverse_coded": false }
-      ]
     }
   },
   "surveys": {
@@ -640,8 +626,7 @@
         "science": ["science_1", "science_6", "science_9", "science_2", "science_7"],
         "engineering_technology": ["engtech_1", "engtech_3", "engtech_4", "engtech_7", "engtech_8", "engtech_9"],
         "twentyfirst_century": ["c21_1", "c21_3", "c21_7", "c21_8", "c21_9", "c21_11"],
-        "career_interest": "all_12_items",
-        "riasec_snapshot": "all_items"
+        "career_interest": "all_12_items"
       },
       "response_format": "For each item, collect TWO response values: { then: <1-5>, now: <1-5> }",
       "open_ended_questions": [

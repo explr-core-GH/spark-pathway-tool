@@ -56,11 +56,14 @@ type Assignment = {
 type Step =
   | { kind: "demographics" }
   | { kind: "construct"; def: ConstructScreenDef }
+  | { kind: "skills" }
+  | { kind: "mentor" }
   | { kind: "next_steps" }
   | { kind: "open" };
 
-// "Next steps" checklist (end-of-internship survey). Stored as an open
-// response under this prompt so it rides the existing storage + exports.
+// End-of-internship extra screens (skills checklist, mentor rating, next
+// steps). All answers are stored as open responses under these prompts so
+// they ride the existing storage, results views, and Excel exports.
 const NEXT_STEPS_PROMPT = "Which next steps are you interested in?";
 const NEXT_STEPS_OPTIONS = [
   "College Credit Plus (CCP) classes",
@@ -72,6 +75,33 @@ const NEXT_STEPS_OPTIONS = [
   "Mentoring or helping younger students",
   "Job shadowing with a local company",
 ];
+
+const SKILLS_HARD_PROMPT = "Which technical / STEM skills did you work on?";
+const SKILLS_HARD_OPTIONS = [
+  "3D design or CAD",
+  "Coding or programming",
+  "Robotics or electronics",
+  "Machining, fabrication, or hand tools",
+  "Lab or research techniques",
+  "Data analysis or spreadsheets",
+  "Design thinking & prototyping",
+  "Digital media (video, graphics, social)",
+];
+const SKILLS_SOFT_PROMPT = "Which soft skills did you work on?";
+const SKILLS_SOFT_OPTIONS = [
+  "Teamwork & collaboration",
+  "Communication & presenting",
+  "Problem-solving",
+  "Time management & reliability",
+  "Leadership",
+  "Professionalism & networking",
+  "Asking for help & taking feedback",
+  "Creativity",
+];
+const SKILLS_OTHER_PROMPT = "Other skills you worked on";
+
+const MENTOR_RATING_PROMPT = "How would you rate your mentor? (1-5 stars)";
+const MENTOR_WHY_PROMPT = "Why did you give your mentor that rating?";
 
 function deviceType(): string {
   if (typeof window === "undefined") return "unknown";
@@ -103,21 +133,41 @@ function SurveyRunner() {
   // state, re-hydrated from a resumed response once.
   const [nextStepsSel, setNextStepsSel] = useState<Set<string>>(new Set());
   const [nextStepsOther, setNextStepsOther] = useState("");
-  const [nextStepsHydrated, setNextStepsHydrated] = useState(false);
+  const [skillsHard, setSkillsHard] = useState<Set<string>>(new Set());
+  const [skillsSoft, setSkillsSoft] = useState<Set<string>>(new Set());
+  const [skillsOther, setSkillsOther] = useState("");
+  const [mentorStars, setMentorStars] = useState<number | null>(null);
+  const [mentorWhy, setMentorWhy] = useState("");
+  const [extrasHydrated, setExtrasHydrated] = useState(false);
   useEffect(() => {
-    if (nextStepsHydrated) return;
-    const v = openResponses[NEXT_STEPS_PROMPT];
-    if (!v) return;
-    const sel = new Set<string>();
-    let other = "";
-    for (const part of v.split("; ")) {
-      if (NEXT_STEPS_OPTIONS.includes(part)) sel.add(part);
-      else if (part.startsWith("Other: ")) other = part.slice("Other: ".length);
+    if (extrasHydrated) return;
+    const ns = openResponses[NEXT_STEPS_PROMPT];
+    const sh = openResponses[SKILLS_HARD_PROMPT];
+    const ss = openResponses[SKILLS_SOFT_PROMPT];
+    const so = openResponses[SKILLS_OTHER_PROMPT];
+    const mr = openResponses[MENTOR_RATING_PROMPT];
+    const mw = openResponses[MENTOR_WHY_PROMPT];
+    if (!ns && !sh && !ss && !so && !mr && !mw) return;
+    if (ns) {
+      const sel = new Set<string>();
+      let other = "";
+      for (const part of ns.split("; ")) {
+        if (NEXT_STEPS_OPTIONS.includes(part)) sel.add(part);
+        else if (part.startsWith("Other: ")) other = part.slice("Other: ".length);
+      }
+      setNextStepsSel(sel);
+      setNextStepsOther(other);
     }
-    setNextStepsSel(sel);
-    setNextStepsOther(other);
-    setNextStepsHydrated(true);
-  }, [openResponses, nextStepsHydrated]);
+    if (sh) setSkillsHard(new Set(sh.split("; ").filter((x) => SKILLS_HARD_OPTIONS.includes(x))));
+    if (ss) setSkillsSoft(new Set(ss.split("; ").filter((x) => SKILLS_SOFT_OPTIONS.includes(x))));
+    if (so) setSkillsOther(so);
+    if (mr) {
+      const n = parseInt(mr, 10);
+      if (n >= 1 && n <= 5) setMentorStars(n);
+    }
+    if (mw) setMentorWhy(mw);
+    setExtrasHydrated(true);
+  }, [openResponses, extrasHydrated]);
 
   function updateNextSteps(sel: Set<string>, other: string) {
     setNextStepsSel(sel);
@@ -125,6 +175,28 @@ function SurveyRunner() {
     const parts = NEXT_STEPS_OPTIONS.filter((o) => sel.has(o));
     if (other.trim()) parts.push(`Other: ${other.trim()}`);
     setOpenResponses((prev) => ({ ...prev, [NEXT_STEPS_PROMPT]: parts.join("; ") }));
+  }
+
+  function updateSkills(hard: Set<string>, soft: Set<string>, other: string) {
+    setSkillsHard(hard);
+    setSkillsSoft(soft);
+    setSkillsOther(other);
+    setOpenResponses((prev) => ({
+      ...prev,
+      [SKILLS_HARD_PROMPT]: SKILLS_HARD_OPTIONS.filter((o) => hard.has(o)).join("; "),
+      [SKILLS_SOFT_PROMPT]: SKILLS_SOFT_OPTIONS.filter((o) => soft.has(o)).join("; "),
+      [SKILLS_OTHER_PROMPT]: other.trim(),
+    }));
+  }
+
+  function updateMentor(stars: number | null, why: string) {
+    setMentorStars(stars);
+    setMentorWhy(why);
+    setOpenResponses((prev) => ({
+      ...prev,
+      [MENTOR_RATING_PROMPT]: stars != null ? `${stars} / 5` : "",
+      [MENTOR_WHY_PROMPT]: why,
+    }));
   }
 
   // ── Load everything on mount ────────────────────────────────────────────
@@ -277,7 +349,9 @@ function SurveyRunner() {
     );
     const list: Step[] = [{ kind: "demographics" }];
     for (const def of constructScreens) list.push({ kind: "construct", def });
-    if (assignment.survey_type === "internship_exit") list.push({ kind: "next_steps" });
+    if (assignment.survey_type === "internship_exit") {
+      list.push({ kind: "skills" }, { kind: "mentor" }, { kind: "next_steps" });
+    }
     if (prompts.length > 0) list.push({ kind: "open" });
     return list;
   }, [assignment]);
@@ -327,8 +401,13 @@ function SurveyRunner() {
           onConflict: "survey_response_id,item_id",
         });
       }
-    } else if (step.kind === "open" || step.kind === "next_steps") {
-      // next_steps writes its answer into openResponses too, so both steps
+    } else if (
+      step.kind === "open" ||
+      step.kind === "next_steps" ||
+      step.kind === "skills" ||
+      step.kind === "mentor"
+    ) {
+      // These steps all write their answers into openResponses, so they
       // persist the same way (delete + re-insert is idempotent).
       const rows = Object.entries(openResponses)
         .filter(([, v]) => v.trim() !== "")
@@ -480,6 +559,123 @@ function SurveyRunner() {
             responses={itemState}
             onSet={setItem}
           />
+        )}
+
+        {step.kind === "skills" && (
+          <div>
+            <p className="eyebrow">Skills</p>
+            <h2 className="mt-1 text-2xl font-light">What skills did you work on?</h2>
+            <p className="mt-3 text-sm text-charcoal-500">
+              Check everything you practiced or learned during your internship —
+              hands-on and people skills both count.
+            </p>
+            <div className="mt-6 grid gap-8 sm:grid-cols-2">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-charcoal-400">
+                  Technical / STEM skills
+                </p>
+                <div className="mt-2 space-y-2">
+                  {SKILLS_HARD_OPTIONS.map((o) => (
+                    <label key={o} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={skillsHard.has(o)}
+                        onChange={(e) => {
+                          const next = new Set(skillsHard);
+                          if (e.target.checked) next.add(o);
+                          else next.delete(o);
+                          updateSkills(next, skillsSoft, skillsOther);
+                        }}
+                      />
+                      {o}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-charcoal-400">
+                  Soft skills
+                </p>
+                <div className="mt-2 space-y-2">
+                  {SKILLS_SOFT_OPTIONS.map((o) => (
+                    <label key={o} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={skillsSoft.has(o)}
+                        onChange={(e) => {
+                          const next = new Set(skillsSoft);
+                          if (e.target.checked) next.add(o);
+                          else next.delete(o);
+                          updateSkills(skillsHard, next, skillsOther);
+                        }}
+                      />
+                      {o}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="mt-6">
+              <label className="label" htmlFor="skills-other">
+                Other skills? <span className="text-charcoal-400">(optional)</span>
+              </label>
+              <input
+                id="skills-other"
+                className="field mt-1"
+                value={skillsOther}
+                onChange={(e) => updateSkills(skillsHard, skillsSoft, e.target.value)}
+              />
+            </div>
+          </div>
+        )}
+
+        {step.kind === "mentor" && (
+          <div>
+            <p className="eyebrow">Your mentor</p>
+            <h2 className="mt-1 text-2xl font-light">How was your mentor?</h2>
+            <p className="mt-3 text-sm text-charcoal-500">
+              Rate your internship mentor and tell us briefly why. This helps EXPLR
+              support great mentors.
+            </p>
+            <div className="mt-6 flex items-center gap-2" role="radiogroup" aria-label="Mentor rating out of 5 stars">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  role="radio"
+                  aria-checked={mentorStars === n}
+                  aria-label={`${n} star${n === 1 ? "" : "s"}`}
+                  onClick={() => updateMentor(n, mentorWhy)}
+                  className="text-4xl leading-none transition-transform hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                  style={{
+                    color:
+                      mentorStars != null && n <= mentorStars
+                        ? "var(--color-explr-500)"
+                        : "var(--color-charcoal-200)",
+                  }}
+                >
+                  ★
+                </button>
+              ))}
+              {mentorStars != null && (
+                <span className="ml-2 text-sm text-charcoal-500 tabular-nums">{mentorStars} / 5</span>
+              )}
+            </div>
+            <div className="mt-6">
+              <label className="label" htmlFor="mentor-why">
+                Briefly, why? <span className="text-charcoal-400">(optional)</span>
+              </label>
+              <textarea
+                id="mentor-why"
+                className="field mt-1"
+                rows={3}
+                maxLength={1000}
+                value={mentorWhy}
+                onChange={(e) => updateMentor(mentorStars, e.target.value)}
+                placeholder="What did they do well? What could be better?"
+              />
+            </div>
+          </div>
         )}
 
         {step.kind === "next_steps" && (
