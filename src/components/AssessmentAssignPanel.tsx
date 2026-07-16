@@ -92,7 +92,8 @@ export function AssessmentAssignPanel() {
   // form state
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [targetType, setTargetType] = useState<TargetType>("educator");
-  const [targetId, setTargetId] = useState("");
+  // Multiple targets can be picked — one row per assessment × target.
+  const [targetIds, setTargetIds] = useState<string[]>([]);
   const [dueAt, setDueAt] = useState("");
   const [availableFrom, setAvailableFrom] = useState("");
   const [availableUntil, setAvailableUntil] = useState("");
@@ -188,26 +189,30 @@ export function AssessmentAssignPanel() {
   }
 
   async function assign() {
-    if (picked.size === 0 || !targetId || busy) return;
+    if (picked.size === 0 || targetIds.length === 0 || busy) return;
     setBusy(true);
     const isInternship = targetType === "internship";
-    const rows = [...picked].map((key) => {
-      const isSurvey = key.startsWith("survey:");
-      const row: Record<string, unknown> = {
-        assessment_kind: isSurvey ? "survey" : key,
-        survey_assignment_id: isSurvey ? key.slice("survey:".length) : null,
-        target_type: targetType,
-        // Internships are slug-keyed → target_slug; everything else uuid → target_id.
-        target_id: isInternship ? null : targetId,
-        assigned_by: user?.id ?? null,
-        due_at: dueAt ? new Date(dueAt).toISOString() : null,
-        notes: notes.trim() || null,
-      };
-      if (isInternship) row.target_slug = targetId;
-      if (availableFrom) row.available_from = new Date(availableFrom).toISOString();
-      if (availableUntil) row.available_until = new Date(availableUntil).toISOString();
-      return row;
-    });
+    // One row per assessment × target — assigning the RIASEC + a survey to
+    // five camps creates ten rows in one click.
+    const rows = targetIds.flatMap((tid) =>
+      [...picked].map((key) => {
+        const isSurvey = key.startsWith("survey:");
+        const row: Record<string, unknown> = {
+          assessment_kind: isSurvey ? "survey" : key,
+          survey_assignment_id: isSurvey ? key.slice("survey:".length) : null,
+          target_type: targetType,
+          // Internships are slug-keyed → target_slug; everything else uuid → target_id.
+          target_id: isInternship ? null : tid,
+          assigned_by: user?.id ?? null,
+          due_at: dueAt ? new Date(dueAt).toISOString() : null,
+          notes: notes.trim() || null,
+        };
+        if (isInternship) row.target_slug = tid;
+        if (availableFrom) row.available_from = new Date(availableFrom).toISOString();
+        if (availableUntil) row.available_until = new Date(availableUntil).toISOString();
+        return row;
+      }),
+    );
     const { error } = await sb("assessment_targets").insert(rows);
     setBusy(false);
     if (error) {
@@ -215,6 +220,7 @@ export function AssessmentAssignPanel() {
       return;
     }
     setPicked(new Set());
+    setTargetIds([]);
     setDueAt("");
     setAvailableFrom("");
     setAvailableUntil("");
@@ -230,6 +236,26 @@ export function AssessmentAssignPanel() {
     }
     await load();
   }
+
+  const targetOptions: Array<{ id: string; label: string }> =
+    targetType === "educator"
+      ? educators.map((e) => ({ id: e.id, label: `${e.full_name} · ${e.email}` }))
+      : targetType === "camp"
+        ? camps.map((c) => ({
+            id: c.id,
+            label: `${c.title}${c.date ? ` · ${new Date(c.date).toLocaleDateString()}` : ""}`,
+          }))
+        : targetType === "class"
+          ? classes.map((c) => ({
+              id: c.id,
+              label: `${c.name}${c.grade != null ? ` · grade ${c.grade}` : ""}`,
+            }))
+          : targetType === "internship"
+            ? internships.map((i) => ({ id: i.slug, label: i.name }))
+            : students.map((s) => ({
+                id: s.id,
+                label: `${s.first_name ?? "Student"} · grade ${s.grade}`,
+              }));
 
   function labelForKind(t: TargetRow): string {
     if (t.assessment_kind === "survey") {
@@ -335,7 +361,7 @@ export function AssessmentAssignPanel() {
                       type="button"
                       onClick={() => {
                         setTargetType(key);
-                        setTargetId("");
+                        setTargetIds([]);
                       }}
                       className="px-3 py-1.5 text-xs"
                       style={{
@@ -351,65 +377,44 @@ export function AssessmentAssignPanel() {
               <div>
                 <label className="label">
                   {targetType === "educator"
-                    ? "Educator"
+                    ? "Educators"
                     : targetType === "camp"
-                      ? "Camp session"
+                      ? "Camp sessions"
                       : targetType === "class"
-                        ? "Class"
+                        ? "Classes"
                         : targetType === "internship"
-                          ? "Internship"
-                          : "Student"}
+                          ? "Internships"
+                          : "Students"}{" "}
+                  — pick one or more
                 </label>
-                <select
-                  className="field mt-1"
-                  value={targetId}
-                  onChange={(e) => setTargetId(e.target.value)}
-                >
-                  <option value="">Pick {TARGET_NOUN[targetType]}…</option>
-                  {targetType === "educator" &&
-                    educators.map((e) => (
-                      <option key={e.id} value={e.id}>
-                        {e.full_name} · {e.email}
-                      </option>
-                    ))}
-                  {targetType === "camp" &&
-                    camps.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.title}
-                        {c.date ? ` · ${new Date(c.date).toLocaleDateString()}` : ""}
-                      </option>
-                    ))}
-                  {targetType === "class" &&
-                    classes.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                        {c.grade != null ? ` · grade ${c.grade}` : ""}
-                      </option>
-                    ))}
-                  {targetType === "internship" &&
-                    internships.map((i) => (
-                      <option key={i.slug} value={i.slug}>
-                        {i.name}
-                      </option>
-                    ))}
-                  {targetType === "student" &&
-                    students.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.first_name ?? "Student"} · grade {s.grade}
-                      </option>
-                    ))}
-                </select>
-                {targetType === "camp" && camps.length === 0 && (
-                  <p className="mt-1 text-[11px] text-charcoal-400">
-                    No camp sessions synced yet — run an ExplrMore sync first.
-                  </p>
-                )}
-                {targetType === "class" && classes.length === 0 && (
-                  <p className="mt-1 text-[11px] text-charcoal-400">
-                    No classes yet — create one under Classes (needs the classes
-                    migration applied).
-                  </p>
-                )}
+                <div className="mt-1 max-h-48 space-y-1 overflow-y-auto border border-charcoal-200 bg-white p-2">
+                  {targetOptions.map((o) => (
+                    <label key={o.id} className="flex items-center gap-2 px-1 py-0.5 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={targetIds.includes(o.id)}
+                        onChange={(e) =>
+                          setTargetIds((prev) =>
+                            e.target.checked ? [...prev, o.id] : prev.filter((x) => x !== o.id),
+                          )
+                        }
+                      />
+                      {o.label}
+                    </label>
+                  ))}
+                  {targetOptions.length === 0 && (
+                    <p className="px-1 py-2 text-[11px] text-charcoal-400">
+                      {targetType === "camp"
+                        ? "No camp sessions synced yet — run an ExplrMore sync first."
+                        : targetType === "class"
+                          ? "No classes yet — create one under Classes."
+                          : `No ${TARGET_NOUN[targetType].replace(/^an? /, "")} options yet.`}
+                    </p>
+                  )}
+                </div>
+                <p className="mt-1 text-[11px] text-charcoal-400">
+                  {targetIds.length} selected — every picked assessment goes to each one.
+                </p>
               </div>
               <div>
                 <label className="label">Available from (optional)</label>
@@ -458,12 +463,12 @@ export function AssessmentAssignPanel() {
             <button
               type="button"
               onClick={assign}
-              disabled={busy || picked.size === 0 || !targetId}
+              disabled={busy || picked.size === 0 || targetIds.length === 0}
               className="btn-ink mt-5 disabled:opacity-40"
             >
               {busy
                 ? "Assigning…"
-                : `Assign ${picked.size || ""} assessment${picked.size === 1 ? "" : "s"}`}
+                : `Assign ${picked.size || ""} assessment${picked.size === 1 ? "" : "s"} to ${targetIds.length || ""} target${targetIds.length === 1 ? "" : "s"}`}
             </button>
           </section>
         </>
