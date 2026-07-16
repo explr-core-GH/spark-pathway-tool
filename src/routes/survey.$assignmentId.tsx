@@ -56,7 +56,22 @@ type Assignment = {
 type Step =
   | { kind: "demographics" }
   | { kind: "construct"; def: ConstructScreenDef }
+  | { kind: "next_steps" }
   | { kind: "open" };
+
+// "Next steps" checklist (end-of-internship survey). Stored as an open
+// response under this prompt so it rides the existing storage + exports.
+const NEXT_STEPS_PROMPT = "Which next steps are you interested in?";
+const NEXT_STEPS_OPTIONS = [
+  "College Credit Plus (CCP) classes",
+  "Workshops during the school year",
+  "Joining a robotics team",
+  "Competitions (robotics, science fairs, hackathons)",
+  "Symposiums & STEM events",
+  "Another internship next summer",
+  "Mentoring or helping younger students",
+  "Job shadowing with a local company",
+];
 
 function deviceType(): string {
   if (typeof window === "undefined") return "unknown";
@@ -82,6 +97,35 @@ function SurveyRunner() {
   const [demographics, setDemographics] = useState<DemographicValues>({});
   const [openResponses, setOpenResponses] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+
+  // Next-steps checklist state (internship_exit). The composed answer lives
+  // in openResponses under NEXT_STEPS_PROMPT; this is just the checkbox UI
+  // state, re-hydrated from a resumed response once.
+  const [nextStepsSel, setNextStepsSel] = useState<Set<string>>(new Set());
+  const [nextStepsOther, setNextStepsOther] = useState("");
+  const [nextStepsHydrated, setNextStepsHydrated] = useState(false);
+  useEffect(() => {
+    if (nextStepsHydrated) return;
+    const v = openResponses[NEXT_STEPS_PROMPT];
+    if (!v) return;
+    const sel = new Set<string>();
+    let other = "";
+    for (const part of v.split("; ")) {
+      if (NEXT_STEPS_OPTIONS.includes(part)) sel.add(part);
+      else if (part.startsWith("Other: ")) other = part.slice("Other: ".length);
+    }
+    setNextStepsSel(sel);
+    setNextStepsOther(other);
+    setNextStepsHydrated(true);
+  }, [openResponses, nextStepsHydrated]);
+
+  function updateNextSteps(sel: Set<string>, other: string) {
+    setNextStepsSel(sel);
+    setNextStepsOther(other);
+    const parts = NEXT_STEPS_OPTIONS.filter((o) => sel.has(o));
+    if (other.trim()) parts.push(`Other: ${other.trim()}`);
+    setOpenResponses((prev) => ({ ...prev, [NEXT_STEPS_PROMPT]: parts.join("; ") }));
+  }
 
   // ── Load everything on mount ────────────────────────────────────────────
   useEffect(() => {
@@ -233,6 +277,7 @@ function SurveyRunner() {
     );
     const list: Step[] = [{ kind: "demographics" }];
     for (const def of constructScreens) list.push({ kind: "construct", def });
+    if (assignment.survey_type === "internship_exit") list.push({ kind: "next_steps" });
     if (prompts.length > 0) list.push({ kind: "open" });
     return list;
   }, [assignment]);
@@ -282,7 +327,9 @@ function SurveyRunner() {
           onConflict: "survey_response_id,item_id",
         });
       }
-    } else if (step.kind === "open") {
+    } else if (step.kind === "open" || step.kind === "next_steps") {
+      // next_steps writes its answer into openResponses too, so both steps
+      // persist the same way (delete + re-insert is idempotent).
       const rows = Object.entries(openResponses)
         .filter(([, v]) => v.trim() !== "")
         .map(([prompt, response]) => ({
@@ -433,6 +480,44 @@ function SurveyRunner() {
             responses={itemState}
             onSet={setItem}
           />
+        )}
+
+        {step.kind === "next_steps" && (
+          <div>
+            <p className="eyebrow">Next steps</p>
+            <h2 className="mt-1 text-2xl font-light">What would you like to do next?</h2>
+            <p className="mt-3 text-sm text-charcoal-500">
+              Check anything you&apos;d be interested in — EXPLR will help connect you.
+            </p>
+            <div className="mt-5 space-y-2">
+              {NEXT_STEPS_OPTIONS.map((o) => (
+                <label key={o} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={nextStepsSel.has(o)}
+                    onChange={(e) => {
+                      const next = new Set(nextStepsSel);
+                      if (e.target.checked) next.add(o);
+                      else next.delete(o);
+                      updateNextSteps(next, nextStepsOther);
+                    }}
+                  />
+                  {o}
+                </label>
+              ))}
+              <div className="pt-3">
+                <label className="label" htmlFor="ns-other">
+                  Something else? <span className="text-charcoal-400">(optional)</span>
+                </label>
+                <input
+                  id="ns-other"
+                  className="field mt-1"
+                  value={nextStepsOther}
+                  onChange={(e) => updateNextSteps(nextStepsSel, e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
         )}
 
         {step.kind === "open" && (

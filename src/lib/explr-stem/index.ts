@@ -44,7 +44,8 @@ export type ConstructId =
   | "twentyfirst_century"
   | "career_interest"
   | "career_planning"
-  | "work_based_learning";
+  | "work_based_learning"
+  | "riasec_snapshot";
 
 export type Construct = {
   name: string;
@@ -54,8 +55,12 @@ export type Construct = {
   instructions?: string;
 };
 
-// 'retrospective' | 'middle_school' | 'high_school' — the app-facing keys.
-export type SurveyType = "retrospective" | "middle_school" | "high_school";
+// The app-facing survey type keys.
+export type SurveyType =
+  | "retrospective"
+  | "middle_school"
+  | "high_school"
+  | "internship_exit";
 export type Administration = "pre" | "post" | "retrospective";
 
 type RawConstructs = Record<string, Construct>;
@@ -98,6 +103,7 @@ const SURVEY_KEY: Record<SurveyType, string> = {
   retrospective: "one_week_camp_retrospective",
   middle_school: "middle_school_prepost",
   high_school: "high_school_internship_prepost",
+  internship_exit: "internship_exit",
 };
 
 // ---- Accessors ------------------------------------------------------------
@@ -210,6 +216,7 @@ export const ALL_CONSTRUCTS: ConstructId[] = [
   "career_interest",
   "career_planning",
   "work_based_learning",
+  "riasec_snapshot",
 ];
 
 /** Human label for a survey type. */
@@ -217,4 +224,5 @@ export const SURVEY_TYPE_LABEL: Record<SurveyType, string> = {
   retrospective: "One-week camp retrospective",
   middle_school: "Middle school pre/post",
   high_school: "High school internship pre/post",
+  internship_exit: "End-of-internship assessment",
 };

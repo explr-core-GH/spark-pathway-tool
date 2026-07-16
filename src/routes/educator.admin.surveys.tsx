@@ -58,6 +58,7 @@ const SURVEY_TYPES: SurveyType[] = [
   "retrospective",
   "middle_school",
   "high_school",
+  "internship_exit",
 ];
 
 type Disaggregation = "none" | "grade" | "holland" | "year";
@@ -221,11 +222,12 @@ export function SurveyAdminPanel() {
     e.preventDefault();
     if (!fUnitRef.trim() || !fTitle.trim()) return;
     setBusy(true);
-    // Retrospective surveys are a single administration; pre/post surveys
-    // get a separate assignment per administration so the admin controls
-    // when the post opens. For a pre/post type we create BOTH here.
+    // Retrospective-style surveys (camp retro, end-of-internship exit) are a
+    // single administration with THEN/NOW dual rating; pre/post surveys get a
+    // separate assignment per administration so the admin controls when the
+    // post opens. For a pre/post type we create BOTH here.
     const rows =
-      fSurveyType === "retrospective"
+      fSurveyType === "retrospective" || fSurveyType === "internship_exit"
         ? [
             {
               survey_type: fSurveyType,
@@ -326,7 +328,9 @@ export function SurveyAdminPanel() {
             <p className="mt-1 text-[11px] text-charcoal-400">
               {fSurveyType === "retrospective"
                 ? "Single sitting on the last day (then/now ratings)."
-                : "Creates a Start and an End assignment; the End is gated behind the Start."}
+                : fSurveyType === "internship_exit"
+                  ? "Single sitting at the end of the internship — STEM efficacy (then/now), career interests, RIASEC snapshot, next steps, and open reflection."
+                  : "Creates a Start and an End assignment; the End is gated behind the Start."}
             </p>
           </div>
           <div>
