@@ -183,10 +183,21 @@ function CompletionByRoster() {
       <div className="mt-8 flex flex-wrap items-center gap-3">
         <input
           className="field max-w-sm"
-          placeholder="Filter camps…"
+          placeholder="Filter rosters…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
+        <div className="flex gap-1 text-xs">
+          {(["all", "camp", "internship"] as const).map((k) => (
+            <button
+              key={k}
+              onClick={() => setKindFilter(k)}
+              className={`px-3 py-1.5 border ${kindFilter === k ? "border-ink bg-ink text-canvas" : "border-charcoal-200 text-charcoal-500 hover:border-ink hover:text-ink"}`}
+            >
+              {k === "all" ? "All" : k === "camp" ? "Camps" : "Internships"}
+            </button>
+          ))}
+        </div>
         <span className="text-xs text-charcoal-500">
           {filtered.length} roster{filtered.length === 1 ? "" : "s"} ·{" "}
           {totals.assessmentDone}/{totals.total} assessment ·{" "}
