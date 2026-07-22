@@ -97,6 +97,8 @@ function CompletionByRoster() {
   }, []);
 
   const stats = useMemo<Stats[]>(() => {
+    const out: Stats[] = [];
+
     const byCamp = new Map<string, Login[]>();
     for (const l of logins) {
       if (!l.student_id) continue;
@@ -104,32 +106,57 @@ function CompletionByRoster() {
       arr.push(l);
       byCamp.set(l.explr_camp_id, arr);
     }
-    return camps.map((c) => {
+    for (const c of camps) {
       const rows = byCamp.get(c.id) ?? [];
       const studentIds = rows.map((r) => r.student_id as string);
       const names = Object.fromEntries(rows.map((r) => [r.student_id as string, r.child_name]));
-      const total = studentIds.length;
-      const assessmentDone = studentIds.filter((id) => doneSessions.has(id)).length;
-      const surveysDone = studentIds.filter((id) => studentsWithSurvey.has(id)).length;
-      return {
-        campId: c.id,
+      out.push({
+        key: `camp:${c.id}`,
+        kind: "camp",
         title: c.title,
         date: c.date,
-        total,
-        assessmentDone,
-        surveysDone,
+        total: studentIds.length,
+        assessmentDone: studentIds.filter((id) => doneSessions.has(id)).length,
+        surveysDone: studentIds.filter((id) => studentsWithSurvey.has(id)).length,
         studentIds,
         names,
-      };
-    });
-  }, [camps, logins, doneSessions, studentsWithSurvey]);
+      });
+    }
+
+    const byInt = new Map<string, IntLogin[]>();
+    for (const l of intLogins) {
+      if (!l.student_id) continue;
+      const arr = byInt.get(l.internship_slug) ?? [];
+      arr.push(l);
+      byInt.set(l.internship_slug, arr);
+    }
+    for (const i of internships) {
+      const rows = byInt.get(i.slug) ?? [];
+      const studentIds = rows.map((r) => r.student_id as string);
+      const names = Object.fromEntries(rows.map((r) => [r.student_id as string, r.child_name]));
+      out.push({
+        key: `int:${i.slug}`,
+        kind: "internship",
+        title: i.name,
+        date: null,
+        total: studentIds.length,
+        assessmentDone: studentIds.filter((id) => doneSessions.has(id)).length,
+        surveysDone: studentIds.filter((id) => studentsWithSurvey.has(id)).length,
+        studentIds,
+        names,
+      });
+    }
+
+    return out;
+  }, [camps, logins, internships, intLogins, doneSessions, studentsWithSurvey]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const visible = stats.filter((s) => s.total > 0);
+    let visible = stats.filter((s) => s.total > 0);
+    if (kindFilter !== "all") visible = visible.filter((s) => s.kind === kindFilter);
     if (!q) return visible;
     return visible.filter((s) => s.title.toLowerCase().includes(q));
-  }, [stats, query]);
+  }, [stats, query, kindFilter]);
 
   const totals = useMemo(() => {
     const t = filtered.reduce(
