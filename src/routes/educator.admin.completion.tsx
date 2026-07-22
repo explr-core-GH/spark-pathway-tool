@@ -10,9 +10,12 @@ export const Route = createFileRoute("/educator/admin/completion")({
 
 type Camp = { id: string; title: string; date: string | null };
 type Login = { explr_camp_id: string; student_id: string | null; child_name: string };
+type Internship = { slug: string; name: string };
+type IntLogin = { internship_slug: string; student_id: string | null; child_name: string };
 
 type Stats = {
-  campId: string;
+  key: string;
+  kind: "camp" | "internship";
   title: string;
   date: string | null;
   total: number;
@@ -25,37 +28,49 @@ type Stats = {
 function CompletionByRoster() {
   const [camps, setCamps] = useState<Camp[]>([]);
   const [logins, setLogins] = useState<Login[]>([]);
+  const [internships, setInternships] = useState<Internship[]>([]);
+  const [intLogins, setIntLogins] = useState<IntLogin[]>([]);
   const [doneSessions, setDoneSessions] = useState<Set<string>>(new Set());
   const [studentsWithSurvey, setStudentsWithSurvey] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [kindFilter, setKindFilter] = useState<"all" | "camp" | "internship">("all");
 
   useEffect(() => {
     (async () => {
       setLoading(true);
       setErr(null);
-      const [{ data: cs, error: cErr }, { data: lg, error: lErr }] = await Promise.all([
-        supabase
-          .from("explr_camps")
-          .select("id, title, date")
-          .order("date", { ascending: true }),
-        supabase
-          .from("camp_student_logins")
-          .select("explr_camp_id, student_id, child_name"),
+      const [
+        { data: cs, error: cErr },
+        { data: lg, error: lErr },
+        { data: ints, error: iErr },
+        { data: il, error: ilErr },
+      ] = await Promise.all([
+        supabase.from("explr_camps").select("id, title, date").order("date", { ascending: true }),
+        supabase.from("camp_student_logins").select("explr_camp_id, student_id, child_name"),
+        supabase.from("internships").select("slug, name").order("name"),
+        supabase.from("internship_student_logins").select("internship_slug, student_id, child_name"),
       ]);
-      if (cErr || lErr) {
-        setErr((cErr ?? lErr)!.message);
+      if (cErr || lErr || iErr || ilErr) {
+        setErr((cErr ?? lErr ?? iErr ?? ilErr)!.message);
         setLoading(false);
         return;
       }
       setCamps((cs ?? []) as Camp[]);
       const loginRows = (lg ?? []) as Login[];
       setLogins(loginRows);
+      setInternships((ints ?? []) as Internship[]);
+      const intLoginRows = (il ?? []) as IntLogin[];
+      setIntLogins(intLoginRows);
 
       const ids = Array.from(
-        new Set(loginRows.map((l) => l.student_id).filter((x): x is string => !!x)),
+        new Set(
+          [...loginRows, ...intLoginRows]
+            .map((l) => l.student_id)
+            .filter((x): x is string => !!x),
+        ),
       );
       if (ids.length > 0) {
         const [{ data: sess }, { data: surv }] = await Promise.all([
