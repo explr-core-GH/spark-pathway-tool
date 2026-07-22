@@ -214,16 +214,19 @@ function CompletionByRoster() {
       ) : (
         <div className="mt-6 divide-y divide-charcoal-100 border-y border-charcoal-100">
           {filtered.map((s) => {
-            const isOpen = open === s.campId;
+            const isOpen = open === s.key;
             const aPct = s.total ? Math.round((s.assessmentDone / s.total) * 100) : 0;
             const sPct = s.total ? Math.round((s.surveysDone / s.total) * 100) : 0;
             return (
-              <div key={s.campId}>
+              <div key={s.key}>
                 <button
-                  onClick={() => setOpen(isOpen ? null : s.campId)}
+                  onClick={() => setOpen(isOpen ? null : s.key)}
                   className="grid w-full grid-cols-[1fr_120px_140px_140px_60px] items-baseline gap-4 py-4 text-left text-sm hover:bg-charcoal-50"
                 >
                   <span>
+                    <span className="text-[10px] uppercase tracking-wider text-charcoal-400 mr-2">
+                      {s.kind === "camp" ? "Camp" : "Internship"}
+                    </span>
                     <span className="font-medium">{s.title}</span>
                     {s.date && (
                       <span className="ml-2 text-xs text-charcoal-400">{s.date}</span>
