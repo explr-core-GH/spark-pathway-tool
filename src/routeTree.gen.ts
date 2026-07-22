@@ -36,6 +36,7 @@ import { Route as OrgNewRouteImport } from './routes/org.new'
 import { Route as OrgApplicantsRouteImport } from './routes/org.applicants'
 import { Route as OpportunityIdRouteImport } from './routes/opportunity.$id'
 import { Route as LabSplatRouteImport } from './routes/lab.$'
+import { Route as EducatorWorksiteRouteImport } from './routes/educator.worksite'
 import { Route as EducatorStudentsRouteImport } from './routes/educator.students'
 import { Route as EducatorSignUpRouteImport } from './routes/educator.sign-up'
 import { Route as EducatorSignInRouteImport } from './routes/educator.sign-in'
@@ -213,6 +214,11 @@ const LabSplatRoute = LabSplatRouteImport.update({
   id: '/lab/$',
   path: '/lab/$',
   getParentRoute: () => rootRouteImport,
+} as any)
+const EducatorWorksiteRoute = EducatorWorksiteRouteImport.update({
+  id: '/worksite',
+  path: '/worksite',
+  getParentRoute: () => EducatorRoute,
 } as any)
 const EducatorStudentsRoute = EducatorStudentsRouteImport.update({
   id: '/students',
@@ -467,6 +473,7 @@ export interface FileRoutesByFullPath {
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
   '/educator/students': typeof EducatorStudentsRoute
+  '/educator/worksite': typeof EducatorWorksiteRoute
   '/lab/$': typeof LabSplatRoute
   '/opportunity/$id': typeof OpportunityIdRoute
   '/org/applicants': typeof OrgApplicantsRoute
@@ -536,6 +543,7 @@ export interface FileRoutesByTo {
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
   '/educator/students': typeof EducatorStudentsRoute
+  '/educator/worksite': typeof EducatorWorksiteRoute
   '/lab/$': typeof LabSplatRoute
   '/opportunity/$id': typeof OpportunityIdRoute
   '/org/applicants': typeof OrgApplicantsRoute
@@ -608,6 +616,7 @@ export interface FileRoutesById {
   '/educator/sign-in': typeof EducatorSignInRoute
   '/educator/sign-up': typeof EducatorSignUpRoute
   '/educator/students': typeof EducatorStudentsRoute
+  '/educator/worksite': typeof EducatorWorksiteRoute
   '/lab/$': typeof LabSplatRoute
   '/opportunity/$id': typeof OpportunityIdRoute
   '/org/applicants': typeof OrgApplicantsRoute
@@ -681,6 +690,7 @@ export interface FileRouteTypes {
     | '/educator/sign-in'
     | '/educator/sign-up'
     | '/educator/students'
+    | '/educator/worksite'
     | '/lab/$'
     | '/opportunity/$id'
     | '/org/applicants'
@@ -750,6 +760,7 @@ export interface FileRouteTypes {
     | '/educator/sign-in'
     | '/educator/sign-up'
     | '/educator/students'
+    | '/educator/worksite'
     | '/lab/$'
     | '/opportunity/$id'
     | '/org/applicants'
@@ -821,6 +832,7 @@ export interface FileRouteTypes {
     | '/educator/sign-in'
     | '/educator/sign-up'
     | '/educator/students'
+    | '/educator/worksite'
     | '/lab/$'
     | '/opportunity/$id'
     | '/org/applicants'
@@ -1093,6 +1105,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/lab/$'
       preLoaderRoute: typeof LabSplatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/educator/worksite': {
+      id: '/educator/worksite'
+      path: '/worksite'
+      fullPath: '/educator/worksite'
+      preLoaderRoute: typeof EducatorWorksiteRouteImport
+      parentRoute: typeof EducatorRoute
     }
     '/educator/students': {
       id: '/educator/students'
@@ -1458,6 +1477,7 @@ interface EducatorRouteChildren {
   EducatorSignInRoute: typeof EducatorSignInRoute
   EducatorSignUpRoute: typeof EducatorSignUpRoute
   EducatorStudentsRoute: typeof EducatorStudentsRoute
+  EducatorWorksiteRoute: typeof EducatorWorksiteRoute
   EducatorIndexRoute: typeof EducatorIndexRoute
   EducatorCurriculumSlugRoute: typeof EducatorCurriculumSlugRoute
   EducatorInternshipsSlugRoute: typeof EducatorInternshipsSlugRoute
@@ -1474,6 +1494,7 @@ const EducatorRouteChildren: EducatorRouteChildren = {
   EducatorSignInRoute: EducatorSignInRoute,
   EducatorSignUpRoute: EducatorSignUpRoute,
   EducatorStudentsRoute: EducatorStudentsRoute,
+  EducatorWorksiteRoute: EducatorWorksiteRoute,
   EducatorIndexRoute: EducatorIndexRoute,
   EducatorCurriculumSlugRoute: EducatorCurriculumSlugRoute,
   EducatorInternshipsSlugRoute: EducatorInternshipsSlugRoute,

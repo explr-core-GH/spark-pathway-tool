@@ -215,7 +215,14 @@ function Dashboard() {
 
       {/* Internship tiles */}
       <section className="mt-16">
-        <h2 className="text-xs uppercase tracking-wider text-charcoal-400">Internships</h2>
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-xs uppercase tracking-wider text-charcoal-400">Internships</h2>
+          {visibleInternships.length > 0 && (
+            <Link to="/educator/worksite" className="text-sm text-explr-600 hover:underline">
+              Rate your interns →
+            </Link>
+          )}
+        </div>
         {visibleInternships.length === 0 ? (
           <p className="mt-4 py-6 text-sm text-charcoal-400">
             No internships assigned to you yet.
