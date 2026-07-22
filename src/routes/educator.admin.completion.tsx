@@ -176,8 +176,8 @@ function CompletionByRoster() {
       <p className="eyebrow">Admin</p>
       <h1 className="mt-3 text-4xl font-light">Completion by roster</h1>
       <p className="mt-2 max-w-2xl text-sm text-charcoal-500">
-        Assessment and survey completion grouped by camp roster. Click a row to
-        see per-student results and timing.
+        Assessment and survey completion grouped by camp or internship roster.
+        Click a row to see per-student results and timing.
       </p>
 
       <div className="mt-8 flex flex-wrap items-center gap-3">
