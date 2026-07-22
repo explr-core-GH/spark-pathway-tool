@@ -167,35 +167,46 @@ async function fetchCampGroups(): Promise<GroupSummary[]> {
 }
 
 async function fetchInternshipGroups(): Promise<GroupSummary[]> {
-  const [{ data: list }, { data: places }] = await Promise.all([
+  const [{ data: list }, { data: places }, { data: logins }] = await Promise.all([
     supabase
       .from("internships")
       .select("slug, name, theme, riasec, sort_order")
       .order("sort_order")
       .order("name"),
     supabase.from("internship_placements").select("approved_internship_id, student_id"),
+    supabase
+      .from("internship_student_logins")
+      .select("internship_slug, student_id, child_name"),
   ]);
 
-  const placeRows = (places ?? []) as Array<{
-    approved_internship_id: string;
-    student_id: string;
-  }>;
-  const bySlug = new Map<string, string[]>();
-  for (const p of placeRows) {
-    const arr = bySlug.get(p.approved_internship_id) ?? [];
-    arr.push(p.student_id);
-    bySlug.set(p.approved_internship_id, arr);
+  const bySlug = new Map<string, { ids: string[]; names: Record<string, string> }>();
+  const add = (slug: string | null | undefined, id: string | null, name?: string | null) => {
+    if (!slug || !id) return;
+    const e = bySlug.get(slug) ?? { ids: [], names: {} };
+    if (!e.ids.includes(id)) e.ids.push(id);
+    if (name) e.names[id] = name;
+    bySlug.set(slug, e);
+  };
+  for (const p of (places ?? []) as Array<{ approved_internship_id: string; student_id: string }>) {
+    add(p.approved_internship_id, p.student_id);
+  }
+  for (const l of (logins ?? []) as Array<{
+    internship_slug: string;
+    student_id: string | null;
+    child_name: string;
+  }>) {
+    add(l.internship_slug, l.student_id, l.child_name);
   }
 
-  const allIds = [...new Set(placeRows.map((p) => p.student_id))];
-  const names: Record<string, string> = {};
+  const allIds = [...new Set([...bySlug.values()].flatMap((e) => e.ids))];
+  const fallbackNames: Record<string, string> = {};
   if (allIds.length) {
     const { data: studs } = await supabase
       .from("students")
       .select("id, first_name")
       .in("id", allIds);
     for (const s of (studs ?? []) as Array<{ id: string; first_name: string | null }>) {
-      names[s.id] = s.first_name ?? "Student";
+      if (s.first_name) fallbackNames[s.id] = s.first_name;
     }
   }
 
@@ -205,13 +216,13 @@ async function fetchInternshipGroups(): Promise<GroupSummary[]> {
     theme: string | null;
     riasec: string[] | null;
   }>).map((i) => {
-    const ids = bySlug.get(i.slug) ?? [];
+    const e = bySlug.get(i.slug) ?? { ids: [], names: {} };
     return {
       id: i.slug,
       name: i.name,
       meta: [i.theme, (i.riasec ?? []).join("")].filter(Boolean).join(" · "),
-      studentIds: ids,
-      names: Object.fromEntries(ids.map((id) => [id, names[id] ?? "Student"])),
+      studentIds: e.ids,
+      names: Object.fromEntries(e.ids.map((id) => [id, e.names[id] ?? fallbackNames[id] ?? "Student"])),
     };
   });
 }

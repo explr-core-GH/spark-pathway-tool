@@ -926,6 +926,50 @@ export type Database = {
         }
         Relationships: []
       }
+      internship_evaluations: {
+        Row: {
+          created_at: string
+          evaluator_id: string
+          id: string
+          internship_ref: string
+          notes: string | null
+          recommend: boolean
+          rubric: Json
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          evaluator_id: string
+          id?: string
+          internship_ref: string
+          notes?: string | null
+          recommend?: boolean
+          rubric?: Json
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          evaluator_id?: string
+          id?: string
+          internship_ref?: string
+          notes?: string | null
+          recommend?: boolean
+          rubric?: Json
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internship_evaluations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       internship_interest_completions: {
         Row: {
           completed_at: string
