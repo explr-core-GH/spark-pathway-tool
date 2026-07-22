@@ -31,6 +31,84 @@ async function findUserIdByEmail(email: string): Promise<string | null> {
   return null;
 }
 
+const WORDS = ["river", "maple", "comet", "harbor", "willow", "summit", "pine", "delta", "aspen", "cedar"];
+function makePassword(): string {
+  const w = () => WORDS[Math.floor(Math.random() * WORDS.length)];
+  return `${w()}-${w()}-${Math.floor(Math.random() * 90) + 10}`;
+}
+
+/**
+ * Admin-only: manually create an instructor/educator account (pre-approved)
+ * and optionally connect it to internships in the same step. Returns the
+ * credentials so the admin can hand them to the instructor.
+ */
+export const adminCreateEducator = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: {
+      fullName: string;
+      email: string;
+      password?: string;
+      internshipSlugs?: string[];
+    }) => input,
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const fullName = data.fullName.trim();
+    const email = data.email.trim().toLowerCase();
+    if (!fullName || !email) throw new Error("Name and email are required.");
+    const password = (data.password ?? "").trim() || makePassword();
+    if (password.length < 8) throw new Error("Password must be at least 8 characters.");
+
+    const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { role: "educator", created_by_admin: true },
+    });
+    if (error || !created.user) {
+      const msg = error?.message ?? "createUser failed";
+      throw new Error(
+        /already|exist|registered|duplicate/i.test(msg)
+          ? `An account already exists for ${email} — use Reset password below instead.`
+          : msg,
+      );
+    }
+    const uid = created.user.id;
+
+    // Pre-approved educator row; roll the auth user back if it fails so we
+    // never leave an account with no educator record.
+    const { error: eErr } = await supabaseAdmin.from("educators").insert({
+      id: uid,
+      full_name: fullName,
+      email,
+      approved: true,
+    });
+    if (eErr) {
+      await supabaseAdmin.auth.admin.deleteUser(uid);
+      throw new Error(`educators row: ${eErr.message}`);
+    }
+
+    const slugs = (data.internshipSlugs ?? []).filter(Boolean);
+    if (slugs.length > 0) {
+      const { error: iErr } = await supabaseAdmin.from("internship_educators").insert(
+        slugs.map((s) => ({
+          internship_slug: s,
+          educator_id: uid,
+          assigned_by: context.userId,
+        })),
+      );
+      if (iErr) {
+        // Account exists and works — report the partial failure honestly.
+        throw new Error(
+          `Account created (${email} / ${password}), but connecting internships failed: ${iErr.message}`,
+        );
+      }
+    }
+
+    return { ok: true, educatorId: uid, email, password, connected: slugs.length };
+  });
+
 export const adminResetPassword = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
