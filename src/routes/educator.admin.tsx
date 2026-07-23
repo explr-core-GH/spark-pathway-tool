@@ -60,6 +60,7 @@ const SECTIONS: Section[] = [
       { label: "Apply requests", to: "/educator/admin/apply-requests", match: "/educator/admin/apply-requests" },
       { label: "Applications", to: "/educator/admin/applications", match: "/educator/admin/applications" },
       { label: "Placements", to: "/educator/admin/placements", match: "/educator/admin/placements" },
+      { label: "Recommendation letters", to: "/educator/admin/recommendations", match: "/educator/admin/recommendations" },
     ],
   },
   {
