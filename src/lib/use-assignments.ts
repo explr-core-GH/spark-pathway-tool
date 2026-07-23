@@ -158,18 +158,27 @@ export function useStudentAssignments(studentId: string | null): StudentAssignme
         }
       }
 
-      // Internship targets: student → placements → internship targets, plus
-      // the internship's educators.
-      const { data: places } = await supabase
-        .from("internship_placements")
-        .select("approved_internship_id")
-        .eq("student_id", studentId);
+      // Internship targets: student → placements OR internship_student_logins
+      // (excel-imported interns don't have a placement row) → internship
+      // targets, plus the internship's educators.
+      const [{ data: places }, { data: logins }] = await Promise.all([
+        supabase
+          .from("internship_placements")
+          .select("approved_internship_id")
+          .eq("student_id", studentId),
+        sb("internship_student_logins")
+          .select("internship_slug")
+          .eq("student_id", studentId),
+      ]);
       const slugs = [
-        ...new Set(
-          ((places ?? []) as Array<{ approved_internship_id: string }>).map(
+        ...new Set([
+          ...((places ?? []) as Array<{ approved_internship_id: string }>).map(
             (p) => p.approved_internship_id,
           ),
-        ),
+          ...((logins ?? []) as Array<{ internship_slug: string }>).map(
+            (l) => l.internship_slug,
+          ),
+        ]),
       ];
       if (slugs.length > 0) {
         const { data: viaIntern } = await sb("assessment_targets")
@@ -193,6 +202,7 @@ export function useStudentAssignments(studentId: string | null): StudentAssignme
           cascade.push(...((viaIE ?? []) as unknown as RawTarget[]));
         }
       }
+
 
       if (cancelled) return;
 
