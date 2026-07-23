@@ -255,6 +255,7 @@ export type Database = {
           notes: string | null
           survey_assignment_id: string | null
           target_id: string
+          target_slug: string | null
           target_type: string
         }
         Insert: {
@@ -268,6 +269,7 @@ export type Database = {
           notes?: string | null
           survey_assignment_id?: string | null
           target_id: string
+          target_slug?: string | null
           target_type: string
         }
         Update: {
@@ -281,6 +283,7 @@ export type Database = {
           notes?: string | null
           survey_assignment_id?: string | null
           target_id?: string
+          target_slug?: string | null
           target_type?: string
         }
         Relationships: [
