@@ -70,7 +70,7 @@ function WorksitePage() {
       setSlugs(mySlugs);
       if (mySlugs.length === 0) return;
 
-      // Their placed students.
+      // Their placed students (from formal placements).
       const { data: pl, error: plErr } = await supabase
         .from("internship_placements")
         .select("student_id, approved_internship_id")
@@ -80,26 +80,51 @@ function WorksitePage() {
         setErr(plErr.message);
         return;
       }
-      const rows = (pl ?? []) as Placement[];
+      const placementRows = (pl ?? []) as Placement[];
+
+      // Roster-imported interns (excel logins) — merge into the same shape.
+      const { data: rosterRows } = await supabase
+        .from("internship_student_logins")
+        .select("student_id, internship_slug, child_name")
+        .in("internship_slug", mySlugs);
+      const rosterPlacements: Placement[] = ((rosterRows ?? []) as Array<{
+        student_id: string;
+        internship_slug: string;
+        child_name: string | null;
+      }>).map((r) => ({ student_id: r.student_id, approved_internship_id: r.internship_slug }));
+
+      // Dedupe by (slug, student_id).
+      const seen = new Set<string>();
+      const rows: Placement[] = [];
+      for (const p of [...placementRows, ...rosterPlacements]) {
+        const k = `${p.approved_internship_id}::${p.student_id}`;
+        if (seen.has(k)) continue;
+        seen.add(k);
+        rows.push(p);
+      }
       setPlacements(rows);
 
-      // Names + grades.
+      // Names + grades. Prefer roster child_name for excel-imported interns,
+      // fall back to students table for real accounts.
       const sids = [...new Set(rows.map((p) => p.student_id))];
+      const nm: Record<string, string> = {};
+      const gm: Record<string, number | null> = {};
+      for (const r of (rosterRows ?? []) as Array<{ student_id: string; child_name: string | null }>) {
+        if (r.child_name) nm[r.student_id] = r.child_name;
+      }
       if (sids.length) {
         const { data: studs } = await supabase
           .from("students")
           .select("id, first_name, grade")
           .in("id", sids);
-        const nm: Record<string, string> = {};
-        const gm: Record<string, number | null> = {};
         for (const s of (studs ?? []) as Array<{ id: string; first_name: string | null; grade: number | null }>) {
-          nm[s.id] = s.first_name ?? "Student";
+          if (s.first_name && !nm[s.id]) nm[s.id] = s.first_name;
           gm[s.id] = s.grade;
         }
-        if (!cancelled) {
-          setNames(nm);
-          setGrades(gm);
-        }
+      }
+      if (!cancelled) {
+        setNames(nm);
+        setGrades(gm);
       }
 
       // Org-created internships carry opp:<id> refs — resolve their names.
