@@ -55,6 +55,7 @@ import { Route as EducatorCurriculumSlugRouteImport } from './routes/educator.cu
 import { Route as EducatorAdminSurveysRouteImport } from './routes/educator.admin.surveys'
 import { Route as EducatorAdminRostersRouteImport } from './routes/educator.admin.rosters'
 import { Route as EducatorAdminResultsRouteImport } from './routes/educator.admin.results'
+import { Route as EducatorAdminRecommendationsRouteImport } from './routes/educator.admin.recommendations'
 import { Route as EducatorAdminProgramsRouteImport } from './routes/educator.admin.programs'
 import { Route as EducatorAdminProgramRiasecRouteImport } from './routes/educator.admin.program-riasec'
 import { Route as EducatorAdminPlacementsRouteImport } from './routes/educator.admin.placements'
@@ -313,6 +314,12 @@ const EducatorAdminResultsRoute = EducatorAdminResultsRouteImport.update({
   path: '/results',
   getParentRoute: () => EducatorAdminRoute,
 } as any)
+const EducatorAdminRecommendationsRoute =
+  EducatorAdminRecommendationsRouteImport.update({
+    id: '/recommendations',
+    path: '/recommendations',
+    getParentRoute: () => EducatorAdminRoute,
+  } as any)
 const EducatorAdminProgramsRoute = EducatorAdminProgramsRouteImport.update({
   id: '/programs',
   path: '/programs',
@@ -506,6 +513,7 @@ export interface FileRoutesByFullPath {
   '/educator/admin/placements': typeof EducatorAdminPlacementsRoute
   '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
   '/educator/admin/programs': typeof EducatorAdminProgramsRoute
+  '/educator/admin/recommendations': typeof EducatorAdminRecommendationsRoute
   '/educator/admin/results': typeof EducatorAdminResultsRoute
   '/educator/admin/rosters': typeof EducatorAdminRostersRoute
   '/educator/admin/surveys': typeof EducatorAdminSurveysRoute
@@ -576,6 +584,7 @@ export interface FileRoutesByTo {
   '/educator/admin/placements': typeof EducatorAdminPlacementsRoute
   '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
   '/educator/admin/programs': typeof EducatorAdminProgramsRoute
+  '/educator/admin/recommendations': typeof EducatorAdminRecommendationsRoute
   '/educator/admin/results': typeof EducatorAdminResultsRoute
   '/educator/admin/rosters': typeof EducatorAdminRostersRoute
   '/educator/admin/surveys': typeof EducatorAdminSurveysRoute
@@ -649,6 +658,7 @@ export interface FileRoutesById {
   '/educator/admin/placements': typeof EducatorAdminPlacementsRoute
   '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
   '/educator/admin/programs': typeof EducatorAdminProgramsRoute
+  '/educator/admin/recommendations': typeof EducatorAdminRecommendationsRoute
   '/educator/admin/results': typeof EducatorAdminResultsRoute
   '/educator/admin/rosters': typeof EducatorAdminRostersRoute
   '/educator/admin/surveys': typeof EducatorAdminSurveysRoute
@@ -723,6 +733,7 @@ export interface FileRouteTypes {
     | '/educator/admin/placements'
     | '/educator/admin/program-riasec'
     | '/educator/admin/programs'
+    | '/educator/admin/recommendations'
     | '/educator/admin/results'
     | '/educator/admin/rosters'
     | '/educator/admin/surveys'
@@ -793,6 +804,7 @@ export interface FileRouteTypes {
     | '/educator/admin/placements'
     | '/educator/admin/program-riasec'
     | '/educator/admin/programs'
+    | '/educator/admin/recommendations'
     | '/educator/admin/results'
     | '/educator/admin/rosters'
     | '/educator/admin/surveys'
@@ -865,6 +877,7 @@ export interface FileRouteTypes {
     | '/educator/admin/placements'
     | '/educator/admin/program-riasec'
     | '/educator/admin/programs'
+    | '/educator/admin/recommendations'
     | '/educator/admin/results'
     | '/educator/admin/rosters'
     | '/educator/admin/surveys'
@@ -1239,6 +1252,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EducatorAdminResultsRouteImport
       parentRoute: typeof EducatorAdminRoute
     }
+    '/educator/admin/recommendations': {
+      id: '/educator/admin/recommendations'
+      path: '/recommendations'
+      fullPath: '/educator/admin/recommendations'
+      preLoaderRoute: typeof EducatorAdminRecommendationsRouteImport
+      parentRoute: typeof EducatorAdminRoute
+    }
     '/educator/admin/programs': {
       id: '/educator/admin/programs'
       path: '/programs'
@@ -1429,6 +1449,7 @@ interface EducatorAdminRouteChildren {
   EducatorAdminPlacementsRoute: typeof EducatorAdminPlacementsRoute
   EducatorAdminProgramRiasecRoute: typeof EducatorAdminProgramRiasecRoute
   EducatorAdminProgramsRoute: typeof EducatorAdminProgramsRoute
+  EducatorAdminRecommendationsRoute: typeof EducatorAdminRecommendationsRoute
   EducatorAdminResultsRoute: typeof EducatorAdminResultsRoute
   EducatorAdminRostersRoute: typeof EducatorAdminRostersRoute
   EducatorAdminSurveysRoute: typeof EducatorAdminSurveysRoute
@@ -1457,6 +1478,7 @@ const EducatorAdminRouteChildren: EducatorAdminRouteChildren = {
   EducatorAdminPlacementsRoute: EducatorAdminPlacementsRoute,
   EducatorAdminProgramRiasecRoute: EducatorAdminProgramRiasecRoute,
   EducatorAdminProgramsRoute: EducatorAdminProgramsRoute,
+  EducatorAdminRecommendationsRoute: EducatorAdminRecommendationsRoute,
   EducatorAdminResultsRoute: EducatorAdminResultsRoute,
   EducatorAdminRostersRoute: EducatorAdminRostersRoute,
   EducatorAdminSurveysRoute: EducatorAdminSurveysRoute,
