@@ -12,18 +12,53 @@ export function RosterPanel({ unitType, unitSlug }: Props) {
   const [status, setStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase
-      .from("unit_rosters")
-      .select("students, updated_at")
-      .eq("unit_type", unitType)
-      .eq("unit_slug", unitSlug)
-      .maybeSingle()
-      .then(({ data }) => {
-        const list = (data?.students as RosterStudent[] | undefined) ?? [];
-        setStudents(list);
-        setText(stringifyRoster(list));
-        setUpdatedAt((data?.updated_at as string | undefined) ?? null);
-      });
+    let cancelled = false;
+
+    async function loadRoster() {
+      const { data } = await supabase
+        .from("unit_rosters")
+        .select("students, updated_at")
+        .eq("unit_type", unitType)
+        .eq("unit_slug", unitSlug)
+        .maybeSingle();
+
+      const manualList = (data?.students as RosterStudent[] | undefined) ?? [];
+      let list = manualList;
+
+      if (unitType === "internship") {
+        const { data: importedRows } = await supabase
+          .from("internship_student_logins")
+          .select("child_name")
+          .eq("internship_slug", unitSlug)
+          .order("child_name");
+
+        const importedList = (importedRows ?? [])
+          .map((row: { child_name: string | null }) => row.child_name?.trim())
+          .filter((name): name is string => Boolean(name))
+          .map((name) => ({ name }));
+
+        if (importedList.length > 0) {
+          const seen = new Set<string>();
+          list = [...manualList, ...importedList].filter((student) => {
+            const key = student.name.trim().toLowerCase();
+            if (!key || seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+        }
+      }
+
+      if (cancelled) return;
+      setStudents(list);
+      setText(stringifyRoster(list));
+      setUpdatedAt((data?.updated_at as string | undefined) ?? null);
+    }
+
+    void loadRoster();
+
+    return () => {
+      cancelled = true;
+    };
   }, [unitType, unitSlug]);
 
   async function save(parsed: RosterStudent[]) {
