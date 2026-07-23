@@ -281,14 +281,38 @@ function WorksitePage() {
                             ))}
                           </div>
 
-                          <label className="mt-4 flex items-center gap-2 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={e.recommend}
-                              onChange={(ev2) => patchEval(slug, sid, { recommend: ev2.target.checked })}
-                            />
-                            I would recommend this student for advanced opportunities
-                          </label>
+                          <div className="mt-4 border-t border-charcoal-100 pt-4">
+                            <p className="text-sm text-charcoal-600">
+                              Based on this student&apos;s work this summer, would you be
+                              willing to provide a recommendation or serve as a reference
+                              for them?
+                            </p>
+                            <div className="mt-2 flex gap-2" role="radiogroup" aria-label="Willing to recommend">
+                              {[
+                                { val: true, label: "Yes" },
+                                { val: false, label: "No" },
+                              ].map((opt) => {
+                                const on = e.recommend === opt.val;
+                                return (
+                                  <button
+                                    key={opt.label}
+                                    type="button"
+                                    role="radio"
+                                    aria-checked={on}
+                                    onClick={() => patchEval(slug, sid, { recommend: opt.val })}
+                                    className="min-w-[64px] border px-3 py-1.5 text-sm"
+                                    style={
+                                      on
+                                        ? { background: "var(--ink)", color: "white", borderColor: "var(--ink)" }
+                                        : { borderColor: "var(--color-charcoal-200)", color: "var(--color-charcoal-500)" }
+                                    }
+                                  >
+                                    {opt.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
 
                           <div className="mt-3">
                             <label className="label" htmlFor={`notes-${sid}`}>
