@@ -51,7 +51,6 @@ function Dashboard() {
     supabase
       .from("internships")
       .select("slug,name,emoji,theme,lead,visible")
-      .eq("visible", true)
       .order("sort_order")
       .order("name")
       .then(({ data }) => setInternships((data ?? []) as Internship[]));
