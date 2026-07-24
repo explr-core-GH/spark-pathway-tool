@@ -289,12 +289,20 @@ function ResultsHub() {
     return [...keys].sort();
   }, [apt]);
 
-  // Membership set for the selected group (null = whole population).
+  // Membership set for the selected group/kind (null = whole population).
   const memberSet = useMemo(() => {
-    if (groupKey === "all") return null;
-    const found = groups.find((x) => `${x.kind}:${x.g.id}` === groupKey);
-    return new Set(found?.g.studentIds ?? []);
-  }, [groupKey, groups]);
+    if (kindKey === "all" && groupKey === "all") return null;
+    if (groupKey !== "all") {
+      const found = groups.find((x) => `${x.kind}:${x.g.id}` === groupKey);
+      return new Set(found?.g.studentIds ?? []);
+    }
+    // "All in <kind>" — union of every roster in that kind.
+    const ids = new Set<string>();
+    for (const x of groups) {
+      if (x.kind === kindKey) for (const id of x.g.studentIds) ids.add(id);
+    }
+    return ids;
+  }, [kindKey, groupKey, groups]);
 
   const selectedGroup = groupKey === "all" ? null : groups.find((x) => `${x.kind}:${x.g.id}` === groupKey) ?? null;
 
