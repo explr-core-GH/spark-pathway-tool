@@ -98,6 +98,7 @@ function InternshipsAdmin() {
                          color: r.visible ? "var(--color-explr-600)" : "var(--color-charcoal-500)" }}>
                 {r.visible ? "Visible" : "Hidden"}
               </button>
+              <Link to="/educator/admin/internships/$slug/report" params={{ slug: r.slug }} className="text-xs text-explr-600 hover:underline">Funder report</Link>
               <Link to="/educator/admin/assign" search={{ mode: "internship", pick: r.slug }} className="text-xs text-explr-600 hover:underline">Assign educators</Link>
               <button onClick={() => { setCreating(false); setEditing({ ...r }); }} className="text-xs text-charcoal-500 hover:text-ink">Edit</button>
               <button onClick={() => remove(r.slug)} className="text-xs text-red-600 hover:underline">Delete</button>
