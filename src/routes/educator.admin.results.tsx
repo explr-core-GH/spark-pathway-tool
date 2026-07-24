@@ -955,7 +955,16 @@ function ImpactCharts({
   }, [interest]);
   const demandMax = Math.max(1, ...demand.map((d) => d.count));
 
+  // ── Interest yes/maybe/no overall split ──────────────────────────────────
+  const interestSplit = useMemo(() => {
+    const c = { yes: 0, maybe: 0, no: 0 } as Record<string, number>;
+    for (const i of interest ?? []) if (i.response in c) c[i.response]++;
+    const total = c.yes + c.maybe + c.no;
+    return { ...c, total, pct: (k: string) => (total ? Math.round((c[k] / total) * 100) : 0) };
+  }, [interest]);
+
   const assessed = new Set((riasec ?? []).map((r) => r.sid)).size;
+
 
   if (loading) return <p className="py-8 text-sm text-charcoal-400">Loading…</p>;
 
