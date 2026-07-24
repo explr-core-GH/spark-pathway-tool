@@ -87,11 +87,20 @@ function ResultsHub() {
   const [err, setErr] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
 
-  // Filter: a rostered group (or the whole population) + optional date range.
+  // Filter: program type + a specific rostered group (or "all in type") + optional date range.
   const [groups, setGroups] = useState<Array<{ kind: GroupKind; g: GroupSummary }>>([]);
+  const [kindKey, setKindKey] = useState<"all" | GroupKind>("all");
   const [groupKey, setGroupKey] = useState("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+
+  // Per-tab focus pickers — narrow to ONE construct/letter/subscale/prompt so
+  // camps-vs-internships or before-vs-after comparisons are readable.
+  const [riasecFocus, setRiasecFocus] = useState<string>("all");
+  const [stemFocus, setStemFocus] = useState<string>("all");
+  const [aptFocus, setAptFocus] = useState<string>("all");
+  const [openFocus, setOpenFocus] = useState<string>("all");
+  const [interestFocus, setInterestFocus] = useState<string>("all");
 
   useEffect(() => {
     (async () => {
@@ -280,12 +289,20 @@ function ResultsHub() {
     return [...keys].sort();
   }, [apt]);
 
-  // Membership set for the selected group (null = whole population).
+  // Membership set for the selected group/kind (null = whole population).
   const memberSet = useMemo(() => {
-    if (groupKey === "all") return null;
-    const found = groups.find((x) => `${x.kind}:${x.g.id}` === groupKey);
-    return new Set(found?.g.studentIds ?? []);
-  }, [groupKey, groups]);
+    if (kindKey === "all" && groupKey === "all") return null;
+    if (groupKey !== "all") {
+      const found = groups.find((x) => `${x.kind}:${x.g.id}` === groupKey);
+      return new Set(found?.g.studentIds ?? []);
+    }
+    // "All in <kind>" — union of every roster in that kind.
+    const ids = new Set<string>();
+    for (const x of groups) {
+      if (x.kind === kindKey) for (const id of x.g.studentIds) ids.add(id);
+    }
+    return ids;
+  }, [kindKey, groupKey, groups]);
 
   const selectedGroup = groupKey === "all" ? null : groups.find((x) => `${x.kind}:${x.g.id}` === groupKey) ?? null;
 
@@ -321,7 +338,7 @@ function ResultsHub() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openResp, memberSet, dateFrom, dateTo]);
 
-  const filterActive = groupKey !== "all" || !!dateFrom || !!dateTo;
+  const filterActive = kindKey !== "all" || groupKey !== "all" || !!dateFrom || !!dateTo;
 
   // ── Excel export (always exports the FILTERED set) ─────────────────────
   function riasecSheetRows() {
@@ -384,6 +401,8 @@ function ResultsHub() {
       parts.push(
         selectedGroup.g.name.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase().slice(0, 40) || "group",
       );
+    } else if (kindKey !== "all") {
+      parts.push(`all-${kindKey}`);
     }
     if (dateFrom || dateTo) parts.push(`${dateFrom || "start"}_to_${dateTo || "now"}`);
     parts.push(new Date().toISOString().slice(0, 10));
@@ -449,9 +468,25 @@ function ResultsHub() {
 
       {err && <p className="mt-6 text-sm text-red-600">Couldn&apos;t load results: {err}</p>}
 
-      {/* Filter — a group (or the whole population) + optional date range.
+      {/* Filter — program type + specific group + date range.
           Applies to the tables AND the downloads. */}
       <div className="print:hidden mt-8 flex flex-wrap items-end gap-3 border border-charcoal-100 bg-charcoal-50 px-4 py-3">
+        <label className="text-xs text-charcoal-500">
+          Program type
+          <select
+            className="field mt-1 w-44"
+            value={kindKey}
+            onChange={(e) => {
+              setKindKey(e.target.value as "all" | GroupKind);
+              setGroupKey("all");
+            }}
+          >
+            <option value="all">All types</option>
+            <option value="camps">Camps only</option>
+            <option value="internships">Internships only</option>
+            <option value="classes">Classes only</option>
+          </select>
+        </label>
         <label className="text-xs text-charcoal-500">
           Group
           <select
@@ -459,20 +494,24 @@ function ResultsHub() {
             value={groupKey}
             onChange={(e) => setGroupKey(e.target.value)}
           >
-            <option value="all">All students (everyone)</option>
-            {(["camps", "classes", "internships"] as GroupKind[]).map((kind) => {
-              const of = groups.filter((x) => x.kind === kind && x.g.studentIds.length > 0);
-              if (of.length === 0) return null;
-              return (
-                <optgroup key={kind} label={kind[0].toUpperCase() + kind.slice(1)}>
-                  {of.map(({ g }) => (
-                    <option key={`${kind}:${g.id}`} value={`${kind}:${g.id}`}>
-                      {g.name} ({g.studentIds.length})
-                    </option>
-                  ))}
-                </optgroup>
-              );
-            })}
+            <option value="all">
+              {kindKey === "all" ? "All students (everyone)" : `All ${kindKey}`}
+            </option>
+            {(["camps", "classes", "internships"] as GroupKind[])
+              .filter((k) => kindKey === "all" || k === kindKey)
+              .map((kind) => {
+                const of = groups.filter((x) => x.kind === kind && x.g.studentIds.length > 0);
+                if (of.length === 0) return null;
+                return (
+                  <optgroup key={kind} label={kind[0].toUpperCase() + kind.slice(1)}>
+                    {of.map(({ g }) => (
+                      <option key={`${kind}:${g.id}`} value={`${kind}:${g.id}`}>
+                        {g.name} ({g.studentIds.length})
+                      </option>
+                    ))}
+                  </optgroup>
+                );
+              })}
           </select>
         </label>
         <label className="text-xs text-charcoal-500">
@@ -486,6 +525,7 @@ function ResultsHub() {
         {filterActive && (
           <button
             onClick={() => {
+              setKindKey("all");
               setGroupKey("all");
               setDateFrom("");
               setDateTo("");
@@ -527,6 +567,54 @@ function ResultsHub() {
         )}
       </div>
 
+      {/* Per-tab focus picker — narrow to ONE question/construct/subscale so
+          side-by-side comparison across groups is readable. */}
+      {tab !== "charts" && (
+        <div className="print:hidden mt-4 flex flex-wrap items-center gap-2 text-xs text-charcoal-500">
+          <span className="uppercase tracking-wider text-charcoal-400">Focus</span>
+          {tab === "riasec" && (
+            <select className="field w-56" value={riasecFocus} onChange={(e) => setRiasecFocus(e.target.value)}>
+              <option value="all">All six letters</option>
+              {RIASEC_LETTERS.map((l) => (
+                <option key={l} value={l}>{l} only</option>
+              ))}
+            </select>
+          )}
+          {tab === "stem" && (
+            <select className="field w-72" value={stemFocus} onChange={(e) => setStemFocus(e.target.value)}>
+              <option value="all">All constructs</option>
+              {ALL_CONSTRUCTS.map((cid) => (
+                <option key={cid} value={cid}>{getConstruct(cid).name}</option>
+              ))}
+            </select>
+          )}
+          {tab === "aptitude" && (
+            <select className="field w-64" value={aptFocus} onChange={(e) => setAptFocus(e.target.value)}>
+              <option value="all">All subscales</option>
+              {aptSubscales.map((k) => (
+                <option key={k} value={k}>{k.replace(/_/g, " ")}</option>
+              ))}
+            </select>
+          )}
+          {tab === "interest" && (
+            <select className="field w-72" value={interestFocus} onChange={(e) => setInterestFocus(e.target.value)}>
+              <option value="all">All internships</option>
+              {[...new Set((fInterest ?? []).map((r) => r.internship))].sort().map((n) => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+          )}
+          {tab === "stem" && (
+            <select className="field w-72" value={openFocus} onChange={(e) => setOpenFocus(e.target.value)}>
+              <option value="all">All open-ended questions</option>
+              {[...new Set((fOpen ?? []).map((r) => r.prompt))].sort().map((p) => (
+                <option key={p} value={p}>{p.length > 60 ? p.slice(0, 60) + "…" : p}</option>
+              ))}
+            </select>
+          )}
+        </div>
+      )}
+
       <div className="mt-6 overflow-x-auto">
         {tab === "charts" && (
           <ImpactCharts
@@ -534,20 +622,28 @@ function ResultsHub() {
             stem={fStem}
             interest={fInterest}
             scope={
-              (selectedGroup ? selectedGroup.g.name : "All students") +
+              (selectedGroup
+                ? selectedGroup.g.name
+                : kindKey === "all"
+                  ? "All students"
+                  : `All ${kindKey}`) +
               (dateFrom || dateTo ? ` · ${dateFrom || "start"} → ${dateTo || "now"}` : "")
             }
           />
         )}
-        {tab === "riasec" && <RiasecTable rows={fRiasec} />}
+        {tab === "riasec" && <RiasecTable rows={fRiasec} focus={riasecFocus} />}
         {tab === "stem" && (
           <>
-            <StemTable rows={fStem} />
-            <OpenResponsesList rows={fOpen} />
+            <StemTable rows={fStem} focus={stemFocus} />
+            <OpenResponsesList rows={openFocus === "all" ? fOpen : (fOpen ?? []).filter((r) => r.prompt === openFocus)} />
           </>
         )}
-        {tab === "interest" && <InterestTable rows={fInterest} />}
-        {tab === "aptitude" && <AptTable rows={fApt} subscales={aptSubscales} />}
+        {tab === "interest" && (
+          <InterestTable rows={interestFocus === "all" ? fInterest : (fInterest ?? []).filter((r) => r.internship === interestFocus)} />
+        )}
+        {tab === "aptitude" && (
+          <AptTable rows={fApt} subscales={aptFocus === "all" ? aptSubscales : [aptFocus]} />
+        )}
       </div>
     </main>
   );
@@ -568,15 +664,16 @@ function Capped({ total }: { total: number }) {
   );
 }
 
-function RiasecTable({ rows }: { rows: RiasecRow[] | null }) {
+function RiasecTable({ rows, focus = "all" }: { rows: RiasecRow[] | null; focus?: string }) {
   if (!rows || rows.length === 0) return <Empty loading={!rows} />;
+  const letters = focus === "all" ? RIASEC_LETTERS : [focus];
   return (
     <>
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-charcoal-100 bg-charcoal-50">
             <Th>Student</Th><Th>Grade</Th><Th>Code</Th>
-            {RIASEC_LETTERS.map((l) => <Th key={l}>{l}</Th>)}
+            {letters.map((l) => <Th key={l}>{l}</Th>)}
             <Th>Completed</Th>
           </tr>
         </thead>
@@ -586,7 +683,7 @@ function RiasecTable({ rows }: { rows: RiasecRow[] | null }) {
               <td className="px-3 py-2 font-medium">{r.student}</td>
               <td className="px-3 py-2 tabular-nums">{r.grade}</td>
               <td className="px-3 py-2 font-mono font-semibold tracking-wide">{r.holland}</td>
-              {RIASEC_LETTERS.map((l) => (
+              {letters.map((l) => (
                 <td key={l} className="px-3 py-2 tabular-nums">{r.scores[l] ?? r.scores[l.toLowerCase()] ?? "—"}</td>
               ))}
               <td className="px-3 py-2 text-xs text-charcoal-500">{r.completed}</td>
@@ -599,15 +696,16 @@ function RiasecTable({ rows }: { rows: RiasecRow[] | null }) {
   );
 }
 
-function StemTable({ rows }: { rows: StemRow[] | null }) {
+function StemTable({ rows, focus = "all" }: { rows: StemRow[] | null; focus?: string }) {
   if (!rows || rows.length === 0) return <Empty loading={!rows} />;
+  const constructs = (focus === "all" ? ALL_CONSTRUCTS : [focus as (typeof ALL_CONSTRUCTS)[number]]);
   return (
     <>
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-charcoal-100 bg-charcoal-50">
             <Th>Student</Th><Th>Survey</Th><Th>Admin</Th>
-            {ALL_CONSTRUCTS.map((cid) => <Th key={cid}>{getConstruct(cid).name}</Th>)}
+            {constructs.map((cid) => <Th key={cid}>{getConstruct(cid).name}</Th>)}
             <Th>Completed</Th>
           </tr>
         </thead>
@@ -617,11 +715,11 @@ function StemTable({ rows }: { rows: StemRow[] | null }) {
               <td className="px-3 py-2 font-medium">{r.student}</td>
               <td className="px-3 py-2 text-xs">{r.survey}</td>
               <td className="px-3 py-2 text-xs text-charcoal-500">{r.administration}</td>
-              {ALL_CONSTRUCTS.map((cid) => {
+              {constructs.map((cid) => {
                 const s = r.scores[cid];
                 return (
                   <td key={cid} className="px-3 py-2 tabular-nums text-xs">
-                    {s.after == null ? "—" : s.before != null ? `${s.before.toFixed(1)}→${s.after.toFixed(1)}` : s.after.toFixed(1)}
+                    {!s || s.after == null ? "—" : s.before != null ? `${s.before.toFixed(1)}→${s.after.toFixed(1)}` : s.after.toFixed(1)}
                   </td>
                 );
               })}
