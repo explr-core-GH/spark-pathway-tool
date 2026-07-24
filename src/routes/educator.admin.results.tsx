@@ -1083,6 +1083,42 @@ function ImpactCharts({
         </section>
       )}
 
+      {/* Interest yes / maybe / no split */}
+      {interestSplit.total > 0 && (
+        <section className="mt-10">
+          <h3 className="text-sm font-semibold">Overall internship interest</h3>
+          <p className="mt-1 text-xs text-charcoal-500">
+            Every yes / maybe / no reply across every internship shown ({interestSplit.total.toLocaleString()} replies).
+          </p>
+          <div className="mt-4 flex h-6 w-full overflow-hidden bg-charcoal-100 text-[10px] font-medium text-white">
+            {(["yes", "maybe", "no"] as const).map((k) => {
+              const pct = interestSplit.pct(k);
+              const bg = k === "yes" ? "var(--color-explr-500)" : k === "maybe" ? "#C9A227" : "#8A8A8A";
+              return pct > 0 ? (
+                <div key={k} className="flex items-center justify-center" style={{ width: `${pct}%`, background: bg }}>
+                  {pct >= 8 ? `${pct}%` : ""}
+                </div>
+              ) : null;
+            })}
+          </div>
+          <div className="mt-2 flex gap-4 text-xs text-charcoal-500">
+            <span><span className="mr-1 inline-block h-2 w-2" style={{ background: "var(--color-explr-500)" }} />Yes {interestSplit.yes} ({interestSplit.pct("yes")}%)</span>
+            <span><span className="mr-1 inline-block h-2 w-2" style={{ background: "#C9A227" }} />Maybe {interestSplit.maybe} ({interestSplit.pct("maybe")}%)</span>
+            <span><span className="mr-1 inline-block h-2 w-2" style={{ background: "#8A8A8A" }} />No {interestSplit.no} ({interestSplit.pct("no")}%)</span>
+          </div>
+        </section>
+      )}
+
+      {/* STEM item-level response distribution — full choice breakdown */}
+      <section className="mt-10">
+        <h3 className="text-sm font-semibold">STEM survey — response breakdown</h3>
+        <p className="mt-1 text-xs text-charcoal-500">
+          Every Likert response shown as a percentage of respondents per question.
+          Switch focused construct on the &ldquo;STEM survey&rdquo; tab to change scope.
+        </p>
+        <StemItemDistribution rows={stemItems} focus="all" compact />
+      </section>
+
       <p className="mt-10 text-[11px] text-charcoal-400">
         EXPLR Pathways · RIASEC interest assessment &amp; S-STEM survey · Use
         &ldquo;Print / save as PDF&rdquo; to share this page.
@@ -1090,6 +1126,7 @@ function ImpactCharts({
     </div>
   );
 }
+
 
 function Tile({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
