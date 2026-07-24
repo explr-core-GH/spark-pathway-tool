@@ -401,6 +401,8 @@ function ResultsHub() {
       parts.push(
         selectedGroup.g.name.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase().slice(0, 40) || "group",
       );
+    } else if (kindKey !== "all") {
+      parts.push(`all-${kindKey}`);
     }
     if (dateFrom || dateTo) parts.push(`${dateFrom || "start"}_to_${dateTo || "now"}`);
     parts.push(new Date().toISOString().slice(0, 10));
