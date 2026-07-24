@@ -698,7 +698,7 @@ function RiasecTable({ rows, focus = "all" }: { rows: RiasecRow[] | null; focus?
 
 function StemTable({ rows, focus = "all" }: { rows: StemRow[] | null; focus?: string }) {
   if (!rows || rows.length === 0) return <Empty loading={!rows} />;
-  const constructs = focus === "all" ? ALL_CONSTRUCTS : [focus];
+  const constructs = (focus === "all" ? ALL_CONSTRUCTS : [focus as (typeof ALL_CONSTRUCTS)[number]]);
   return (
     <>
       <table className="w-full border-collapse text-sm">
