@@ -102,11 +102,14 @@ function InternshipReport() {
   const [evals, setEvals] = useState<EvalRow[]>([]);
   const [quotes, setQuotes] = useState<Array<{ prompt: string; response: string }>>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
+      setErrorMsg(null);
+      try {
 
       // 1. Internship row
       const { data: iRow } = await supabase
@@ -283,7 +286,12 @@ function InternshipReport() {
       setScores(scoresOut);
       setEvals((ev ?? []) as EvalRow[]);
       setQuotes(quoteList.slice(0, 8));
-      setLoading(false);
+      } catch (err) {
+        console.error("[report] load failed", err);
+        if (!cancelled) setErrorMsg(err instanceof Error ? err.message : String(err));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     })();
     return () => {
       cancelled = true;
@@ -319,11 +327,22 @@ function InternshipReport() {
   if (loading) {
     return <main className="mx-auto max-w-5xl px-6 py-12"><p className="text-charcoal-500">Loading report…</p></main>;
   }
+  if (errorMsg) {
+    return (
+      <main className="mx-auto max-w-5xl px-6 py-12 space-y-4">
+        <Link to="/educator/admin/internships" className="text-sm text-charcoal-500 hover:text-ink">← All internships</Link>
+        <div className="border border-red-300 bg-red-50 p-4 text-sm text-red-800">
+          <p className="font-medium">Could not load report</p>
+          <p className="mt-1 whitespace-pre-wrap">{errorMsg}</p>
+        </div>
+      </main>
+    );
+  }
   if (!internship) {
     return (
-      <main className="mx-auto max-w-5xl px-6 py-12">
-        <p>Internship not found.</p>
+      <main className="mx-auto max-w-5xl px-6 py-12 space-y-4">
         <Link to="/educator/admin/internships" className="text-explr-600 hover:underline">← All internships</Link>
+        <p>Internship <code>{slug}</code> not found.</p>
       </main>
     );
   }
