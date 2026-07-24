@@ -94,9 +94,11 @@ function ResultsHub() {
   const [tab, setTab] = useState<TabId>("charts");
   const [riasec, setRiasec] = useState<RiasecRow[] | null>(null);
   const [stem, setStem] = useState<StemRow[] | null>(null);
+  const [stemItems, setStemItems] = useState<StemItemRow[] | null>(null);
   const [interest, setInterest] = useState<InterestRow[] | null>(null);
   const [apt, setApt] = useState<AptRow[] | null>(null);
   const [openResp, setOpenResp] = useState<OpenRow[] | null>(null);
+
   const [err, setErr] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
 
