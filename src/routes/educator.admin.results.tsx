@@ -664,15 +664,16 @@ function Capped({ total }: { total: number }) {
   );
 }
 
-function RiasecTable({ rows }: { rows: RiasecRow[] | null }) {
+function RiasecTable({ rows, focus = "all" }: { rows: RiasecRow[] | null; focus?: string }) {
   if (!rows || rows.length === 0) return <Empty loading={!rows} />;
+  const letters = focus === "all" ? RIASEC_LETTERS : [focus];
   return (
     <>
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-charcoal-100 bg-charcoal-50">
             <Th>Student</Th><Th>Grade</Th><Th>Code</Th>
-            {RIASEC_LETTERS.map((l) => <Th key={l}>{l}</Th>)}
+            {letters.map((l) => <Th key={l}>{l}</Th>)}
             <Th>Completed</Th>
           </tr>
         </thead>
@@ -682,7 +683,7 @@ function RiasecTable({ rows }: { rows: RiasecRow[] | null }) {
               <td className="px-3 py-2 font-medium">{r.student}</td>
               <td className="px-3 py-2 tabular-nums">{r.grade}</td>
               <td className="px-3 py-2 font-mono font-semibold tracking-wide">{r.holland}</td>
-              {RIASEC_LETTERS.map((l) => (
+              {letters.map((l) => (
                 <td key={l} className="px-3 py-2 tabular-nums">{r.scores[l] ?? r.scores[l.toLowerCase()] ?? "—"}</td>
               ))}
               <td className="px-3 py-2 text-xs text-charcoal-500">{r.completed}</td>
@@ -695,15 +696,16 @@ function RiasecTable({ rows }: { rows: RiasecRow[] | null }) {
   );
 }
 
-function StemTable({ rows }: { rows: StemRow[] | null }) {
+function StemTable({ rows, focus = "all" }: { rows: StemRow[] | null; focus?: string }) {
   if (!rows || rows.length === 0) return <Empty loading={!rows} />;
+  const constructs = focus === "all" ? ALL_CONSTRUCTS : [focus];
   return (
     <>
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-charcoal-100 bg-charcoal-50">
             <Th>Student</Th><Th>Survey</Th><Th>Admin</Th>
-            {ALL_CONSTRUCTS.map((cid) => <Th key={cid}>{getConstruct(cid).name}</Th>)}
+            {constructs.map((cid) => <Th key={cid}>{getConstruct(cid).name}</Th>)}
             <Th>Completed</Th>
           </tr>
         </thead>
@@ -713,11 +715,11 @@ function StemTable({ rows }: { rows: StemRow[] | null }) {
               <td className="px-3 py-2 font-medium">{r.student}</td>
               <td className="px-3 py-2 text-xs">{r.survey}</td>
               <td className="px-3 py-2 text-xs text-charcoal-500">{r.administration}</td>
-              {ALL_CONSTRUCTS.map((cid) => {
+              {constructs.map((cid) => {
                 const s = r.scores[cid];
                 return (
                   <td key={cid} className="px-3 py-2 tabular-nums text-xs">
-                    {s.after == null ? "—" : s.before != null ? `${s.before.toFixed(1)}→${s.after.toFixed(1)}` : s.after.toFixed(1)}
+                    {!s || s.after == null ? "—" : s.before != null ? `${s.before.toFixed(1)}→${s.after.toFixed(1)}` : s.after.toFixed(1)}
                   </td>
                 );
               })}
