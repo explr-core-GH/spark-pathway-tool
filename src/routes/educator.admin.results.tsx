@@ -226,6 +226,27 @@ function ResultsHub() {
           }),
         );
 
+        // Item-level Likert responses — for choice-distribution charts.
+        const respMeta = new Map(responses.map((r) => [r.id, r]));
+        setStemItems(
+          items.flatMap((it) => {
+            const r = respMeta.get(it.survey_response_id);
+            if (!r) return [];
+            return [{
+              sid: r.student_id,
+              surveyType: r.survey_type ?? "stem",
+              administration: r.administration,
+              completed: (r.completed_at ?? "").slice(0, 10),
+              itemId: it.item_id,
+              valueNow: it.value_now,
+              valueThen: it.value_then,
+              skipped: it.skipped,
+            }];
+          }),
+        );
+
+
+
         // Open-ended survey answers (e.g. "What did you like about your
         // camp?", "What are 1-3 careers you are interested in?") — joined
         // back to the response for student + survey + date.
