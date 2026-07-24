@@ -338,7 +338,7 @@ function ResultsHub() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openResp, memberSet, dateFrom, dateTo]);
 
-  const filterActive = groupKey !== "all" || !!dateFrom || !!dateTo;
+  const filterActive = kindKey !== "all" || groupKey !== "all" || !!dateFrom || !!dateTo;
 
   // ── Excel export (always exports the FILTERED set) ─────────────────────
   function riasecSheetRows() {
