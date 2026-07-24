@@ -957,11 +957,17 @@ function ImpactCharts({
 
   // ── Interest yes/maybe/no overall split ──────────────────────────────────
   const interestSplit = useMemo(() => {
-    const c = { yes: 0, maybe: 0, no: 0 } as Record<string, number>;
-    for (const i of interest ?? []) if (i.response in c) c[i.response]++;
-    const total = c.yes + c.maybe + c.no;
-    return { ...c, total, pct: (k: string) => (total ? Math.round((c[k] / total) * 100) : 0) };
+    let yes = 0, maybe = 0, no = 0;
+    for (const i of interest ?? []) {
+      if (i.response === "yes") yes++;
+      else if (i.response === "maybe") maybe++;
+      else if (i.response === "no") no++;
+    }
+    const total = yes + maybe + no;
+    const pct = (n: number) => (total ? Math.round((n / total) * 100) : 0);
+    return { yes, maybe, no, total, pct };
   }, [interest]);
+
 
   const assessed = new Set((riasec ?? []).map((r) => r.sid)).size;
 
