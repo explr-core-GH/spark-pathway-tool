@@ -286,7 +286,12 @@ function InternshipReport() {
       setScores(scoresOut);
       setEvals((ev ?? []) as EvalRow[]);
       setQuotes(quoteList.slice(0, 8));
-      setLoading(false);
+      } catch (err) {
+        console.error("[report] load failed", err);
+        if (!cancelled) setErrorMsg(err instanceof Error ? err.message : String(err));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     })();
     return () => {
       cancelled = true;
