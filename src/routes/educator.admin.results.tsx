@@ -1098,7 +1098,8 @@ function ImpactCharts({
           </p>
           <div className="mt-4 flex h-6 w-full overflow-hidden bg-charcoal-100 text-[10px] font-medium text-white">
             {(["yes", "maybe", "no"] as const).map((k) => {
-              const pct = interestSplit.pct(k);
+              const n = interestSplit[k];
+              const pct = interestSplit.pct(n);
               const bg = k === "yes" ? "var(--color-explr-500)" : k === "maybe" ? "#C9A227" : "#8A8A8A";
               return pct > 0 ? (
                 <div key={k} className="flex items-center justify-center" style={{ width: `${pct}%`, background: bg }}>
@@ -1108,10 +1109,11 @@ function ImpactCharts({
             })}
           </div>
           <div className="mt-2 flex gap-4 text-xs text-charcoal-500">
-            <span><span className="mr-1 inline-block h-2 w-2" style={{ background: "var(--color-explr-500)" }} />Yes {interestSplit.yes} ({interestSplit.pct("yes")}%)</span>
-            <span><span className="mr-1 inline-block h-2 w-2" style={{ background: "#C9A227" }} />Maybe {interestSplit.maybe} ({interestSplit.pct("maybe")}%)</span>
-            <span><span className="mr-1 inline-block h-2 w-2" style={{ background: "#8A8A8A" }} />No {interestSplit.no} ({interestSplit.pct("no")}%)</span>
+            <span><span className="mr-1 inline-block h-2 w-2" style={{ background: "var(--color-explr-500)" }} />Yes {interestSplit.yes} ({interestSplit.pct(interestSplit.yes)}%)</span>
+            <span><span className="mr-1 inline-block h-2 w-2" style={{ background: "#C9A227" }} />Maybe {interestSplit.maybe} ({interestSplit.pct(interestSplit.maybe)}%)</span>
+            <span><span className="mr-1 inline-block h-2 w-2" style={{ background: "#8A8A8A" }} />No {interestSplit.no} ({interestSplit.pct(interestSplit.no)}%)</span>
           </div>
+
         </section>
       )}
 
