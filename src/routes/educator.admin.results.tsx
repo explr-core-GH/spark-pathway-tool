@@ -840,15 +840,18 @@ function InterestTable({ rows }: { rows: InterestRow[] | null }) {
 function ImpactCharts({
   riasec,
   stem,
+  stemItems,
   interest,
   scope,
 }: {
   riasec: RiasecRow[] | null;
   stem: StemRow[] | null;
+  stemItems: StemItemRow[] | null;
   interest: InterestRow[] | null;
   scope: string;
 }) {
   const loading = !riasec || !stem || !interest;
+
 
   // ── STEM start→end pairs per construct ──────────────────────────────────
   const efficacy = useMemo(() => {
