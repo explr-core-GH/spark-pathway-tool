@@ -108,6 +108,8 @@ function InternshipReport() {
     let cancelled = false;
     (async () => {
       setLoading(true);
+      setErrorMsg(null);
+      try {
 
       // 1. Internship row
       const { data: iRow } = await supabase
