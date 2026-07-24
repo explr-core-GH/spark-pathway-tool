@@ -662,6 +662,7 @@ function ResultsHub() {
           <ImpactCharts
             riasec={fRiasec}
             stem={fStem}
+            stemItems={fStemItems}
             interest={fInterest}
             scope={
               (selectedGroup
@@ -677,9 +678,11 @@ function ResultsHub() {
         {tab === "stem" && (
           <>
             <StemTable rows={fStem} focus={stemFocus} />
+            <StemItemDistribution rows={fStemItems} focus={stemFocus} />
             <OpenResponsesList rows={openFocus === "all" ? fOpen : (fOpen ?? []).filter((r) => r.prompt === openFocus)} />
           </>
         )}
+
         {tab === "interest" && (
           <InterestTable rows={interestFocus === "all" ? fInterest : (fInterest ?? []).filter((r) => r.internship === interestFocus)} />
         )}
