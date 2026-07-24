@@ -6,6 +6,7 @@ import { scoreConstruct, type ItemResponseValue } from "@/lib/explr-stem/scoring
 import { INTERNSHIPS } from "@/lib/internships-catalog";
 import { fetchGroups, type GroupKind, type GroupSummary } from "@/lib/admin-groups";
 
+
 export const Route = createFileRoute("/educator/admin/results")({
   head: () => ({ meta: [{ title: "Results & downloads — Admin" }] }),
   component: ResultsHub,
@@ -67,6 +68,18 @@ type AptRow = {
   items: number;
   completed: string;
 };
+/** Item-level Likert response (used by the choice-distribution view). */
+type StemItemRow = {
+  sid: string;
+  surveyType: string;
+  administration: string;
+  completed: string;
+  itemId: string;
+  valueNow: number | null;
+  valueThen: number | null;
+  skipped: boolean;
+};
+
 
 type TabId = "charts" | "riasec" | "stem" | "interest" | "aptitude";
 const TABS: Array<{ id: TabId; label: string }> = [
@@ -81,9 +94,11 @@ function ResultsHub() {
   const [tab, setTab] = useState<TabId>("charts");
   const [riasec, setRiasec] = useState<RiasecRow[] | null>(null);
   const [stem, setStem] = useState<StemRow[] | null>(null);
+  const [stemItems, setStemItems] = useState<StemItemRow[] | null>(null);
   const [interest, setInterest] = useState<InterestRow[] | null>(null);
   const [apt, setApt] = useState<AptRow[] | null>(null);
   const [openResp, setOpenResp] = useState<OpenRow[] | null>(null);
+
   const [err, setErr] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
 
@@ -211,6 +226,27 @@ function ResultsHub() {
           }),
         );
 
+        // Item-level Likert responses — for choice-distribution charts.
+        const respMeta = new Map(responses.map((r) => [r.id, r]));
+        setStemItems(
+          items.flatMap((it) => {
+            const r = respMeta.get(it.survey_response_id);
+            if (!r) return [];
+            return [{
+              sid: r.student_id,
+              surveyType: r.survey_type ?? "stem",
+              administration: r.administration,
+              completed: (r.completed_at ?? "").slice(0, 10),
+              itemId: it.item_id,
+              valueNow: it.value_now,
+              valueThen: it.value_then,
+              skipped: it.skipped,
+            }];
+          }),
+        );
+
+
+
         // Open-ended survey answers (e.g. "What did you like about your
         // camp?", "What are 1-3 careers you are interested in?") — joined
         // back to the response for student + survey + date.
@@ -322,6 +358,12 @@ function ResultsHub() {
     return stem?.filter((r) => pass(r.sid, r.completed)) ?? null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stem, memberSet, dateFrom, dateTo]);
+  const fStemItems = useMemo(() => {
+    const pass = makeFilter();
+    return stemItems?.filter((r) => pass(r.sid, r.completed)) ?? null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stemItems, memberSet, dateFrom, dateTo]);
+
   const fInterest = useMemo(() => {
     const pass = makeFilter();
     return interest?.filter((r) => pass(r.sid, r.date)) ?? null;
@@ -620,6 +662,7 @@ function ResultsHub() {
           <ImpactCharts
             riasec={fRiasec}
             stem={fStem}
+            stemItems={fStemItems}
             interest={fInterest}
             scope={
               (selectedGroup
@@ -635,9 +678,11 @@ function ResultsHub() {
         {tab === "stem" && (
           <>
             <StemTable rows={fStem} focus={stemFocus} />
+            <StemItemDistribution rows={fStemItems} focus={stemFocus} />
             <OpenResponsesList rows={openFocus === "all" ? fOpen : (fOpen ?? []).filter((r) => r.prompt === openFocus)} />
           </>
         )}
+
         {tab === "interest" && (
           <InterestTable rows={interestFocus === "all" ? fInterest : (fInterest ?? []).filter((r) => r.internship === interestFocus)} />
         )}
@@ -795,15 +840,18 @@ function InterestTable({ rows }: { rows: InterestRow[] | null }) {
 function ImpactCharts({
   riasec,
   stem,
+  stemItems,
   interest,
   scope,
 }: {
   riasec: RiasecRow[] | null;
   stem: StemRow[] | null;
+  stemItems: StemItemRow[] | null;
   interest: InterestRow[] | null;
   scope: string;
 }) {
   const loading = !riasec || !stem || !interest;
+
 
   // ── STEM start→end pairs per construct ──────────────────────────────────
   const efficacy = useMemo(() => {
@@ -907,7 +955,22 @@ function ImpactCharts({
   }, [interest]);
   const demandMax = Math.max(1, ...demand.map((d) => d.count));
 
+  // ── Interest yes/maybe/no overall split ──────────────────────────────────
+  const interestSplit = useMemo(() => {
+    let yes = 0, maybe = 0, no = 0;
+    for (const i of interest ?? []) {
+      if (i.response === "yes") yes++;
+      else if (i.response === "maybe") maybe++;
+      else if (i.response === "no") no++;
+    }
+    const total = yes + maybe + no;
+    const pct = (n: number) => (total ? Math.round((n / total) * 100) : 0);
+    return { yes, maybe, no, total, pct };
+  }, [interest]);
+
+
   const assessed = new Set((riasec ?? []).map((r) => r.sid)).size;
+
 
   if (loading) return <p className="py-8 text-sm text-charcoal-400">Loading…</p>;
 
@@ -1026,6 +1089,44 @@ function ImpactCharts({
         </section>
       )}
 
+      {/* Interest yes / maybe / no split */}
+      {interestSplit.total > 0 && (
+        <section className="mt-10">
+          <h3 className="text-sm font-semibold">Overall internship interest</h3>
+          <p className="mt-1 text-xs text-charcoal-500">
+            Every yes / maybe / no reply across every internship shown ({interestSplit.total.toLocaleString()} replies).
+          </p>
+          <div className="mt-4 flex h-6 w-full overflow-hidden bg-charcoal-100 text-[10px] font-medium text-white">
+            {(["yes", "maybe", "no"] as const).map((k) => {
+              const n = interestSplit[k];
+              const pct = interestSplit.pct(n);
+              const bg = k === "yes" ? "var(--color-explr-500)" : k === "maybe" ? "#C9A227" : "#8A8A8A";
+              return pct > 0 ? (
+                <div key={k} className="flex items-center justify-center" style={{ width: `${pct}%`, background: bg }}>
+                  {pct >= 8 ? `${pct}%` : ""}
+                </div>
+              ) : null;
+            })}
+          </div>
+          <div className="mt-2 flex gap-4 text-xs text-charcoal-500">
+            <span><span className="mr-1 inline-block h-2 w-2" style={{ background: "var(--color-explr-500)" }} />Yes {interestSplit.yes} ({interestSplit.pct(interestSplit.yes)}%)</span>
+            <span><span className="mr-1 inline-block h-2 w-2" style={{ background: "#C9A227" }} />Maybe {interestSplit.maybe} ({interestSplit.pct(interestSplit.maybe)}%)</span>
+            <span><span className="mr-1 inline-block h-2 w-2" style={{ background: "#8A8A8A" }} />No {interestSplit.no} ({interestSplit.pct(interestSplit.no)}%)</span>
+          </div>
+
+        </section>
+      )}
+
+      {/* STEM item-level response distribution — full choice breakdown */}
+      <section className="mt-10">
+        <h3 className="text-sm font-semibold">STEM survey — response breakdown</h3>
+        <p className="mt-1 text-xs text-charcoal-500">
+          Every Likert response shown as a percentage of respondents per question.
+          Switch focused construct on the &ldquo;STEM survey&rdquo; tab to change scope.
+        </p>
+        <StemItemDistribution rows={stemItems} focus="all" compact />
+      </section>
+
       <p className="mt-10 text-[11px] text-charcoal-400">
         EXPLR Pathways · RIASEC interest assessment &amp; S-STEM survey · Use
         &ldquo;Print / save as PDF&rdquo; to share this page.
@@ -1033,6 +1134,7 @@ function ImpactCharts({
     </div>
   );
 }
+
 
 function Tile({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
@@ -1075,3 +1177,176 @@ function AptTable({ rows, subscales }: { rows: AptRow[] | null; subscales: strin
     </>
   );
 }
+
+// ─── STEM item-level response distribution ─────────────────────────────────
+//
+// For each item on the chosen construct(s), tally how many students picked
+// each Likert point and render it as a stacked % bar. When both `then` and
+// `now` values are stored on the same response (retrospective survey), we
+// render a Before + After pair so growth per item is visible.
+
+type ItemCatalog = { itemId: string; text: string; construct: string; scale: ReturnType<typeof getScale> };
+
+function buildItemCatalog(): ItemCatalog[] {
+  const out: ItemCatalog[] = [];
+  for (const cid of ALL_CONSTRUCTS) {
+    const c = getConstruct(cid);
+    const scale = getScale(c.scale);
+    for (const it of c.items) {
+      out.push({
+        itemId: it.id,
+        text: it.text ?? it.career_name ?? it.domain ?? it.id,
+        construct: c.name,
+        scale,
+      });
+    }
+  }
+  return out;
+}
+
+const LIKERT_COLORS = ["#B85042", "#D48A7A", "#B0B0B0", "#8FC0B3", "var(--color-explr-500)"];
+
+function StemItemDistribution({
+  rows,
+  focus,
+  compact,
+}: {
+  rows: StemItemRow[] | null;
+  focus: string;
+  compact?: boolean;
+}) {
+  const catalog = useMemo(buildItemCatalog, []);
+  const byId = useMemo(() => new Map(catalog.map((c) => [c.itemId, c])), [catalog]);
+  const focusName = focus === "all" ? null : getConstruct(focus as typeof ALL_CONSTRUCTS[number])?.name ?? null;
+
+  const distributions = useMemo(() => {
+    if (!rows) return null;
+    type Tally = { now: Map<number, number>; then: Map<number, number>; nNow: number; nThen: number };
+    const map = new Map<string, Tally>();
+    for (const r of rows) {
+      if (r.skipped) continue;
+      const t = map.get(r.itemId) ?? { now: new Map(), then: new Map(), nNow: 0, nThen: 0 };
+      if (r.valueNow != null) {
+        t.now.set(r.valueNow, (t.now.get(r.valueNow) ?? 0) + 1);
+        t.nNow++;
+      }
+      if (r.valueThen != null) {
+        t.then.set(r.valueThen, (t.then.get(r.valueThen) ?? 0) + 1);
+        t.nThen++;
+      }
+      map.set(r.itemId, t);
+    }
+    const out: Array<{
+      construct: string;
+      itemId: string;
+      text: string;
+      scale: ItemCatalog["scale"];
+      nNow: number;
+      nThen: number;
+      now: Array<{ value: number; label: string; count: number; pct: number }>;
+      then: Array<{ value: number; label: string; count: number; pct: number }> | null;
+    }> = [];
+    for (const [itemId, t] of map) {
+      const cat = byId.get(itemId);
+      if (!cat) continue;
+      if (focusName && cat.construct !== focusName) continue;
+      if (t.nNow === 0 && t.nThen === 0) continue;
+      const asRow = (m: Map<number, number>, n: number) =>
+        cat.scale.points.map((p) => {
+          const count = m.get(p.value) ?? 0;
+          return { value: p.value, label: p.label, count, pct: n ? Math.round((count / n) * 100) : 0 };
+        });
+      out.push({
+        construct: cat.construct,
+        itemId,
+        text: cat.text,
+        scale: cat.scale,
+        nNow: t.nNow,
+        nThen: t.nThen,
+        now: asRow(t.now, t.nNow),
+        then: t.nThen > 0 ? asRow(t.then, t.nThen) : null,
+      });
+    }
+    const order = new Map(ALL_CONSTRUCTS.map((cid, i) => [getConstruct(cid).name, i]));
+    out.sort((a, b) => (order.get(a.construct)! - order.get(b.construct)!) || a.itemId.localeCompare(b.itemId));
+    return out;
+  }, [rows, focusName, byId]);
+
+  if (!rows) return <p className="mt-6 text-sm text-charcoal-400">Loading response breakdown…</p>;
+  if (!distributions || distributions.length === 0) {
+    return <p className="mt-6 text-sm text-charcoal-400">No STEM survey responses in this selection yet.</p>;
+  }
+
+  const byConstruct = new Map<string, typeof distributions>();
+  for (const d of distributions) {
+    const arr = byConstruct.get(d.construct);
+    if (arr) arr.push(d);
+    else byConstruct.set(d.construct, [d]);
+  }
+
+  return (
+    <section className={compact ? "mt-6" : "mt-10"}>
+      {!compact && <h3 className="text-sm font-semibold">Response breakdown per question</h3>}
+      {!compact && (
+        <p className="mt-1 text-xs text-charcoal-500">
+          For each Likert item, % of students picking each option. Retrospective surveys show a Before → After pair.
+        </p>
+      )}
+      <div className="mt-4 space-y-8">
+        {[...byConstruct.entries()].map(([cname, items]) => (
+          <div key={cname}>
+            <p className="text-xs font-semibold uppercase tracking-wider text-charcoal-500">{cname}</p>
+            <div className="mt-2 flex flex-wrap gap-3 text-[10px] text-charcoal-500">
+              {items[0].scale.points.map((p, i) => (
+                <span key={p.value} className="inline-flex items-center gap-1">
+                  <span className="inline-block h-2 w-2" style={{ background: LIKERT_COLORS[i] ?? "#999" }} />
+                  {p.label}
+                </span>
+              ))}
+            </div>
+            <div className="mt-3 space-y-4">
+              {items.map((d) => (
+                <div key={d.itemId}>
+                  <div className="flex items-baseline justify-between gap-3 text-sm">
+                    <span className="flex-1">{d.text}</span>
+                    <span className="text-[10px] tabular-nums text-charcoal-400">n={d.nNow || d.nThen}</span>
+                  </div>
+                  {d.then && (
+                    <div className="mt-1.5 flex items-center gap-2">
+                      <span className="w-12 shrink-0 text-[10px] uppercase tracking-wider text-charcoal-400">before</span>
+                      <StackedBar segments={d.then} />
+                    </div>
+                  )}
+                  <div className="mt-1 flex items-center gap-2">
+                    {d.then && <span className="w-12 shrink-0 text-[10px] uppercase tracking-wider text-charcoal-400">after</span>}
+                    <StackedBar segments={d.now} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function StackedBar({ segments }: { segments: Array<{ value: number; label: string; count: number; pct: number }> }) {
+  return (
+    <div className="flex h-5 flex-1 overflow-hidden bg-charcoal-100 text-[9px] font-medium text-white">
+      {segments.map((s, i) =>
+        s.pct > 0 ? (
+          <div
+            key={s.value}
+            title={`${s.label}: ${s.count} (${s.pct}%)`}
+            className="flex items-center justify-center"
+            style={{ width: `${s.pct}%`, background: LIKERT_COLORS[i] ?? "#999" }}
+          >
+            {s.pct >= 8 ? `${s.pct}%` : ""}
+          </div>
+        ) : null,
+      )}
+    </div>
+  );
+}
+
