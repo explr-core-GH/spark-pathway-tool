@@ -22,7 +22,20 @@ import { RIASEC_ORDER, type RIASECCode } from "@/lib/riasec";
 
 export const Route = createFileRoute("/educator/admin/internships/$slug/report")({
   head: ({ params }) => ({
-    meta: [{ title: `Internship report — ${params.slug}` }],
+    meta: [
+      { title: `Internship Report — ${params.slug}` },
+      {
+        name: "description",
+        content: "Printable EXPLR internship overview with roster completion, survey results, supervisor feedback, and funder-ready charts.",
+      },
+      { property: "og:title", content: `Internship Report — ${params.slug}` },
+      {
+        property: "og:description",
+        content: "Printable EXPLR internship overview with roster completion, survey results, supervisor feedback, and funder-ready charts.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
   }),
   component: InternshipReport,
 });

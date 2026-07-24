@@ -76,6 +76,7 @@ import { Route as EducatorAdminApplyRequestsRouteImport } from './routes/educato
 import { Route as EducatorAdminApplicationsRouteImport } from './routes/educator.admin.applications'
 import { Route as AssessmentInternshipInterestResultsRouteImport } from './routes/assessment.internship-interest_.results'
 import { Route as AssessmentSessionIdResultsRouteImport } from './routes/assessment.$sessionId_.results'
+import { Route as EducatorAdminInternshipsIndexRouteImport } from './routes/educator.admin.internships.index'
 import { Route as EducatorAdminEducatorsIdRouteImport } from './routes/educator.admin.educators.$id'
 import { Route as DemoAptitudeBandTakeRouteImport } from './routes/demo.aptitude.$band.take'
 import { Route as EducatorAdminGroupsKindIndexRouteImport } from './routes/educator.admin.groups.$kind.index'
@@ -433,6 +434,12 @@ const AssessmentSessionIdResultsRoute =
     path: '/assessment/$sessionId/results',
     getParentRoute: () => rootRouteImport,
   } as any)
+const EducatorAdminInternshipsIndexRoute =
+  EducatorAdminInternshipsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => EducatorAdminInternshipsRoute,
+  } as any)
 const EducatorAdminEducatorsIdRoute =
   EducatorAdminEducatorsIdRouteImport.update({
     id: '/educators/$id',
@@ -533,6 +540,7 @@ export interface FileRoutesByFullPath {
   '/educator/internships/': typeof EducatorInternshipsIndexRoute
   '/demo/aptitude/$band/take': typeof DemoAptitudeBandTakeRoute
   '/educator/admin/educators/$id': typeof EducatorAdminEducatorsIdRoute
+  '/educator/admin/internships/': typeof EducatorAdminInternshipsIndexRoute
   '/educator/admin/groups/$kind/$id': typeof EducatorAdminGroupsKindIdRoute
   '/educator/admin/internships/$slug/report': typeof EducatorAdminInternshipsSlugReportRoute
   '/educator/admin/groups/$kind/': typeof EducatorAdminGroupsKindIndexRoute
@@ -584,7 +592,6 @@ export interface FileRoutesByTo {
   '/educator/admin/demographics': typeof EducatorAdminDemographicsRoute
   '/educator/admin/import-explr': typeof EducatorAdminImportExplrRoute
   '/educator/admin/internship-logins': typeof EducatorAdminInternshipLoginsRoute
-  '/educator/admin/internships': typeof EducatorAdminInternshipsRouteWithChildren
   '/educator/admin/invites': typeof EducatorAdminInvitesRoute
   '/educator/admin/opportunities': typeof EducatorAdminOpportunitiesRoute
   '/educator/admin/opportunity-fields': typeof EducatorAdminOpportunityFieldsRoute
@@ -605,6 +612,7 @@ export interface FileRoutesByTo {
   '/educator/internships': typeof EducatorInternshipsIndexRoute
   '/demo/aptitude/$band/take': typeof DemoAptitudeBandTakeRoute
   '/educator/admin/educators/$id': typeof EducatorAdminEducatorsIdRoute
+  '/educator/admin/internships': typeof EducatorAdminInternshipsIndexRoute
   '/educator/admin/groups/$kind/$id': typeof EducatorAdminGroupsKindIdRoute
   '/educator/admin/internships/$slug/report': typeof EducatorAdminInternshipsSlugReportRoute
   '/educator/admin/groups/$kind': typeof EducatorAdminGroupsKindIndexRoute
@@ -680,6 +688,7 @@ export interface FileRoutesById {
   '/educator/internships/': typeof EducatorInternshipsIndexRoute
   '/demo/aptitude/$band/take': typeof DemoAptitudeBandTakeRoute
   '/educator/admin/educators/$id': typeof EducatorAdminEducatorsIdRoute
+  '/educator/admin/internships/': typeof EducatorAdminInternshipsIndexRoute
   '/educator/admin/groups/$kind/$id': typeof EducatorAdminGroupsKindIdRoute
   '/educator/admin/internships/$slug/report': typeof EducatorAdminInternshipsSlugReportRoute
   '/educator/admin/groups/$kind/': typeof EducatorAdminGroupsKindIndexRoute
@@ -756,6 +765,7 @@ export interface FileRouteTypes {
     | '/educator/internships/'
     | '/demo/aptitude/$band/take'
     | '/educator/admin/educators/$id'
+    | '/educator/admin/internships/'
     | '/educator/admin/groups/$kind/$id'
     | '/educator/admin/internships/$slug/report'
     | '/educator/admin/groups/$kind/'
@@ -807,7 +817,6 @@ export interface FileRouteTypes {
     | '/educator/admin/demographics'
     | '/educator/admin/import-explr'
     | '/educator/admin/internship-logins'
-    | '/educator/admin/internships'
     | '/educator/admin/invites'
     | '/educator/admin/opportunities'
     | '/educator/admin/opportunity-fields'
@@ -828,6 +837,7 @@ export interface FileRouteTypes {
     | '/educator/internships'
     | '/demo/aptitude/$band/take'
     | '/educator/admin/educators/$id'
+    | '/educator/admin/internships'
     | '/educator/admin/groups/$kind/$id'
     | '/educator/admin/internships/$slug/report'
     | '/educator/admin/groups/$kind'
@@ -902,6 +912,7 @@ export interface FileRouteTypes {
     | '/educator/internships/'
     | '/demo/aptitude/$band/take'
     | '/educator/admin/educators/$id'
+    | '/educator/admin/internships/'
     | '/educator/admin/groups/$kind/$id'
     | '/educator/admin/internships/$slug/report'
     | '/educator/admin/groups/$kind/'
@@ -1412,6 +1423,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssessmentSessionIdResultsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/educator/admin/internships/': {
+      id: '/educator/admin/internships/'
+      path: '/'
+      fullPath: '/educator/admin/internships/'
+      preLoaderRoute: typeof EducatorAdminInternshipsIndexRouteImport
+      parentRoute: typeof EducatorAdminInternshipsRoute
+    }
     '/educator/admin/educators/$id': {
       id: '/educator/admin/educators/$id'
       path: '/educators/$id'
@@ -1451,11 +1469,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface EducatorAdminInternshipsRouteChildren {
+  EducatorAdminInternshipsIndexRoute: typeof EducatorAdminInternshipsIndexRoute
   EducatorAdminInternshipsSlugReportRoute: typeof EducatorAdminInternshipsSlugReportRoute
 }
 
 const EducatorAdminInternshipsRouteChildren: EducatorAdminInternshipsRouteChildren =
   {
+    EducatorAdminInternshipsIndexRoute: EducatorAdminInternshipsIndexRoute,
     EducatorAdminInternshipsSlugReportRoute:
       EducatorAdminInternshipsSlugReportRoute,
   }
