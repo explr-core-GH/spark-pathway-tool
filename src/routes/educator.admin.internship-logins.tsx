@@ -126,6 +126,13 @@ function InternshipLoginsAdmin() {
                         Print credentials
                       </button>
                     )}
+                    <Link
+                      to="/educator/admin/internships/$slug/report"
+                      params={{ slug: i.slug }}
+                      className="btn-ghost"
+                    >
+                      Funder report →
+                    </Link>
                   </div>
 
                   {addForm?.slug === i.slug && (
