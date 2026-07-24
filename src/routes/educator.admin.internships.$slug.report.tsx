@@ -119,7 +119,7 @@ function InternshipReport() {
       const [{ data: places }, { data: logins }] = await Promise.all([
         supabase
           .from("internship_placements")
-          .select("student_id, students:student_id(full_name)")
+          .select("student_id")
           .eq("approved_internship_id", slug),
         supabase
           .from("internship_student_logins")
@@ -128,13 +128,9 @@ function InternshipReport() {
       ]);
       const nameMap: Record<string, string> = {};
       const ids = new Set<string>();
-      for (const p of (places ?? []) as Array<{
-        student_id: string;
-        students: { full_name: string | null } | null;
-      }>) {
+      for (const p of (places ?? []) as Array<{ student_id: string }>) {
         if (!p.student_id) continue;
         ids.add(p.student_id);
-        if (p.students?.full_name) nameMap[p.student_id] = p.students.full_name;
       }
       for (const l of (logins ?? []) as Array<{
         student_id: string | null;
@@ -143,6 +139,15 @@ function InternshipReport() {
         if (!l.student_id) continue;
         ids.add(l.student_id);
         if (!nameMap[l.student_id]) nameMap[l.student_id] = l.child_name;
+      }
+      if (ids.size) {
+        const { data: st } = await supabase
+          .from("students")
+          .select("id, full_name")
+          .in("id", [...ids]);
+        for (const s of (st ?? []) as Array<{ id: string; full_name: string | null }>) {
+          if (s.full_name && !nameMap[s.id]) nameMap[s.id] = s.full_name;
+        }
       }
       const idList = [...ids];
 
