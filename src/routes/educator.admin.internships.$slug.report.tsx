@@ -143,10 +143,10 @@ function InternshipReport() {
       if (ids.size) {
         const { data: st } = await supabase
           .from("students")
-          .select("id, full_name")
+          .select("id, first_name")
           .in("id", [...ids]);
-        for (const s of (st ?? []) as Array<{ id: string; full_name: string | null }>) {
-          if (s.full_name && !nameMap[s.id]) nameMap[s.id] = s.full_name;
+        for (const s of (st ?? []) as Array<{ id: string; first_name: string | null }>) {
+          if (s.first_name && !nameMap[s.id]) nameMap[s.id] = s.first_name;
         }
       }
       const idList = [...ids];
