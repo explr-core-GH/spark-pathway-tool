@@ -358,6 +358,12 @@ function ResultsHub() {
     return stem?.filter((r) => pass(r.sid, r.completed)) ?? null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stem, memberSet, dateFrom, dateTo]);
+  const fStemItems = useMemo(() => {
+    const pass = makeFilter();
+    return stemItems?.filter((r) => pass(r.sid, r.completed)) ?? null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stemItems, memberSet, dateFrom, dateTo]);
+
   const fInterest = useMemo(() => {
     const pass = makeFilter();
     return interest?.filter((r) => pass(r.sid, r.date)) ?? null;
