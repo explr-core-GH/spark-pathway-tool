@@ -68,6 +68,18 @@ type AptRow = {
   items: number;
   completed: string;
 };
+/** Item-level Likert response (used by the choice-distribution view). */
+type StemItemRow = {
+  sid: string;
+  surveyType: string;
+  administration: string;
+  completed: string;
+  itemId: string;
+  valueNow: number | null;
+  valueThen: number | null;
+  skipped: boolean;
+};
+
 
 type TabId = "charts" | "riasec" | "stem" | "interest" | "aptitude";
 const TABS: Array<{ id: TabId; label: string }> = [
