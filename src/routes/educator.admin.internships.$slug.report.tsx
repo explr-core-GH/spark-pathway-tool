@@ -327,11 +327,22 @@ function InternshipReport() {
   if (loading) {
     return <main className="mx-auto max-w-5xl px-6 py-12"><p className="text-charcoal-500">Loading report…</p></main>;
   }
+  if (errorMsg) {
+    return (
+      <main className="mx-auto max-w-5xl px-6 py-12 space-y-4">
+        <Link to="/educator/admin/internships" className="text-sm text-charcoal-500 hover:text-ink">← All internships</Link>
+        <div className="border border-red-300 bg-red-50 p-4 text-sm text-red-800">
+          <p className="font-medium">Could not load report</p>
+          <p className="mt-1 whitespace-pre-wrap">{errorMsg}</p>
+        </div>
+      </main>
+    );
+  }
   if (!internship) {
     return (
-      <main className="mx-auto max-w-5xl px-6 py-12">
-        <p>Internship not found.</p>
+      <main className="mx-auto max-w-5xl px-6 py-12 space-y-4">
         <Link to="/educator/admin/internships" className="text-explr-600 hover:underline">← All internships</Link>
+        <p>Internship <code>{slug}</code> not found.</p>
       </main>
     );
   }
