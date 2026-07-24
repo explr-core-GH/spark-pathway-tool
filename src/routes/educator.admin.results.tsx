@@ -87,11 +87,20 @@ function ResultsHub() {
   const [err, setErr] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
 
-  // Filter: a rostered group (or the whole population) + optional date range.
+  // Filter: program type + a specific rostered group (or "all in type") + optional date range.
   const [groups, setGroups] = useState<Array<{ kind: GroupKind; g: GroupSummary }>>([]);
+  const [kindKey, setKindKey] = useState<"all" | GroupKind>("all");
   const [groupKey, setGroupKey] = useState("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+
+  // Per-tab focus pickers — narrow to ONE construct/letter/subscale/prompt so
+  // camps-vs-internships or before-vs-after comparisons are readable.
+  const [riasecFocus, setRiasecFocus] = useState<string>("all");
+  const [stemFocus, setStemFocus] = useState<string>("all");
+  const [aptFocus, setAptFocus] = useState<string>("all");
+  const [openFocus, setOpenFocus] = useState<string>("all");
+  const [interestFocus, setInterestFocus] = useState<string>("all");
 
   useEffect(() => {
     (async () => {
