@@ -102,6 +102,7 @@ function InternshipReport() {
   const [evals, setEvals] = useState<EvalRow[]>([]);
   const [quotes, setQuotes] = useState<Array<{ prompt: string; response: string }>>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
