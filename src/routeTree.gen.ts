@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorksitesRouteImport } from './routes/worksites'
+import { Route as TryRiasecRouteImport } from './routes/try-riasec'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as StemLabRouteImport } from './routes/stem-lab'
 import { Route as StartRouteImport } from './routes/start'
@@ -86,6 +87,11 @@ import { Route as EducatorAdminGroupsKindIdRouteImport } from './routes/educator
 const WorksitesRoute = WorksitesRouteImport.update({
   id: '/worksites',
   path: '/worksites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TryRiasecRoute = TryRiasecRouteImport.update({
+  id: '/try-riasec',
+  path: '/try-riasec',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StudentRoute = StudentRouteImport.update({
@@ -485,6 +491,7 @@ export interface FileRoutesByFullPath {
   '/start': typeof StartRoute
   '/stem-lab': typeof StemLabRoute
   '/student': typeof StudentRoute
+  '/try-riasec': typeof TryRiasecRoute
   '/worksites': typeof WorksitesRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
@@ -559,6 +566,7 @@ export interface FileRoutesByTo {
   '/start': typeof StartRoute
   '/stem-lab': typeof StemLabRoute
   '/student': typeof StudentRoute
+  '/try-riasec': typeof TryRiasecRoute
   '/worksites': typeof WorksitesRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
@@ -633,6 +641,7 @@ export interface FileRoutesById {
   '/start': typeof StartRoute
   '/stem-lab': typeof StemLabRoute
   '/student': typeof StudentRoute
+  '/try-riasec': typeof TryRiasecRoute
   '/worksites': typeof WorksitesRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
@@ -710,6 +719,7 @@ export interface FileRouteTypes {
     | '/start'
     | '/stem-lab'
     | '/student'
+    | '/try-riasec'
     | '/worksites'
     | '/assessment/$sessionId'
     | '/assessment/internship-interest'
@@ -784,6 +794,7 @@ export interface FileRouteTypes {
     | '/start'
     | '/stem-lab'
     | '/student'
+    | '/try-riasec'
     | '/worksites'
     | '/assessment/$sessionId'
     | '/assessment/internship-interest'
@@ -857,6 +868,7 @@ export interface FileRouteTypes {
     | '/start'
     | '/stem-lab'
     | '/student'
+    | '/try-riasec'
     | '/worksites'
     | '/assessment/$sessionId'
     | '/assessment/internship-interest'
@@ -933,6 +945,7 @@ export interface RootRouteChildren {
   StartRoute: typeof StartRoute
   StemLabRoute: typeof StemLabRoute
   StudentRoute: typeof StudentRoute
+  TryRiasecRoute: typeof TryRiasecRoute
   WorksitesRoute: typeof WorksitesRoute
   AssessmentSessionIdRoute: typeof AssessmentSessionIdRoute
   AssessmentInternshipInterestRoute: typeof AssessmentInternshipInterestRoute
@@ -959,6 +972,13 @@ declare module '@tanstack/react-router' {
       path: '/worksites'
       fullPath: '/worksites'
       preLoaderRoute: typeof WorksitesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/try-riasec': {
+      id: '/try-riasec'
+      path: '/try-riasec'
+      fullPath: '/try-riasec'
+      preLoaderRoute: typeof TryRiasecRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/student': {
@@ -1600,6 +1620,7 @@ const rootRouteChildren: RootRouteChildren = {
   StartRoute: StartRoute,
   StemLabRoute: StemLabRoute,
   StudentRoute: StudentRoute,
+  TryRiasecRoute: TryRiasecRoute,
   WorksitesRoute: WorksitesRoute,
   AssessmentSessionIdRoute: AssessmentSessionIdRoute,
   AssessmentInternshipInterestRoute: AssessmentInternshipInterestRoute,
