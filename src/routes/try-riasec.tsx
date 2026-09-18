@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   ITEMS,
   LIKERT_LABELS,
@@ -46,6 +47,20 @@ function TryRiasec() {
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [done, setDone] = useState(false);
+  // Admin-uploaded context photos per item (same table the real runner uses).
+  const [photos, setPhotos] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    (supabase.from as unknown as (n: string) => {
+      select: (c: string) => Promise<{ data: Array<{ item_id: string; url: string }> | null }>;
+    })("assessment_item_photos")
+      .select("item_id, url")
+      .then(({ data: rows }) => {
+        const m: Record<string, string> = {};
+        for (const r of rows ?? []) m[r.item_id] = r.url;
+        setPhotos(m);
+      });
+  }, []);
 
   const total = sequence.length;
 
@@ -152,8 +167,15 @@ function TryRiasec() {
             className="relative mb-8 flex h-48 w-full items-center justify-center overflow-hidden rounded-lg sm:h-64"
             style={{ background: scale.colorSoft }}
           >
-            {item?.image ? (
-              <img src={item.image} alt="" className="max-h-full max-w-full object-contain" />
+            {item && (photos[item.id] ?? item.image) ? (
+              <img
+                src={photos[item.id] ?? item.image}
+                alt=""
+                className="max-h-full max-w-full object-contain"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+              />
             ) : (
               <span className="text-center text-sm font-semibold uppercase tracking-wider" style={{ color: scale.color }}>
                 {scale.name}
