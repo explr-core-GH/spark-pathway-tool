@@ -47,6 +47,20 @@ function TryRiasec() {
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [done, setDone] = useState(false);
+  // Admin-uploaded context photos per item (same table the real runner uses).
+  const [photos, setPhotos] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    (supabase.from as unknown as (n: string) => {
+      select: (c: string) => Promise<{ data: Array<{ item_id: string; url: string }> | null }>;
+    })("assessment_item_photos")
+      .select("item_id, url")
+      .then(({ data: rows }) => {
+        const m: Record<string, string> = {};
+        for (const r of rows ?? []) m[r.item_id] = r.url;
+        setPhotos(m);
+      });
+  }, []);
 
   const total = sequence.length;
 
