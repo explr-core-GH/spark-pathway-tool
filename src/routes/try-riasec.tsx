@@ -167,8 +167,15 @@ function TryRiasec() {
             className="relative mb-8 flex h-48 w-full items-center justify-center overflow-hidden rounded-lg sm:h-64"
             style={{ background: scale.colorSoft }}
           >
-            {item?.image ? (
-              <img src={item.image} alt="" className="max-h-full max-w-full object-contain" />
+            {item && (photos[item.id] ?? item.image) ? (
+              <img
+                src={photos[item.id] ?? item.image}
+                alt=""
+                className="max-h-full max-w-full object-contain"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+              />
             ) : (
               <span className="text-center text-sm font-semibold uppercase tracking-wider" style={{ color: scale.color }}>
                 {scale.name}
