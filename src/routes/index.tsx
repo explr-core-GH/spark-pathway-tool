@@ -111,20 +111,7 @@ function SiteHeader() {
   );
 }
 
-function SiteFooter() {
-  return (
-    <footer className="rule mt-32">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-baseline justify-between gap-4 px-6 py-10 text-sm text-charcoal-400">
-        <div>© {new Date().getFullYear()} EXPLR · Cleveland</div>
-        <div className="flex gap-6">
-          <Link to="/about" className="hover:text-ink">About</Link>
-          <Link to="/privacy" className="hover:text-ink">Privacy</Link>
-          
-        </div>
-      </div>
-    </footer>
-  );
-}
+import { SiteFooter } from "@/components/SiteFooter";
 
 function Landing() {
   const [active, setActive] = useState<RIASECCode>("R");

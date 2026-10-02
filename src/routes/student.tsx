@@ -465,6 +465,7 @@ function StudentDashboard() {
         </>
         )}
       </main>
+      <SiteFooter />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { useEducator } from "@/lib/auth";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export const Route = createFileRoute("/educator")({
   component: EducatorLayout,
@@ -49,6 +50,7 @@ function EducatorLayout() {
         )}
       </header>
       <Outlet />
+      <SiteFooter />
     </div>
   );
 }
