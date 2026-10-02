@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
+import { SiteFooter } from "@/components/SiteFooter";
 import { INTERNSHIPS } from "@/lib/internships-catalog";
 import { RIASEC, type RIASECCode } from "@/lib/riasec";
 import { StemActivitiesMarquee } from "@/components/StemActivitiesMarquee";
