@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorksitesRouteImport } from './routes/worksites'
 import { Route as TryRiasecRouteImport } from './routes/try-riasec'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as StudentDataRouteImport } from './routes/student-data'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as StemLabRouteImport } from './routes/stem-lab'
 import { Route as StartRouteImport } from './routes/start'
@@ -92,6 +94,16 @@ const WorksitesRoute = WorksitesRouteImport.update({
 const TryRiasecRoute = TryRiasecRouteImport.update({
   id: '/try-riasec',
   path: '/try-riasec',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentDataRoute = StudentDataRouteImport.update({
+  id: '/student-data',
+  path: '/student-data',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StudentRoute = StudentRouteImport.update({
@@ -491,6 +503,8 @@ export interface FileRoutesByFullPath {
   '/start': typeof StartRoute
   '/stem-lab': typeof StemLabRoute
   '/student': typeof StudentRoute
+  '/student-data': typeof StudentDataRoute
+  '/terms': typeof TermsRoute
   '/try-riasec': typeof TryRiasecRoute
   '/worksites': typeof WorksitesRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
@@ -566,6 +580,8 @@ export interface FileRoutesByTo {
   '/start': typeof StartRoute
   '/stem-lab': typeof StemLabRoute
   '/student': typeof StudentRoute
+  '/student-data': typeof StudentDataRoute
+  '/terms': typeof TermsRoute
   '/try-riasec': typeof TryRiasecRoute
   '/worksites': typeof WorksitesRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
@@ -641,6 +657,8 @@ export interface FileRoutesById {
   '/start': typeof StartRoute
   '/stem-lab': typeof StemLabRoute
   '/student': typeof StudentRoute
+  '/student-data': typeof StudentDataRoute
+  '/terms': typeof TermsRoute
   '/try-riasec': typeof TryRiasecRoute
   '/worksites': typeof WorksitesRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
@@ -719,6 +737,8 @@ export interface FileRouteTypes {
     | '/start'
     | '/stem-lab'
     | '/student'
+    | '/student-data'
+    | '/terms'
     | '/try-riasec'
     | '/worksites'
     | '/assessment/$sessionId'
@@ -794,6 +814,8 @@ export interface FileRouteTypes {
     | '/start'
     | '/stem-lab'
     | '/student'
+    | '/student-data'
+    | '/terms'
     | '/try-riasec'
     | '/worksites'
     | '/assessment/$sessionId'
@@ -868,6 +890,8 @@ export interface FileRouteTypes {
     | '/start'
     | '/stem-lab'
     | '/student'
+    | '/student-data'
+    | '/terms'
     | '/try-riasec'
     | '/worksites'
     | '/assessment/$sessionId'
@@ -945,6 +969,8 @@ export interface RootRouteChildren {
   StartRoute: typeof StartRoute
   StemLabRoute: typeof StemLabRoute
   StudentRoute: typeof StudentRoute
+  StudentDataRoute: typeof StudentDataRoute
+  TermsRoute: typeof TermsRoute
   TryRiasecRoute: typeof TryRiasecRoute
   WorksitesRoute: typeof WorksitesRoute
   AssessmentSessionIdRoute: typeof AssessmentSessionIdRoute
@@ -979,6 +1005,20 @@ declare module '@tanstack/react-router' {
       path: '/try-riasec'
       fullPath: '/try-riasec'
       preLoaderRoute: typeof TryRiasecRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/student-data': {
+      id: '/student-data'
+      path: '/student-data'
+      fullPath: '/student-data'
+      preLoaderRoute: typeof StudentDataRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/student': {
@@ -1620,6 +1660,8 @@ const rootRouteChildren: RootRouteChildren = {
   StartRoute: StartRoute,
   StemLabRoute: StemLabRoute,
   StudentRoute: StudentRoute,
+  StudentDataRoute: StudentDataRoute,
+  TermsRoute: TermsRoute,
   TryRiasecRoute: TryRiasecRoute,
   WorksitesRoute: WorksitesRoute,
   AssessmentSessionIdRoute: AssessmentSessionIdRoute,

@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useOrg, type OrgRow } from "@/lib/auth";
+import { SiteFooter } from "@/components/SiteFooter";
 
 /**
  * OrgGuard — gates the organization portal. Renders its children (a function
@@ -39,7 +40,7 @@ export function OrgGuard({ children }: { children: (org: OrgRow) => React.ReactN
     );
   }
 
-  return <>{children(org)}</>;
+  return <>{children(org)}<SiteFooter /></>;
 }
 
 type LinkOpt = { to: string; label: string };
