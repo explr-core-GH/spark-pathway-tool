@@ -160,7 +160,9 @@ export function familyReportPageHtml(a: FamilyReportArgs): string {
   const code = esc(dims.join(""));
 
   const chips = dims
-    .map((c) => `<span class="r-chip" style="background:${RIASEC[c].color}">${RIASEC[c].code}</span>`)
+    .map(
+      (c) => `<span class="r-chip" style="background:${RIASEC[c].color}">${RIASEC[c].code}</span>`,
+    )
     .join("");
 
   const dimBlocks = dims
@@ -231,7 +233,7 @@ export function familyReportPageHtml(a: FamilyReportArgs): string {
 
     <div class="r-foot">
       EXPLR Pathways &middot; Cleveland State University &times; MAGNET. Keep this sheet &mdash;
-      it has ${fn}&rsquo;s sign-in. Questions? Ask your camp educator or email support@explr.cc.
+      it has ${fn}&rsquo;s sign-in. Questions? Ask your camp instructor or email j.seigler@csuohio.edu.
     </div>
   </div>`;
 }
