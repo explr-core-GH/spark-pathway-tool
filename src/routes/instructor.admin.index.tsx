@@ -79,6 +79,10 @@ function AdminHome() {
           Create and manage invite links on the dedicated{" "}
           <Link to="/instructor/admin/invites" className="ink-link">
             Invites page
+          </Link>{" "}
+          ·{" "}
+          <Link to="/instructor/admin/matching" className="ink-link">
+            Internship matching
           </Link>
           .
         </p>

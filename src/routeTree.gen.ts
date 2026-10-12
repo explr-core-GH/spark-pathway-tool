@@ -63,6 +63,7 @@ import { Route as StudentCredentialsRouteImport } from './routes/student_.creden
 import { Route as StudentExperiencesRouteImport } from './routes/student_.experiences'
 import { Route as StudentPathwayRouteImport } from './routes/student_.pathway'
 import { Route as StudentPiecesRouteImport } from './routes/student_.pieces'
+import { Route as StudentProfileRouteImport } from './routes/student_.profile'
 import { Route as StudentSkillsRouteImport } from './routes/student_.skills'
 import { Route as SurveyAssignmentIdRouteImport } from './routes/survey.$assignmentId'
 import { Route as AssessmentSessionIdResultsRouteImport } from './routes/assessment.$sessionId_.results'
@@ -80,6 +81,7 @@ import { Route as InstructorAdminImportExplrRouteImport } from './routes/instruc
 import { Route as InstructorAdminInternshipLoginsRouteImport } from './routes/instructor.admin.internship-logins'
 import { Route as InstructorAdminInternshipsRouteImport } from './routes/instructor.admin.internships'
 import { Route as InstructorAdminInvitesRouteImport } from './routes/instructor.admin.invites'
+import { Route as InstructorAdminMatchingRouteImport } from './routes/instructor.admin.matching'
 import { Route as InstructorAdminOpportunitiesRouteImport } from './routes/instructor.admin.opportunities'
 import { Route as InstructorAdminOpportunityFieldsRouteImport } from './routes/instructor.admin.opportunity-fields'
 import { Route as InstructorAdminPasswordsRouteImport } from './routes/instructor.admin.passwords'
@@ -378,6 +380,11 @@ const StudentPiecesRoute = StudentPiecesRouteImport.update({
   path: '/student/pieces',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StudentProfileRoute = StudentProfileRouteImport.update({
+  id: '/student_/profile',
+  path: '/student/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StudentSkillsRoute = StudentSkillsRouteImport.update({
   id: '/student_/skills',
   path: '/student/skills',
@@ -472,6 +479,11 @@ const InstructorAdminInternshipsRoute =
 const InstructorAdminInvitesRoute = InstructorAdminInvitesRouteImport.update({
   id: '/invites',
   path: '/invites',
+  getParentRoute: () => InstructorAdminRoute,
+} as any)
+const InstructorAdminMatchingRoute = InstructorAdminMatchingRouteImport.update({
+  id: '/matching',
+  path: '/matching',
   getParentRoute: () => InstructorAdminRoute,
 } as any)
 const InstructorAdminOpportunitiesRoute =
@@ -673,6 +685,7 @@ export interface FileRoutesByFullPath {
   '/student/experiences': typeof StudentExperiencesRouteWithChildren
   '/student/pathway': typeof StudentPathwayRoute
   '/student/pieces': typeof StudentPiecesRoute
+  '/student/profile': typeof StudentProfileRoute
   '/student/skills': typeof StudentSkillsRoute
   '/survey/$assignmentId': typeof SurveyAssignmentIdRoute
   '/assessment/': typeof AssessmentIndexRoute
@@ -695,6 +708,7 @@ export interface FileRoutesByFullPath {
   '/instructor/admin/internship-logins': typeof InstructorAdminInternshipLoginsRoute
   '/instructor/admin/internships': typeof InstructorAdminInternshipsRouteWithChildren
   '/instructor/admin/invites': typeof InstructorAdminInvitesRoute
+  '/instructor/admin/matching': typeof InstructorAdminMatchingRoute
   '/instructor/admin/opportunities': typeof InstructorAdminOpportunitiesRoute
   '/instructor/admin/opportunity-fields': typeof InstructorAdminOpportunityFieldsRoute
   '/instructor/admin/passwords': typeof InstructorAdminPasswordsRoute
@@ -770,6 +784,7 @@ export interface FileRoutesByTo {
   '/student/experiences': typeof StudentExperiencesRouteWithChildren
   '/student/pathway': typeof StudentPathwayRoute
   '/student/pieces': typeof StudentPiecesRoute
+  '/student/profile': typeof StudentProfileRoute
   '/student/skills': typeof StudentSkillsRoute
   '/survey/$assignmentId': typeof SurveyAssignmentIdRoute
   '/assessment': typeof AssessmentIndexRoute
@@ -791,6 +806,7 @@ export interface FileRoutesByTo {
   '/instructor/admin/import-explr': typeof InstructorAdminImportExplrRoute
   '/instructor/admin/internship-logins': typeof InstructorAdminInternshipLoginsRoute
   '/instructor/admin/invites': typeof InstructorAdminInvitesRoute
+  '/instructor/admin/matching': typeof InstructorAdminMatchingRoute
   '/instructor/admin/opportunities': typeof InstructorAdminOpportunitiesRoute
   '/instructor/admin/opportunity-fields': typeof InstructorAdminOpportunityFieldsRoute
   '/instructor/admin/passwords': typeof InstructorAdminPasswordsRoute
@@ -869,6 +885,7 @@ export interface FileRoutesById {
   '/student_/experiences': typeof StudentExperiencesRouteWithChildren
   '/student_/pathway': typeof StudentPathwayRoute
   '/student_/pieces': typeof StudentPiecesRoute
+  '/student_/profile': typeof StudentProfileRoute
   '/student_/skills': typeof StudentSkillsRoute
   '/survey/$assignmentId': typeof SurveyAssignmentIdRoute
   '/assessment/': typeof AssessmentIndexRoute
@@ -891,6 +908,7 @@ export interface FileRoutesById {
   '/instructor/admin/internship-logins': typeof InstructorAdminInternshipLoginsRoute
   '/instructor/admin/internships': typeof InstructorAdminInternshipsRouteWithChildren
   '/instructor/admin/invites': typeof InstructorAdminInvitesRoute
+  '/instructor/admin/matching': typeof InstructorAdminMatchingRoute
   '/instructor/admin/opportunities': typeof InstructorAdminOpportunitiesRoute
   '/instructor/admin/opportunity-fields': typeof InstructorAdminOpportunityFieldsRoute
   '/instructor/admin/passwords': typeof InstructorAdminPasswordsRoute
@@ -970,6 +988,7 @@ export interface FileRouteTypes {
     | '/student/experiences'
     | '/student/pathway'
     | '/student/pieces'
+    | '/student/profile'
     | '/student/skills'
     | '/survey/$assignmentId'
     | '/assessment/'
@@ -992,6 +1011,7 @@ export interface FileRouteTypes {
     | '/instructor/admin/internship-logins'
     | '/instructor/admin/internships'
     | '/instructor/admin/invites'
+    | '/instructor/admin/matching'
     | '/instructor/admin/opportunities'
     | '/instructor/admin/opportunity-fields'
     | '/instructor/admin/passwords'
@@ -1067,6 +1087,7 @@ export interface FileRouteTypes {
     | '/student/experiences'
     | '/student/pathway'
     | '/student/pieces'
+    | '/student/profile'
     | '/student/skills'
     | '/survey/$assignmentId'
     | '/assessment'
@@ -1088,6 +1109,7 @@ export interface FileRouteTypes {
     | '/instructor/admin/import-explr'
     | '/instructor/admin/internship-logins'
     | '/instructor/admin/invites'
+    | '/instructor/admin/matching'
     | '/instructor/admin/opportunities'
     | '/instructor/admin/opportunity-fields'
     | '/instructor/admin/passwords'
@@ -1165,6 +1187,7 @@ export interface FileRouteTypes {
     | '/student_/experiences'
     | '/student_/pathway'
     | '/student_/pieces'
+    | '/student_/profile'
     | '/student_/skills'
     | '/survey/$assignmentId'
     | '/assessment/'
@@ -1187,6 +1210,7 @@ export interface FileRouteTypes {
     | '/instructor/admin/internship-logins'
     | '/instructor/admin/internships'
     | '/instructor/admin/invites'
+    | '/instructor/admin/matching'
     | '/instructor/admin/opportunities'
     | '/instructor/admin/opportunity-fields'
     | '/instructor/admin/passwords'
@@ -1257,6 +1281,7 @@ export interface RootRouteChildren {
   StudentExperiencesRoute: typeof StudentExperiencesRouteWithChildren
   StudentPathwayRoute: typeof StudentPathwayRoute
   StudentPiecesRoute: typeof StudentPiecesRoute
+  StudentProfileRoute: typeof StudentProfileRoute
   StudentSkillsRoute: typeof StudentSkillsRoute
   SurveyAssignmentIdRoute: typeof SurveyAssignmentIdRoute
   AssessmentIndexRoute: typeof AssessmentIndexRoute
@@ -1649,6 +1674,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentPiecesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/student_/profile': {
+      id: '/student_/profile'
+      path: '/student/profile'
+      fullPath: '/student/profile'
+      preLoaderRoute: typeof StudentProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/student_/skills': {
       id: '/student_/skills'
       path: '/student/skills'
@@ -1766,6 +1798,13 @@ declare module '@tanstack/react-router' {
       path: '/invites'
       fullPath: '/instructor/admin/invites'
       preLoaderRoute: typeof InstructorAdminInvitesRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/matching': {
+      id: '/instructor/admin/matching'
+      path: '/matching'
+      fullPath: '/instructor/admin/matching'
+      preLoaderRoute: typeof InstructorAdminMatchingRouteImport
       parentRoute: typeof InstructorAdminRoute
     }
     '/instructor/admin/opportunities': {
@@ -1994,6 +2033,7 @@ interface InstructorAdminRouteChildren {
   InstructorAdminInternshipLoginsRoute: typeof InstructorAdminInternshipLoginsRoute
   InstructorAdminInternshipsRoute: typeof InstructorAdminInternshipsRouteWithChildren
   InstructorAdminInvitesRoute: typeof InstructorAdminInvitesRoute
+  InstructorAdminMatchingRoute: typeof InstructorAdminMatchingRoute
   InstructorAdminOpportunitiesRoute: typeof InstructorAdminOpportunitiesRoute
   InstructorAdminOpportunityFieldsRoute: typeof InstructorAdminOpportunityFieldsRoute
   InstructorAdminPasswordsRoute: typeof InstructorAdminPasswordsRoute
@@ -2023,6 +2063,7 @@ const InstructorAdminRouteChildren: InstructorAdminRouteChildren = {
   InstructorAdminInternshipLoginsRoute: InstructorAdminInternshipLoginsRoute,
   InstructorAdminInternshipsRoute: InstructorAdminInternshipsRouteWithChildren,
   InstructorAdminInvitesRoute: InstructorAdminInvitesRoute,
+  InstructorAdminMatchingRoute: InstructorAdminMatchingRoute,
   InstructorAdminOpportunitiesRoute: InstructorAdminOpportunitiesRoute,
   InstructorAdminOpportunityFieldsRoute: InstructorAdminOpportunityFieldsRoute,
   InstructorAdminPasswordsRoute: InstructorAdminPasswordsRoute,
@@ -2139,6 +2180,7 @@ const rootRouteChildren: RootRouteChildren = {
   StudentExperiencesRoute: StudentExperiencesRouteWithChildren,
   StudentPathwayRoute: StudentPathwayRoute,
   StudentPiecesRoute: StudentPiecesRoute,
+  StudentProfileRoute: StudentProfileRoute,
   StudentSkillsRoute: StudentSkillsRoute,
   SurveyAssignmentIdRoute: SurveyAssignmentIdRoute,
   AssessmentIndexRoute: AssessmentIndexRoute,
