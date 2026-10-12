@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/passport";
 import { SiteFooter } from "@/components/SiteFooter";
 import { FamilyResults, type FamilyResultsData } from "@/components/FamilyPortal";
-import { getFamilyView, type FamilyView } from "@/lib/family.functions";
+import { getFamilyView, guardianAckPlan, type FamilyView } from "@/lib/family.functions";
+import { Stamp } from "@/components/passport";
 
 const FAMILY_TOKEN_KEY = "explr.family.token";
 
@@ -21,6 +22,24 @@ function View() {
   const { t } = Route.useSearch();
   const [view, setView] = useState<FamilyView | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [ackName, setAckName] = useState("");
+  const [ackBusy, setAckBusy] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+
+  async function signPlan(e: React.FormEvent) {
+    e.preventDefault();
+    if (!token) return;
+    setAckBusy(true);
+    try {
+      await guardianAckPlan({ data: { token, name: ackName.trim() } });
+      const v = await getFamilyView({ data: { token } });
+      setView(v as FamilyView);
+    } catch (err) {
+      setError(err instanceof Error ? err.message.replace(/^Error:\s*/, "") : String(err));
+    } finally {
+      setAckBusy(false);
+    }
+  }
 
   useEffect(() => {
     let token = t;
@@ -41,6 +60,7 @@ function View() {
       .then((v) => {
         if (!active) return;
         setView(v as FamilyView);
+        setToken(tok);
         try {
           localStorage.setItem(FAMILY_TOKEN_KEY, tok);
         } catch {
@@ -88,6 +108,70 @@ function View() {
               This link works until {new Date(view.expiresAt).toLocaleDateString()}. Your student
               can turn it off at any time from their dashboard.
             </p>
+            <section className="mt-8 grid gap-6 md:grid-cols-2">
+              <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
+                <p className="eyebrow text-green">This year's plan · {view.plan.schoolYear}</p>
+                <ul className="mt-2 text-sm text-ink-700">
+                  {view.plan.checkpoints.length === 0 && <li>No checkpoints opened yet.</li>}
+                  {view.plan.checkpoints.map((c) => (
+                    <li key={c.term}>
+                      {c.term === "fall" ? "Fall" : "Spring"} checkpoint: {c.status}
+                      {c.submittedAt ? ` (${new Date(c.submittedAt).toLocaleDateString()})` : ""}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-3 text-sm text-ink-700">
+                  Sign-offs: student {view.plan.studentAckAt ? "✓" : "·"} · family{" "}
+                  {view.plan.guardianAckAt ? "✓" : "·"} · advisor{" "}
+                  {view.plan.advisorAckAt ? "✓" : "·"}
+                </p>
+                {!view.plan.guardianAckAt ? (
+                  <form onSubmit={signPlan} className="mt-3 flex flex-wrap items-end gap-2">
+                    <div className="min-w-[180px] flex-1">
+                      <label className="label" htmlFor="ack-name">
+                        Your name
+                      </label>
+                      <input
+                        id="ack-name"
+                        className="field"
+                        required
+                        maxLength={120}
+                        value={ackName}
+                        onChange={(e) => setAckName(e.target.value)}
+                      />
+                    </div>
+                    <button type="submit" disabled={ackBusy} className="btn-ink text-sm">
+                      {ackBusy ? "Signing…" : "I reviewed this plan with my student"}
+                    </button>
+                  </form>
+                ) : (
+                  <p className="mt-2 text-xs text-ink-500">
+                    Thank you. Your sign-off is recorded for {view.plan.schoolYear}.
+                  </p>
+                )}
+              </div>
+              <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
+                <p className="eyebrow text-green">Stamped experiences</p>
+                {view.verified.length === 0 ? (
+                  <p className="mt-2 text-sm text-ink-700">
+                    Nothing verified yet. When a supervisor stamps an experience, it shows here.
+                  </p>
+                ) : (
+                  <ul className="mt-2 flex flex-col gap-2 text-sm">
+                    {view.verified.map((v, i) => (
+                      <li key={i} className="flex flex-wrap items-center justify-between gap-2">
+                        <span>
+                          <strong>{v.title}</strong>
+                          {v.organization ? ` · ${v.organization}` : ""}
+                          {v.hours != null ? ` · ${v.hours} hrs` : ""}
+                        </span>
+                        <Stamp label="Verified" rotate={0} />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </section>
             <FamilyResults data={data} grade={view.grade} />
           </>
         )}

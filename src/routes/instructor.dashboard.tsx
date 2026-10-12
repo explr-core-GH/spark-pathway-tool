@@ -116,6 +116,14 @@ function Dashboard() {
     <main className="mx-auto max-w-6xl px-6 py-16">
       <p className="eyebrow">Dashboard</p>
       <h1 className="mt-3 text-4xl font-light">Welcome, {educator.full_name.split(" ")[0]}.</h1>
+      <div className="mt-6 flex flex-wrap gap-3">
+        <Link to="/instructor/checkpoints" className="btn-ink text-sm">
+          Checkpoints to review
+        </Link>
+        <Link to="/instructor/login-display" className="btn-ghost text-sm">
+          How students sign in
+        </Link>
+      </div>
 
       {/* Assignments */}
       <section className="mt-16">

@@ -171,53 +171,129 @@ export type FamilyView = {
   } | null;
   stemDone: boolean;
   expiresAt: string;
+  /** This school year's advising plan: checkpoint statuses and the three sign-offs. */
+  plan: {
+    schoolYear: string;
+    checkpoints: Array<{ term: string; status: string; submittedAt: string | null }>;
+    studentAckAt: string | null;
+    guardianAckAt: string | null;
+    advisorAckAt: string | null;
+  };
+  /** Verified work experiences, for the family to see what was stamped. */
+  verified: Array<{
+    title: string;
+    organization: string | null;
+    hours: number | null;
+    verifiedAt: string | null;
+  }>;
 };
+
+function currentSchoolYear(d = new Date()): string {
+  const y = d.getMonth() >= 7 ? d.getFullYear() : d.getFullYear() - 1;
+  return `${y}-${String(y + 1).slice(2)}`;
+}
+
+async function sessionFor(token: string) {
+  const { data: sess } = await sb("family_sessions")
+    .select(
+      "id, expires_at, family_link_id, family_links!inner(student_id, revoked_at, expires_at)",
+    )
+    .eq("token_hash", hashToken(token))
+    .maybeSingle();
+  const s = sess as unknown as {
+    id: string;
+    expires_at: string;
+    family_links: { student_id: string; revoked_at: string | null; expires_at: string };
+  } | null;
+  if (!s || new Date(s.expires_at) < new Date() || s.family_links.revoked_at) {
+    throw new Error("This family link has expired. Ask your student for a new code.");
+  }
+  return s;
+}
+
+/** Caregiver: sign off on this year's plan (Ohio's guardian signature on the Student Success Plan). */
+export const guardianAckPlan = createServerFn({ method: "POST" })
+  .inputValidator((input) =>
+    z
+      .object({ token: z.string().min(16).max(128), name: z.string().trim().min(1).max(120) })
+      .parse(input),
+  )
+  .handler(async ({ data }) => {
+    const s = await sessionFor(data.token);
+    const sy = currentSchoolYear();
+    const { error } = await sb("plan_approvals").upsert(
+      {
+        student_id: s.family_links.student_id,
+        school_year: sy,
+        guardian_ack_at: new Date().toISOString(),
+        method: `family_code:${data.name}`,
+      },
+      { onConflict: "student_id,school_year" },
+    );
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
 
 /** Caregiver: the student's completed results for a valid family session. */
 export const getFamilyView = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ token: z.string().min(16).max(128) }).parse(input))
   .handler(async ({ data }) => {
-    const { data: sess } = await sb("family_sessions")
-      .select(
-        "id, expires_at, family_link_id, family_links!inner(student_id, revoked_at, expires_at)",
-      )
-      .eq("token_hash", hashToken(data.token))
-      .maybeSingle();
-    const s = sess as unknown as {
-      id: string;
-      expires_at: string;
-      family_links: { student_id: string; revoked_at: string | null; expires_at: string };
-    } | null;
-    if (!s || new Date(s.expires_at) < new Date() || s.family_links.revoked_at) {
-      throw new Error("This family link has expired. Ask your student for a new code.");
-    }
+    const s = await sessionFor(data.token);
     const studentId = s.family_links.student_id;
-    const [{ data: student }, { data: session }, { data: sv }, { data: ap }, { data: stem }] =
-      await Promise.all([
-        sb("students").select("first_name, grade").eq("id", studentId).maybeSingle(),
-        sb("assessment_sessions")
-          .select("holland_code, scale_scores, completed_at")
-          .eq("student_id", studentId)
-          .not("completed_at", "is", null)
-          .order("completed_at", { ascending: false })
-          .limit(1)
-          .maybeSingle(),
-        sb("internship_survey_results")
-          .select("holland_code, sector_values, matches")
-          .eq("student_id", studentId)
-          .maybeSingle(),
-        sb("aptitude_results")
-          .select("band, subscale_scores, total_score, total_items, completed_at")
-          .eq("student_id", studentId)
-          .order("completed_at", { ascending: false })
-          .limit(1)
-          .maybeSingle(),
-        sb("survey_responses")
-          .select("id")
-          .eq("student_id", studentId)
-          .not("completed_at", "is", null)
-          .limit(1),
-      ]);
+    const sy = currentSchoolYear();
+    const [
+      { data: student },
+      { data: session },
+      { data: sv },
+      { data: ap },
+      { data: stem },
+      { data: cps },
+      { data: appr },
+      { data: ver },
+    ] = await Promise.all([
+      sb("students").select("first_name, grade").eq("id", studentId).maybeSingle(),
+      sb("assessment_sessions")
+        .select("holland_code, scale_scores, completed_at")
+        .eq("student_id", studentId)
+        .not("completed_at", "is", null)
+        .order("completed_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      sb("internship_survey_results")
+        .select("holland_code, sector_values, matches")
+        .eq("student_id", studentId)
+        .maybeSingle(),
+      sb("aptitude_results")
+        .select("band, subscale_scores, total_score, total_items, completed_at")
+        .eq("student_id", studentId)
+        .order("completed_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      sb("survey_responses")
+        .select("id")
+        .eq("student_id", studentId)
+        .not("completed_at", "is", null)
+        .limit(1),
+      sb("checkpoints")
+        .select("term, status, submitted_at")
+        .eq("student_id", studentId)
+        .eq("school_year", sy),
+      sb("plan_approvals")
+        .select("student_ack_at, guardian_ack_at, advisor_ack_at")
+        .eq("student_id", studentId)
+        .eq("school_year", sy)
+        .maybeSingle(),
+      sb("experiences")
+        .select("title, organization, verified_hours, verified_at")
+        .eq("student_id", studentId)
+        .eq("status", "verified")
+        .order("verified_at", { ascending: false }),
+    ]);
+    const approval = appr as {
+      student_ack_at: string | null;
+      guardian_ack_at: string | null;
+      advisor_ack_at: string | null;
+    } | null;
     await sb("family_sessions").update({ last_seen_at: new Date().toISOString() }).eq("id", s.id);
     const st = student as { first_name: string | null; grade: number | null } | null;
     const view: FamilyView = {
@@ -246,6 +322,28 @@ export const getFamilyView = createServerFn({ method: "POST" })
         : null,
       stemDone: ((stem ?? []) as unknown[]).length > 0,
       expiresAt: s.expires_at,
+      plan: {
+        schoolYear: sy,
+        checkpoints: (
+          (cps ?? []) as { term: string; status: string; submitted_at: string | null }[]
+        ).map((c) => ({ term: c.term, status: c.status, submittedAt: c.submitted_at })),
+        studentAckAt: approval?.student_ack_at ?? null,
+        guardianAckAt: approval?.guardian_ack_at ?? null,
+        advisorAckAt: approval?.advisor_ack_at ?? null,
+      },
+      verified: (
+        (ver ?? []) as {
+          title: string;
+          organization: string | null;
+          verified_hours: number | string | null;
+          verified_at: string | null;
+        }[]
+      ).map((v) => ({
+        title: v.title,
+        organization: v.organization,
+        hours: v.verified_hours === null ? null : Number(v.verified_hours),
+        verifiedAt: v.verified_at,
+      })),
     };
     return view;
   });
