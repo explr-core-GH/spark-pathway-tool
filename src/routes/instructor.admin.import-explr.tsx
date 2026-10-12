@@ -61,6 +61,9 @@ function ImportExplrPage() {
   const [err, setErr] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
   const [lastSync, setLastSync] = useState<SyncRun | null | undefined>(undefined);
+  // Daily sync toggle — backed by a pg_cron job the DB functions create/remove.
+  const [dailyOn, setDailyOn] = useState<boolean | null>(null);
+  const [dailyBusy, setDailyBusy] = useState(false);
 
   async function load() {
     const [{ data: c }, { data: r }, { data: educs }, { data: assigns }] = await Promise.all([
@@ -100,7 +103,31 @@ function ImportExplrPage() {
   }
   useEffect(() => {
     load();
+    (supabase.rpc as unknown as (fn: string) => Promise<{ data: boolean | null }>)(
+      "daily_explr_sync_enabled",
+    )
+      .then(({ data }) => setDailyOn(!!data))
+      .catch(() => setDailyOn(null));
   }, []);
+
+  async function toggleDaily() {
+    if (dailyOn === null) return;
+    setDailyBusy(true);
+    setErr(null);
+    const next = !dailyOn;
+    const { error } = await (
+      supabase.rpc as unknown as (
+        fn: string,
+        args: Record<string, unknown>,
+      ) => Promise<{ error: { message: string } | null }>
+    )("set_daily_explr_sync", { _enabled: next });
+    setDailyBusy(false);
+    if (error) {
+      setErr(error.message);
+      return;
+    }
+    setDailyOn(next);
+  }
 
   const assignedByCamp = useMemo(() => {
     const m = new Map<string, Set<string>>();
@@ -185,10 +212,38 @@ function ImportExplrPage() {
             ? "Never synced yet."
             : `Last synced ${timeAgo(lastSync.finished_at ?? lastSync.started_at)} · ${lastSync.worksites_synced ?? 0} camps · ${lastSync.students_synced ?? 0} registrations${lastSync.ok ? "" : " · last run had errors"}`}
       </p>
-      <p className="mt-1 text-xs text-ink-500">
-        Updates automatically each day once the <code className="font-mono">sync-explr</code> daily
-        schedule is enabled in Supabase (see setup). You can also Sync now anytime.
-      </p>
+      <div className="mt-4 flex flex-wrap items-center gap-3 rounded-[var(--radius-card)] border border-line bg-paper-raised px-4 py-3">
+        <button
+          type="button"
+          role="switch"
+          aria-checked={dailyOn === true}
+          disabled={dailyOn === null || dailyBusy}
+          onClick={toggleDaily}
+          className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border transition-colors disabled:opacity-50 ${
+            dailyOn ? "border-green bg-green" : "border-line-strong bg-paper-sunken"
+          }`}
+        >
+          <span className="sr-only">Daily camp sync</span>
+          <span
+            className={`inline-block h-5 w-5 rounded-full bg-paper-raised shadow transition-transform ${
+              dailyOn ? "translate-x-6" : "translate-x-1"
+            }`}
+            aria-hidden
+          />
+        </button>
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-ink-900">
+            Daily camp sync{" "}
+            <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+              {dailyOn === null ? "checking…" : dailyOn ? "on · 8:00 UTC" : "off"}
+            </span>
+          </p>
+          <p className="text-xs text-ink-500">
+            When on, camps and registrations pull from ExplrMore every morning. Off keeps everything
+            manual: use Sync now whenever you want a refresh.
+          </p>
+        </div>
+      </div>
 
       {debugInfo && (
         <details className="mt-4 rounded-[var(--radius-control)] border border-line bg-paper-sunken p-3 text-xs">
