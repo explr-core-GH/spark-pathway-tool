@@ -17,6 +17,14 @@ import {
   type Experience,
   type Passport,
 } from "@/lib/passport";
+import {
+  downloadHoursLogCsv,
+  downloadHoursLogPdf,
+  downloadOpenBadges,
+  downloadResumePdf,
+  downloadResumeText,
+  downloadSealEvidencePdf,
+} from "@/lib/exports";
 
 const MONTH = (iso: string) =>
   new Date(iso).toLocaleDateString(undefined, { month: "short", year: "numeric" }).toUpperCase();
@@ -452,26 +460,33 @@ export function PassportSheet({ p, onEditAbout }: { p: Passport; onEditAbout?: (
         )}
       </section>
 
-      {/* Export row (Pro). Exports ship in a later phase; the buttons set the expectation. */}
+      {/* Export row (Pro): Ohio alignment outputs, generated from verified records only. */}
       {!explore && (
         <section className="flex flex-col gap-3 border-t border-line pt-6">
           <p className="eyebrow text-green">Export my passport</p>
           <div className="flex flex-wrap gap-2.5">
-            {["250-hour log", "Readiness Seal evidence", "Resume PDF", "Open Badges"].map((l) => (
-              <button
-                key={l}
-                type="button"
-                disabled
-                title="Coming soon"
-                className="btn-ghost opacity-60"
-              >
-                {l}
-              </button>
-            ))}
+            <button type="button" onClick={() => downloadHoursLogPdf(p)} className="btn-ghost">
+              250-hour log (PDF)
+            </button>
+            <button type="button" onClick={() => downloadHoursLogCsv(p)} className="btn-ghost">
+              250-hour log (CSV)
+            </button>
+            <button type="button" onClick={() => downloadSealEvidencePdf(p)} className="btn-ghost">
+              Readiness Seal evidence
+            </button>
+            <button type="button" onClick={() => downloadResumePdf(p)} className="btn-ghost">
+              Resume (PDF)
+            </button>
+            <button type="button" onClick={() => downloadResumeText(p)} className="btn-ghost">
+              Resume (text for OhioMeansJobs)
+            </button>
+            <button type="button" onClick={() => downloadOpenBadges(p)} className="btn-ghost">
+              Open Badges (draft JSON)
+            </button>
           </div>
           <p className="text-xs text-ink-500">
-            Exports arrive once supervisors can stamp experiences. Everything you add now carries
-            over.
+            The hours log and seal evidence include verified records only. Badges are an unsigned
+            draft until EXPLR configures an issuer key.
           </p>
         </section>
       )}
