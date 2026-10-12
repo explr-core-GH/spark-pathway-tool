@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "A work-based learning passport for Cleveland students in grades 4 to 12. Add real experiences, get them stamped, and carry verified hours, seals, and a resume anywhere.",
+          "Ohio's work-based and career-connected learning passport for grades 4 to 12. Career advising checkpoints, verified WBL hours, Readiness Seal evidence, and a resume that builds itself.",
       },
       { property: "og:title", content: "EXPLR Pathways — From Classrooms to Careers" },
       {
@@ -74,15 +74,17 @@ function Landing() {
         <section className="mx-auto max-w-[1312px] px-4 pb-20 pt-16 sm:px-6 lg:px-8 lg:pb-24 lg:pt-20">
           <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
             <div className="flex flex-col gap-6">
-              <p className="eyebrow text-green">Work-based learning passport · Cleveland K-12</p>
+              <p className="eyebrow text-green">
+                Ohio work-based & career-connected learning · grades 4-12
+              </p>
               <h1 className="display">
                 From Classrooms to Careers –
                 <span className="block text-green">Pathways Start Here</span>
               </h1>
               <p className="lead max-w-[600px] text-ink-700">
-                A living portfolio for grades 4 to 12. Add real experiences, get them stamped by the
-                people who watched you do the work, and carry verified hours, seals, and a resume
-                wherever you go next.
+                A living passport for Ohio students. Add real experiences, get them stamped by the
+                people who watched you do the work, and carry verified work-based learning hours,
+                Readiness Seal evidence, and a resume wherever you go next.
               </p>
               <div className="flex flex-wrap gap-3">
                 <a href="#doors" className="btn-ink">
@@ -110,6 +112,50 @@ function Landing() {
                 fetchPriority="high"
               />
             </div>
+          </div>
+        </section>
+
+        {/* Ohio */}
+        <section className="border-y border-line bg-paper-raised">
+          <div className="mx-auto grid max-w-[1312px] gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_1.2fr] lg:px-8">
+            <div className="flex flex-col gap-3">
+              <p className="eyebrow text-green">Built for Ohio</p>
+              <h2 className="font-display text-3xl font-bold tracking-tight">
+                Career-connected learning the way Ohio defines it.
+              </h2>
+              <p className="text-ink-700">
+                Ohio asks every district for grades 6-12 career advising, lets students graduate on
+                250 verified work-based learning hours, and awards the OhioMeansJobs-Readiness Seal
+                for fifteen validated skills. Pathways is one system that documents all three.
+              </p>
+              <Link to="/about" className="ink-link mt-2 inline-block">
+                See how Pathways meets Ohio's requirements
+              </Link>
+            </div>
+            <ul className="grid gap-4 sm:grid-cols-3">
+              {[
+                [
+                  "Career advising",
+                  "Two checkpoints a year, grades 6-12, exported as the Student Success Plan.",
+                ],
+                [
+                  "Work-based learning",
+                  "Only Ohio's formal WBL types count, only once a supervisor stamps them.",
+                ],
+                [
+                  "Readiness Seal",
+                  "Every stamp rates skills on the state's four-level scale, by setting and rater.",
+                ],
+              ].map(([t, d]) => (
+                <li
+                  key={t}
+                  className="rounded-[var(--radius-card)] border border-line bg-paper p-5"
+                >
+                  <p className="font-display text-lg font-semibold">{t}</p>
+                  <p className="mt-1 text-sm text-ink-700">{d}</p>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 
