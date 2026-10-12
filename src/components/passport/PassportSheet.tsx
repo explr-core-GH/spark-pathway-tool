@@ -122,7 +122,10 @@ export function PassportSheet({ p, onEditAbout }: { p: Passport; onEditAbout?: (
   const stamps = p.experiences.filter((e) => e.career_cluster);
 
   return (
-    <article className="flex flex-col gap-10 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 shadow-lift sm:p-10">
+    <article
+      className="mx-auto flex w-full max-w-[920px] flex-col gap-10 rounded-[6px] border border-line bg-[#fffefa] p-6 text-[17px] leading-relaxed shadow-lift sm:p-12 lg:min-h-[1056px] lg:p-14"
+      style={{ boxShadow: "var(--shadow-lift), 0 0 0 1px rgba(25,32,31,0.03), 0 1px 0 #fff inset" }}
+    >
       {/* Header */}
       <header className="flex flex-wrap items-start justify-between gap-6">
         <div className="flex min-w-0 flex-col gap-2">

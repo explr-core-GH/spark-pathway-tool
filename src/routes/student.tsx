@@ -175,11 +175,14 @@ function ResumeCenter() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-[1312px] px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid gap-6 lg:grid-cols-[272px_minmax(0,1fr)_272px] xl:gap-8">
+      {/* The sheet is the point: it gets the width of a letter-size page. Rails
+          stack in one column beside it from lg, and split to both sides only on
+          very wide screens where the page still keeps its width. */}
+      <main className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
+        <div className="grid gap-6 lg:grid-cols-[248px_minmax(0,1fr)] lg:grid-rows-[auto_1fr] xl:gap-8 2xl:grid-cols-[272px_minmax(0,1fr)_272px] 2xl:grid-rows-1">
           <aside
             aria-label="Assessments and checkpoints"
-            className="order-2 flex flex-col gap-4 lg:order-1"
+            className="order-2 flex flex-col gap-4 lg:order-1 lg:col-start-1 lg:row-start-1"
           >
             {!explore && <p className="eyebrow">Build your passport</p>}
             {rails.assessments}
@@ -187,7 +190,7 @@ function ResumeCenter() {
             {!explore && rails.experience}
           </aside>
 
-          <div className="order-1 lg:order-2">
+          <div className="order-1 lg:order-2 lg:col-start-2 lg:row-span-2 2xl:row-span-1">
             <PassportSheet
               p={p}
               onEditAbout={() => {
@@ -199,7 +202,7 @@ function ResumeCenter() {
 
           <aside
             aria-label="Experience, skills, and opportunities"
-            className="order-3 flex flex-col gap-4"
+            className="order-3 flex flex-col gap-4 lg:col-start-1 lg:row-start-2 2xl:col-start-3 2xl:row-start-1"
           >
             {!explore && <p className="eyebrow">Grow it</p>}
             {explore ? rails.experience : rails.skills}
