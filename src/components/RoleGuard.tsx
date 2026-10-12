@@ -76,7 +76,7 @@ export function RoleGuard({ requires, children }: Props) {
       <Mismatch
         eyebrow="Student account"
         title="This area is for instructors"
-        body="Your account isn't registered as an educator. Request educator access, or head back to your student experience."
+        body="Your account isn't registered as an instructor. Request instructor access, or head back to your student experience."
         primary={{ to: "/assessment", label: "Back to assessment" }}
         secondary={{ to: "/instructor/sign-up", label: "Request instructor access" }}
       />
