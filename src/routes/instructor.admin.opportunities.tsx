@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { dollars, oppTypeMeta, STATUS_LABEL, type Opportunity } from "@/lib/opportunities";
+import { GateBadge, GatePanel } from "@/components/WblReview";
 
 export const Route = createFileRoute("/instructor/admin/opportunities")({
   head: () => ({ meta: [{ title: "Opportunity review — Admin" }] }),
@@ -139,6 +140,7 @@ function OpportunitiesReview() {
                       paid {dollars(o.cost_cents)}
                     </span>
                   )}
+                  <GateBadge o={o} />
                   <span className="shrink-0 text-xs text-charcoal-500">
                     {STATUS_LABEL[o.status]}
                   </span>
@@ -181,6 +183,7 @@ function OpportunitiesReview() {
                           />
                           <Detail label="Interest code" value={o.riasec_code || "—"} />
                         </dl>
+                        <GatePanel o={o} onDone={load} />
                       </div>
                       <div>
                         <label className="label">Note (sent back on changes)</label>

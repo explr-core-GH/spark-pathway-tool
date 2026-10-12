@@ -17,6 +17,15 @@ import {
   type OpportunityForm,
   type OppType,
 } from "@/lib/opportunities";
+import { WblStep } from "./WblStep";
+import {
+  EMPTY_WBL,
+  defaultTaxonomy,
+  hydrateWbl,
+  validateWbl,
+  type WblDetail,
+} from "@/lib/wbl-gate";
+import type { Stage } from "@/lib/wbl-taxonomy";
 
 const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
 
@@ -43,6 +52,10 @@ type FormState = {
   requirements: string[];
   application_links: AppLink[];
   custom: Record<string, unknown>;
+  stage: Stage;
+  experience_type: string;
+  wbl: WblDetail;
+  target_competencies: string[];
 };
 
 const EMPTY: FormState = {
@@ -68,6 +81,10 @@ const EMPTY: FormState = {
   requirements: [],
   application_links: [],
   custom: {},
+  stage: "exploration",
+  experience_type: "camp_or_program",
+  wbl: EMPTY_WBL,
+  target_competencies: [],
 };
 
 type StepId =
@@ -77,6 +94,7 @@ type StepId =
   | "who"
   | "interests"
   | "worksite"
+  | "wbl"
   | "media"
   | "custom"
   | "review";
@@ -174,6 +192,10 @@ export function OpportunityWizard({
         requirements: data.requirements ?? [],
         application_links: data.application_links ?? [],
         custom: data.custom ?? {},
+        stage: data.stage ?? defaultTaxonomy(data.type).stage,
+        experience_type: data.experience_type ?? defaultTaxonomy(data.type).experienceType,
+        wbl: hydrateWbl(data.wbl),
+        target_competencies: data.target_competencies ?? [],
       });
       setHydrating(false);
     })();
@@ -189,6 +211,8 @@ export function OpportunityWizard({
       grade_min: meta.gradeMin != null ? String(meta.gradeMin) : "",
       grade_max: meta.gradeMax != null ? String(meta.gradeMax) : "",
       registration_mode: meta.registrationLocked ? "internal" : f.registration_mode,
+      stage: defaultTaxonomy(t).stage,
+      experience_type: defaultTaxonomy(t).experienceType,
     }));
     await loadConfig(t);
     setStep(0);
@@ -209,10 +233,7 @@ export function OpportunityWizard({
     if (configured && configured !== "Event name") return configured;
     return type ? NAME_LABEL[type] : "Name";
   };
-  const customFields = useMemo(
-    () => config.filter((c) => !c.is_core),
-    [config],
-  );
+  const customFields = useMemo(() => config.filter((c) => !c.is_core), [config]);
 
   // Build the active step list for this type.
   const steps = useMemo(() => {
@@ -226,9 +247,10 @@ export function OpportunityWizard({
     }
     // Requirements / links / forms apply to every opportunity type.
     const mediaIdx = out.findIndex((s) => s.id === "media");
+    const wbl = { id: "wbl" as StepId, title: "Work-based learning" };
     const ws = { id: "worksite" as StepId, title: "Requirements & forms" };
-    if (mediaIdx >= 0) out.splice(mediaIdx, 0, ws);
-    else out.push(ws);
+    if (mediaIdx >= 0) out.splice(mediaIdx, 0, wbl, ws);
+    else out.push(wbl, ws);
     if (customFields.length > 0) out.push({ id: "custom", title: "More details" });
     out.push({ id: "review", title: "Review" });
     return out;
@@ -307,6 +329,10 @@ export function OpportunityWizard({
       requirements: form.requirements,
       application_links: form.application_links,
       custom: form.custom,
+      stage: form.stage,
+      experience_type: form.experience_type,
+      wbl: form.wbl,
+      target_competencies: form.target_competencies,
       updated_at: new Date().toISOString(),
     };
     if (status) p.status = status;
@@ -361,6 +387,15 @@ export function OpportunityWizard({
       if (req("location") && !form.location.trim()) return "Add a location.";
       if (form.registration_mode === "external" && !form.external_url.trim())
         return "Add the external registration link.";
+    }
+    if (id === "wbl") {
+      const issues = validateWbl(
+        form.wbl,
+        form.stage,
+        form.experience_type,
+        form.grade_min ? Number(form.grade_min) : null,
+      );
+      if (issues.length) return issues[0].message;
     }
     if (id === "custom") {
       for (const f of customFields) {
@@ -424,7 +459,10 @@ export function OpportunityWizard({
           ))}
         </div>
         <p className="mt-8 text-sm">
-          <button onClick={() => navigate({ to: "/org" })} className="text-charcoal-500 hover:text-ink">
+          <button
+            onClick={() => navigate({ to: "/org" })}
+            className="text-charcoal-500 hover:text-ink"
+          >
             ← Back to your opportunities
           </button>
         </p>
@@ -435,9 +473,7 @@ export function OpportunityWizard({
   // Don't render any step until this type's field config has loaded — otherwise
   // the step list is momentarily empty and flashes the wrong slide.
   if (configFor !== type) {
-    return (
-      <main className="mx-auto max-w-3xl px-6 py-16 text-sm text-charcoal-400">Loading…</main>
-    );
+    return <main className="mx-auto max-w-3xl px-6 py-16 text-sm text-charcoal-400">Loading…</main>;
   }
 
   const current = steps[step];
@@ -452,7 +488,10 @@ export function OpportunityWizard({
           <h1 className="mt-1 text-2xl font-light">{form.name || "New opportunity"}</h1>
         </div>
         {!opportunityId && (
-          <button onClick={() => setType(null)} className="text-xs text-charcoal-500 hover:text-ink">
+          <button
+            onClick={() => setType(null)}
+            className="text-xs text-charcoal-500 hover:text-ink"
+          >
             Change type
           </button>
         )}
@@ -462,7 +501,15 @@ export function OpportunityWizard({
       <div className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px]">
         {steps.map((s, i) => (
           <span key={s.id} className="flex items-center gap-2">
-            <span className={i === step ? "font-medium text-ink" : i < step ? "text-explr-600" : "text-charcoal-400"}>
+            <span
+              className={
+                i === step
+                  ? "font-medium text-ink"
+                  : i < step
+                    ? "text-explr-600"
+                    : "text-charcoal-400"
+              }
+            >
               {i + 1}. {s.title}
             </span>
             {i < steps.length - 1 && <span className="text-charcoal-300">·</span>}
@@ -475,12 +522,25 @@ export function OpportunityWizard({
           <Section title="The basics">
             {enabled("name") && (
               <Field label={nameLabel()} help={helpOf("name")} required={cfg.get("name")?.required}>
-                <input className="field" value={form.name} onChange={(e) => set("name", e.target.value)} />
+                <input
+                  className="field"
+                  value={form.name}
+                  onChange={(e) => set("name", e.target.value)}
+                />
               </Field>
             )}
             {enabled("description") && (
-              <Field label={labelOf("description", "Description")} help={helpOf("description")} required={cfg.get("description")?.required}>
-                <textarea className="field" rows={5} value={form.description} onChange={(e) => set("description", e.target.value)} />
+              <Field
+                label={labelOf("description", "Description")}
+                help={helpOf("description")}
+                required={cfg.get("description")?.required}
+              >
+                <textarea
+                  className="field"
+                  rows={5}
+                  value={form.description}
+                  onChange={(e) => set("description", e.target.value)}
+                />
               </Field>
             )}
           </Section>
@@ -489,13 +549,27 @@ export function OpportunityWizard({
         {current.id === "when" && (
           <Section title="When">
             {enabled("dates") && (
-              <Field label={labelOf("dates", "Dates")} help={helpOf("dates")} required={cfg.get("dates")?.required}>
+              <Field
+                label={labelOf("dates", "Dates")}
+                help={helpOf("dates")}
+                required={cfg.get("dates")?.required}
+              >
                 <div className="flex flex-wrap items-center gap-3">
-                  <input type="date" className="field w-44" value={form.start_date} onChange={(e) => set("start_date", e.target.value)} />
+                  <input
+                    type="date"
+                    className="field w-44"
+                    value={form.start_date}
+                    onChange={(e) => set("start_date", e.target.value)}
+                  />
                   {!meta!.oneTime && (
                     <>
                       <span className="text-sm text-charcoal-400">to</span>
-                      <input type="date" className="field w-44" value={form.end_date} onChange={(e) => set("end_date", e.target.value)} />
+                      <input
+                        type="date"
+                        className="field w-44"
+                        value={form.end_date}
+                        onChange={(e) => set("end_date", e.target.value)}
+                      />
                     </>
                   )}
                 </div>
@@ -539,7 +613,10 @@ export function OpportunityWizard({
             {enabled("location") && (
               <Field
                 label={labelOf("location", "Location")}
-                help={helpOf("location") ?? "Start typing, then pick an address — it drops a map pin students will see."}
+                help={
+                  helpOf("location") ??
+                  "Start typing, then pick an address — it drops a map pin students will see."
+                }
                 required={cfg.get("location")?.required}
               >
                 <AddressAutocomplete
@@ -555,7 +632,10 @@ export function OpportunityWizard({
                 )}
               </Field>
             )}
-            <Field label={labelOf("registration", "How students register")} help={helpOf("registration")}>
+            <Field
+              label={labelOf("registration", "How students register")}
+              help={helpOf("registration")}
+            >
               {meta!.registrationLocked ? (
                 <p className="text-sm text-charcoal-500">
                   Internships are completed entirely in-system — students apply and are placed
@@ -572,7 +652,8 @@ export function OpportunityWizard({
                         className="px-3 py-1.5 text-xs"
                         style={{
                           background: form.registration_mode === m ? "var(--ink)" : "white",
-                          color: form.registration_mode === m ? "white" : "var(--color-charcoal-500)",
+                          color:
+                            form.registration_mode === m ? "white" : "var(--color-charcoal-500)",
                         }}
                       >
                         {m === "internal" ? "Register in EXPLR" : "Register on our own site"}
@@ -598,33 +679,67 @@ export function OpportunityWizard({
             {enabled("grades") && (
               <Field label={labelOf("grades", "Grade range")} help={helpOf("grades")}>
                 <div className="flex items-center gap-2">
-                  <input type="number" min={0} max={12} className="field w-24" value={form.grade_min} onChange={(e) => set("grade_min", e.target.value)} placeholder="min" />
+                  <input
+                    type="number"
+                    min={0}
+                    max={12}
+                    className="field w-24"
+                    value={form.grade_min}
+                    onChange={(e) => set("grade_min", e.target.value)}
+                    placeholder="min"
+                  />
                   <span className="text-sm text-charcoal-400">to</span>
-                  <input type="number" min={0} max={12} className="field w-24" value={form.grade_max} onChange={(e) => set("grade_max", e.target.value)} placeholder="max" />
+                  <input
+                    type="number"
+                    min={0}
+                    max={12}
+                    className="field w-24"
+                    value={form.grade_max}
+                    onChange={(e) => set("grade_max", e.target.value)}
+                    placeholder="max"
+                  />
                 </div>
               </Field>
             )}
             {enabled("capacity") && (
               <Field label={labelOf("capacity", "Students accepted")} help={helpOf("capacity")}>
-                <input type="number" min={0} className="field w-32" value={form.capacity} onChange={(e) => set("capacity", e.target.value)} />
+                <input
+                  type="number"
+                  min={0}
+                  className="field w-32"
+                  value={form.capacity}
+                  onChange={(e) => set("capacity", e.target.value)}
+                />
               </Field>
             )}
             {enabled("cost") && (
               <Field label={labelOf("cost", "Cost")} help={helpOf("cost")}>
                 <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={form.is_free} onChange={(e) => set("is_free", e.target.checked)} />
+                  <input
+                    type="checkbox"
+                    checked={form.is_free}
+                    onChange={(e) => set("is_free", e.target.checked)}
+                  />
                   This opportunity is free
                 </label>
                 {!form.is_free && (
                   <div className="mt-3">
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-charcoal-400">$</span>
-                      <input type="number" min={0} step="0.01" className="field w-32" value={form.cost} onChange={(e) => set("cost", e.target.value)} placeholder="0.00" />
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        className="field w-32"
+                        value={form.cost}
+                        onChange={(e) => set("cost", e.target.value)}
+                        placeholder="0.00"
+                      />
                     </div>
                     {(type === "camp" || type === "workshop") && (
                       <p className="mt-3 border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-                        Heads up: camps &amp; workshops with a cost attached may not be accepted into
-                        the portal. EXPLR focuses on opportunity and access for all students
+                        Heads up: camps &amp; workshops with a cost attached may not be accepted
+                        into the portal. EXPLR focuses on opportunity and access for all students
                         regardless of income.
                       </p>
                     )}
@@ -735,7 +850,12 @@ export function OpportunityWizard({
               <CustomReqAdder
                 requirements={form.requirements}
                 onAdd={(v) => set("requirements", [...form.requirements, v])}
-                onRemove={(v) => set("requirements", form.requirements.filter((x) => x !== v))}
+                onRemove={(v) =>
+                  set(
+                    "requirements",
+                    form.requirements.filter((x) => x !== v),
+                  )
+                }
               />
             </Field>
 
@@ -758,6 +878,20 @@ export function OpportunityWizard({
           </Section>
         )}
 
+        {current.id === "wbl" && type && (
+          <WblStep
+            type={type}
+            stage={form.stage}
+            experienceType={form.experience_type}
+            wbl={form.wbl}
+            competencies={form.target_competencies}
+            gradeMin={form.grade_min ? Number(form.grade_min) : null}
+            onStage={(v) => set("stage", v)}
+            onExperienceType={(v) => set("experience_type", v)}
+            onWbl={(v) => set("wbl", v)}
+            onCompetencies={(v) => set("target_competencies", v)}
+          />
+        )}
         {current.id === "media" && (
           <Section title="Photo & logo">
             {enabled("image") && (
@@ -790,14 +924,26 @@ export function OpportunityWizard({
             <ul className="divide-y divide-charcoal-100 border-y border-charcoal-100 text-sm">
               <Row label="Type" value={meta!.label} />
               <Row label="Name" value={form.name || "—"} />
-              <Row label="Dates" value={[form.start_date, form.end_date].filter(Boolean).join(" – ") || "—"} />
+              <Row
+                label="Dates"
+                value={[form.start_date, form.end_date].filter(Boolean).join(" – ") || "—"}
+              />
               <Row label="Location" value={form.location || "—"} />
-              <Row label="Grades" value={[form.grade_min, form.grade_max].filter(Boolean).join("–") || "—"} />
+              <Row
+                label="Grades"
+                value={[form.grade_min, form.grade_max].filter(Boolean).join("–") || "—"}
+              />
               <Row label="Capacity" value={form.capacity || "—"} />
               <Row label="Cost" value={form.is_free ? "Free" : `$${form.cost || "0"}`} />
               <Row
                 label="Registration"
-                value={meta!.registrationLocked ? "In-system" : form.registration_mode === "external" ? "External link" : "In EXPLR"}
+                value={
+                  meta!.registrationLocked
+                    ? "In-system"
+                    : form.registration_mode === "external"
+                      ? "External link"
+                      : "In EXPLR"
+                }
               />
               <Row label="Interest code" value={code || "—"} />
             </ul>
@@ -921,11 +1067,32 @@ function CustomInput({
   const v = value ?? "";
   switch (field.field_type) {
     case "textarea":
-      return <textarea className="field" rows={4} value={String(v)} onChange={(e) => onChange(e.target.value)} />;
+      return (
+        <textarea
+          className="field"
+          rows={4}
+          value={String(v)}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      );
     case "number":
-      return <input type="number" className="field w-40" value={String(v)} onChange={(e) => onChange(e.target.value)} />;
+      return (
+        <input
+          type="number"
+          className="field w-40"
+          value={String(v)}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      );
     case "date":
-      return <input type="date" className="field w-48" value={String(v)} onChange={(e) => onChange(e.target.value)} />;
+      return (
+        <input
+          type="date"
+          className="field w-48"
+          value={String(v)}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      );
     case "checkbox":
       return (
         <label className="flex items-center gap-2 text-sm">
@@ -945,7 +1112,9 @@ function CustomInput({
         </select>
       );
     default:
-      return <input className="field" value={String(v)} onChange={(e) => onChange(e.target.value)} />;
+      return (
+        <input className="field" value={String(v)} onChange={(e) => onChange(e.target.value)} />
+      );
   }
 }
 
@@ -1008,13 +1177,7 @@ function CustomReqAdder({
   );
 }
 
-function LinksEditor({
-  links,
-  onChange,
-}: {
-  links: AppLink[];
-  onChange: (v: AppLink[]) => void;
-}) {
+function LinksEditor({ links, onChange }: { links: AppLink[]; onChange: (v: AppLink[]) => void }) {
   return (
     <div className="space-y-2">
       {links.map((l, i) => (
@@ -1023,13 +1186,17 @@ function LinksEditor({
             className="field w-40"
             placeholder="Label"
             value={l.label}
-            onChange={(e) => onChange(links.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))}
+            onChange={(e) =>
+              onChange(links.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))
+            }
           />
           <input
             className="field flex-1"
             placeholder="https://"
             value={l.url}
-            onChange={(e) => onChange(links.map((x, j) => (j === i ? { ...x, url: e.target.value } : x)))}
+            onChange={(e) =>
+              onChange(links.map((x, j) => (j === i ? { ...x, url: e.target.value } : x)))
+            }
           />
           <button
             type="button"
@@ -1076,11 +1243,20 @@ function FormsEditor({
                 )}
               </span>
               {f.file_url && (
-                <a href={f.file_url} target="_blank" rel="noreferrer" className="text-xs text-explr-600 hover:underline">
+                <a
+                  href={f.file_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs text-explr-600 hover:underline"
+                >
                   View
                 </a>
               )}
-              <button type="button" onClick={() => onDelete(f.id)} className="text-xs text-red-600 hover:underline">
+              <button
+                type="button"
+                onClick={() => onDelete(f.id)}
+                className="text-xs text-red-600 hover:underline"
+              >
                 Delete
               </button>
             </li>

@@ -135,7 +135,8 @@ function fmtTime(hhmm: string): string {
 /** Human schedule line from the structured picker. */
 export function composeSchedule(days: string[], start: string, end: string): string {
   const d = days.length ? days.join(", ") : "";
-  const t = start && end ? `${fmtTime(start)}–${fmtTime(end)}` : start ? `from ${fmtTime(start)}` : "";
+  const t =
+    start && end ? `${fmtTime(start)}–${fmtTime(end)}` : start ? `from ${fmtTime(start)}` : "";
   return [d, t].filter(Boolean).join(" · ");
 }
 
@@ -208,6 +209,13 @@ export type Opportunity = {
   requirements: string[];
   application_links: AppLink[];
   custom: Record<string, unknown>;
+  /** Ohio taxonomy and the work-based learning detail (phase 5). Nullable on older rows. */
+  stage?: "awareness" | "exploration" | "preparation" | "participation" | null;
+  experience_type?: string | null;
+  wbl?: Record<string, unknown> | null;
+  target_competencies?: string[] | null;
+  gate_status?: "pending" | "pass" | "fail" | null;
+  gate_evidence?: Record<string, unknown> | null;
   status: "draft" | "submitted" | "approved" | "rejected";
   review_notes: string | null;
   submitted_at: string | null;

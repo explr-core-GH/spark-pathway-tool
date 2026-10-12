@@ -2,12 +2,8 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import {
-  dollars,
-  oppTypeMeta,
-  type Opportunity,
-  type OpportunityForm,
-} from "@/lib/opportunities";
+import { dollars, oppTypeMeta, type Opportunity, type OpportunityForm } from "@/lib/opportunities";
+import { GateBadge, WblPublicSection } from "@/components/WblReview";
 
 export const Route = createFileRoute("/opportunity/$id")({
   head: () => ({ meta: [{ title: "Opportunity — EXPLR" }] }),
@@ -35,7 +31,9 @@ function OpportunityDetail() {
       .select("*")
       .eq("opportunity_id", id)
       .order("sort_order")
-      .then(({ data }: { data: OpportunityForm[] | null }) => setForms((data as OpportunityForm[]) ?? []));
+      .then(({ data }: { data: OpportunityForm[] | null }) =>
+        setForms((data as OpportunityForm[]) ?? []),
+      );
   }, [id]);
 
   useEffect(() => {
@@ -74,7 +72,9 @@ function OpportunityDetail() {
       <main className="mx-auto max-w-3xl px-6 py-16">
         <p className="text-sm text-charcoal-500">
           That opportunity isn&apos;t available.{" "}
-          <Link to="/opportunities" className="ink-link">Back to all opportunities</Link>
+          <Link to="/opportunities" className="ink-link">
+            Back to all opportunities
+          </Link>
         </p>
       </main>
     );
@@ -102,10 +102,13 @@ function OpportunityDetail() {
             {o.riasec_code}
           </span>
         )}
+        <GateBadge o={o} />
       </div>
       <h1 className="mt-2 text-3xl font-light">{o.name || "Opportunity"}</h1>
       <div className="mt-2 flex items-center gap-2 text-sm text-charcoal-500">
-        {o.org_logo_url && <img src={o.org_logo_url} alt="" className="h-5 w-5 rounded object-cover" />}
+        {o.org_logo_url && (
+          <img src={o.org_logo_url} alt="" className="h-5 w-5 rounded object-cover" />
+        )}
         <span>{o.org_name || "Organization"}</span>
       </div>
 
@@ -116,7 +119,10 @@ function OpportunityDetail() {
       )}
 
       <dl className="mt-6 grid grid-cols-2 gap-4 border-y border-charcoal-100 py-5 text-sm sm:grid-cols-3">
-        <Detail label="Dates" value={[o.start_date, o.end_date].filter(Boolean).join(" – ") || "—"} />
+        <Detail
+          label="Dates"
+          value={[o.start_date, o.end_date].filter(Boolean).join(" – ") || "—"}
+        />
         <Detail label="Schedule" value={o.schedule || "—"} />
         <Detail label="Grades" value={grades || "—"} />
         <Detail label="Spots" value={o.capacity != null ? String(o.capacity) : "—"} />
@@ -144,6 +150,8 @@ function OpportunityDetail() {
         </div>
       )}
 
+      <WblPublicSection o={o} />
+
       {o.requirements && o.requirements.length > 0 && (
         <section className="mt-6">
           <p className="text-xs uppercase tracking-wider text-charcoal-400">Requirements</p>
@@ -164,7 +172,12 @@ function OpportunityDetail() {
           <ul className="mt-2 space-y-1 text-sm">
             {o.application_links.map((l, i) => (
               <li key={i}>
-                <a href={l.url} target="_blank" rel="noreferrer" className="text-explr-600 hover:underline">
+                <a
+                  href={l.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-explr-600 hover:underline"
+                >
                   {l.label || l.url} ↗
                 </a>
               </li>
@@ -180,13 +193,20 @@ function OpportunityDetail() {
             {forms.map((f) => (
               <li key={f.id}>
                 {f.file_url ? (
-                  <a href={f.file_url} target="_blank" rel="noreferrer" className="text-explr-600 hover:underline">
+                  <a
+                    href={f.file_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-explr-600 hover:underline"
+                  >
                     {f.name} — download
                   </a>
                 ) : (
                   f.name
                 )}
-                {f.requires_signature && <span className="ml-2 text-xs text-charcoal-400">· signature required</span>}
+                {f.requires_signature && (
+                  <span className="ml-2 text-xs text-charcoal-400">· signature required</span>
+                )}
               </li>
             ))}
           </ul>
@@ -203,7 +223,9 @@ function OpportunityDetail() {
               Apply for this internship
             </Link>
           ) : (
-            <Link to="/sign-in" className="btn-ink">Sign in to apply</Link>
+            <Link to="/sign-in" className="btn-ink">
+              Sign in to apply
+            </Link>
           )
         ) : o.registration_mode === "external" && o.external_url ? (
           <a href={o.external_url} target="_blank" rel="noreferrer" className="btn-ink">
@@ -214,9 +236,13 @@ function OpportunityDetail() {
             ✓ Registered
           </span>
         ) : isStudent ? (
-          <button onClick={register} className="btn-ink">Register</button>
+          <button onClick={register} className="btn-ink">
+            Register
+          </button>
         ) : (
-          <Link to="/sign-in" className="btn-ghost">Sign in to register</Link>
+          <Link to="/sign-in" className="btn-ghost">
+            Sign in to register
+          </Link>
         )}
       </div>
     </main>
