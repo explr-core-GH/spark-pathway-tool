@@ -35,7 +35,7 @@ function ForgotPassword() {
       </Link>
       <h1 className="text-3xl font-light">Reset your password</h1>
       {sent ? (
-        <div className="mt-4 text-sm text-charcoal-600">
+        <div className="mt-4 text-sm text-ink-700">
           <p>
             If an account exists for <span className="font-medium">{email.trim()}</span>, we&apos;ve
             sent a reset link. Open it on this device and you&apos;ll be able to set a new password.
@@ -48,7 +48,7 @@ function ForgotPassword() {
         </div>
       ) : (
         <>
-          <p className="mt-2 text-sm text-charcoal-500">
+          <p className="mt-2 text-sm text-ink-500">
             Works for students, instructors, organizations, and admins. Enter the email on your
             account and we&apos;ll send a link to set a new password.
           </p>
@@ -76,11 +76,11 @@ function ForgotPassword() {
               {loading ? "Sending…" : "Send reset link"}
             </button>
           </form>
-          <p className="mt-6 text-xs text-charcoal-400">
+          <p className="mt-6 text-xs text-ink-500">
             Camp students sign in with a printed username and have no email — ask your instructor or
             an EXPLR admin to reset it for you.
           </p>
-          <p className="mt-4 text-sm text-charcoal-500">
+          <p className="mt-4 text-sm text-ink-500">
             Remembered it?{" "}
             <Link to="/sign-in" className="ink-link">
               Sign in

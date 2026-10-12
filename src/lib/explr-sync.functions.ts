@@ -33,8 +33,7 @@ type ExplrRegistration = {
 // previous direct PostgREST call against `registrations` failed because the
 // EXPLR_SERVICE_ROLE_KEY secret is actually the anon key — rosters are not
 // reachable that way. external-data with x-api-key bypasses RLS server-side.
-const EXPLR_EXTERNAL_DATA =
-  "https://ovmmlbpaaadzgxxrbmdl.supabase.co/functions/v1/external-data";
+const EXPLR_EXTERNAL_DATA = "https://ovmmlbpaaadzgxxrbmdl.supabase.co/functions/v1/external-data";
 
 function getExplrApiKey(): string {
   const apiKey = process.env.EXPLR_API_KEY?.trim();
@@ -64,7 +63,11 @@ async function callExplrExternal(action: string, campId?: string): Promise<unkno
   if (!res.ok) {
     throw new Error(`EXPLR ${action} failed [${res.status}]: ${text.slice(0, 300)}`);
   }
-  try { return JSON.parse(text); } catch { return text; }
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
 }
 
 function unwrapList(payload: unknown): Record<string, unknown>[] {
@@ -98,13 +101,15 @@ function pickNum(row: Record<string, unknown>, ...keys: string[]): number | null
 
 function mapRosterRow(row: Record<string, unknown>, campId: string): ExplrRegistration | null {
   const id = pickStr(row, "id", "registration_id", "uuid");
-  const child = (row.child && typeof row.child === "object" ? row.child : {}) as Record<string, unknown>;
+  const child = (row.child && typeof row.child === "object" ? row.child : {}) as Record<
+    string,
+    unknown
+  >;
   const firstName = pickStr(child, "first_name") ?? pickStr(row, "first_name");
   const lastName = pickStr(child, "last_name") ?? pickStr(row, "last_name");
   const composed = [firstName, lastName].filter(Boolean).join(" ").trim();
   const childName =
-    pickStr(row, "child_name", "student_name", "name", "full_name") ??
-    (composed || null);
+    pickStr(row, "child_name", "student_name", "name", "full_name") ?? (composed || null);
   if (!id || !childName) return null;
   let age: number | null = pickNum(row, "child_age", "age", "student_age") ?? pickNum(child, "age");
   const dob = pickStr(child, "date_of_birth");
@@ -140,17 +145,14 @@ async function fetchAllFromExplr<T>(table: string, columns: string): Promise<T[]
   const pageSize = 1000;
   let from = 0;
   while (true) {
-    const res = await fetch(
-      `${url.replace(/\/$/, "")}/rest/v1/${table}?select=${columns}`,
-      {
-        headers: {
-          apikey: key,
-          Authorization: `Bearer ${key}`,
-          Range: `${from}-${from + pageSize - 1}`,
-          "Range-Unit": "items",
-        },
+    const res = await fetch(`${url.replace(/\/$/, "")}/rest/v1/${table}?select=${columns}`, {
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        Range: `${from}-${from + pageSize - 1}`,
+        "Range-Unit": "items",
       },
-    );
+    });
     if (!res.ok) {
       throw new Error(`ExplrMore ${table} fetch failed [${res.status}]: ${await res.text()}`);
     }
@@ -204,7 +206,9 @@ export const syncExplrMore = createServerFn({ method: "POST" })
       for (const c of campsArr) {
         const cid = pickStr(c, "id", "camp_id") ?? "";
         if (!cid) continue;
-        const regsArr = Array.isArray(c.registrations) ? (c.registrations as Record<string, unknown>[]) : [];
+        const regsArr = Array.isArray(c.registrations)
+          ? (c.registrations as Record<string, unknown>[])
+          : [];
         const mapped = regsArr
           .map((row) => mapRosterRow(row, cid))
           .filter((x): x is ExplrRegistration => !!x);
@@ -245,7 +249,6 @@ export const syncExplrMore = createServerFn({ method: "POST" })
         rosterErrors.push({ campId: c.id, error: (e as Error).message });
       }
     }
-
 
     if (camps.length > 0) {
       const { error } = await supabaseAdmin.from("explr_camps").upsert(
@@ -327,7 +330,7 @@ export const syncExplrMore = createServerFn({ method: "POST" })
     // Log this run so the import page (and the daily edge function) share one
     // "last synced" record. Reuses the sync_runs table from the worksites sync.
     // (sync_runs is newer than the generated types — untyped cast.)
-    await ((supabaseAdmin.from as unknown as (n: string) => any)("sync_runs")).insert({
+    await (supabaseAdmin.from as unknown as (n: string) => any)("sync_runs").insert({
       kind: "explr_roster",
       finished_at: new Date().toISOString(),
       ok: rosterErrors.length === 0,
@@ -335,7 +338,10 @@ export const syncExplrMore = createServerFn({ method: "POST" })
       students_synced: matchedRegs.length,
       error:
         rosterErrors.length > 0
-          ? rosterErrors.slice(0, 3).map((e) => `${e.campId}: ${e.error}`).join(" | ")
+          ? rosterErrors
+              .slice(0, 3)
+              .map((e) => `${e.campId}: ${e.error}`)
+              .join(" | ")
           : null,
     } as never);
 
@@ -350,52 +356,6 @@ export const syncExplrMore = createServerFn({ method: "POST" })
       rosterErrors,
       syncedAt: new Date().toISOString(),
     };
-  });
-
-// Replace the curriculum links for an ExplrMore camp with the supplied list
-// of curriculum slugs (zero or more). Simple replace strategy: delete every
-// existing link for this camp then insert the new set. Also keeps the legacy
-// linked_camp_slug column in sync (set to the first slug, or null) for any
-// older code that still reads it.
-export const linkExplrCamp = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (input: { explrCampId: string; linkedCampSlugs: string[] }) => input,
-  )
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
-
-    const links = supabaseAdmin.from("explr_camp_curriculum_links");
-
-    // Clear existing links for this camp.
-    {
-      const { error } = await links.delete().eq("explr_camp_id", data.explrCampId);
-      if (error) throw new Error(error.message);
-    }
-
-    // Insert the new set (dedup defensively).
-    const uniqueSlugs = [...new Set(data.linkedCampSlugs.filter(Boolean))];
-    if (uniqueSlugs.length > 0) {
-      const { error } = await links.insert(
-        uniqueSlugs.map((slug) => ({
-          explr_camp_id: data.explrCampId,
-          camp_slug: slug,
-          linked_by: context.userId,
-        })),
-      );
-      if (error) throw new Error(error.message);
-    }
-
-    // Keep the legacy single-link column in sync for any code that still reads it.
-    {
-      const { error } = await supabaseAdmin
-        .from("explr_camps")
-        .update({ linked_camp_slug: uniqueSlugs[0] ?? null })
-        .eq("id", data.explrCampId);
-      if (error) throw new Error(error.message);
-    }
-
-    return { ok: true, linkedCount: uniqueSlugs.length };
   });
 
 // Toggle an educator's assignment to an ExplrMore camp instance. Idempotent.

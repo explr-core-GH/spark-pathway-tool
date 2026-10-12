@@ -48,20 +48,20 @@ function AdminHome() {
       <h1 className="mt-3 text-4xl font-light">Operations</h1>
 
       <section className="mt-16">
-        <h2 className="text-xs uppercase tracking-wider text-charcoal-400 mb-4">
+        <h2 className="text-xs uppercase tracking-wider text-ink-500 mb-4">
           Pending approval · {pending.length}
         </h2>
         {pending.length === 0 ? (
-          <p className="py-3 text-sm text-charcoal-400">No pending instructors.</p>
+          <p className="py-3 text-sm text-ink-500">No pending instructors.</p>
         ) : (
-          <div className="divide-y divide-charcoal-100 border-y border-charcoal-100">
+          <div className="divide-y divide-line border-y border-line">
             {pending.map((e) => (
               <div
                 key={e.id}
                 className="grid grid-cols-[1fr_1fr_auto] items-center gap-4 py-3 text-sm"
               >
                 <span className="font-medium">{e.full_name}</span>
-                <span className="text-charcoal-500">{e.email}</span>
+                <span className="text-ink-500">{e.email}</span>
                 <button className="btn-ink text-xs" onClick={() => approve(e.id)}>
                   Approve
                 </button>
@@ -72,10 +72,10 @@ function AdminHome() {
       </section>
 
       <section className="mt-16">
-        <h2 className="text-xs uppercase tracking-wider text-charcoal-400 mb-4">
+        <h2 className="text-xs uppercase tracking-wider text-ink-500 mb-4">
           Invite educators &amp; admins
         </h2>
-        <p className="text-sm text-charcoal-500">
+        <p className="text-sm text-ink-500">
           Create and manage invite links on the dedicated{" "}
           <Link to="/instructor/admin/invites" className="ink-link">
             Invites page
@@ -89,20 +89,20 @@ function AdminHome() {
       </section>
 
       <section className="mt-16">
-        <h2 className="text-xs uppercase tracking-wider text-charcoal-400 mb-4">
+        <h2 className="text-xs uppercase tracking-wider text-ink-500 mb-4">
           Active educators · {active.length}
         </h2>
-        <div className="divide-y divide-charcoal-100 border-y border-charcoal-100">
+        <div className="divide-y divide-line border-y border-line">
           {active.map((e) => (
             <Link
               key={e.id}
               to="/instructor/admin/educators/$id"
               params={{ id: e.id }}
-              className="grid grid-cols-[1fr_1fr_120px_80px] items-baseline gap-4 py-3 text-sm hover:bg-charcoal-50"
+              className="grid grid-cols-[1fr_1fr_120px_80px] items-baseline gap-4 py-3 text-sm hover:bg-paper-sunken"
             >
               <span className="font-medium">{e.full_name}</span>
-              <span className="text-charcoal-500">{e.email}</span>
-              <span className="text-xs text-charcoal-400">{e.role}</span>
+              <span className="text-ink-500">{e.email}</span>
+              <span className="text-xs text-ink-500">{e.role}</span>
               <span className="text-xs">✓ approved</span>
             </Link>
           ))}

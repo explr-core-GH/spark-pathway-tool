@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { RosterDataPanel } from "@/components/RosterDataPanel";
+import { loadInternshipRefs } from "@/lib/internship-refs";
 
 export const Route = createFileRoute("/instructor/admin/completion")({
   head: () => ({ meta: [{ title: "Completion by roster — Admin" }] }),
@@ -45,26 +46,43 @@ function CompletionByRoster() {
       const [
         { data: cs, error: cErr },
         { data: lg, error: lErr },
-        { data: ints, error: iErr },
-        { data: il, error: ilErr },
+        refs,
+        { data: pl, error: pErr },
       ] = await Promise.all([
         supabase.from("explr_camps").select("id, title, date").order("date", { ascending: true }),
         supabase.from("camp_student_logins").select("explr_camp_id, student_id, child_name"),
-        supabase.from("internships").select("slug, name").order("name"),
-        supabase
-          .from("internship_student_logins")
-          .select("internship_slug, student_id, child_name"),
+        loadInternshipRefs({ includeUnapproved: true }),
+        supabase.from("internship_placements").select("approved_internship_id, student_id"),
       ]);
-      if (cErr || lErr || iErr || ilErr) {
-        setErr((cErr ?? lErr ?? iErr ?? ilErr)!.message);
+      if (cErr || lErr || pErr) {
+        setErr((cErr ?? lErr ?? pErr)!.message);
         setLoading(false);
         return;
       }
       setCamps((cs ?? []) as Camp[]);
       const loginRows = (lg ?? []) as Login[];
       setLogins(loginRows);
-      setInternships((ints ?? []) as Internship[]);
-      const intLoginRows = (il ?? []) as IntLogin[];
+      setInternships([...refs.values()].map((r) => ({ slug: r.ref, name: r.name })));
+      // Placed interns, with first names from the students table.
+      const placements = (pl ?? []) as Array<{
+        approved_internship_id: string;
+        student_id: string;
+      }>;
+      const placedIds = [...new Set(placements.map((p) => p.student_id))];
+      const firstName: Record<string, string> = {};
+      if (placedIds.length > 0) {
+        const { data: studs } = await supabase
+          .from("students")
+          .select("id, first_name")
+          .in("id", placedIds);
+        for (const st of (studs ?? []) as Array<{ id: string; first_name: string | null }>)
+          firstName[st.id] = st.first_name ?? "Student";
+      }
+      const intLoginRows: IntLogin[] = placements.map((p) => ({
+        internship_slug: p.approved_internship_id,
+        student_id: p.student_id,
+        child_name: firstName[p.student_id] ?? "Student",
+      }));
       setIntLogins(intLoginRows);
 
       const ids = Array.from(
@@ -175,7 +193,7 @@ function CompletionByRoster() {
     <main className="mx-auto max-w-6xl px-6 py-16">
       <p className="eyebrow">Admin</p>
       <h1 className="mt-3 text-4xl font-light">Completion by roster</h1>
-      <p className="mt-2 max-w-2xl text-sm text-charcoal-500">
+      <p className="mt-2 max-w-2xl text-sm text-ink-500">
         Assessment and survey completion grouped by camp or internship roster. Click a row to see
         per-student results and timing.
       </p>
@@ -192,26 +210,26 @@ function CompletionByRoster() {
             <button
               key={k}
               onClick={() => setKindFilter(k)}
-              className={`px-3 py-1.5 border ${kindFilter === k ? "border-ink bg-ink text-canvas" : "border-charcoal-200 text-charcoal-500 hover:border-ink hover:text-ink"}`}
+              className={`px-3 py-1.5 border ${kindFilter === k ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-500 hover:border-ink-900-900 hover:text-ink"}`}
             >
               {k === "all" ? "All" : k === "camp" ? "Camps" : "Internships"}
             </button>
           ))}
         </div>
-        <span className="text-xs text-charcoal-500">
+        <span className="text-xs text-ink-500">
           {filtered.length} roster{filtered.length === 1 ? "" : "s"} · {totals.assessmentDone}/
           {totals.total} assessment · {totals.surveysDone}/{totals.total} survey
         </span>
       </div>
 
       {loading ? (
-        <p className="mt-8 text-sm text-charcoal-400">Loading…</p>
+        <p className="mt-8 text-sm text-ink-500">Loading…</p>
       ) : err ? (
         <p className="mt-8 text-sm text-red-600">Error: {err}</p>
       ) : filtered.length === 0 ? (
-        <p className="mt-8 text-sm text-charcoal-400">No rosters with students yet.</p>
+        <p className="mt-8 text-sm text-ink-500">No rosters with students yet.</p>
       ) : (
-        <div className="mt-6 divide-y divide-charcoal-100 border-y border-charcoal-100">
+        <div className="mt-6 divide-y divide-line border-y border-line">
           {filtered.map((s) => {
             const isOpen = open === s.key;
             const aPct = s.total ? Math.round((s.assessmentDone / s.total) * 100) : 0;
@@ -220,36 +238,36 @@ function CompletionByRoster() {
               <div key={s.key}>
                 <button
                   onClick={() => setOpen(isOpen ? null : s.key)}
-                  className="grid w-full grid-cols-[1fr_120px_140px_140px_60px] items-baseline gap-4 py-4 text-left text-sm hover:bg-charcoal-50"
+                  className="grid w-full grid-cols-[1fr_120px_140px_140px_60px] items-baseline gap-4 py-4 text-left text-sm hover:bg-paper-sunken"
                 >
                   <span>
-                    <span className="text-[10px] uppercase tracking-wider text-charcoal-400 mr-2">
+                    <span className="text-[10px] uppercase tracking-wider text-ink-500 mr-2">
                       {s.kind === "camp" ? "Camp" : "Internship"}
                     </span>
                     <span className="font-medium">{s.title}</span>
-                    {s.date && <span className="ml-2 text-xs text-charcoal-400">{s.date}</span>}
+                    {s.date && <span className="ml-2 text-xs text-ink-500">{s.date}</span>}
                   </span>
-                  <span className="text-xs text-charcoal-500 tabular-nums">
+                  <span className="text-xs text-ink-500 tabular-nums">
                     {s.total} student{s.total === 1 ? "" : "s"}
                   </span>
                   <span className="tabular-nums">
                     <span className="font-medium">
                       {s.assessmentDone}/{s.total}
                     </span>{" "}
-                    <span className="text-xs text-charcoal-400">assessment ({aPct}%)</span>
+                    <span className="text-xs text-ink-500">assessment ({aPct}%)</span>
                   </span>
                   <span className="tabular-nums">
                     <span className="font-medium">
                       {s.surveysDone}/{s.total}
                     </span>{" "}
-                    <span className="text-xs text-charcoal-400">survey ({sPct}%)</span>
+                    <span className="text-xs text-ink-500">survey ({sPct}%)</span>
                   </span>
-                  <span className="text-right text-xs text-charcoal-500">
+                  <span className="text-right text-xs text-ink-500">
                     {isOpen ? "Hide" : "View"}
                   </span>
                 </button>
                 {isOpen && (
-                  <div className="border-t border-charcoal-100 bg-charcoal-50 px-4 py-4">
+                  <div className="border-t border-line bg-paper-sunken px-4 py-4">
                     <RosterDataPanel studentIds={s.studentIds} names={s.names} />
                   </div>
                 )}

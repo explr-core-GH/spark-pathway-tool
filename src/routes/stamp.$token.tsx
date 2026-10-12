@@ -286,7 +286,7 @@ function StampPage() {
                                       type="button"
                                       onClick={() => setRating(skill, null)}
                                       aria-pressed={!r}
-                                      className={`rounded-full border px-3 py-1 text-xs ${!r ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700"}`}
+                                      className={`rounded-full border px-3 py-1 text-xs ${!r ? "border-ink-900-900 bg-ink-900-900 text-paper" : "border-line-strong text-ink-700"}`}
                                     >
                                       Didn't see
                                     </button>

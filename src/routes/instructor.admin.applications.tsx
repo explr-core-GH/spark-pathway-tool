@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { INTERNSHIPS } from "@/lib/internships-catalog";
 import { isOppSlug, oppIdFromSlug } from "@/lib/opportunities";
 
 const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
@@ -55,23 +54,15 @@ type Application = {
 type Student = { id: string; first_name: string | null; grade: number | null };
 type StatusFilter = "all" | "submitted" | "approved" | "rejected";
 
-const SLUG_TO_NAME: Record<string, string> = Object.fromEntries(
-  INTERNSHIPS.map((i) => [i.slug, i.name]),
-);
-const SLUG_TO_EMOJI: Record<string, string> = Object.fromEntries(
-  INTERNSHIPS.map((i) => [i.slug, i.emoji]),
-);
-
-// Org-created internships apply with synthetic `opp:<id>` slugs; resolve their
-// names from the opportunities table (populated on load).
+// Every internship is a partner opportunity applied for by its synthetic
+// `opp:<id>` slug; names resolve from the opportunities table (populated on load).
 const OPP_NAMES: Record<string, string> = {};
 function nameFor(slug: string): string {
   if (isOppSlug(slug)) return OPP_NAMES[oppIdFromSlug(slug)] ?? "Partner internship";
-  return SLUG_TO_NAME[slug] ?? slug;
+  return slug;
 }
-function emojiFor(slug: string): string {
-  if (isOppSlug(slug)) return "💼";
-  return SLUG_TO_EMOJI[slug] ?? "•";
+function emojiFor(_slug: string): string {
+  return "💼";
 }
 
 const RIASEC_LETTERS = ["R", "I", "A", "S", "E", "C"] as const;
@@ -213,7 +204,7 @@ function ApplicationsPage() {
     <main className="mx-auto max-w-6xl px-6 py-12">
       <p className="eyebrow">Admin</p>
       <h1 className="mt-2 text-4xl font-light">Internship applications</h1>
-      <p className="mt-2 text-sm text-charcoal-500">
+      <p className="mt-2 text-sm text-ink-500">
         Review submissions, place students into internships, and keep notes for the team.
       </p>
 
@@ -235,8 +226,8 @@ function ApplicationsPage() {
               className="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
               style={{
                 background: active ? "var(--ink)" : "transparent",
-                color: active ? "white" : "var(--color-charcoal-600)",
-                border: `1px solid ${active ? "var(--ink)" : "var(--color-charcoal-200)"}`,
+                color: active ? "white" : "var(--color-ink-700)",
+                border: `1px solid ${active ? "var(--ink)" : "var(--color-line-strong)"}`,
               }}
             >
               {f.label} <span className="ml-1 opacity-70">{f.count}</span>
@@ -247,17 +238,17 @@ function ApplicationsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search student or internship…"
-          className="ml-auto w-64 rounded-full border border-charcoal-200 bg-white px-4 py-1.5 text-sm placeholder:text-charcoal-400 focus:border-charcoal-400 focus:outline-none"
+          className="ml-auto w-64 rounded-full border border-line-strong bg-paper-raised px-4 py-1.5 text-sm placeholder:text-ink-500 focus:border-ink-900-900 focus:outline-none"
         />
       </div>
 
       {/* Cards */}
       <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2">
         {loading ? (
-          <p className="text-sm text-charcoal-400">Loading…</p>
+          <p className="text-sm text-ink-500">Loading…</p>
         ) : visible.length === 0 ? (
-          <div className="col-span-full rounded-lg border border-dashed border-charcoal-200 bg-white p-10 text-center">
-            <p className="text-sm text-charcoal-500">
+          <div className="col-span-full rounded-lg border border-dashed border-line-strong bg-paper-raised p-10 text-center">
+            <p className="text-sm text-ink-500">
               {apps.length === 0
                 ? "No applications submitted yet."
                 : "No applications match this filter."}
@@ -273,17 +264,17 @@ function ApplicationsPage() {
               <button
                 key={a.id}
                 onClick={() => setSelected(a)}
-                className="group flex flex-col rounded-lg border border-charcoal-100 bg-white p-5 text-left transition-shadow hover:border-charcoal-300 hover:shadow-md"
+                className="group flex flex-col rounded-lg border border-line bg-paper-raised p-5 text-left transition-shadow hover:border-line-strong hover:shadow-md"
               >
                 <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-charcoal-100 text-sm font-medium text-charcoal-600">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-paper-sunken text-sm font-medium text-ink-700">
                     {initials(s?.first_name)}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-base font-medium">
                       {s?.first_name ?? "Unknown student"}
                     </p>
-                    <p className="text-xs text-charcoal-500">
+                    <p className="text-xs text-ink-500">
                       Grade {s?.grade ?? "—"} ·{" "}
                       {new Date(a.submitted_at).toLocaleDateString(undefined, {
                         month: "short",
@@ -303,14 +294,14 @@ function ApplicationsPage() {
                   {top.map((id) => (
                     <span
                       key={id}
-                      className="inline-flex items-center gap-1 rounded-full bg-charcoal-50 px-2.5 py-1 text-xs text-charcoal-700"
+                      className="inline-flex items-center gap-1 rounded-full bg-paper-sunken px-2.5 py-1 text-xs text-ink-700"
                     >
                       <span>{emojiFor(id)}</span>
                       <span className="truncate max-w-[160px]">{nameFor(id)}</span>
                     </span>
                   ))}
                   {extra > 0 && (
-                    <span className="rounded-full bg-charcoal-50 px-2.5 py-1 text-xs text-charcoal-500">
+                    <span className="rounded-full bg-paper-sunken px-2.5 py-1 text-xs text-ink-500">
                       +{extra} more
                     </span>
                   )}
@@ -338,7 +329,7 @@ function ApplicationsPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mt-6">
-      <h3 className="text-xs uppercase tracking-wider text-charcoal-400">{title}</h3>
+      <h3 className="text-xs uppercase tracking-wider text-ink-500">{title}</h3>
       <div className="mt-3">{children}</div>
     </section>
   );
@@ -348,8 +339,8 @@ function Detail({ label, value }: { label: string; value?: React.ReactNode }) {
   if (!value) return null;
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-wider text-charcoal-400">{label}</p>
-      <p className="mt-0.5 text-sm text-charcoal-700">{value}</p>
+      <p className="text-[11px] uppercase tracking-wider text-ink-500">{label}</p>
+      <p className="mt-0.5 text-sm text-ink-700">{value}</p>
     </div>
   );
 }
@@ -360,7 +351,7 @@ function Chips({ items }: { items?: string[] }) {
   return (
     <div className="flex flex-wrap gap-1.5">
       {filtered.map((x, i) => (
-        <span key={i} className="rounded-full bg-charcoal-50 px-2.5 py-1 text-xs text-charcoal-700">
+        <span key={i} className="rounded-full bg-paper-sunken px-2.5 py-1 text-xs text-ink-700">
           {x}
         </span>
       ))}
@@ -415,20 +406,20 @@ function ApplicationDetail({
     <div className="fixed inset-0 z-50 flex justify-end bg-black/40" onClick={onClose}>
       <aside
         onClick={(e) => e.stopPropagation()}
-        className="h-full w-full max-w-2xl overflow-y-auto bg-white shadow-xl"
+        className="h-full w-full max-w-2xl overflow-y-auto bg-paper-raised shadow-xl"
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 border-b border-charcoal-100 bg-white/95 px-8 py-5 backdrop-blur">
+        <div className="sticky top-0 z-10 border-b border-line bg-paper-raised/95 px-8 py-5 backdrop-blur">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-charcoal-100 text-base font-medium text-charcoal-700">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-paper-sunken text-base font-medium text-ink-700">
                 {initials(student?.first_name)}
               </div>
               <div>
                 <h2 className="text-xl font-medium leading-tight">
                   {student?.first_name ?? "Unknown student"}
                 </h2>
-                <p className="text-xs text-charcoal-500">
+                <p className="text-xs text-ink-500">
                   Grade {student?.grade ?? "—"} · Submitted{" "}
                   {new Date(app.submitted_at).toLocaleDateString(undefined, {
                     month: "short",
@@ -448,7 +439,7 @@ function ApplicationDetail({
               <button
                 onClick={onClose}
                 aria-label="Close"
-                className="text-charcoal-400 hover:text-charcoal-700"
+                className="text-ink-500 hover:text-ink-700"
               >
                 ✕
               </button>
@@ -465,13 +456,13 @@ function ApplicationDetail({
                 return (
                   <li
                     key={id}
-                    className="flex items-start gap-2 rounded-md border border-charcoal-100 bg-charcoal-50/50 px-3 py-2 text-sm"
+                    className="flex items-start gap-2 rounded-md border border-line bg-paper-sunken px-3 py-2 text-sm"
                   >
                     <span className="mt-0.5">{emojiFor(id)}</span>
                     <div className="flex-1">
-                      <p className="font-medium text-charcoal-700">{nameFor(id)}</p>
+                      <p className="font-medium text-ink-700">{nameFor(id)}</p>
                       {interestNote && (
-                        <p className="mt-0.5 text-xs italic text-charcoal-500">"{interestNote}"</p>
+                        <p className="mt-0.5 text-xs italic text-ink-500">"{interestNote}"</p>
                       )}
                     </div>
                   </li>
@@ -484,11 +475,9 @@ function ApplicationDetail({
           {(riasec.holland_code || Object.keys(scores).length > 0) && (
             <Section title="RIASEC profile">
               {riasec.holland_code && (
-                <p className="mb-3 text-sm text-charcoal-600">
+                <p className="mb-3 text-sm text-ink-700">
                   Holland code:{" "}
-                  <span className="font-mono font-medium text-charcoal-800">
-                    {riasec.holland_code}
-                  </span>
+                  <span className="font-mono font-medium text-ink-700">{riasec.holland_code}</span>
                 </p>
               )}
               {Object.keys(scores).length > 0 && (
@@ -504,8 +493,8 @@ function ApplicationDetail({
                         >
                           {letter}
                         </span>
-                        <span className="w-24 text-charcoal-500">{RIASEC_LABEL[letter]}</span>
-                        <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-charcoal-100">
+                        <span className="w-24 text-ink-500">{RIASEC_LABEL[letter]}</span>
+                        <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-paper-sunken">
                           <div
                             className="absolute inset-y-0 left-0 rounded-full"
                             style={{
@@ -514,7 +503,7 @@ function ApplicationDetail({
                             }}
                           />
                         </div>
-                        <span className="w-10 text-right font-mono text-charcoal-500">{raw}</span>
+                        <span className="w-10 text-right font-mono text-ink-500">{raw}</span>
                       </div>
                     );
                   })}
@@ -543,7 +532,7 @@ function ApplicationDetail({
           {/* Why */}
           {resume.whyThisInternship?.trim() && (
             <Section title="Why this internship">
-              <p className="whitespace-pre-wrap rounded-md border border-charcoal-100 bg-charcoal-50/50 p-3 text-sm leading-relaxed text-charcoal-700">
+              <p className="whitespace-pre-wrap rounded-md border border-line bg-paper-sunken p-3 text-sm leading-relaxed text-ink-700">
                 {resume.whyThisInternship}
               </p>
             </Section>
@@ -564,7 +553,7 @@ function ApplicationDetail({
               </div>
               {hasCoursework && (
                 <div className="mt-3">
-                  <p className="mb-1.5 text-[11px] uppercase tracking-wider text-charcoal-400">
+                  <p className="mb-1.5 text-[11px] uppercase tracking-wider text-ink-500">
                     Coursework
                   </p>
                   <Chips items={resume.coursework} />
@@ -576,17 +565,17 @@ function ApplicationDetail({
           {/* Project */}
           {(resume.projectTitle?.trim() || resume.projectDescription?.trim()) && (
             <Section title="Featured project">
-              <div className="rounded-md border border-charcoal-100 bg-charcoal-50/50 p-3">
-                <p className="text-sm font-medium text-charcoal-700">
+              <div className="rounded-md border border-line bg-paper-sunken p-3">
+                <p className="text-sm font-medium text-ink-700">
                   {resume.projectTitle || "Untitled"}
                 </p>
                 {(resume.projectWhen || resume.projectContext) && (
-                  <p className="mt-0.5 text-xs text-charcoal-500">
+                  <p className="mt-0.5 text-xs text-ink-500">
                     {[resume.projectWhen, resume.projectContext].filter(Boolean).join(" · ")}
                   </p>
                 )}
                 {resume.projectDescription && (
-                  <p className="mt-2 whitespace-pre-wrap text-sm text-charcoal-700">
+                  <p className="mt-2 whitespace-pre-wrap text-sm text-ink-700">
                     {resume.projectDescription}
                   </p>
                 )}
@@ -603,7 +592,7 @@ function ApplicationDetail({
                   if (filtered.length === 0) return null;
                   return (
                     <div key={label}>
-                      <p className="mb-1.5 text-[11px] uppercase tracking-wider text-charcoal-400">
+                      <p className="mb-1.5 text-[11px] uppercase tracking-wider text-ink-500">
                         {label}
                       </p>
                       <Chips items={filtered} />
@@ -619,16 +608,13 @@ function ApplicationDetail({
             <Section title="Activities">
               <ul className="space-y-3">
                 {activities.map((a, i) => (
-                  <li
-                    key={i}
-                    className="rounded-md border border-charcoal-100 bg-charcoal-50/50 p-3"
-                  >
-                    <p className="text-sm font-medium text-charcoal-700">{a.title || "—"}</p>
-                    <p className="text-xs text-charcoal-500">
+                  <li key={i} className="rounded-md border border-line bg-paper-sunken p-3">
+                    <p className="text-sm font-medium text-ink-700">{a.title || "—"}</p>
+                    <p className="text-xs text-ink-500">
                       {[a.org, a.dates].filter(Boolean).join(" · ")}
                     </p>
                     {a.description && (
-                      <p className="mt-1.5 text-sm text-charcoal-700">{a.description}</p>
+                      <p className="mt-1.5 text-sm text-ink-700">{a.description}</p>
                     )}
                   </li>
                 ))}
@@ -648,16 +634,13 @@ function ApplicationDetail({
             <Section title="Work history">
               <ul className="space-y-3">
                 {work.map((a, i) => (
-                  <li
-                    key={i}
-                    className="rounded-md border border-charcoal-100 bg-charcoal-50/50 p-3"
-                  >
-                    <p className="text-sm font-medium text-charcoal-700">{a.title || "—"}</p>
-                    <p className="text-xs text-charcoal-500">
+                  <li key={i} className="rounded-md border border-line bg-paper-sunken p-3">
+                    <p className="text-sm font-medium text-ink-700">{a.title || "—"}</p>
+                    <p className="text-xs text-ink-500">
                       {[a.org, a.dates].filter(Boolean).join(" · ")}
                     </p>
                     {a.description && (
-                      <p className="mt-1.5 text-sm text-charcoal-700">{a.description}</p>
+                      <p className="mt-1.5 text-sm text-ink-700">{a.description}</p>
                     )}
                   </li>
                 ))}
@@ -668,7 +651,7 @@ function ApplicationDetail({
           {/* Staff notes */}
           <Section title="Staff notes">
             <textarea
-              className="h-24 w-full rounded-md border border-charcoal-200 bg-white p-3 text-sm focus:border-charcoal-400 focus:outline-none"
+              className="h-24 w-full rounded-md border border-line-strong bg-paper-raised p-3 text-sm focus:border-ink-900-900 focus:outline-none"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               onBlur={() => onSaveNotes(notes)}
@@ -678,12 +661,12 @@ function ApplicationDetail({
 
           {/* Decision */}
           {app.status === "submitted" ? (
-            <div className="mt-8 rounded-lg border border-charcoal-100 bg-charcoal-50/60 p-4">
-              <p className="text-xs uppercase tracking-wider text-charcoal-400">Decision</p>
+            <div className="mt-8 rounded-lg border border-line bg-paper-sunken p-4">
+              <p className="text-xs uppercase tracking-wider text-ink-500">Decision</p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <label className="text-xs text-charcoal-500">Place into</label>
+                <label className="text-xs text-ink-500">Place into</label>
                 <select
-                  className="rounded-md border border-charcoal-200 bg-white px-2 py-1.5 text-sm"
+                  className="rounded-md border border-line-strong bg-paper-raised px-2 py-1.5 text-sm"
                   value={placement}
                   onChange={(e) => setPlacement(e.target.value)}
                 >
@@ -695,7 +678,7 @@ function ApplicationDetail({
                 </select>
                 <div className="ml-auto flex gap-2">
                   <button
-                    className="rounded-md border border-charcoal-200 bg-white px-4 py-2 text-sm hover:bg-charcoal-50"
+                    className="rounded-md border border-line-strong bg-paper-raised px-4 py-2 text-sm hover:bg-paper-sunken"
                     onClick={onReject}
                   >
                     Reject
@@ -712,7 +695,7 @@ function ApplicationDetail({
               </div>
             </div>
           ) : (
-            <p className="mt-8 border-t border-charcoal-100 pt-4 text-sm text-charcoal-500">
+            <p className="mt-8 border-t border-line pt-4 text-sm text-ink-500">
               Decided {app.decided_at ? new Date(app.decided_at).toLocaleString() : ""} — status:{" "}
               <span className="font-medium">{app.status}</span>
             </p>

@@ -32,14 +32,12 @@ export function ConstructScreen({
       <h2 className="mt-1 text-2xl font-light">{screen.name}</h2>
 
       {screen.preamble && (
-        <p className="mt-4 border-l-2 border-charcoal-200 pl-4 text-sm leading-relaxed text-charcoal-600">
+        <p className="mt-4 border-l-2 border-line-strong pl-4 text-sm leading-relaxed text-ink-700">
           {screen.preamble}
         </p>
       )}
       {screen.instructions && (
-        <p className="mt-4 text-sm leading-relaxed text-charcoal-600">
-          {screen.instructions}
-        </p>
+        <p className="mt-4 text-sm leading-relaxed text-ink-700">{screen.instructions}</p>
       )}
 
       <div className="mt-4">

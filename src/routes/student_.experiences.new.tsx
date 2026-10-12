@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
 import { Wordmark } from "@/components/passport";
-import { INTERNSHIPS } from "@/lib/internships-catalog";
+import { loadInternshipRefs } from "@/lib/internship-refs";
 import { RIASEC_ORDER, RIASEC, type RIASECCode } from "@/lib/riasec";
 import {
   CAREER_CLUSTERS,
@@ -102,17 +102,19 @@ function NewExperience() {
     let active = true;
     setLibLoading(true);
     (async () => {
-      const [{ data: camps }, { data: placements }, { data: regs }] = await Promise.all([
-        sb("student_camp_links")
-          .select("explr_camp_id, explr_camps(id, title, date, end_date, location)")
-          .eq("student_id", user.id),
-        sb("internship_placements")
-          .select("approved_internship_id, approved_at")
-          .eq("student_id", user.id),
-        sb("opportunity_registrations")
-          .select("opportunity_id, opportunities(id, name, type, start_date, end_date, org_name)")
-          .eq("student_id", user.id),
-      ]);
+      const [{ data: camps }, { data: placements }, { data: regs }, internshipRefs] =
+        await Promise.all([
+          sb("student_camp_links")
+            .select("explr_camp_id, explr_camps(id, title, date, end_date, location)")
+            .eq("student_id", user.id),
+          sb("internship_placements")
+            .select("approved_internship_id, approved_at")
+            .eq("student_id", user.id),
+          sb("opportunity_registrations")
+            .select("opportunity_id, opportunities(id, name, type, start_date, end_date, org_name)")
+            .eq("student_id", user.id),
+          loadInternshipRefs(),
+        ]);
       if (!active) return;
       const items: LibraryItem[] = [];
       for (const c of (camps ?? []) as Array<{
@@ -133,11 +135,11 @@ function NewExperience() {
         approved_internship_id: string;
         approved_at: string;
       }>) {
-        const i = INTERNSHIPS.find((x) => x.slug === pl.approved_internship_id);
+        const i = internshipRefs.get(pl.approved_internship_id);
         items.push({
           key: `internship:${pl.approved_internship_id}`,
-          title: i?.name ?? pl.approved_internship_id,
-          organization: "EXPLR Internships",
+          title: i?.name ?? "Internship",
+          organization: i?.orgName ?? "Partner internship",
           typeKey: "internship_offsite_placement",
           start: pl.approved_at.slice(0, 10),
           end: null,

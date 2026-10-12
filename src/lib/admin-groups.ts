@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 /**
  * admin-groups — the data layer behind the entity-first admin
  * (/educator/admin/groups/<kind>). A "group" is a rostered cohort the admin
- * works with: a camp session, an internship, or a teacher's class. Each kind
+ * works with: a camp session or a teacher's class. Each kind
  * resolves to the same shape — a name, a small meta line, and the roster as
  * studentIds + names — so the card grid and the per-group workspace (and the
  * shared RosterDataPanel) don't need to know which kind they're showing.
@@ -15,8 +15,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 const sb = (table: string): any => (supabase.from as unknown as (n: string) => any)(table);
 
-export type GroupKind = "camps" | "internships" | "classes";
-export const GROUP_KINDS: GroupKind[] = ["camps", "internships", "classes"];
+export type GroupKind = "camps" | "classes";
+export const GROUP_KINDS: GroupKind[] = ["camps", "classes"];
 
 export function isGroupKind(x: string): x is GroupKind {
   return (GROUP_KINDS as string[]).includes(x);
@@ -38,12 +38,6 @@ export const KIND_META: Record<GroupKind, KindMeta> = {
     newLabel: null,
     createHint: { to: "/instructor/admin/camp-logins", label: "Add camps & logins" },
   },
-  internships: {
-    label: "Internships",
-    singular: "Internship",
-    newLabel: null,
-    createHint: { to: "/instructor/admin/internships", label: "Edit offerings" },
-  },
   classes: {
     label: "Classes",
     singular: "Class",
@@ -53,7 +47,7 @@ export const KIND_META: Record<GroupKind, KindMeta> = {
 };
 
 export type GroupSummary = {
-  /** camp id · internship slug · class id */
+  /** camp id · class id */
   id: string;
   name: string;
   /** small subtitle: dates, theme, grade/teacher */
@@ -112,7 +106,6 @@ export async function fetchCompletion(studentIds: string[]): Promise<Completion>
 
 export async function fetchGroups(kind: GroupKind): Promise<GroupSummary[]> {
   if (kind === "camps") return fetchCampGroups();
-  if (kind === "internships") return fetchInternshipGroups();
   return fetchClassGroups();
 }
 
@@ -163,69 +156,6 @@ async function fetchCampGroups(): Promise<GroupSummary[]> {
     });
   }
   return out;
-}
-
-async function fetchInternshipGroups(): Promise<GroupSummary[]> {
-  const [{ data: list }, { data: places }, { data: logins }] = await Promise.all([
-    supabase
-      .from("internships")
-      .select("slug, name, theme, riasec, sort_order")
-      .order("sort_order")
-      .order("name"),
-    supabase.from("internship_placements").select("approved_internship_id, student_id"),
-    supabase.from("internship_student_logins").select("internship_slug, student_id, child_name"),
-  ]);
-
-  const bySlug = new Map<string, { ids: string[]; names: Record<string, string> }>();
-  const add = (slug: string | null | undefined, id: string | null, name?: string | null) => {
-    if (!slug || !id) return;
-    const e = bySlug.get(slug) ?? { ids: [], names: {} };
-    if (!e.ids.includes(id)) e.ids.push(id);
-    if (name) e.names[id] = name;
-    bySlug.set(slug, e);
-  };
-  for (const p of (places ?? []) as Array<{ approved_internship_id: string; student_id: string }>) {
-    add(p.approved_internship_id, p.student_id);
-  }
-  for (const l of (logins ?? []) as Array<{
-    internship_slug: string;
-    student_id: string | null;
-    child_name: string;
-  }>) {
-    add(l.internship_slug, l.student_id, l.child_name);
-  }
-
-  const allIds = [...new Set([...bySlug.values()].flatMap((e) => e.ids))];
-  const fallbackNames: Record<string, string> = {};
-  if (allIds.length) {
-    const { data: studs } = await supabase
-      .from("students")
-      .select("id, first_name")
-      .in("id", allIds);
-    for (const s of (studs ?? []) as Array<{ id: string; first_name: string | null }>) {
-      if (s.first_name) fallbackNames[s.id] = s.first_name;
-    }
-  }
-
-  return (
-    (list ?? []) as Array<{
-      slug: string;
-      name: string;
-      theme: string | null;
-      riasec: string[] | null;
-    }>
-  ).map((i) => {
-    const e = bySlug.get(i.slug) ?? { ids: [], names: {} };
-    return {
-      id: i.slug,
-      name: i.name,
-      meta: [i.theme, (i.riasec ?? []).join("")].filter(Boolean).join(" · "),
-      studentIds: e.ids,
-      names: Object.fromEntries(
-        e.ids.map((id) => [id, e.names[id] ?? fallbackNames[id] ?? "Student"]),
-      ),
-    };
-  });
 }
 
 async function fetchClassGroups(): Promise<GroupSummary[]> {

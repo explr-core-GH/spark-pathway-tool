@@ -73,7 +73,7 @@ function Start() {
 
   if (resolving) {
     return (
-      <main className="mx-auto max-w-2xl px-6 py-32 text-center text-sm text-charcoal-400">
+      <main className="mx-auto max-w-2xl px-6 py-32 text-center text-sm text-ink-500">
         Loading…
       </main>
     );
@@ -93,14 +93,14 @@ function Start() {
 
       <div className="mt-12 grid gap-6 md:grid-cols-2">
         {/* Student */}
-        <article className="border border-charcoal-100 p-8">
-          <p className="eyebrow" style={{ color: "var(--explr)" }}>
+        <article className="border border-line p-8 rounded-[var(--radius-card)]">
+          <p className="eyebrow" style={{ color: "var(--color-green)" }}>
             For students
           </p>
-          <h2 className="mt-3 text-xl font-light text-charcoal-700">
+          <h2 className="mt-3 text-xl font-light text-ink-700">
             A starting point you actually own.
           </h2>
-          <p className="mt-3 text-sm text-charcoal-500">
+          <p className="mt-3 text-sm text-ink-500">
             Take the survey. See your Holland code. Use it to ask better questions about what comes
             after high school.
           </p>
@@ -115,14 +115,14 @@ function Start() {
         </article>
 
         {/* Educator */}
-        <article className="border border-charcoal-100 p-8">
-          <p className="eyebrow" style={{ color: "var(--explr)" }}>
+        <article className="border border-line p-8 rounded-[var(--radius-card)]">
+          <p className="eyebrow" style={{ color: "var(--color-green)" }}>
             For instructors
           </p>
-          <h2 className="mt-3 text-xl font-light text-charcoal-700">
-            Curriculum and rosters in one place.
+          <h2 className="mt-3 text-xl font-light text-ink-700">
+            Rosters and checkpoints in one place.
           </h2>
-          <p className="mt-3 text-sm text-charcoal-500">
+          <p className="mt-3 text-sm text-ink-500">
             STEM, CS, robotics coaches, camp instructors, and internship supervisors — manage
             assignments and student lists per program.
           </p>

@@ -128,7 +128,7 @@ function ProgramsAdmin() {
 
       <form
         onSubmit={createProgram}
-        className="mt-10 grid gap-4 border border-charcoal-100 p-6 md:grid-cols-[2fr_1fr_1fr_auto]"
+        className="mt-10 grid gap-4 border border-line p-6 md:grid-cols-[2fr_1fr_1fr_auto] rounded-[var(--radius-card)]"
       >
         <div>
           <label className="label">Program name</label>
@@ -212,7 +212,7 @@ function ProgramsAdmin() {
       <div className="mt-12 grid gap-8 md:grid-cols-[1fr_1fr]">
         <div>
           <h2 className="eyebrow">Programs</h2>
-          <ul className="mt-4 divide-y divide-charcoal-100 border-y border-charcoal-100">
+          <ul className="mt-4 divide-y divide-line border-y border-line">
             {programs.map((p) => {
               const count = assignments.filter((a) => a.program_id === p.id).length;
               return (
@@ -224,7 +224,7 @@ function ProgramsAdmin() {
                     >
                       {p.name}
                     </p>
-                    <p className="text-xs text-charcoal-500">
+                    <p className="text-xs text-ink-500">
                       {PROGRAM_META[p.program_type]?.label ?? p.program_type}
                       {p.grade_band ? ` · ${p.grade_band}` : ""} · {count} educator
                       {count === 1 ? "" : "s"}
@@ -232,7 +232,7 @@ function ProgramsAdmin() {
                     {(p.school_name ||
                       p.student_count != null ||
                       (p.grade_levels && p.grade_levels.length > 0)) && (
-                      <p className="text-xs text-charcoal-400 mt-0.5">
+                      <p className="text-xs text-ink-500 mt-0.5">
                         {p.school_name && <>🏫 {p.school_name}</>}
                         {p.student_count != null && (
                           <>
@@ -256,7 +256,7 @@ function ProgramsAdmin() {
               );
             })}
             {programs.length === 0 && (
-              <li className="py-6 text-sm text-charcoal-500">No programs yet.</li>
+              <li className="py-6 text-sm text-ink-500">No programs yet.</li>
             )}
           </ul>
         </div>
@@ -266,7 +266,7 @@ function ProgramsAdmin() {
             {selectedProg ? `Educators · ${selectedProg.name}` : "Pick a program"}
           </h2>
           {selectedProg ? (
-            <ul className="mt-4 divide-y divide-charcoal-100 border-y border-charcoal-100">
+            <ul className="mt-4 divide-y divide-line border-y border-line">
               {educators.map((e) => {
                 const checked = assignedSet.has(e.id);
                 return (
@@ -278,19 +278,19 @@ function ProgramsAdmin() {
                     />
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium truncate">{e.full_name}</p>
-                      <p className="text-xs text-charcoal-500 truncate">{e.email}</p>
+                      <p className="text-xs text-ink-500 truncate">{e.email}</p>
                     </div>
                   </li>
                 );
               })}
               {educators.length === 0 && (
-                <li className="py-6 text-sm text-charcoal-500">
+                <li className="py-6 text-sm text-ink-500">
                   No approved instructors yet. Invite some first.
                 </li>
               )}
             </ul>
           ) : (
-            <p className="mt-4 text-sm text-charcoal-500">
+            <p className="mt-4 text-sm text-ink-500">
               Select a program from the list to manage its instructors.
             </p>
           )}

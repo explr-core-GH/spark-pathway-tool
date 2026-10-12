@@ -75,7 +75,7 @@ function OrgSignUp() {
         ← EXPLR
       </Link>
       <h1 className="text-3xl font-light">Register as a partner</h1>
-      <p className="mt-2 text-sm text-charcoal-500">
+      <p className="mt-2 text-sm text-ink-500">
         For partners offering camps, workshops, internships, and clubs. Build an opportunity in a
         few minutes; an EXPLR admin reviews it before it goes live.
       </p>
@@ -120,7 +120,7 @@ function OrgSignUp() {
         </div>
         <div>
           <label className="label" htmlFor="org-website">
-            Website <span className="text-charcoal-400">(optional)</span>
+            Website <span className="text-ink-500">(optional)</span>
           </label>
           <input
             id="org-website"
@@ -154,7 +154,7 @@ function OrgSignUp() {
           {loading ? "Creating…" : "Create partner account"}
         </button>
       </form>
-      <p className="mt-6 text-sm text-charcoal-500">
+      <p className="mt-6 text-sm text-ink-500">
         Already registered?{" "}
         <Link to="/org/sign-in" className="ink-link">
           Sign in

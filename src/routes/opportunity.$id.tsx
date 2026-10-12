@@ -65,12 +65,12 @@ function OpportunityDetail() {
   }
 
   if (o === undefined) {
-    return <main className="mx-auto max-w-3xl px-6 py-16 text-sm text-charcoal-400">Loading…</main>;
+    return <main className="mx-auto max-w-3xl px-6 py-16 text-sm text-ink-500">Loading…</main>;
   }
   if (o === null) {
     return (
       <main className="mx-auto max-w-3xl px-6 py-16">
-        <p className="text-sm text-charcoal-500">
+        <p className="text-sm text-ink-500">
           That opportunity isn&apos;t available.{" "}
           <Link to="/opportunities" className="ink-link">
             Back to all opportunities
@@ -85,7 +85,7 @@ function OpportunityDetail() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
-      <Link to="/opportunities" className="text-xs text-charcoal-500 hover:text-ink">
+      <Link to="/opportunities" className="text-xs text-ink-500 hover:text-ink">
         ← All opportunities
       </Link>
 
@@ -94,7 +94,7 @@ function OpportunityDetail() {
       )}
 
       <div className="mt-5 flex items-center gap-2">
-        <span className="rounded-full bg-charcoal-100 px-2 py-0.5 text-[10px] uppercase tracking-wider text-charcoal-500">
+        <span className="rounded-full bg-paper-sunken px-2 py-0.5 text-[10px] uppercase tracking-wider text-ink-500">
           {meta.label}
         </span>
         {o.riasec_code && (
@@ -105,7 +105,7 @@ function OpportunityDetail() {
         <GateBadge o={o} />
       </div>
       <h1 className="mt-2 text-3xl font-light">{o.name || "Opportunity"}</h1>
-      <div className="mt-2 flex items-center gap-2 text-sm text-charcoal-500">
+      <div className="mt-2 flex items-center gap-2 text-sm text-ink-500">
         {o.org_logo_url && (
           <img src={o.org_logo_url} alt="" className="h-5 w-5 rounded object-cover" />
         )}
@@ -113,12 +113,12 @@ function OpportunityDetail() {
       </div>
 
       {o.description && (
-        <p className="mt-6 whitespace-pre-wrap text-sm leading-relaxed text-charcoal-700">
+        <p className="mt-6 whitespace-pre-wrap text-sm leading-relaxed text-ink-700">
           {o.description}
         </p>
       )}
 
-      <dl className="mt-6 grid grid-cols-2 gap-4 border-y border-charcoal-100 py-5 text-sm sm:grid-cols-3">
+      <dl className="mt-6 grid grid-cols-2 gap-4 border-y border-line py-5 text-sm sm:grid-cols-3">
         <Detail
           label="Dates"
           value={[o.start_date, o.end_date].filter(Boolean).join(" – ") || "—"}
@@ -132,18 +132,18 @@ function OpportunityDetail() {
 
       {o.lat != null && o.lng != null && (
         <div className="mt-6">
-          <p className="text-xs uppercase tracking-wider text-charcoal-400">Where you&apos;ll be</p>
+          <p className="text-xs uppercase tracking-wider text-ink-500">Where you&apos;ll be</p>
           <iframe
             title="Map"
             loading="lazy"
-            className="mt-2 h-64 w-full border border-charcoal-100"
+            className="mt-2 h-64 w-full border border-line"
             src={`https://www.openstreetmap.org/export/embed.html?bbox=${o.lng - 0.012}%2C${o.lat - 0.01}%2C${o.lng + 0.012}%2C${o.lat + 0.01}&layer=mapnik&marker=${o.lat}%2C${o.lng}`}
           />
           <a
             href={`https://www.openstreetmap.org/?mlat=${o.lat}&mlon=${o.lng}#map=15/${o.lat}/${o.lng}`}
             target="_blank"
             rel="noreferrer"
-            className="mt-1 inline-block text-xs text-explr-600 hover:underline"
+            className="mt-1 inline-block text-xs text-green-deep hover:underline"
           >
             View larger map ↗
           </a>
@@ -154,11 +154,11 @@ function OpportunityDetail() {
 
       {o.requirements && o.requirements.length > 0 && (
         <section className="mt-6">
-          <p className="text-xs uppercase tracking-wider text-charcoal-400">Requirements</p>
-          <ul className="mt-2 space-y-1 text-sm text-charcoal-700">
+          <p className="text-xs uppercase tracking-wider text-ink-500">Requirements</p>
+          <ul className="mt-2 space-y-1 text-sm text-ink-700">
             {o.requirements.map((r) => (
               <li key={r} className="flex items-start gap-2">
-                <span className="text-charcoal-400">•</span>
+                <span className="text-ink-500">•</span>
                 {r}
               </li>
             ))}
@@ -168,7 +168,7 @@ function OpportunityDetail() {
 
       {o.application_links && o.application_links.length > 0 && (
         <section className="mt-6">
-          <p className="text-xs uppercase tracking-wider text-charcoal-400">Links to complete</p>
+          <p className="text-xs uppercase tracking-wider text-ink-500">Links to complete</p>
           <ul className="mt-2 space-y-1 text-sm">
             {o.application_links.map((l, i) => (
               <li key={i}>
@@ -176,7 +176,7 @@ function OpportunityDetail() {
                   href={l.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-explr-600 hover:underline"
+                  className="text-green-deep hover:underline"
                 >
                   {l.label || l.url} ↗
                 </a>
@@ -188,7 +188,7 @@ function OpportunityDetail() {
 
       {forms.length > 0 && (
         <section className="mt-6">
-          <p className="text-xs uppercase tracking-wider text-charcoal-400">Forms</p>
+          <p className="text-xs uppercase tracking-wider text-ink-500">Forms</p>
           <ul className="mt-2 space-y-1 text-sm">
             {forms.map((f) => (
               <li key={f.id}>
@@ -197,7 +197,7 @@ function OpportunityDetail() {
                     href={f.file_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-explr-600 hover:underline"
+                    className="text-green-deep hover:underline"
                   >
                     {f.name} — download
                   </a>
@@ -205,18 +205,18 @@ function OpportunityDetail() {
                   f.name
                 )}
                 {f.requires_signature && (
-                  <span className="ml-2 text-xs text-charcoal-400">· signature required</span>
+                  <span className="ml-2 text-xs text-ink-500">· signature required</span>
                 )}
               </li>
             ))}
           </ul>
-          <p className="mt-1 text-xs text-charcoal-400">
+          <p className="mt-1 text-xs text-ink-500">
             You&apos;ll download, complete, and sign these as part of applying.
           </p>
         </section>
       )}
 
-      <div className="mt-8 border-t border-charcoal-100 pt-6">
+      <div className="mt-8 border-t border-line pt-6">
         {o.type === "internship" ? (
           isStudent || user ? (
             <Link to="/student/apply" search={{ opportunity: o.id }} className="btn-ink">
@@ -252,8 +252,8 @@ function OpportunityDetail() {
 function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs uppercase tracking-wider text-charcoal-400">{label}</dt>
-      <dd className="mt-0.5 text-charcoal-700">{value}</dd>
+      <dt className="text-xs uppercase tracking-wider text-ink-500">{label}</dt>
+      <dd className="mt-0.5 text-ink-700">{value}</dd>
     </div>
   );
 }

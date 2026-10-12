@@ -140,42 +140,61 @@ function Browse() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <Link to="/" className="eyebrow inline-block">← EXPLR</Link>
+      <Link to="/" className="eyebrow inline-block">
+        ← EXPLR
+      </Link>
       <h1 className="mt-3 text-4xl font-light">Explore opportunities</h1>
-      <p className="mt-2 max-w-2xl text-sm text-charcoal-500">
+      <p className="mt-2 max-w-2xl text-sm text-ink-500">
         Camps, workshops, internships, and clubs from EXPLR partner organizations.
         {holland ? ` Your interest code is ${holland} — matches are highlighted.` : ""}
       </p>
 
       <div className="mt-8 flex flex-wrap items-center gap-2">
-        {([{ key: "all", label: "All" }, ...OPP_TYPES.map((t) => ({ key: t.key, label: t.label }))] as Array<{ key: Filter; label: string }>).map((f) => (
+        {(
+          [
+            { key: "all", label: "All" },
+            ...OPP_TYPES.map((t) => ({ key: t.key, label: t.label })),
+          ] as Array<{ key: Filter; label: string }>
+        ).map((f) => (
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}
             className="rounded-full px-3 py-1.5 text-xs font-medium"
             style={{
               background: filter === f.key ? "var(--ink)" : "transparent",
-              color: filter === f.key ? "white" : "var(--color-charcoal-600)",
-              border: `1px solid ${filter === f.key ? "var(--ink)" : "var(--color-charcoal-200)"}`,
+              color: filter === f.key ? "white" : "var(--color-ink-700)",
+              border: `1px solid ${filter === f.key ? "var(--ink)" : "var(--color-line-strong)"}`,
             }}
           >
             {f.label}
           </button>
         ))}
         {holland && (
-          <label className="ml-2 flex items-center gap-1.5 text-xs text-charcoal-600">
-            <input type="checkbox" checked={matchOnly} onChange={(e) => setMatchOnly(e.target.checked)} />
+          <label className="ml-2 flex items-center gap-1.5 text-xs text-ink-700">
+            <input
+              type="checkbox"
+              checked={matchOnly}
+              onChange={(e) => setMatchOnly(e.target.checked)}
+            />
             Match my interests
           </label>
         )}
       </div>
 
-      {showInternshipGate && <InternshipGate state={internshipState} dob={dob} setDob={setDob} saveDob={saveDob} savingDob={savingDob} />}
+      {showInternshipGate && (
+        <InternshipGate
+          state={internshipState}
+          dob={dob}
+          setDob={setDob}
+          saveDob={saveDob}
+          savingDob={savingDob}
+        />
+      )}
 
       {opps === null ? (
-        <p className="mt-10 text-sm text-charcoal-400">Loading…</p>
+        <p className="mt-10 text-sm text-ink-500">Loading…</p>
       ) : cards.length === 0 ? (
-        <p className="mt-10 text-sm text-charcoal-400">
+        <p className="mt-10 text-sm text-ink-500">
           {filter === "internship" && internshipState === "ok"
             ? "No internships you're eligible for yet — check back as new ones are posted."
             : "No opportunities here yet."}
@@ -212,29 +231,41 @@ function InternshipGate({
   savingDob: boolean;
 }) {
   return (
-    <div className="mt-8 border border-charcoal-200 bg-charcoal-50 p-5">
+    <div className="mt-8 border border-line-strong bg-paper-sunken p-5">
       {state === "signin" && (
-        <p className="text-sm text-charcoal-600">
+        <p className="text-sm text-ink-700">
           Internships are for signed-in students.{" "}
-          <Link to="/sign-in" className="ink-link">Sign in</Link> to see the ones you&apos;re eligible for.
+          <Link to="/sign-in" className="ink-link">
+            Sign in
+          </Link>{" "}
+          to see the ones you&apos;re eligible for.
         </p>
       )}
       {state === "grade" && (
-        <p className="text-sm text-charcoal-600">
-          Internships open up in <span className="font-medium">8th grade</span>. You&apos;ll see them
-          here once you&apos;re in 8th grade or above.
+        <p className="text-sm text-ink-700">
+          Internships open up in <span className="font-medium">8th grade</span>. You&apos;ll see
+          them here once you&apos;re in 8th grade or above.
         </p>
       )}
       {state === "dob" && (
         <div>
           <p className="text-sm font-medium">One quick check before internships</p>
-          <p className="mt-1 text-sm text-charcoal-600">
-            Students must turn <span className="font-medium">14 by June 1</span> of the internship&apos;s
-            year. Enter your date of birth to see the internships you qualify for.
+          <p className="mt-1 text-sm text-ink-700">
+            Students must turn <span className="font-medium">14 by June 1</span> of the
+            internship&apos;s year. Enter your date of birth to see the internships you qualify for.
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-3">
-            <input type="date" className="field w-48" value={dob} onChange={(e) => setDob(e.target.value)} />
-            <button onClick={saveDob} disabled={!dob || savingDob} className="btn-ink text-sm disabled:opacity-40">
+            <input
+              type="date"
+              className="field w-48"
+              value={dob}
+              onChange={(e) => setDob(e.target.value)}
+            />
+            <button
+              onClick={saveDob}
+              disabled={!dob || savingDob}
+              className="btn-ink text-sm disabled:opacity-40"
+            >
               {savingDob ? "Saving…" : "Save & view internships"}
             </button>
           </div>
@@ -260,17 +291,17 @@ function OppCard({
   const meta = oppTypeMeta(o.type);
   const grades = [o.grade_min, o.grade_max].filter((x) => x != null).join("–");
   return (
-    <div className="flex flex-col border border-charcoal-100 bg-white">
+    <div className="flex flex-col border border-line bg-paper-raised">
       {o.image_url ? (
         <img src={o.image_url} alt="" className="h-36 w-full object-cover" />
       ) : (
-        <div className="flex h-36 w-full items-center justify-center bg-charcoal-50 text-xs uppercase tracking-wider text-charcoal-300">
+        <div className="flex h-36 w-full items-center justify-center bg-paper-sunken text-xs uppercase tracking-wider text-ink-500">
           {meta.label}
         </div>
       )}
       <div className="flex flex-1 flex-col p-4">
         <div className="flex items-center gap-2">
-          <span className="rounded-full bg-charcoal-100 px-2 py-0.5 text-[10px] uppercase tracking-wider text-charcoal-500">
+          <span className="rounded-full bg-paper-sunken px-2 py-0.5 text-[10px] uppercase tracking-wider text-ink-500">
             {meta.label}
           </span>
           {match > 0 && (
@@ -286,15 +317,17 @@ function OppCard({
         >
           {o.name || "Opportunity"}
         </Link>
-        <div className="mt-1 flex items-center gap-1.5 text-xs text-charcoal-500">
-          {o.org_logo_url && <img src={o.org_logo_url} alt="" className="h-4 w-4 rounded object-cover" />}
+        <div className="mt-1 flex items-center gap-1.5 text-xs text-ink-500">
+          {o.org_logo_url && (
+            <img src={o.org_logo_url} alt="" className="h-4 w-4 rounded object-cover" />
+          )}
           <span className="truncate">{o.org_name || "Organization"}</span>
         </div>
-        <p className="mt-2 text-xs text-charcoal-500">
+        <p className="mt-2 text-xs text-ink-500">
           {[o.start_date, o.location].filter(Boolean).join(" · ") || "—"}
           {grades ? ` · grades ${grades}` : ""}
         </p>
-        <p className="mt-1 text-xs font-medium text-charcoal-700">
+        <p className="mt-1 text-xs font-medium text-ink-700">
           {o.is_free ? "Free" : dollars(o.cost_cents)}
         </p>
 

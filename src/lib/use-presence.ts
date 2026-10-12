@@ -20,9 +20,7 @@ function labelFor(path: string): string {
     return "Interest assessment";
   }
   if (/\/results$/.test(path)) return "Viewing results";
-  if (path.startsWith("/assessment/internship-interest")) return "Internship interest";
   if (path.startsWith("/survey/")) return "STEM survey";
-  if (path.startsWith("/demo/aptitude")) return "Aptitude battery";
   if (path === "/student") return "Dashboard";
   if (path === "/" || path === "/start") return "Home";
   if (path.startsWith("/sign-in") || path.startsWith("/sign-up")) return "Signing in";
@@ -55,9 +53,11 @@ export function usePresenceHeartbeat() {
       const uid = userIdRef.current;
       if (!uid || stopped) return;
       // student_presence isn't in the generated Database type — loosen.
-      await (supabase.from as unknown as (n: string) => {
-        upsert: (row: unknown) => Promise<unknown>;
-      })("student_presence").upsert({
+      await (
+        supabase.from as unknown as (n: string) => {
+          upsert: (row: unknown) => Promise<unknown>;
+        }
+      )("student_presence").upsert({
         student_id: uid,
         path,
         label: labelFor(path),

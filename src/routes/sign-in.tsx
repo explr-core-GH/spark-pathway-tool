@@ -52,7 +52,7 @@ function SignIn() {
         ← EXPLR
       </Link>
       <h1 className="text-3xl font-light">Sign in</h1>
-      <p className="mt-2 text-sm text-charcoal-500">
+      <p className="mt-2 text-sm text-ink-500">
         {band === "4-8"
           ? "Grades 4-8: you don't need a password. Use the picture sign-in instead."
           : band === "9-12"
@@ -82,7 +82,7 @@ function SignIn() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="e.g. maya42"
           />
-          <p className="mt-1 text-[11px] text-charcoal-400">
+          <p className="mt-1 text-[11px] text-ink-500">
             Camp kids: type the short username from your card.
           </p>
         </div>
@@ -105,12 +105,12 @@ function SignIn() {
               onClick={() => setShowPw((v) => !v)}
               aria-pressed={showPw}
               aria-label={showPw ? "Hide password" : "Show password"}
-              className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 text-xs font-medium text-charcoal-500 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 text-xs font-medium text-ink-500 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               {showPw ? "Hide" : "Show"}
             </button>
           </div>
-          <p className="mt-1 text-[11px] text-charcoal-400">
+          <p className="mt-1 text-[11px] text-ink-500">
             Tap &ldquo;Show&rdquo; to check the password if sign-in isn&apos;t working.
           </p>
         </div>
@@ -123,12 +123,12 @@ function SignIn() {
           {loading ? "Signing in…" : "Sign in"}
         </button>
       </form>
-      <p className="mt-6 text-sm text-charcoal-500">
+      <p className="mt-6 text-sm text-ink-500">
         New here?{" "}
         <Link to="/sign-up" className="ink-link">
           Create an account
         </Link>
-        <span className="mx-2 text-charcoal-300">·</span>
+        <span className="mx-2 text-ink-500">·</span>
         <Link to="/forgot-password" className="ink-link">
           Forgot password?
         </Link>

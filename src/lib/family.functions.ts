@@ -146,29 +146,10 @@ export const redeemFamilyCode = createServerFn({ method: "POST" })
     return { token };
   });
 
-export type FamilyMatch = {
-  slug: string;
-  name: string;
-  emoji: string;
-  theme: string;
-  whyFit: string;
-};
-
 export type FamilyView = {
   firstName: string;
   grade: number | null;
   riasec: { hollandCode: string; scaleScores: Record<string, number> } | null;
-  survey: {
-    hollandCode: string | null;
-    sectorValues: Record<string, number> | null;
-    matches: FamilyMatch[] | null;
-  } | null;
-  apt: {
-    band: string;
-    subscaleScores: Record<string, number> | null;
-    total: number;
-    items: number;
-  } | null;
   stemDone: boolean;
   expiresAt: string;
   /** This school year's advising plan: checkpoint statuses and the three sign-offs. */
@@ -244,8 +225,6 @@ export const getFamilyView = createServerFn({ method: "POST" })
     const [
       { data: student },
       { data: session },
-      { data: sv },
-      { data: ap },
       { data: stem },
       { data: cps },
       { data: appr },
@@ -256,16 +235,6 @@ export const getFamilyView = createServerFn({ method: "POST" })
         .select("holland_code, scale_scores, completed_at")
         .eq("student_id", studentId)
         .not("completed_at", "is", null)
-        .order("completed_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      sb("internship_survey_results")
-        .select("holland_code, sector_values, matches")
-        .eq("student_id", studentId)
-        .maybeSingle(),
-      sb("aptitude_results")
-        .select("band, subscale_scores, total_score, total_items, completed_at")
-        .eq("student_id", studentId)
         .order("completed_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
@@ -303,21 +272,6 @@ export const getFamilyView = createServerFn({ method: "POST" })
         ? {
             hollandCode: session.holland_code,
             scaleScores: (session.scale_scores as Record<string, number>) ?? {},
-          }
-        : null,
-      survey: sv
-        ? {
-            hollandCode: sv.holland_code ?? null,
-            sectorValues: sv.sector_values ?? null,
-            matches: (sv.matches as FamilyMatch[] | null) ?? null,
-          }
-        : null,
-      apt: ap
-        ? {
-            band: ap.band,
-            subscaleScores: ap.subscale_scores ?? null,
-            total: ap.total_score ?? 0,
-            items: ap.total_items ?? 0,
           }
         : null,
       stemDone: ((stem ?? []) as unknown[]).length > 0,

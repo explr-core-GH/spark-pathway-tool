@@ -24,11 +24,7 @@ export function RatingButtons({
   ariaLabel: string;
 }) {
   return (
-    <div
-      role="radiogroup"
-      aria-label={ariaLabel}
-      className="flex gap-1.5"
-    >
+    <div role="radiogroup" aria-label={ariaLabel} className="flex gap-1.5">
       {points.map((p) => {
         const on = value === p.value;
         return (
@@ -43,7 +39,7 @@ export function RatingButtons({
             className={
               on
                 ? "flex min-h-[48px] flex-1 flex-col items-center justify-center gap-0.5 border px-1 py-1.5"
-                : "flex min-h-[48px] flex-1 flex-col items-center justify-center gap-0.5 border border-charcoal-200 px-1 py-1.5 hover:border-ink"
+                : "flex min-h-[48px] flex-1 flex-col items-center justify-center gap-0.5 border border-line-strong px-1 py-1.5 hover:border-ink-900-900"
             }
             style={
               on
@@ -56,7 +52,7 @@ export function RatingButtons({
               className={
                 on
                   ? "text-center text-[10px] leading-tight"
-                  : "text-center text-[10px] leading-tight text-charcoal-500"
+                  : "text-center text-[10px] leading-tight text-ink-500"
               }
             >
               {p.label}

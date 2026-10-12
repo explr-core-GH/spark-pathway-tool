@@ -1,81 +1,59 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { useEducator } from "@/lib/auth";
 import { SiteFooter } from "@/components/SiteFooter";
+import { PortalHeader, type PortalLink } from "@/components/passport/PortalHeader";
 
 export const Route = createFileRoute("/instructor")({
-  component: EducatorLayout,
+  component: InstructorLayout,
 });
 
-function EducatorLayout() {
-  // isAdmin now derives from public.admins (the admins-only table), not
-  // from educators.role. An admin can have no educator row at all and
-  // still show the admin chrome.
+function InstructorLayout() {
+  // isAdmin derives from public.admins (the admins-only table), not from
+  // educators.role. An admin can have no educator row at all and still
+  // see the admin chrome.
   const { user, educator, isAdmin } = useEducator();
   const approved = !!educator && educator.approved && !!educator.program_type;
+
+  const links: PortalLink[] = [];
+  if (approved) {
+    links.push(
+      { label: "Dashboard", to: "/instructor/dashboard" },
+      { label: "Students", to: "/instructor/students", secondary: true },
+      { label: "Checkpoints", to: "/instructor/checkpoints", secondary: true },
+    );
+  }
+  if (isAdmin) links.push({ label: "Admin", to: "/instructor/admin" });
+
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-charcoal-100">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-          <Link to="/" className="text-xl font-medium">
-            EXPLR <span style={{ color: "var(--explr)" }}>Pathways</span>{" "}
-            <span className="text-base text-charcoal-400">
-              / {isAdmin ? "Admin" : "Instructors"}
-            </span>
-          </Link>
-          <nav className="flex items-center gap-6 text-sm">
-            {approved && (
-              <>
-                <Link to="/instructor/dashboard" className="text-charcoal-500 hover:text-ink">
-                  Dashboard
+    <div className="min-h-screen bg-paper text-ink-900">
+      <PortalHeader
+        role={isAdmin ? "Admin" : "Instructor"}
+        links={links}
+        signedIn={!!user}
+        signInTo="/instructor/sign-in"
+        subbar={
+          isAdmin ? (
+            <div className="border-t border-line bg-paper-sunken">
+              <div className="mx-auto flex max-w-[1312px] items-center gap-4 px-4 py-2 text-xs sm:px-6 lg:px-8">
+                <span className="eyebrow" style={{ margin: 0 }}>
+                  View as
+                </span>
+                <Link to="/instructor/admin" className="text-ink-500 hover:text-ink-900">
+                  Admin
                 </Link>
-                <Link to="/instructor/students" className="text-charcoal-500 hover:text-ink">
-                  Students
+                <span className="text-line-strong">·</span>
+                <Link to="/instructor/dashboard" className="text-ink-500 hover:text-ink-900">
+                  Instructor
                 </Link>
-                <Link to="/instructor/curriculum" className="text-charcoal-500 hover:text-ink">
-                  Curriculum
+                <span className="text-line-strong">·</span>
+                <Link to="/student" className="text-ink-500 hover:text-ink-900">
+                  Student
                 </Link>
-                <Link to="/instructor/internships" className="text-charcoal-500 hover:text-ink">
-                  Internships
-                </Link>
-              </>
-            )}
-            {isAdmin && (
-              <Link to="/instructor/admin" className="text-charcoal-500 hover:text-ink">
-                Admin
-              </Link>
-            )}
-            {user ? (
-              <Link to="/sign-out" className="text-charcoal-500 hover:text-ink">
-                Sign out
-              </Link>
-            ) : (
-              <Link to="/instructor/sign-in" className="btn-mint">
-                Sign in
-              </Link>
-            )}
-          </nav>
-        </div>
-        {isAdmin && (
-          <div className="border-t border-charcoal-100 bg-charcoal-50">
-            <div className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-2 text-xs">
-              <span className="eyebrow" style={{ margin: 0 }}>
-                View as
-              </span>
-              <Link to="/instructor/admin" className="text-charcoal-500 hover:text-ink">
-                Admin
-              </Link>
-              <span className="text-charcoal-200">·</span>
-              <Link to="/instructor/dashboard" className="text-charcoal-500 hover:text-ink">
-                Instructor
-              </Link>
-              <span className="text-charcoal-200">·</span>
-              <Link to="/assessment" className="text-charcoal-500 hover:text-ink">
-                Student
-              </Link>
+              </div>
             </div>
-          </div>
-        )}
-      </header>
+          ) : undefined
+        }
+      />
       <Outlet />
       <SiteFooter />
     </div>

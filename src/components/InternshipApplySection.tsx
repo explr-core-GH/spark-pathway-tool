@@ -113,7 +113,12 @@ export function InternshipApplySection({
   async function sign(form: OpportunityForm, signName: string) {
     if (!signName.trim()) return;
     const { error } = await sb("form_completions").upsert(
-      { form_id: form.id, student_id: studentId, signed_name: signName.trim(), signed_at: new Date().toISOString() },
+      {
+        form_id: form.id,
+        student_id: studentId,
+        signed_name: signName.trim(),
+        signed_at: new Date().toISOString(),
+      },
       { onConflict: "form_id,student_id" },
     );
     if (error) {
@@ -124,16 +129,16 @@ export function InternshipApplySection({
   }
 
   return (
-    <div className="border border-charcoal-100 p-5">
+    <div className="border border-line p-5 rounded-[var(--radius-card)]">
       <p className="font-medium">{name}</p>
 
       {requirements.length > 0 && (
         <div className="mt-3">
-          <p className="text-xs uppercase tracking-wider text-charcoal-400">Requirements</p>
+          <p className="text-xs uppercase tracking-wider text-ink-500">Requirements</p>
           <ul className="mt-1.5 space-y-1 text-sm">
             {requirements.map((r) => (
               <li key={r} className="flex items-start gap-2">
-                <span className="text-charcoal-400">•</span>
+                <span className="text-ink-500">•</span>
                 {r}
               </li>
             ))}
@@ -143,17 +148,22 @@ export function InternshipApplySection({
 
       {proofs.length > 0 && (
         <div className="mt-4">
-          <p className="text-xs uppercase tracking-wider text-charcoal-400">
+          <p className="text-xs uppercase tracking-wider text-ink-500">
             Complete these links, then upload a screenshot as proof
           </p>
           <ul className="mt-2 space-y-3">
             {proofs.map((p, i) => (
-              <li key={i} className="border border-charcoal-100 p-3">
-                <a href={p.url} target="_blank" rel="noreferrer" className="text-sm text-explr-600 hover:underline">
+              <li key={i} className="border border-line p-3 rounded-[var(--radius-card)]">
+                <a
+                  href={p.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm text-green-deep hover:underline"
+                >
                   {p.label || p.url} ↗
                 </a>
                 <div className="mt-2 flex flex-wrap items-center gap-3">
-                  <label className="cursor-pointer border border-dashed border-charcoal-300 bg-white px-3 py-1 text-xs hover:border-charcoal-500">
+                  <label className="cursor-pointer border border-dashed border-line-strong bg-paper-raised px-3 py-1 text-xs hover:border-ink-900-900-900-900-900">
                     {p.screenshot_url ? "Replace screenshot" : "Upload screenshot *"}
                     <input
                       type="file"
@@ -180,7 +190,7 @@ export function InternshipApplySection({
 
       {forms.length > 0 && (
         <div className="mt-4">
-          <p className="text-xs uppercase tracking-wider text-charcoal-400">Forms</p>
+          <p className="text-xs uppercase tracking-wider text-ink-500">Forms</p>
           <ul className="mt-2 space-y-3">
             {forms.map((f) => (
               <FormRow
@@ -211,15 +221,20 @@ function FormRow({
 }) {
   const [name, setName] = useState("");
   return (
-    <li className="border border-charcoal-100 p-3">
+    <li className="border border-line p-3 rounded-[var(--radius-card)]">
       <div className="flex flex-wrap items-center gap-3">
         <span className="flex-1 text-sm font-medium">{form.name}</span>
         {form.file_url && (
-          <a href={form.file_url} target="_blank" rel="noreferrer" className="text-xs text-explr-600 hover:underline">
+          <a
+            href={form.file_url}
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs text-green-deep hover:underline"
+          >
             Download
           </a>
         )}
-        <label className="cursor-pointer border border-dashed border-charcoal-300 bg-white px-3 py-1 text-xs hover:border-charcoal-500">
+        <label className="cursor-pointer border border-dashed border-line-strong bg-paper-raised px-3 py-1 text-xs hover:border-ink-900-900-900-900-900">
           {completion?.completed_file_url ? "Replace upload" : "Upload completed"}
           <input
             type="file"
@@ -244,14 +259,21 @@ function FormRow({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
-              <button type="button" onClick={() => onSign(name)} disabled={!name.trim()} className="btn-ink text-xs disabled:opacity-40">
+              <button
+                type="button"
+                onClick={() => onSign(name)}
+                disabled={!name.trim()}
+                className="btn-ink text-xs disabled:opacity-40"
+              >
                 Sign
               </button>
             </>
           )}
         </div>
       )}
-      {completion?.completed_file_url && <p className="mt-1 text-xs text-emerald-700">✓ Uploaded</p>}
+      {completion?.completed_file_url && (
+        <p className="mt-1 text-xs text-emerald-700">✓ Uploaded</p>
+      )}
     </li>
   );
 }

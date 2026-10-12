@@ -26,10 +26,10 @@ export function ApplyStatusBanner({ studentId }: { studentId: string }) {
   if (counts.approved === 0 && counts.requested === 0) return null;
 
   return (
-    <div className="mt-6 border border-charcoal-200 bg-charcoal-50 px-5 py-4">
+    <div className="mt-6 border border-line-strong bg-paper-sunken px-5 py-4">
       {counts.approved > 0 ? (
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-charcoal-700">
+          <p className="text-sm text-ink-700">
             <span className="font-medium">{counts.approved}</span> internship
             {counts.approved === 1 ? "" : "s"} approved — finish your application.
           </p>
@@ -38,7 +38,7 @@ export function ApplyStatusBanner({ studentId }: { studentId: string }) {
           </Link>
         </div>
       ) : (
-        <p className="text-sm text-charcoal-600">
+        <p className="text-sm text-ink-700">
           <span className="font-medium">{counts.requested}</span> internship request
           {counts.requested === 1 ? "" : "s"} pending admin approval. We&apos;ll let you know when
           you can complete your application.

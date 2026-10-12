@@ -77,7 +77,7 @@ export function FamilyCodePanel() {
       <form onSubmit={create} className="mt-4 flex flex-wrap items-end gap-3">
         <div className="min-w-[200px] flex-1">
           <label className="label" htmlFor="family-code-label">
-            Who is it for? <span className="text-charcoal-400">(optional)</span>
+            Who is it for? <span className="text-ink-500">(optional)</span>
           </label>
           <input
             id="family-code-label"

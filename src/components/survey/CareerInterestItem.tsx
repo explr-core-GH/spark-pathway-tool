@@ -39,14 +39,12 @@ export function CareerInterestItem({
   onSkip: () => void;
 }) {
   return (
-    <div className="border-b border-charcoal-100 py-5 last:border-b-0">
+    <div className="border-b border-line py-5 last:border-b-0">
       <div className="flex gap-3">
-        <span className="select-none text-sm font-semibold text-charcoal-400">
-          {number}.
-        </span>
+        <span className="select-none text-sm font-semibold text-ink-500">{number}.</span>
         <div className="flex-1">
           <p className="text-sm font-semibold text-ink">{careerName}</p>
-          <p className="mt-1 text-sm leading-relaxed text-charcoal-600">
+          <p className="mt-1 text-sm leading-relaxed text-ink-700">
             {careerName} {description}
           </p>
         </div>
@@ -55,7 +53,7 @@ export function CareerInterestItem({
         {retrospective ? (
           <>
             <div>
-              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-charcoal-400">
+              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-ink-500">
                 Before camp
               </p>
               <RatingButtons
@@ -67,7 +65,7 @@ export function CareerInterestItem({
               />
             </div>
             <div>
-              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-charcoal-400">
+              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-ink-500">
                 Right now
               </p>
               <RatingButtons
@@ -91,13 +89,9 @@ export function CareerInterestItem({
       </div>
       <div className="mt-2 flex items-center gap-3 text-xs">
         {skipped ? (
-          <span className="text-charcoal-400">Skipped</span>
+          <span className="text-ink-500">Skipped</span>
         ) : (
-          <button
-            type="button"
-            onClick={onSkip}
-            className="text-charcoal-400 underline hover:text-ink"
-          >
+          <button type="button" onClick={onSkip} className="text-ink-500 underline hover:text-ink">
             Skip this question
           </button>
         )}

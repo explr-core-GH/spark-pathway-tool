@@ -1,3 +1,4 @@
+import { PortalHeader } from "@/components/passport/PortalHeader";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -92,7 +93,7 @@ function TryRiasec() {
       <div className="min-h-screen">
         <Header
           right={
-            <button onClick={restart} className="text-sm text-charcoal-500 hover:text-ink">
+            <button onClick={restart} className="text-sm text-ink-500 hover:text-ink">
               Start over
             </button>
           }
@@ -121,21 +122,19 @@ function TryRiasec() {
                     <li key={c}>
                       <div className="flex items-baseline justify-between gap-4">
                         <div className="flex items-baseline gap-3">
-                          <span className="w-4 text-xs tabular-nums text-charcoal-400">
-                            {i + 1}
-                          </span>
+                          <span className="w-4 text-xs tabular-nums text-ink-500">{i + 1}</span>
                           <span className="text-sm font-medium" style={{ color: dim.color }}>
                             {dim.code}
                           </span>
-                          <span className={top.includes(c) ? "text-ink" : "text-charcoal-500"}>
+                          <span className={top.includes(c) ? "text-ink" : "text-ink-500"}>
                             {dim.name}
                           </span>
                         </div>
-                        <span className="text-sm tabular-nums text-charcoal-500">
+                        <span className="text-sm tabular-nums text-ink-500">
                           {score.toFixed(2)}
                         </span>
                       </div>
-                      <div className="mt-2 h-1 bg-charcoal-100">
+                      <div className="mt-2 h-1 bg-paper-sunken">
                         <div
                           className="h-full"
                           style={{ width: `${(score / 5) * 100}%`, background: dim.color }}
@@ -148,17 +147,17 @@ function TryRiasec() {
             </div>
           </div>
 
-          <section className="mt-16 border-t border-charcoal-100 pt-10">
+          <section className="mt-16 border-t border-line pt-10">
             <p className="eyebrow" style={{ color: primary.color }}>
               {primary.code} · {primary.name}
             </p>
             <p className="mt-4 text-2xl font-light">{primary.hsDescription}</p>
-            <p className="mt-4 text-sm text-charcoal-500">
+            <p className="mt-4 text-sm text-ink-500">
               Example careers: {primary.examples.join(" · ")}
             </p>
           </section>
 
-          <p className="mt-12 text-xs text-charcoal-400">
+          <p className="mt-12 text-xs text-ink-500">
             Practice mode — nothing from this page is saved or reported.
           </p>
         </main>
@@ -174,21 +173,21 @@ function TryRiasec() {
     <div className="min-h-screen">
       <Header
         right={
-          <span className="text-xs text-charcoal-500">
+          <span className="text-xs text-ink-500">
             {idx + 1} of {total}
           </span>
         }
       />
-      <div className="h-0.5 bg-charcoal-100">
+      <div className="h-0.5 bg-paper-sunken">
         <div
           className="h-full transition-[width] duration-300"
-          style={{ width: `${pct}%`, background: "var(--color-explr-500)" }}
+          style={{ width: `${pct}%`, background: "var(--color-green)" }}
         />
       </div>
 
       <main className="mx-auto max-w-2xl px-6 py-14">
         {idx === 0 && (
-          <p className="mb-8 border-l-2 border-charcoal-200 pl-4 text-sm text-charcoal-500">
+          <p className="mb-8 border-l-2 border-line-strong pl-4 text-sm text-ink-500">
             Practice run for instructors. No account, no saving — answer as yourself and you'll get
             your own Holland code at the end.
           </p>
@@ -241,7 +240,7 @@ function TryRiasec() {
               aria-checked={false}
               onClick={() => answer(v)}
               aria-label={LIKERT_LABELS[v]}
-              className="group flex flex-col items-center gap-2 border border-charcoal-100 px-1 py-4 transition-colors hover:border-ink hover:bg-charcoal-50 focus-visible:border-ink"
+              className="group flex flex-col items-center gap-2 border border-line px-1 py-4 transition-colors hover:border-ink-900-900 hover:bg-paper-sunken focus-visible:border-ink-900"
             >
               <span
                 className="text-3xl leading-none transition-transform group-hover:scale-110 sm:text-4xl"
@@ -249,7 +248,7 @@ function TryRiasec() {
               >
                 {FACES[v]}
               </span>
-              <span className="text-center text-[11px] leading-tight text-charcoal-500">
+              <span className="text-center text-[11px] leading-tight text-ink-500">
                 {LIKERT_LABELS[v]}
               </span>
             </button>
@@ -260,7 +259,7 @@ function TryRiasec() {
           <button
             type="button"
             onClick={() => setIdx(idx - 1)}
-            className="mt-8 text-sm text-charcoal-500 hover:text-ink"
+            className="mt-8 text-sm text-ink-500 hover:text-ink"
           >
             ← Back
           </button>
@@ -271,14 +270,5 @@ function TryRiasec() {
 }
 
 function Header({ right }: { right?: React.ReactNode }) {
-  return (
-    <header className="border-b border-charcoal-100">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <Link to="/" className="text-sm tracking-tight">
-          EXPLR <span style={{ color: "var(--explr)" }}>Pathways</span>
-        </Link>
-        {right}
-      </div>
-    </header>
-  );
+  return <PortalHeader links={[{ label: "Home", to: "/" }]} right={right} />;
 }

@@ -50,9 +50,9 @@ function PrivacyPage() {
       </p>
       <p>
         <strong>Instructors and program leaders.</strong> Your name, email, school or organization,
-        and role. We use these to verify you before granting access to curriculum and student
-        profiles. We also keep your program type, the grade levels you teach, and your approximate
-        roster size.
+        and role. We use these to verify you before granting access to rosters and student profiles.
+        We also keep your program type, the grade levels you teach, and your approximate roster
+        size.
       </p>
       <p>
         <strong>Organizations.</strong> If your organization lists opportunities, we keep its name,

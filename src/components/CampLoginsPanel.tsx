@@ -75,10 +75,7 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
     load();
   }, [load]);
 
-  const isDone = useCallback(
-    (l: Login) => !!(l.student_id && holland[l.student_id]),
-    [holland],
-  );
+  const isDone = useCallback((l: Login) => !!(l.student_id && holland[l.student_id]), [holland]);
 
   const sortLogins = useCallback(
     (rows: Login[]): Login[] => {
@@ -305,12 +302,12 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
     XLSX.writeFile(wb, `${safeFileName(title)}-roster.xlsx`);
   }
 
-  if (loading) return <p className="text-sm text-charcoal-400">Loading logins…</p>;
+  if (loading) return <p className="text-sm text-ink-500">Loading logins…</p>;
 
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3">
-        <span className="text-sm text-charcoal-600">
+        <span className="text-sm text-ink-700">
           {regCount} registered · {logins.length} login{logins.length === 1 ? "" : "s"}
           {pending > 0 ? ` · ${pending} pending` : ""}
         </span>
@@ -323,19 +320,19 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
         </button>
         <button
           onClick={() => setWalkIn(walkIn ? null : { name: "", age: "" })}
-          className="text-xs text-charcoal-500 underline hover:text-ink"
+          className="text-xs text-ink-500 underline hover:text-ink"
         >
           + Walk-in
         </button>
         {logins.length > 0 && (
           <>
-            <button onClick={printCards} className="text-xs text-charcoal-500 underline hover:text-ink">
+            <button onClick={printCards} className="text-xs text-ink-500 underline hover:text-ink">
               Print cards
             </button>
-            <button onClick={printSheet} className="text-xs text-charcoal-500 underline hover:text-ink">
+            <button onClick={printSheet} className="text-xs text-ink-500 underline hover:text-ink">
               Roster sheet
             </button>
-            <button onClick={exportXlsx} className="text-xs text-charcoal-500 underline hover:text-ink">
+            <button onClick={exportXlsx} className="text-xs text-ink-500 underline hover:text-ink">
               Export Excel
             </button>
           </>
@@ -343,7 +340,7 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
         {reportable > 0 && (
           <button
             onClick={() => printFamilyReports()}
-            className="text-xs text-explr-600 hover:underline"
+            className="text-xs text-green-deep hover:underline"
           >
             Family reports ({reportable})
           </button>
@@ -351,14 +348,16 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
       </div>
 
       {status && (
-        <p className="mt-3 border border-charcoal-200 bg-charcoal-50 px-3 py-2 text-sm text-charcoal-700">
+        <p className="mt-3 border border-line-strong bg-paper-sunken px-3 py-2 text-sm text-ink-700">
           {status}
         </p>
       )}
 
       {walkIn && (
-        <div className="mt-3 border border-charcoal-100 bg-charcoal-50 p-3">
-          <p className="eyebrow" style={{ margin: 0 }}>Add walk-in camper</p>
+        <div className="mt-3 border border-line bg-paper-sunken p-3 rounded-[var(--radius-card)]">
+          <p className="eyebrow" style={{ margin: 0 }}>
+            Add walk-in camper
+          </p>
           <div className="mt-2 grid gap-3 sm:grid-cols-[1fr_120px_auto_auto]">
             <input
               autoFocus
@@ -393,12 +392,12 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
       {logins.length > 0 && (
         <>
           <div className="mt-4">
-            <label className="text-xs text-charcoal-500">
+            <label className="text-xs text-ink-500">
               Sort:{" "}
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortBy)}
-                className="border border-charcoal-200 px-2 py-1 text-xs"
+                className="border border-line-strong px-2 py-1 text-xs"
               >
                 <option value="name">Name A–Z</option>
                 <option value="classroom">Classroom</option>
@@ -408,10 +407,10 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
             </label>
           </div>
 
-          <div className="mt-3 overflow-x-auto border border-charcoal-100">
+          <div className="mt-3 overflow-x-auto border border-line">
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="border-b border-charcoal-100 bg-charcoal-50 text-left text-xs uppercase tracking-wider text-charcoal-400">
+                <tr className="border-b border-line bg-paper-sunken text-left text-xs uppercase tracking-wider text-ink-500">
                   <th className="px-3 py-2 font-normal">Student</th>
                   <th className="px-3 py-2 font-normal">Classroom</th>
                   <th className="px-3 py-2 font-normal">Status</th>
@@ -420,7 +419,7 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
                   <th className="px-3 py-2 font-normal">Family report</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-charcoal-100">
+              <tbody className="divide-y divide-line">
                 {sortLogins(logins).map((l) => {
                   const hasResult = !!l.student_id && !!holland[l.student_id];
                   const isEditing = editing?.id === l.id;
@@ -447,13 +446,13 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
                             <button
                               onClick={saveEdit}
                               disabled={busy === `edit-${l.id}`}
-                              className="text-xs font-medium text-explr-600 hover:underline disabled:opacity-40"
+                              className="text-xs font-medium text-green-deep hover:underline disabled:opacity-40"
                             >
                               {busy === `edit-${l.id}` ? "…" : "Save"}
                             </button>
                             <button
                               onClick={() => setEditing(null)}
-                              className="text-xs text-charcoal-500 hover:underline"
+                              className="text-xs text-ink-500 hover:underline"
                             >
                               Cancel
                             </button>
@@ -463,7 +462,7 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
                             <span>{l.child_name}</span>
                             <button
                               onClick={() => setEditing({ id: l.id, name: l.child_name, age: "" })}
-                              className="text-[11px] text-charcoal-400 underline hover:text-ink"
+                              className="text-[11px] text-ink-500 underline hover:text-ink"
                             >
                               edit
                             </button>
@@ -482,9 +481,9 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
                       </td>
                       <td className="px-3 py-2 text-xs">
                         {hasResult ? (
-                          <span style={{ color: "var(--color-explr-600)" }}>Finished</span>
+                          <span style={{ color: "var(--color-green-deep)" }}>Finished</span>
                         ) : (
-                          <span className="text-charcoal-400">Not yet</span>
+                          <span className="text-ink-500">Not yet</span>
                         )}
                       </td>
                       <td className="px-3 py-2 font-mono text-xs">{l.username}</td>
@@ -493,12 +492,12 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
                         {hasResult ? (
                           <button
                             onClick={() => printFamilyReports(l)}
-                            className="text-explr-600 hover:underline"
+                            className="text-green-deep hover:underline"
                           >
                             Print 1-pager
                           </button>
                         ) : (
-                          <span className="text-charcoal-400">Awaiting assessment</span>
+                          <span className="text-ink-500">Awaiting assessment</span>
                         )}
                       </td>
                     </tr>
@@ -511,7 +510,7 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
       )}
 
       {logins.length === 0 && (
-        <p className="mt-4 text-sm text-charcoal-400">
+        <p className="mt-4 text-sm text-ink-500">
           No logins generated yet. Generating accounts links each student to this camp.
         </p>
       )}
@@ -538,5 +537,10 @@ function escapeHtml(s: string): string {
 }
 
 function safeFileName(s: string): string {
-  return s.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() || "camp";
+  return (
+    s
+      .replace(/[^a-z0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "")
+      .toLowerCase() || "camp"
+  );
 }

@@ -32,7 +32,7 @@ export function EducatorSchoolEditor({ educatorId, initialIrn, initialName }: Pr
   return (
     <div className="space-y-3">
       <SchoolSearch initial={school} onSelect={persist} />
-      {status && <p className="text-xs text-charcoal-400">{status}</p>}
+      {status && <p className="text-xs text-ink-500">{status}</p>}
       {school?.irn && <SchoolDemographics irn={school.irn} />}
     </div>
   );

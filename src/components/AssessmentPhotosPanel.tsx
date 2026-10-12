@@ -99,14 +99,15 @@ export function AssessmentPhotosPanel() {
     const matched: Array<{ id: string; file: File }> = [];
     const skipped: string[] = [];
     for (const f of Array.from(files)) {
-      const base = f.name.replace(/\.[^.]+$/, "").trim().toUpperCase();
+      const base = f.name
+        .replace(/\.[^.]+$/, "")
+        .trim()
+        .toUpperCase();
       if (validIds.has(base)) matched.push({ id: base, file: f });
       else skipped.push(f.name);
     }
     if (matched.length === 0) {
-      setErr(
-        "No files matched a question id. Name each file by its id, e.g. R1.jpg.",
-      );
+      setErr("No files matched a question id. Name each file by its id, e.g. R1.jpg.");
       return;
     }
     setBulk({ done: 0, total: matched.length });
@@ -144,16 +145,16 @@ export function AssessmentPhotosPanel() {
   return (
     <div>
       <p className="lead">
-        Add a context photo to each assessment question. Students see it
-        above the prompt; questions without a photo show a colored band.
+        Add a context photo to each assessment question. Students see it above the prompt; questions
+        without a photo show a colored band.
       </p>
-      <p className="mt-2 text-xs text-charcoal-500">
-        {withPhoto} of {ITEMS.length} questions have a photo. Use clear,
-        realistic, classroom-appropriate images (JPG, PNG, or WebP).
+      <p className="mt-2 text-xs text-ink-500">
+        {withPhoto} of {ITEMS.length} questions have a photo. Use clear, realistic,
+        classroom-appropriate images (JPG, PNG, or WebP).
       </p>
 
       {/* Bulk import: pick many files named by question id at once. */}
-      <div className="mt-4 flex flex-wrap items-center gap-3 border border-charcoal-100 bg-charcoal-50 p-3">
+      <div className="mt-4 flex flex-wrap items-center gap-3 border border-line bg-paper-sunken p-3 rounded-[var(--radius-card)]">
         <button
           onClick={() => bulkInput.current?.click()}
           disabled={!!bulk}
@@ -161,9 +162,9 @@ export function AssessmentPhotosPanel() {
         >
           {bulk ? `Importing ${bulk.done}/${bulk.total}…` : "Bulk import photos"}
         </button>
-        <span className="text-xs text-charcoal-500">
-          Select all files at once — each named by its question id
-          (<code className="font-mono">R1.jpg</code>, <code className="font-mono">C2.png</code>…).
+        <span className="text-xs text-ink-500">
+          Select all files at once — each named by its question id (
+          <code className="font-mono">R1.jpg</code>, <code className="font-mono">C2.png</code>…).
         </span>
         <input
           ref={bulkInput}
@@ -178,10 +179,10 @@ export function AssessmentPhotosPanel() {
         />
       </div>
 
-      {err && <p className="mt-3 text-sm text-charcoal-600">{err}</p>}
+      {err && <p className="mt-3 text-sm text-ink-700">{err}</p>}
 
       {loading ? (
-        <p className="mt-6 text-sm text-charcoal-400">Loading…</p>
+        <p className="mt-6 text-sm text-ink-500">Loading…</p>
       ) : (
         <div className="mt-6 space-y-8">
           {SCALE_ORDER.map((code) => {
@@ -189,10 +190,7 @@ export function AssessmentPhotosPanel() {
             return (
               <div key={code}>
                 <div className="flex items-center gap-2">
-                  <span
-                    className="h-3 w-3 rounded-full"
-                    style={{ background: dim.color }}
-                  />
+                  <span className="h-3 w-3 rounded-full" style={{ background: dim.color }} />
                   <h3 className="text-sm font-semibold">{dim.name}</h3>
                 </div>
                 <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -201,18 +199,14 @@ export function AssessmentPhotosPanel() {
                     return (
                       <li
                         key={it.id}
-                        className="flex gap-3 border border-charcoal-100 p-3"
+                        className="flex gap-3 border border-line p-3 rounded-[var(--radius-card)]"
                       >
                         <div
                           className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded"
                           style={{ background: dim.colorSoft }}
                         >
                           {url ? (
-                            <img
-                              src={url}
-                              alt=""
-                              className="h-full w-full object-cover"
-                            />
+                            <img src={url} alt="" className="h-full w-full object-cover" />
                           ) : (
                             <span
                               className="text-[10px] font-semibold"
@@ -223,23 +217,15 @@ export function AssessmentPhotosPanel() {
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs font-medium text-charcoal-500">
-                            {it.id}
-                          </p>
-                          <p className="text-xs leading-snug text-ink line-clamp-2">
-                            {it.hs}
-                          </p>
+                          <p className="text-xs font-medium text-ink-500">{it.id}</p>
+                          <p className="text-xs leading-snug text-ink line-clamp-2">{it.hs}</p>
                           <div className="mt-2 flex gap-2">
                             <button
                               onClick={() => inputs.current[it.id]?.click()}
                               disabled={busy === it.id}
-                              className="text-xs text-explr-600 hover:underline disabled:opacity-50"
+                              className="text-xs text-green-deep hover:underline disabled:opacity-50"
                             >
-                              {busy === it.id
-                                ? "Uploading…"
-                                : url
-                                  ? "Replace"
-                                  : "Upload"}
+                              {busy === it.id ? "Uploading…" : url ? "Replace" : "Upload"}
                             </button>
                             {url && (
                               <button

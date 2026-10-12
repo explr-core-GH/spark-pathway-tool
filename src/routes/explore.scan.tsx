@@ -90,7 +90,7 @@ function Scan() {
         </Link>
         <p className="eyebrow mt-6 text-green">Scan your passport card</p>
         <h1 className="display mt-2">Hold your card up.</h1>
-        <div className="mt-8 overflow-hidden rounded-[var(--radius-card)] border-2 border-line bg-ink-900 shadow-card">
+        <div className="mt-8 overflow-hidden rounded-[var(--radius-card)] border-2 border-line bg-ink-900-900 shadow-card">
           <video
             ref={videoRef}
             className="aspect-video w-full object-cover"

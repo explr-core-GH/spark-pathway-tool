@@ -311,7 +311,7 @@ export function rankFor(t: Target, candidates: Candidate[]): MatchOutcome[] {
     .sort((a, b) => Number(b.eligible) - Number(a.eligible) || b.score - a.score);
 }
 
-/** Build a Target from a partner listing row (opportunities) or a catalog internship. */
+/** Build a Target from a partner listing row (opportunities). */
 export function targetFromOpportunity(o: {
   id: string;
   name: string | null;
@@ -344,29 +344,5 @@ export function targetFromOpportunity(o: {
       typeof o.custom?.career_cluster === "string" ? (o.custom.career_cluster as string) : null,
     wbl: hydrateWbl(o.wbl),
     targetCompetencies: o.target_competencies ?? [],
-  };
-}
-
-export function targetFromCatalog(i: {
-  slug: string;
-  name: string;
-  theme: string;
-  riasec: RIASECCode[];
-  deliverables?: string;
-}): Target {
-  return {
-    ref: i.slug,
-    name: i.name,
-    description: `${i.theme} ${i.deliverables ?? ""}`,
-    riasecWeights: null,
-    riasecCodes: i.riasec,
-    gradeMin: 9,
-    gradeMax: 12,
-    startDate: null,
-    scheduleDays: [],
-    requirements: [],
-    careerCluster: null,
-    wbl: hydrateWbl(null),
-    targetCompetencies: [],
   };
 }

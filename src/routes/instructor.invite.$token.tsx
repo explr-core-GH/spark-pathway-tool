@@ -87,7 +87,7 @@ function InviteAccept() {
     );
   if (!invite)
     return (
-      <main className="mx-auto max-w-md px-6 py-24 text-center text-sm text-charcoal-400">
+      <main className="mx-auto max-w-md px-6 py-24 text-center text-sm text-ink-500">
         Loading invite…
       </main>
     );
@@ -107,7 +107,7 @@ function InviteAccept() {
         {invite.role === "admin" ? "Admin invitation" : "Instructor invitation"}
       </p>
       <h1 className="mt-3 text-3xl font-light">Activate your account</h1>
-      <p className="mt-3 text-sm text-charcoal-500">
+      <p className="mt-3 text-sm text-ink-500">
         For {invite.email}
         {invite.role === "admin" ? " · Admin" : ""}
       </p>

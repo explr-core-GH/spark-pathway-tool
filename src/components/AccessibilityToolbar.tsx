@@ -14,8 +14,7 @@ import { useAccessibility } from "./AccessibilityProvider";
  * SSR shell clean — appears as soon as the client hydrates.
  */
 
-const SUPPORTS_SPEECH =
-  typeof window !== "undefined" && "speechSynthesis" in window;
+const SUPPORTS_SPEECH = typeof window !== "undefined" && "speechSynthesis" in window;
 
 export function AccessibilityToolbar() {
   const { state, set, reset } = useAccessibility();
@@ -41,8 +40,7 @@ export function AccessibilityToolbar() {
     }
     refresh();
     window.speechSynthesis.addEventListener("voiceschanged", refresh);
-    return () =>
-      window.speechSynthesis.removeEventListener("voiceschanged", refresh);
+    return () => window.speechSynthesis.removeEventListener("voiceschanged", refresh);
   }, []);
 
   // Close on Escape.
@@ -101,7 +99,7 @@ export function AccessibilityToolbar() {
         <div
           role="dialog"
           aria-label="Accessibility settings"
-          className="mb-3 w-72 border border-charcoal-200 bg-white p-4 shadow-lg"
+          className="mb-3 w-72 border border-line-strong bg-paper-raised p-4 shadow-lg"
         >
           <div className="flex items-baseline justify-between">
             <p className="eyebrow">Accessibility</p>
@@ -109,7 +107,7 @@ export function AccessibilityToolbar() {
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Close"
-              className="text-xs text-charcoal-400 hover:text-ink"
+              className="text-xs text-ink-500 hover:text-ink"
             >
               ✕
             </button>
@@ -168,7 +166,7 @@ export function AccessibilityToolbar() {
           {state.readAloud === "on" && (
             <div className="mt-3 space-y-3">
               {!SUPPORTS_SPEECH ? (
-                <p className="text-xs text-charcoal-500">
+                <p className="text-xs text-ink-500">
                   Your browser doesn&apos;t support speech synthesis.
                 </p>
               ) : (
@@ -179,9 +177,7 @@ export function AccessibilityToolbar() {
                     <select
                       className="field mt-1 w-full text-sm"
                       value={state.readAloudVoice ?? ""}
-                      onChange={(e) =>
-                        set("readAloudVoice", e.target.value || null)
-                      }
+                      onChange={(e) => set("readAloudVoice", e.target.value || null)}
                     >
                       <option value="">System default</option>
                       {voices.map((v) => (
@@ -192,7 +188,7 @@ export function AccessibilityToolbar() {
                       ))}
                     </select>
                     {voices.length === 0 && (
-                      <p className="mt-1 text-[11px] text-charcoal-400">
+                      <p className="mt-1 text-[11px] text-ink-500">
                         Loading voices… (browser-dependent)
                       </p>
                     )}
@@ -201,7 +197,7 @@ export function AccessibilityToolbar() {
                   {/* Rate */}
                   <div>
                     <p className="label">Rate</p>
-                    <div className="mt-1 inline-flex border border-charcoal-200">
+                    <div className="mt-1 inline-flex border border-line-strong">
                       {[
                         { v: 0.75, label: "Slow" },
                         { v: 1, label: "Normal" },
@@ -218,12 +214,10 @@ export function AccessibilityToolbar() {
                             className={
                               on
                                 ? "px-2.5 py-1.5 text-xs font-semibold"
-                                : "px-2.5 py-1.5 text-xs font-medium text-charcoal-500 hover:text-ink"
+                                : "px-2.5 py-1.5 text-xs font-medium text-ink-500 hover:text-ink"
                             }
                             style={
-                              on
-                                ? { background: "var(--ink)", color: "var(--bg)" }
-                                : undefined
+                              on ? { background: "var(--ink)", color: "var(--bg)" } : undefined
                             }
                           >
                             {opt.label}
@@ -248,7 +242,7 @@ export function AccessibilityToolbar() {
                       <button
                         type="button"
                         onClick={stop}
-                        className="px-3 py-1.5 text-xs font-semibold border border-charcoal-200 text-charcoal-700 hover:border-ink"
+                        className="px-3 py-1.5 text-xs font-semibold border border-line-strong text-ink-700 hover:border-ink-900-900-900-900"
                       >
                         Stop
                       </button>
@@ -260,14 +254,10 @@ export function AccessibilityToolbar() {
           )}
 
           <div className="mt-4 flex items-center justify-between text-xs">
-            <button
-              type="button"
-              onClick={reset}
-              className="text-charcoal-500 underline hover:text-ink"
-            >
+            <button type="button" onClick={reset} className="text-ink-500 underline hover:text-ink">
               Reset to defaults
             </button>
-            <span className="text-charcoal-400">Saved to this browser</span>
+            <span className="text-ink-500">Saved to this browser</span>
           </div>
         </div>
       )}
@@ -277,7 +267,7 @@ export function AccessibilityToolbar() {
         onClick={() => setOpen((o) => !o)}
         aria-label="Accessibility settings"
         aria-expanded={open}
-        className="flex h-11 w-11 items-center justify-center rounded-full shadow-lg ring-1 ring-charcoal-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-explr-500"
+        className="flex h-11 w-11 items-center justify-center rounded-full shadow-lg ring-1 ring-line-strong hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-explr-500"
         style={{ background: "var(--ink)", color: "var(--bg)" }}
       >
         {/* Friendly robot — antenna with tip dot, rounded head, two eyes,
@@ -320,7 +310,7 @@ function Toggle<T extends string>({
   return (
     <div className="mt-4">
       <p className="label">{label}</p>
-      <div className="mt-1 inline-flex border border-charcoal-200">
+      <div className="mt-1 inline-flex border border-line-strong">
         {options.map((opt) => {
           const on = opt.value === value;
           return (
@@ -332,13 +322,9 @@ function Toggle<T extends string>({
               className={
                 on
                   ? "px-3 py-1.5 text-xs font-semibold"
-                  : "px-3 py-1.5 text-xs font-medium text-charcoal-500 hover:text-ink"
+                  : "px-3 py-1.5 text-xs font-medium text-ink-500 hover:text-ink"
               }
-              style={
-                on
-                  ? { background: "var(--ink)", color: "var(--bg)" }
-                  : undefined
-              }
+              style={on ? { background: "var(--ink)", color: "var(--bg)" } : undefined}
             >
               {opt.label}
             </button>

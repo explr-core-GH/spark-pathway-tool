@@ -88,7 +88,7 @@ function EducatorSignUp() {
         ← EXPLR
       </Link>
       <h1 className="text-3xl font-light">Request instructor access</h1>
-      <p className="mt-2 text-sm text-charcoal-500">
+      <p className="mt-2 text-sm text-ink-500">
         For teachers, coaches, camp instructors, and internship supervisors. An EXPLR admin reviews
         new accounts and assigns your program type. If you have an invite link, use that instead —
         it activates instantly.
@@ -151,7 +151,7 @@ function EducatorSignUp() {
         </div>
         <div>
           <span className="label">
-            Your school <span className="text-charcoal-400">(optional)</span>
+            Your school <span className="text-ink-500">(optional)</span>
           </span>
           <SchoolSearch
             initial={school}
@@ -162,7 +162,7 @@ function EducatorSignUp() {
         </div>
         <div>
           <label className="label" htmlFor="edu-studentcount">
-            Number of students you teach <span className="text-charcoal-400">(optional)</span>
+            Number of students you teach <span className="text-ink-500">(optional)</span>
           </label>
           <input
             id="edu-studentcount"
@@ -173,13 +173,13 @@ function EducatorSignUp() {
             onChange={(e) => setStudentCount(e.target.value)}
             placeholder="e.g. 28"
           />
-          <p className="mt-1 text-xs text-charcoal-400">
+          <p className="mt-1 text-xs text-ink-500">
             Used to weight aggregate demographics for EXPLR&apos;s admin dashboard.
           </p>
         </div>
         <div>
           <span className="label">
-            Grade levels you teach <span className="text-charcoal-400">(optional)</span>
+            Grade levels you teach <span className="text-ink-500">(optional)</span>
           </span>
           <GradeLevelPicker value={gradeLevels} onChange={setGradeLevels} className="mt-1" />
         </div>
@@ -192,7 +192,7 @@ function EducatorSignUp() {
           {loading ? "Submitting…" : "Request access"}
         </button>
       </form>
-      <p className="mt-6 text-sm text-charcoal-500">
+      <p className="mt-6 text-sm text-ink-500">
         Have an account?{" "}
         <Link to="/instructor/sign-in" className="ink-link">
           Sign in

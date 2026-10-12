@@ -5,7 +5,7 @@ import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
 import { ResumeForm, EMPTY_RESUME, type Resume } from "@/components/ResumeForm";
 import { InternshipApplySection, type Proof } from "@/components/InternshipApplySection";
-import { INTERNSHIPS } from "@/lib/internships-catalog";
+import { useInternshipRefs } from "@/lib/internship-refs";
 
 export const Route = createFileRoute("/student_/apply-complete")({
   head: () => ({ meta: [{ title: "Complete your application — EXPLR" }] }),
@@ -17,7 +17,6 @@ export const Route = createFileRoute("/student_/apply-complete")({
 });
 
 const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
-const CATALOG_NAME: Record<string, string> = Object.fromEntries(INTERNSHIPS.map((i) => [i.slug, i.name]));
 
 type Selection = {
   id: string;
@@ -32,8 +31,12 @@ function CompletePage() {
 
   const [selections, setSelections] = useState<Selection[]>([]);
   const [oppNames, setOppNames] = useState<Record<string, string>>({});
+  const internshipRefs = useInternshipRefs();
   const [resume, setResume] = useState<Resume>(EMPTY_RESUME);
-  const [riasec, setRiasec] = useState<{ holland_code: string | null; scale_scores: unknown }>({ holland_code: null, scale_scores: {} });
+  const [riasec, setRiasec] = useState<{ holland_code: string | null; scale_scores: unknown }>({
+    holland_code: null,
+    scale_scores: {},
+  });
   const [proofsBySel, setProofsBySel] = useState<Record<string, Proof[]>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -47,7 +50,11 @@ function CompletePage() {
       setLoading(true);
       const [{ data: sels }, { data: app }, { data: sess }] = await Promise.all([
         sb("internship_selections").select("*").eq("student_id", user.id).eq("status", "approved"),
-        supabase.from("internship_applications").select("responses, riasec_snapshot").eq("student_id", user.id).maybeSingle(),
+        supabase
+          .from("internship_applications")
+          .select("responses, riasec_snapshot")
+          .eq("student_id", user.id)
+          .maybeSingle(),
         supabase
           .from("assessment_sessions")
           .select("holland_code, scale_scores, completed_at")
@@ -66,13 +73,16 @@ function CompletePage() {
       if (oppIds.length) {
         const { data: opps } = await sb("opportunities").select("id, name").in("id", oppIds);
         const m: Record<string, string> = {};
-        for (const o of (opps as Array<{ id: string; name: string | null }>) ?? []) m[o.id] = o.name ?? "Internship";
+        for (const o of (opps as Array<{ id: string; name: string | null }>) ?? [])
+          m[o.id] = o.name ?? "Internship";
         setOppNames(m);
       }
 
       // Prefill résumé from a prior application, else from auth email.
       const prior = (app?.responses as { resume?: Resume } | null)?.resume;
-      setResume(prior ? { ...EMPTY_RESUME, ...prior } : { ...EMPTY_RESUME, email: user.email ?? "" });
+      setResume(
+        prior ? { ...EMPTY_RESUME, ...prior } : { ...EMPTY_RESUME, email: user.email ?? "" },
+      );
       setRiasec({
         holland_code: (sess?.holland_code as string) ?? null,
         scale_scores: (sess?.scale_scores as unknown) ?? {},
@@ -86,7 +96,7 @@ function CompletePage() {
 
   function nameFor(s: Selection): string {
     if (s.opportunity_id) return oppNames[s.opportunity_id] ?? "Internship";
-    return CATALOG_NAME[s.internship_ref] ?? s.internship_ref;
+    return internshipRefs.nameFor(s.internship_ref);
   }
 
   const onProofs = useMemo(
@@ -148,17 +158,21 @@ function CompletePage() {
   }
 
   if (authLoading || loading) {
-    return <main className="mx-auto max-w-3xl px-6 py-24 text-sm text-charcoal-400">Loading…</main>;
+    return <main className="mx-auto max-w-3xl px-6 py-24 text-sm text-ink-500">Loading…</main>;
   }
 
   const orgSelections = selections.filter((s) => s.opportunity_id);
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-charcoal-100">
+      <header className="border-b border-line">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
-          <Link to="/student" className="text-sm tracking-tight">← Back to dashboard</Link>
-          <Link to="/sign-out" className="text-sm text-charcoal-500 hover:text-ink">Sign out</Link>
+          <Link to="/student" className="text-sm tracking-tight">
+            ← Back to dashboard
+          </Link>
+          <Link to="/sign-out" className="text-sm text-ink-500 hover:text-ink">
+            Sign out
+          </Link>
         </div>
       </header>
 
@@ -177,16 +191,18 @@ function CompletePage() {
             </button>
           </div>
         ) : selections.length === 0 ? (
-          <div className="mt-8 border border-charcoal-100 bg-charcoal-50 p-6 text-sm text-charcoal-600">
+          <div className="mt-8 border border-line bg-paper-sunken p-6 text-sm text-ink-700 rounded-[var(--radius-card)]">
             <p>You don&apos;t have any approved internships to complete yet.</p>
             <p className="mt-2">
-              <Link to="/student/apply" className="ink-link">Request approval to apply</Link> first — an
-              admin reviews your picks, then you complete the application here.
+              <Link to="/student/apply" className="ink-link">
+                Request approval to apply
+              </Link>{" "}
+              first — an admin reviews your picks, then you complete the application here.
             </p>
           </div>
         ) : (
           <form onSubmit={submit} className="mt-8">
-            <p className="text-sm text-charcoal-500">
+            <p className="text-sm text-ink-500">
               Approved internships:{" "}
               <span className="font-medium text-ink">
                 {selections.map((s) => nameFor(s)).join(", ")}
@@ -198,9 +214,9 @@ function CompletePage() {
               <ResumeForm resume={resume} setResume={setResume} />
 
               {orgSelections.length > 0 && (
-                <section className="border-t border-charcoal-100 pt-10">
+                <section className="border-t border-line pt-10">
                   <h2 className="text-xl font-light">Per-organization steps</h2>
-                  <p className="mt-2 max-w-2xl text-sm text-charcoal-500">
+                  <p className="mt-2 max-w-2xl text-sm text-ink-500">
                     Complete the links (with a screenshot as proof) and forms for each internship.
                   </p>
                   <div className="mt-6 space-y-6">
@@ -221,7 +237,7 @@ function CompletePage() {
 
             {error && <p className="mt-6 text-sm text-red-600">{error}</p>}
 
-            <div className="mt-8 flex items-center justify-end border-t border-charcoal-100 pt-8">
+            <div className="mt-8 flex items-center justify-end border-t border-line pt-8">
               <button type="submit" disabled={submitting} className="btn-ink disabled:opacity-50">
                 {submitting ? "Submitting…" : "Submit application"}
               </button>

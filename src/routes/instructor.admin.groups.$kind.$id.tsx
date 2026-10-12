@@ -2,12 +2,8 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { RosterDataPanel } from "@/components/RosterDataPanel";
-import { CampAssignmentsPanel } from "@/components/CampAssignmentsPanel";
 import { CampLoginsPanel } from "@/components/CampLoginsPanel";
-import { InternshipPipelinePanel } from "@/components/InternshipPipelinePanel";
-import { GroupMaterialsPanel } from "@/components/GroupMaterialsPanel";
 import { GroupEducatorsPanel } from "@/components/GroupEducatorsPanel";
-import { GroupAssignPanel } from "@/components/GroupAssignPanel";
 import {
   fetchGroup,
   fetchCompletion,
@@ -26,19 +22,16 @@ export const Route = createFileRoute("/instructor/admin/groups/$kind/$id")({
 
 const sb = (table: string): any => (supabase.from as unknown as (n: string) => any)(table);
 
-type TabId =
-  "overview" | "students" | "assessments" | "materials" | "educators" | "logins" | "pipeline";
+type TabId = "overview" | "students" | "assessments" | "educators" | "logins";
 
 function tabsFor(kind: GroupKind): Array<{ id: TabId; label: string }> {
   const base: Array<{ id: TabId; label: string }> = [
     { id: "overview", label: "Overview" },
     { id: "students", label: "Students" },
     { id: "assessments", label: "Assessments & surveys" },
-    { id: "materials", label: "Materials" },
     { id: "educators", label: "Instructors" },
   ];
   if (kind === "camps") base.push({ id: "logins", label: "Logins" });
-  if (kind === "internships") base.push({ id: "pipeline", label: "Applicants & placements" });
   return base;
 }
 
@@ -73,14 +66,14 @@ function Inner({ kind, id }: { kind: GroupKind; id: string }) {
   if (group === undefined) {
     return (
       <main className="mx-auto max-w-6xl px-6 py-16">
-        <p className="text-sm text-charcoal-400">Loading…</p>
+        <p className="text-sm text-ink-500">Loading…</p>
       </main>
     );
   }
   if (group === null) {
     return (
       <main className="mx-auto max-w-6xl px-6 py-16">
-        <p className="text-sm text-charcoal-500">
+        <p className="text-sm text-ink-500">
           That {meta.singular.toLowerCase()} wasn&apos;t found.{" "}
           <Link to="/instructor/admin/groups/$kind" params={{ kind }} className="ink-link">
             Back to {meta.label.toLowerCase()}
@@ -97,12 +90,12 @@ function Inner({ kind, id }: { kind: GroupKind; id: string }) {
       <Link
         to="/instructor/admin/groups/$kind"
         params={{ kind }}
-        className="text-xs text-charcoal-500 hover:text-ink"
+        className="text-xs text-ink-500 hover:text-ink"
       >
         ← {meta.label}
       </Link>
       <h1 className="mt-2 text-3xl font-light">{group.name}</h1>
-      {group.meta && <p className="mt-1 text-sm text-charcoal-500">{group.meta}</p>}
+      {group.meta && <p className="mt-1 text-sm text-ink-500">{group.meta}</p>}
       {(kind === "classes" || kind === "camps") && (
         <Link
           to="/instructor/explore-cards/$kind/$id"
@@ -113,15 +106,13 @@ function Inner({ kind, id }: { kind: GroupKind; id: string }) {
         </Link>
       )}
 
-      <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-b border-charcoal-100 pb-2 text-sm">
+      <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-b border-line pb-2 text-sm">
         {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={tab === t.id ? "font-medium text-ink" : "text-charcoal-500 hover:text-ink"}
-            style={
-              tab === t.id ? { boxShadow: "inset 0 -2px 0 0 var(--color-explr-500)" } : undefined
-            }
+            className={tab === t.id ? "font-medium text-ink" : "text-ink-500 hover:text-ink"}
+            style={tab === t.id ? { boxShadow: "inset 0 -2px 0 0 var(--color-green)" } : undefined}
           >
             {t.label}
           </button>
@@ -140,13 +131,9 @@ function Inner({ kind, id }: { kind: GroupKind; id: string }) {
             <RosterDataPanel studentIds={group.studentIds} names={group.names} />
           </>
         )}
-        {tab === "assessments" && (
-          <AssessmentsTab kind={kind} group={group} completion={completion} />
-        )}
-        {tab === "materials" && <GroupMaterialsPanel kind={kind} id={group.id} />}
+        {tab === "assessments" && <AssessmentsTab group={group} completion={completion} />}
         {tab === "educators" && <GroupEducatorsPanel kind={kind} id={group.id} />}
         {tab === "logins" && <CampLoginsPanel campId={group.id} title={group.name} />}
-        {tab === "pipeline" && <InternshipPipelinePanel slug={group.id} />}
       </div>
     </main>
   );
@@ -181,28 +168,28 @@ function Overview({
       </div>
 
       <section className="mt-10">
-        <h2 className="text-xs uppercase tracking-wider text-charcoal-400">
+        <h2 className="text-xs uppercase tracking-wider text-ink-500">
           Top interests in this group
         </h2>
         {mix.length === 0 ? (
-          <p className="mt-3 text-sm text-charcoal-400">
+          <p className="mt-3 text-sm text-ink-500">
             No completed assessments yet, so there&apos;s no interest mix to show.
           </p>
         ) : (
           <ul className="mt-4 space-y-2">
             {mix.map((m) => (
               <li key={m.letter} className="flex items-center gap-3 text-sm">
-                <span className="w-28 shrink-0 text-charcoal-600">{m.label}</span>
-                <div className="relative h-2 flex-1 bg-charcoal-100">
+                <span className="w-28 shrink-0 text-ink-700">{m.label}</span>
+                <div className="relative h-2 flex-1 bg-paper-sunken">
                   <div
                     className="absolute inset-y-0 left-0"
                     style={{
                       width: `${Math.round((m.count / maxCount) * 100)}%`,
-                      background: "var(--color-explr-500)",
+                      background: "var(--color-green)",
                     }}
                   />
                 </div>
-                <span className="w-20 shrink-0 text-right text-xs text-charcoal-500 tabular-nums">
+                <span className="w-20 shrink-0 text-right text-xs text-ink-500 tabular-nums">
                   {m.count} · {m.pct}%
                 </span>
               </li>
@@ -211,7 +198,7 @@ function Overview({
         )}
       </section>
 
-      <button onClick={onJump} className="mt-8 text-sm text-explr-600 hover:underline">
+      <button onClick={onJump} className="mt-8 text-sm text-green-deep hover:underline">
         Dive into students one by one →
       </button>
     </div>
@@ -219,11 +206,9 @@ function Overview({
 }
 
 function AssessmentsTab({
-  kind,
   group,
   completion,
 }: {
-  kind: GroupKind;
   group: GroupSummary;
   completion: Completion | null;
 }) {
@@ -236,30 +221,14 @@ function AssessmentsTab({
     : 0;
   return (
     <div>
-      <p className="max-w-2xl text-sm text-charcoal-600">
-        One place for everything this group is asked to complete — the RIASEC interest assessment,
-        the internship interest survey, and the STEM survey. Assigning here cascades to{" "}
-        {kind === "internships" ? "the placed students" : "this group's students"}.
+      <p className="max-w-2xl text-sm text-ink-700">
+        How far this group has come on the two instruments EXPLR Pathways uses: the RIASEC interest
+        assessment and the STEM efficacy survey.
       </p>
       <div className="mt-6 grid max-w-2xl grid-cols-2 gap-3">
         <Metric label="RIASEC done" value={`${aDone} / ${total}`} />
         <Metric label="Surveys done" value={`${sDone} / ${total}`} />
       </div>
-
-      <div className="mt-8">
-        <GroupAssignPanel kind={kind} groupId={group.id} />
-      </div>
-
-      {kind === "camps" && (
-        <div className="mt-10 max-w-2xl">
-          <h3 className="text-xs uppercase tracking-wider text-charcoal-400">
-            Including instructor cascade · completion
-          </h3>
-          <div className="mt-3">
-            <CampAssignmentsPanel campId={group.id} studentIds={group.studentIds} />
-          </div>
-        </div>
-      )}
 
       <div className="mt-8 flex flex-wrap gap-3">
         <Link to="/instructor/admin/assessments" className="btn-ghost text-sm">
@@ -275,8 +244,8 @@ function AssessmentsTab({
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border border-charcoal-100 bg-white p-4">
-      <p className="text-[10px] uppercase tracking-wider text-charcoal-400">{label}</p>
+    <div className="border border-line bg-paper-raised p-4 rounded-[var(--radius-card)]">
+      <p className="text-[10px] uppercase tracking-wider text-ink-500">{label}</p>
       <p className="mt-1 text-2xl font-light tabular-nums text-ink">{value}</p>
     </div>
   );
@@ -350,10 +319,8 @@ function ClassRoster({
   }
 
   return (
-    <div className="mb-6 border border-charcoal-100 bg-charcoal-50 p-4">
-      <p className="text-xs font-semibold uppercase tracking-wider text-charcoal-400">
-        Manage roster
-      </p>
+    <div className="mb-6 border border-line bg-paper-sunken p-4 rounded-[var(--radius-card)]">
+      <p className="text-xs font-semibold uppercase tracking-wider text-ink-500">Manage roster</p>
       <div className="relative mt-3 max-w-sm">
         <input
           className="field"
@@ -362,7 +329,7 @@ function ClassRoster({
           onChange={(e) => setQuery(e.target.value)}
         />
         {results.length > 0 && (
-          <ul className="absolute z-10 mt-1 w-full border border-charcoal-200 bg-white shadow-sm">
+          <ul className="absolute z-10 mt-1 w-full border border-line-strong bg-paper-raised shadow-sm">
             {results.map((s) => {
               const already = memberSet.has(s.id);
               return (
@@ -370,10 +337,10 @@ function ClassRoster({
                   <button
                     disabled={already || busy}
                     onClick={() => add(s.id)}
-                    className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-charcoal-50 disabled:opacity-40"
+                    className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-paper-sunken disabled:opacity-40"
                   >
                     <span>{s.first_name ?? "Student"}</span>
-                    <span className="text-xs text-charcoal-400">
+                    <span className="text-xs text-ink-500">
                       {already ? "in class" : `Grade ${s.grade} · add`}
                     </span>
                   </button>
@@ -384,7 +351,7 @@ function ClassRoster({
         )}
       </div>
       {memberIds.length > 0 && (
-        <p className="mt-3 text-xs text-charcoal-500">
+        <p className="mt-3 text-xs text-ink-500">
           {memberIds.length} student{memberIds.length === 1 ? "" : "s"} in this class. Remove from
           the table below.
         </p>
@@ -428,14 +395,14 @@ function RemovableList({
       {memberIds.map((id) => (
         <span
           key={id}
-          className="inline-flex items-center gap-2 border border-charcoal-200 bg-white px-2.5 py-1 text-xs"
+          className="inline-flex items-center gap-2 border border-line-strong bg-paper-raised px-2.5 py-1 text-xs"
         >
           {names[id] ?? "…"}
           <button
             onClick={() => onRemove(id)}
             disabled={busy}
             aria-label="Remove"
-            className="text-charcoal-400 hover:text-red-600"
+            className="text-ink-500 hover:text-red-600"
           >
             ✕
           </button>

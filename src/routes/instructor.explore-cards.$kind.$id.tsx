@@ -257,7 +257,7 @@ function ExploreCards() {
             {printable.map((c) => (
               <article
                 key={c.loginId}
-                className="flex gap-4 border border-ink-900 p-4"
+                className="flex gap-4 border border-ink-900-900 p-4"
                 style={{ breakInside: "avoid" }}
               >
                 <div className="flex flex-col items-center gap-2">
@@ -273,7 +273,7 @@ function ExploreCards() {
                     {c.secret!.map((s, i) => (
                       <span
                         key={i}
-                        className="grid h-9 w-9 place-items-center rounded-full border border-ink-900"
+                        className="grid h-9 w-9 place-items-center rounded-full border border-ink-900-900"
                       >
                         <ShapeIcon shape={s} size={20} />
                         <span className="sr-only">{SHAPE_LABELS[s]}</span>

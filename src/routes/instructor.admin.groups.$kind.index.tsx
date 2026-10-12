@@ -100,12 +100,12 @@ function GroupGridInner({ kind }: { kind: GroupKind }) {
       )}
 
       {groups === null ? (
-        <p className="mt-10 text-sm text-charcoal-400">Loading…</p>
+        <p className="mt-10 text-sm text-ink-500">Loading…</p>
       ) : setupNeeded ? (
         <ClassesSetupNote />
       ) : filtered.length === 0 ? (
-        <div className="mt-10 border border-dashed border-charcoal-200 bg-charcoal-50 px-6 py-12 text-center">
-          <p className="text-sm text-charcoal-500">
+        <div className="mt-10 border border-dashed border-line-strong bg-paper-sunken px-6 py-12 text-center">
+          <p className="text-sm text-ink-500">
             {kind === "classes"
               ? "No classes yet. Create one to start grouping students."
               : `No rostered ${meta.label.toLowerCase()} yet.`}
@@ -151,20 +151,20 @@ function GroupCard({
     <Link
       to="/instructor/admin/groups/$kind/$id"
       params={{ kind, id: group.id }}
-      className="block border border-charcoal-100 bg-white p-5 transition-colors hover:border-charcoal-300"
+      className="block border border-line bg-paper-raised p-5 transition-colors hover:border-line-strong rounded-[var(--radius-card)]"
     >
       <p className="text-sm font-medium leading-snug">{group.name}</p>
-      <p className="mt-1 h-4 truncate text-xs text-charcoal-500">{group.meta}</p>
+      <p className="mt-1 h-4 truncate text-xs text-ink-500">{group.meta}</p>
 
-      <div className="mt-4 flex items-baseline justify-between text-xs text-charcoal-500">
+      <div className="mt-4 flex items-baseline justify-between text-xs text-ink-500">
         <span>{total ? `${done} / ${total} assessed` : "No students yet"}</span>
         {total > 0 && <span className="tabular-nums">{pct}%</span>}
       </div>
-      <div className="mt-1.5 h-1.5 w-full bg-charcoal-100">
-        <div className="h-1.5" style={{ width: `${pct}%`, background: "var(--color-explr-500)" }} />
+      <div className="mt-1.5 h-1.5 w-full bg-paper-sunken">
+        <div className="h-1.5" style={{ width: `${pct}%`, background: "var(--color-green)" }} />
       </div>
 
-      <div className="mt-3 flex items-center gap-1 text-xs text-charcoal-400">
+      <div className="mt-3 flex items-center gap-1 text-xs text-ink-500">
         <span className="tabular-nums">{total}</span>
         <span>student{total === 1 ? "" : "s"}</span>
       </div>
@@ -223,7 +223,7 @@ function NewClassModal({ onClose, onSaved }: { onClose: () => void; onSaved: () 
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-6">
-      <div className="w-full max-w-md border bg-white p-8">
+      <div className="w-full max-w-md border bg-paper-raised p-8">
         <h2 className="text-xl font-medium">New class</h2>
         <div className="mt-6 grid gap-4">
           <div>

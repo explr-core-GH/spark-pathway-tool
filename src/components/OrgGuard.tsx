@@ -11,7 +11,7 @@ export function OrgGuard({ children }: { children: (org: OrgRow) => React.ReactN
   const { user, org, loading } = useOrg();
 
   if (loading) {
-    return <main className="mx-auto max-w-md px-6 py-24 text-sm text-charcoal-400">Loading…</main>;
+    return <main className="mx-auto max-w-md px-6 py-24 text-sm text-ink-500">Loading…</main>;
   }
 
   if (!user) {
@@ -65,7 +65,7 @@ function Mismatch({
     <main className="mx-auto max-w-md px-6 py-24 text-center">
       <p className="eyebrow">{eyebrow}</p>
       <h1 className="mt-3 text-2xl font-light">{title}</h1>
-      <p className="mt-4 text-sm text-charcoal-500">{body}</p>
+      <p className="mt-4 text-sm text-ink-500">{body}</p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link to={primary.to as never} className="btn-ink">
           {primary.label}

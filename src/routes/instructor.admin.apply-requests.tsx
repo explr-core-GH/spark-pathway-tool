@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { INTERNSHIPS } from "@/lib/internships-catalog";
+import { useInternshipRefs } from "@/lib/internship-refs";
 
 export const Route = createFileRoute("/instructor/admin/apply-requests")({
   head: () => ({ meta: [{ title: "Apply requests — Admin" }] }),
@@ -9,9 +9,6 @@ export const Route = createFileRoute("/instructor/admin/apply-requests")({
 });
 
 const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
-const CATALOG_NAME: Record<string, string> = Object.fromEntries(
-  INTERNSHIPS.map((i) => [i.slug, i.name]),
-);
 
 type Sel = {
   id: string;
@@ -32,6 +29,7 @@ function ApplyRequests() {
   const [sels, setSels] = useState<Sel[]>([]);
   const [students, setStudents] = useState<Record<string, Student>>({});
   const [oppNames, setOppNames] = useState<Record<string, string>>({});
+  const internshipRefs = useInternshipRefs({ includeUnapproved: true });
   const [loading, setLoading] = useState(true);
   // student_id → set of refs the admin will approve (defaults to all).
   const [approve, setApprove] = useState<Record<string, Set<string>>>({});
@@ -85,7 +83,7 @@ function ApplyRequests() {
 
   function nameFor(s: Sel): string {
     if (s.opportunity_id) return oppNames[s.opportunity_id] ?? "Internship";
-    return CATALOG_NAME[s.internship_ref] ?? s.internship_ref;
+    return internshipRefs.nameFor(s.internship_ref);
   }
 
   function toggle(studentId: string, ref: string) {
@@ -129,20 +127,20 @@ function ApplyRequests() {
       </p>
 
       {loading ? (
-        <p className="mt-8 text-sm text-charcoal-400">Loading…</p>
+        <p className="mt-8 text-sm text-ink-500">Loading…</p>
       ) : byStudent.length === 0 ? (
-        <p className="mt-8 text-sm text-charcoal-400">No pending requests.</p>
+        <p className="mt-8 text-sm text-ink-500">No pending requests.</p>
       ) : (
         <div className="mt-8 space-y-6">
           {byStudent.map(([studentId, rows]) => {
             const st = students[studentId];
             const approveSet = approve[studentId] ?? new Set();
             return (
-              <div key={studentId} className="border border-charcoal-100 p-5">
+              <div key={studentId} className="border border-line p-5 rounded-[var(--radius-card)]">
                 <div className="flex items-baseline justify-between">
                   <p className="font-medium">
                     {st?.first_name ?? "Student"}
-                    <span className="ml-2 text-xs text-charcoal-400">
+                    <span className="ml-2 text-xs text-ink-500">
                       Grade {st?.grade ?? "—"}
                       {st?.date_of_birth ? ` · DOB ${st.date_of_birth}` : ""}
                     </span>
@@ -169,13 +167,13 @@ function ApplyRequests() {
                             onChange={() => toggle(studentId, s.internship_ref)}
                           />
                           {s.rank != null && (
-                            <span className="w-5 shrink-0 text-center text-xs font-medium text-charcoal-400 tabular-nums">
+                            <span className="w-5 shrink-0 text-center text-xs font-medium text-ink-500 tabular-nums">
                               #{s.rank}
                             </span>
                           )}
                           {nameFor(s)}
                           {s.opportunity_id && (
-                            <span className="text-xs text-charcoal-400">· partner internship</span>
+                            <span className="text-xs text-ink-500">· partner internship</span>
                           )}
                         </label>
                       </li>

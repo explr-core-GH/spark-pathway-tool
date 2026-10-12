@@ -204,9 +204,9 @@ function DemographicsAdmin() {
       </p>
 
       {loading ? (
-        <p className="mt-12 text-sm text-charcoal-500">Loading sources and building data…</p>
+        <p className="mt-12 text-sm text-ink-500">Loading sources and building data…</p>
       ) : sources.length === 0 ? (
-        <div className="mt-12 border border-dashed border-charcoal-200 p-8 text-sm text-charcoal-500">
+        <div className="mt-12 border border-dashed border-line-strong p-8 text-sm text-ink-500">
           No sources yet. Demographics aggregate from instructors who connect a school + student
           count on their profile, and from admin-managed programs that do the same. Add either to
           populate this dashboard.
@@ -221,22 +221,22 @@ function DemographicsAdmin() {
           </section>
 
           {/* Grade-level histogram */}
-          <section className="mt-12 border border-charcoal-100 p-6">
+          <section className="mt-12 border border-line p-6 rounded-[var(--radius-card)]">
             <h2 className="eyebrow">Grade-level distribution</h2>
-            <p className="mt-1 text-xs text-charcoal-500">
+            <p className="mt-1 text-xs text-ink-500">
               Student count distributed evenly across each source&apos;s reported grade levels.
             </p>
             <div className="mt-4 space-y-1">
               {gradeHistogram.map((row) => (
                 <div key={row.grade} className="flex items-center gap-3 text-xs">
-                  <span className="w-6 shrink-0 text-charcoal-500">{row.label}</span>
-                  <div className="relative h-5 flex-1 bg-charcoal-50">
+                  <span className="w-6 shrink-0 text-ink-500">{row.label}</span>
+                  <div className="relative h-5 flex-1 bg-paper-sunken">
                     <div
-                      className="absolute inset-y-0 left-0 bg-charcoal-700"
+                      className="absolute inset-y-0 left-0 bg-ink-900-900"
                       style={{ width: `${row.width}%` }}
                     />
                   </div>
-                  <span className="w-12 shrink-0 text-right tabular-nums text-charcoal-500">
+                  <span className="w-12 shrink-0 text-right tabular-nums text-ink-500">
                     {Math.round(row.students)}
                   </span>
                 </div>
@@ -265,23 +265,21 @@ function DemographicsAdmin() {
           {/* Source breakdown table */}
           <section className="mt-12">
             <h2 className="eyebrow">Sources contributing to this aggregate</h2>
-            <ul className="mt-4 divide-y divide-charcoal-100 border-y border-charcoal-100">
+            <ul className="mt-4 divide-y divide-line border-y border-line">
               {sources.map((s, i) => (
                 <li
                   key={`${s.kind}-${i}`}
                   className="flex flex-wrap items-center gap-3 py-3 text-sm"
                 >
-                  <span className="w-20 shrink-0 text-[10px] uppercase tracking-wider text-charcoal-400">
+                  <span className="w-20 shrink-0 text-[10px] uppercase tracking-wider text-ink-500">
                     {s.kind}
                   </span>
                   <span className="flex-1 font-medium">{s.label}</span>
-                  <span className="text-charcoal-500">
-                    {s.school_name ?? `IRN ${s.school_irn}`}
-                  </span>
-                  <span className="w-20 text-right tabular-nums text-charcoal-500">
+                  <span className="text-ink-500">{s.school_name ?? `IRN ${s.school_irn}`}</span>
+                  <span className="w-20 text-right tabular-nums text-ink-500">
                     {s.student_count.toLocaleString()} students
                   </span>
-                  <span className="w-32 text-right text-xs text-charcoal-400">
+                  <span className="w-32 text-right text-xs text-ink-500">
                     {s.grade_levels && s.grade_levels.length > 0
                       ? s.grade_levels.map((g) => GRADE_LABEL[g]).join(", ")
                       : "—"}
@@ -291,7 +289,7 @@ function DemographicsAdmin() {
             </ul>
           </section>
 
-          <p className="mt-10 text-xs text-charcoal-400">
+          <p className="mt-10 text-xs text-ink-500">
             Source: public school report-card data. A few small groups aren&apos;t reported in the
             underlying data, so they&apos;re excluded from these averages.
           </p>
@@ -303,10 +301,8 @@ function DemographicsAdmin() {
 
 function StatTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border border-charcoal-100 p-5">
-      <p className="text-[10px] uppercase tracking-wider font-semibold text-charcoal-400">
-        {label}
-      </p>
+    <div className="border border-line p-5 rounded-[var(--radius-card)]">
+      <p className="text-[10px] uppercase tracking-wider font-semibold text-ink-500">{label}</p>
       <p className="mt-1 text-3xl font-light tabular-nums text-ink">{value}</p>
     </div>
   );
@@ -322,10 +318,10 @@ function DemoPanel({
   totalStudents: number;
 }) {
   return (
-    <div className="border border-charcoal-100 p-5">
+    <div className="border border-line p-5 rounded-[var(--radius-card)]">
       <h3 className="text-sm font-semibold text-ink">{title}</h3>
       {rows.length === 0 ? (
-        <p className="mt-3 text-xs text-charcoal-400 italic">
+        <p className="mt-3 text-xs text-ink-500 italic">
           No data reported for this group in the source.
         </p>
       ) : (
@@ -333,20 +329,20 @@ function DemoPanel({
           {rows.map((r) => (
             <li key={r.group}>
               <div className="flex items-baseline justify-between text-xs">
-                <span className="text-charcoal-700">{label(r.group)}</span>
-                <span className="tabular-nums text-charcoal-500">
+                <span className="text-ink-700">{label(r.group)}</span>
+                <span className="tabular-nums text-ink-500">
                   {r.pct.toFixed(1)}%
-                  <span className="ml-1 text-charcoal-400">
+                  <span className="ml-1 text-ink-500">
                     ({Math.round((r.covered / Math.max(1, totalStudents)) * 100)}% covered)
                   </span>
                 </span>
               </div>
-              <div className="mt-1 h-1.5 bg-charcoal-50">
+              <div className="mt-1 h-1.5 bg-paper-sunken">
                 <div
                   className="h-full"
                   style={{
                     width: `${Math.max(0, Math.min(100, r.pct))}%`,
-                    background: "var(--explr)",
+                    background: "var(--color-green)",
                   }}
                 />
               </div>

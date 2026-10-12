@@ -436,14 +436,14 @@ export function OpportunityWizard({
 
   // ── Path select ────────────────────────────────────────────────────────────
   if (hydrating) {
-    return <main className="mx-auto max-w-3xl px-6 py-16 text-sm text-charcoal-400">Loading…</main>;
+    return <main className="mx-auto max-w-3xl px-6 py-16 text-sm text-ink-500">Loading…</main>;
   }
   if (!type) {
     return (
       <main className="mx-auto max-w-3xl px-6 py-16">
         <p className="eyebrow">New opportunity · step 1</p>
         <h1 className="mt-2 text-3xl font-light">What kind of opportunity is this?</h1>
-        <p className="mt-2 text-sm text-charcoal-500">
+        <p className="mt-2 text-sm text-ink-500">
           This sets the grade range and which questions come next.
         </p>
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -451,18 +451,15 @@ export function OpportunityWizard({
             <button
               key={t.key}
               onClick={() => pickType(t.key)}
-              className="border border-charcoal-100 bg-white p-5 text-left transition-colors hover:border-charcoal-400"
+              className="border border-line bg-paper-raised p-5 text-left transition-colors hover:border-ink-900-900-900-900-900 rounded-[var(--radius-card)]"
             >
               <p className="text-base font-medium">{t.label}</p>
-              <p className="mt-1 text-sm text-charcoal-500">{t.blurb}</p>
+              <p className="mt-1 text-sm text-ink-500">{t.blurb}</p>
             </button>
           ))}
         </div>
         <p className="mt-8 text-sm">
-          <button
-            onClick={() => navigate({ to: "/org" })}
-            className="text-charcoal-500 hover:text-ink"
-          >
+          <button onClick={() => navigate({ to: "/org" })} className="text-ink-500 hover:text-ink">
             ← Back to your opportunities
           </button>
         </p>
@@ -473,7 +470,7 @@ export function OpportunityWizard({
   // Don't render any step until this type's field config has loaded — otherwise
   // the step list is momentarily empty and flashes the wrong slide.
   if (configFor !== type) {
-    return <main className="mx-auto max-w-3xl px-6 py-16 text-sm text-charcoal-400">Loading…</main>;
+    return <main className="mx-auto max-w-3xl px-6 py-16 text-sm text-ink-500">Loading…</main>;
   }
 
   const current = steps[step];
@@ -488,10 +485,7 @@ export function OpportunityWizard({
           <h1 className="mt-1 text-2xl font-light">{form.name || "New opportunity"}</h1>
         </div>
         {!opportunityId && (
-          <button
-            onClick={() => setType(null)}
-            className="text-xs text-charcoal-500 hover:text-ink"
-          >
+          <button onClick={() => setType(null)} className="text-xs text-ink-500 hover:text-ink">
             Change type
           </button>
         )}
@@ -503,16 +497,12 @@ export function OpportunityWizard({
           <span key={s.id} className="flex items-center gap-2">
             <span
               className={
-                i === step
-                  ? "font-medium text-ink"
-                  : i < step
-                    ? "text-explr-600"
-                    : "text-charcoal-400"
+                i === step ? "font-medium text-ink" : i < step ? "text-green-deep" : "text-ink-500"
               }
             >
               {i + 1}. {s.title}
             </span>
-            {i < steps.length - 1 && <span className="text-charcoal-300">·</span>}
+            {i < steps.length - 1 && <span className="text-ink-500">·</span>}
           </span>
         ))}
       </div>
@@ -563,7 +553,7 @@ export function OpportunityWizard({
                   />
                   {!meta!.oneTime && (
                     <>
-                      <span className="text-sm text-charcoal-400">to</span>
+                      <span className="text-sm text-ink-500">to</span>
                       <input
                         type="date"
                         className="field w-44"
@@ -579,7 +569,7 @@ export function OpportunityWizard({
               <Field label={labelOf("schedule", "Days & times")} help={helpOf("schedule")}>
                 <WeekdayPicker days={form.days} onChange={(v) => set("days", v)} />
                 <div className="mt-3 flex flex-wrap items-end gap-4">
-                  <label className="text-xs text-charcoal-500">
+                  <label className="text-xs text-ink-500">
                     Start time
                     <input
                       type="time"
@@ -588,7 +578,7 @@ export function OpportunityWizard({
                       onChange={(e) => set("start_time", e.target.value)}
                     />
                   </label>
-                  <label className="text-xs text-charcoal-500">
+                  <label className="text-xs text-ink-500">
                     End time
                     <input
                       type="time"
@@ -599,7 +589,7 @@ export function OpportunityWizard({
                   </label>
                 </div>
                 {composeSchedule(form.days, form.start_time, form.end_time) && (
-                  <p className="mt-2 text-xs text-charcoal-500">
+                  <p className="mt-2 text-xs text-ink-500">
                     {composeSchedule(form.days, form.start_time, form.end_time)}
                   </p>
                 )}
@@ -637,13 +627,13 @@ export function OpportunityWizard({
               help={helpOf("registration")}
             >
               {meta!.registrationLocked ? (
-                <p className="text-sm text-charcoal-500">
+                <p className="text-sm text-ink-500">
                   Internships are completed entirely in-system — students apply and are placed
                   through EXPLR.
                 </p>
               ) : (
                 <div>
-                  <div className="inline-flex border border-charcoal-200">
+                  <div className="inline-flex border border-line-strong">
                     {(["internal", "external"] as const).map((m) => (
                       <button
                         key={m}
@@ -652,8 +642,7 @@ export function OpportunityWizard({
                         className="px-3 py-1.5 text-xs"
                         style={{
                           background: form.registration_mode === m ? "var(--ink)" : "white",
-                          color:
-                            form.registration_mode === m ? "white" : "var(--color-charcoal-500)",
+                          color: form.registration_mode === m ? "white" : "var(--color-ink-500)",
                         }}
                       >
                         {m === "internal" ? "Register in EXPLR" : "Register on our own site"}
@@ -688,7 +677,7 @@ export function OpportunityWizard({
                     onChange={(e) => set("grade_min", e.target.value)}
                     placeholder="min"
                   />
-                  <span className="text-sm text-charcoal-400">to</span>
+                  <span className="text-sm text-ink-500">to</span>
                   <input
                     type="number"
                     min={0}
@@ -725,7 +714,7 @@ export function OpportunityWizard({
                 {!form.is_free && (
                   <div className="mt-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-charcoal-400">$</span>
+                      <span className="text-sm text-ink-500">$</span>
                       <input
                         type="number"
                         min={0}
@@ -752,23 +741,23 @@ export function OpportunityWizard({
 
         {current.id === "interests" && (
           <Section title="Activities — auto-codes a RIASEC interest profile">
-            <p className="text-sm leading-relaxed text-charcoal-600">{RIASEC_INTRO}</p>
+            <p className="text-sm leading-relaxed text-ink-700">{RIASEC_INTRO}</p>
             <div className="mt-6 space-y-4">
               {RIASEC_ACTIVITIES.map((a) => (
-                <div key={a.key} className="border border-charcoal-100 p-4">
+                <div key={a.key} className="border border-line p-4 rounded-[var(--radius-card)]">
                   <div className="flex items-baseline justify-between gap-3">
                     <p className="text-sm font-medium">
                       {a.label}
-                      <span className="ml-2 text-xs font-normal text-charcoal-400">
+                      <span className="ml-2 text-xs font-normal text-ink-500">
                         {a.holland} · {a.letter}
                       </span>
                     </p>
-                    <span className="tabular-nums text-sm text-charcoal-600">
+                    <span className="tabular-nums text-sm text-ink-700">
                       {form.weights[a.key] ?? 0}%
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-charcoal-500">{a.blurb}</p>
-                  <p className="mt-0.5 text-xs text-charcoal-400">e.g. {a.examples}</p>
+                  <p className="mt-1 text-xs text-ink-500">{a.blurb}</p>
+                  <p className="mt-0.5 text-xs text-ink-500">e.g. {a.examples}</p>
                   <input
                     type="range"
                     min={0}
@@ -783,8 +772,8 @@ export function OpportunityWizard({
                 </div>
               ))}
             </div>
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-charcoal-100 pt-4 text-sm">
-              <span className={weightTotal === 100 ? "text-charcoal-500" : "text-amber-700"}>
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4 text-sm">
+              <span className={weightTotal === 100 ? "text-ink-500" : "text-amber-700"}>
                 Total {weightTotal}%
                 {weightTotal !== 100 ? " — aim for about 100% (we normalize either way)" : ""}
               </span>
@@ -793,7 +782,7 @@ export function OpportunityWizard({
                 <span className="font-mono font-medium tracking-wider">{code || "—"}</span>
               </span>
             </div>
-            <p className="mt-3 text-xs text-charcoal-400">
+            <p className="mt-3 text-xs text-ink-500">
               The code is the top one to three activity types by time. A student whose interest
               assessment shares those letters sees this as a match. Leave any slider at 0 if it
               doesn&apos;t apply.
@@ -803,7 +792,7 @@ export function OpportunityWizard({
 
         {current.id === "worksite" && (
           <Section title="Requirements & forms">
-            <p className="-mt-2 text-sm text-charcoal-500">
+            <p className="-mt-2 text-sm text-ink-500">
               All optional — check what applies and leave the rest blank if there&apos;s nothing
               extra to require.
             </p>
@@ -921,7 +910,7 @@ export function OpportunityWizard({
 
         {current.id === "review" && (
           <Section title="Review & submit">
-            <ul className="divide-y divide-charcoal-100 border-y border-charcoal-100 text-sm">
+            <ul className="divide-y divide-line border-y border-line text-sm">
               <Row label="Type" value={meta!.label} />
               <Row label="Name" value={form.name || "—"} />
               <Row
@@ -947,7 +936,7 @@ export function OpportunityWizard({
               />
               <Row label="Interest code" value={code || "—"} />
             </ul>
-            <p className="mt-4 text-xs text-charcoal-500">
+            <p className="mt-4 text-xs text-ink-500">
               When you submit, an EXPLR admin reviews this before it goes live.
             </p>
           </Section>
@@ -956,7 +945,7 @@ export function OpportunityWizard({
 
       {err && <p className="mt-4 text-sm text-red-600">{err}</p>}
 
-      <div className="mt-8 flex items-center justify-between border-t border-charcoal-100 pt-5">
+      <div className="mt-8 flex items-center justify-between border-t border-line pt-5">
         <button onClick={back} disabled={step === 0} className="btn-ghost disabled:opacity-40">
           ← Back
         </button>
@@ -1005,7 +994,7 @@ function Field({
         {label}
         {required && <span className="ml-1 text-red-500">*</span>}
       </label>
-      {help && <p className="mb-1 text-xs text-charcoal-400">{help}</p>}
+      {help && <p className="mb-1 text-xs text-ink-500">{help}</p>}
       <div className="mt-1">{children}</div>
     </div>
   );
@@ -1014,7 +1003,7 @@ function Field({
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <li className="flex items-baseline justify-between py-2">
-      <span className="text-charcoal-500">{label}</span>
+      <span className="text-ink-500">{label}</span>
       <span className="font-medium">{value}</span>
     </li>
   );
@@ -1038,7 +1027,7 @@ function Uploader({
           className={`h-16 w-16 object-cover ${rounded ? "rounded-full" : "rounded"}`}
         />
       )}
-      <label className="cursor-pointer border border-dashed border-charcoal-300 bg-white px-4 py-2 text-xs text-charcoal-600 hover:border-charcoal-500">
+      <label className="cursor-pointer border border-dashed border-line-strong bg-paper-raised px-4 py-2 text-xs text-ink-700 hover:border-ink-900-900-900-900-900">
         {current ? "Replace" : "Upload"}
         <input
           type="file"
@@ -1158,13 +1147,13 @@ function CustomReqAdder({
           {custom.map((r) => (
             <span
               key={r}
-              className="inline-flex items-center gap-2 border border-charcoal-200 bg-white px-2.5 py-1 text-xs"
+              className="inline-flex items-center gap-2 border border-line-strong bg-paper-raised px-2.5 py-1 text-xs"
             >
               {r}
               <button
                 type="button"
                 onClick={() => onRemove(r)}
-                className="text-charcoal-400 hover:text-red-600"
+                className="text-ink-500 hover:text-red-600"
                 aria-label="Remove"
               >
                 ✕
@@ -1201,7 +1190,7 @@ function LinksEditor({ links, onChange }: { links: AppLink[]; onChange: (v: AppL
           <button
             type="button"
             onClick={() => onChange(links.filter((_, j) => j !== i))}
-            className="px-2 text-charcoal-400 hover:text-ink"
+            className="px-2 text-ink-500 hover:text-ink"
             aria-label="Remove"
           >
             ×
@@ -1211,7 +1200,7 @@ function LinksEditor({ links, onChange }: { links: AppLink[]; onChange: (v: AppL
       <button
         type="button"
         onClick={() => onChange([...links, { label: "", url: "" }])}
-        className="text-sm text-charcoal-500 hover:text-ink"
+        className="text-sm text-ink-500 hover:text-ink"
       >
         + Add link
       </button>
@@ -1233,13 +1222,13 @@ function FormsEditor({
   return (
     <div>
       {forms.length > 0 && (
-        <ul className="mb-3 divide-y divide-charcoal-100 border-y border-charcoal-100">
+        <ul className="mb-3 divide-y divide-line border-y border-line">
           {forms.map((f) => (
             <li key={f.id} className="flex items-center gap-3 py-2 text-sm">
               <span className="flex-1">
                 {f.name}
                 {f.requires_signature && (
-                  <span className="ml-2 text-xs text-charcoal-400">· signature</span>
+                  <span className="ml-2 text-xs text-ink-500">· signature</span>
                 )}
               </span>
               {f.file_url && (
@@ -1247,7 +1236,7 @@ function FormsEditor({
                   href={f.file_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-xs text-explr-600 hover:underline"
+                  className="text-xs text-green-deep hover:underline"
                 >
                   View
                 </a>
@@ -1270,11 +1259,11 @@ function FormsEditor({
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <label className="flex items-center gap-1.5 text-xs text-charcoal-600">
+        <label className="flex items-center gap-1.5 text-xs text-ink-700">
           <input type="checkbox" checked={sig} onChange={(e) => setSig(e.target.checked)} />
           Needs signature
         </label>
-        <label className="cursor-pointer border border-dashed border-charcoal-300 bg-white px-3 py-1.5 text-xs hover:border-charcoal-500">
+        <label className="cursor-pointer border border-dashed border-line-strong bg-paper-raised px-3 py-1.5 text-xs hover:border-ink-900-900-900-900-900">
           Upload form
           <input
             type="file"
@@ -1309,7 +1298,7 @@ function WeekdayPicker({ days, onChange }: { days: string[]; onChange: (v: strin
             style={
               on
                 ? { background: "var(--ink)", color: "white", borderColor: "var(--ink)" }
-                : { borderColor: "var(--color-charcoal-200)" }
+                : { borderColor: "var(--color-line-strong)" }
             }
           >
             {d}
@@ -1364,12 +1353,12 @@ function AddressAutocomplete({
         }}
       />
       {open && results.length > 0 && (
-        <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-auto border border-charcoal-200 bg-white text-sm shadow-sm">
+        <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-auto border border-line-strong bg-paper-raised text-sm shadow-sm">
           {results.map((r, i) => (
             <li key={i}>
               <button
                 type="button"
-                className="block w-full px-3 py-2 text-left hover:bg-charcoal-50"
+                className="block w-full px-3 py-2 text-left hover:bg-paper-sunken"
                 onClick={() => {
                   onPick(r.display_name, Number(r.lat), Number(r.lon));
                   setQ(r.display_name);

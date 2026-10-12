@@ -6,23 +6,21 @@ import { supabase } from "@/integrations/supabase/client";
  * MySessionsPanel — list of ExplrMore camp sessions assigned to one educator.
  *
  * "Session" here = one row in public.explr_camps (a specific offering of a
- * camp, e.g. "BoxCraft · Week 2 · Jun 17-21"). The same curriculum can run
+ * camp, e.g. "BoxCraft · Week 2 · Jun 17-21"). The same program can run
  * many times; each run is a separate session with its own roster and
- * educator assignment. Educators get assigned per-session, not per-curriculum.
+ * instructor assignment. Instructors get assigned per-session.
  *
  * Data flow:
  *   explr_camp_educators (educator_id = me)
  *     → explr_camps (the session itself)
- *       → explr_camp_curriculum_links → camps (one or more curricula)
  *       → explr_registrations (the roster — count fetched separately)
  *
  * We render the title verbatim from explr_camps.title (admin maintains it
  * upstream in ExplrMore) and surface the date range, location, and a quick
- * peek at linked curricula. Click → /educator/sessions/$id for the full
+ * registration count. Click → /instructor/sessions/$id for the full
  * detail page with roster.
  */
 
-type LinkedCurriculum = { slug: string; name: string; emoji: string };
 type Session = {
   id: string;
   title: string;
@@ -31,7 +29,6 @@ type Session = {
   location: string | null;
   capacity: number | null;
   category: string | null;
-  curricula: LinkedCurriculum[];
   registrationCount: number;
 };
 
@@ -47,10 +44,6 @@ type AssignmentRow = {
     location: string | null;
     capacity: number | null;
     category: string | null;
-    explr_camp_curriculum_links: Array<{
-      camp_slug: string;
-      camps: { slug: string; name: string; emoji: string } | null;
-    }>;
   } | null;
 };
 
@@ -76,19 +69,14 @@ export function MySessionsPanel({ educatorId }: { educatorId: string }) {
     (async () => {
       setLoading(true);
       setErr(null);
-      // One deep join pulls the session, its linked curricula, and the
-      // curriculum metadata. Registration counts come from a follow-up
+      // One query pulls the sessions; registration counts come from a follow-up
       // query because PostgREST doesn't expose GROUP BY directly.
       const { data, error } = await supabase
         .from("explr_camp_educators")
         .select(
           `
           explr_camps (
-            id, title, date, end_date, location, capacity, category,
-            explr_camp_curriculum_links (
-              camp_slug,
-              camps ( slug, name, emoji )
-            )
+            id, title, date, end_date, location, capacity, category
           )
         `,
         )
@@ -113,9 +101,6 @@ export function MySessionsPanel({ educatorId }: { educatorId: string }) {
           location: s.location,
           capacity: s.capacity,
           category: s.category,
-          curricula: (s.explr_camp_curriculum_links ?? [])
-            .map((l) => l.camps)
-            .filter((c): c is LinkedCurriculum => !!c),
           registrationCount: 0,
         }));
 
@@ -156,16 +141,16 @@ export function MySessionsPanel({ educatorId }: { educatorId: string }) {
   }, [educatorId]);
 
   if (loading) {
-    return <p className="text-sm text-charcoal-400">Loading sessions…</p>;
+    return <p className="text-sm text-ink-500">Loading sessions…</p>;
   }
   if (err) {
     return <p className="text-sm text-red-600">Failed to load sessions: {err}</p>;
   }
   if (sessions.length === 0) {
     return (
-      <p className="py-6 text-sm text-charcoal-400">
+      <p className="py-6 text-sm text-ink-500">
         You haven&apos;t been assigned to any camp sessions yet. An EXPLR admin can add you via{" "}
-        <span className="text-charcoal-600">Admin → Catalog → Sessions</span>.
+        <span className="text-ink-700">Admin → Catalog → Sessions</span>.
       </p>
     );
   }
@@ -177,31 +162,14 @@ export function MySessionsPanel({ educatorId }: { educatorId: string }) {
           key={s.id}
           to="/instructor/sessions/$sessionId"
           params={{ sessionId: s.id }}
-          className="group block border border-charcoal-100 bg-white p-5 transition-colors hover:border-ink"
+          className="group block border border-line bg-paper-raised p-5 transition-colors hover:border-ink-900-900-900-900 rounded-[var(--radius-card)]"
         >
-          <p className="text-[11px] uppercase tracking-wider text-charcoal-400">
+          <p className="text-[11px] uppercase tracking-wider text-ink-500">
             {fmtRange(s.date, s.end_date)}
           </p>
           <h3 className="mt-2 text-base font-medium leading-snug text-ink">{s.title}</h3>
-          {s.location && <p className="mt-1 text-xs text-charcoal-500">{s.location}</p>}
-          {s.curricula.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-1">
-              {s.curricula.slice(0, 4).map((c) => (
-                <span
-                  key={c.slug}
-                  className="inline-flex items-center gap-1 border border-charcoal-100 bg-charcoal-50 px-1.5 py-0.5 text-[11px] text-charcoal-600"
-                  title={c.name}
-                >
-                  <span aria-hidden>{c.emoji}</span>
-                  <span className="truncate max-w-[8rem]">{c.name}</span>
-                </span>
-              ))}
-              {s.curricula.length > 4 && (
-                <span className="text-[11px] text-charcoal-400">+{s.curricula.length - 4}</span>
-              )}
-            </div>
-          )}
-          <div className="mt-4 flex items-baseline justify-between text-xs text-charcoal-500">
+          {s.location && <p className="mt-1 text-xs text-ink-500">{s.location}</p>}
+          <div className="mt-4 flex items-baseline justify-between text-xs text-ink-500">
             <span>
               {s.registrationCount} student{s.registrationCount === 1 ? "" : "s"}
               {s.capacity ? ` / ${s.capacity}` : ""}

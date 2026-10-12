@@ -44,7 +44,7 @@ function ManageEducator() {
   }
 
   if (!ed)
-    return <main className="mx-auto max-w-2xl px-6 py-24 text-sm text-charcoal-400">Loading…</main>;
+    return <main className="mx-auto max-w-2xl px-6 py-24 text-sm text-ink-500">Loading…</main>;
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
@@ -52,7 +52,7 @@ function ManageEducator() {
         ← Admin
       </Link>
       <h1 className="mt-4 text-3xl font-light">{ed.full_name}</h1>
-      <p className="mt-1 text-sm text-charcoal-500">{ed.email}</p>
+      <p className="mt-1 text-sm text-ink-500">{ed.email}</p>
 
       <section className="mt-10 grid gap-6 sm:grid-cols-2">
         {/* Role is always 'educator' here — admins live in public.admins,
@@ -62,7 +62,7 @@ function ManageEducator() {
             /educator/admin/invites. */}
         <div>
           <label className="label">Role</label>
-          <input className="field bg-charcoal-50 text-charcoal-500" value="educator" readOnly />
+          <input className="field bg-paper-sunken text-ink-500" value="educator" readOnly />
         </div>
         <div>
           <label className="label">Approved</label>
@@ -82,14 +82,14 @@ function ManageEducator() {
       </section>
 
       <section className="mt-12">
-        <h2 className="text-xs uppercase tracking-wider text-charcoal-400 mb-3">School</h2>
+        <h2 className="text-xs uppercase tracking-wider text-ink-500 mb-3">School</h2>
         <EducatorSchoolEditor
           educatorId={ed.id}
           initialIrn={ed.school_irn}
           initialName={ed.school_name}
         />
       </section>
-      {status && <p className="mt-6 text-xs text-charcoal-500">{status}</p>}
+      {status && <p className="mt-6 text-xs text-ink-500">{status}</p>}
     </main>
   );
 }

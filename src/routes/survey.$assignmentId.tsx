@@ -15,10 +15,7 @@ import {
 import { ConstructScreen } from "@/components/survey/ConstructScreen";
 import { ProgressIndicator } from "@/components/survey/ProgressIndicator";
 import { OpenEndedQuestion } from "@/components/survey/OpenEndedQuestion";
-import {
-  DemographicsScreen,
-  type DemographicValues,
-} from "@/components/survey/DemographicsScreen";
+import { DemographicsScreen, type DemographicValues } from "@/components/survey/DemographicsScreen";
 import { EMPTY_ITEM_STATE, type SurveyItemState } from "@/components/survey/types";
 
 // Untyped table access — survey_* tables aren't in the generated Database
@@ -35,7 +32,7 @@ export const Route = createFileRoute("/survey/$assignmentId")({
     </RoleGuard>
   ),
   notFoundComponent: () => (
-    <main className="mx-auto max-w-md px-6 py-24 text-center text-sm text-charcoal-500">
+    <main className="mx-auto max-w-md px-6 py-24 text-center text-sm text-ink-500">
       Survey not found.{" "}
       <Link to="/student" className="ink-link">
         Back to dashboard
@@ -282,9 +279,7 @@ function SurveyRunner() {
           sb("survey_item_responses")
             .select("item_id, value_now, value_then, skipped")
             .eq("survey_response_id", ex.id),
-          sb("survey_open_responses")
-            .select("prompt, response")
-            .eq("survey_response_id", ex.id),
+          sb("survey_open_responses").select("prompt, response").eq("survey_response_id", ex.id),
         ]);
         if (cancelled) return;
         const istate: Record<string, SurveyItemState> = {};
@@ -339,14 +334,8 @@ function SurveyRunner() {
   // ── Build the ordered steps ─────────────────────────────────────────────
   const steps: Step[] = useMemo(() => {
     if (!assignment) return [];
-    const constructScreens = getSurveyScreens(
-      assignment.survey_type,
-      assignment.administration,
-    );
-    const prompts = getOpenEndedPrompts(
-      assignment.survey_type,
-      assignment.administration,
-    );
+    const constructScreens = getSurveyScreens(assignment.survey_type, assignment.administration);
+    const prompts = getOpenEndedPrompts(assignment.survey_type, assignment.administration);
     const list: Step[] = [{ kind: "demographics" }];
     for (const def of constructScreens) list.push({ kind: "construct", def });
     if (assignment.survey_type === "internship_exit") {
@@ -358,15 +347,12 @@ function SurveyRunner() {
 
   const retrospective = assignment?.administration === "retrospective";
 
-  const setItem = useCallback(
-    (itemId: string, patch: Partial<SurveyItemState>) => {
-      setItemState((prev) => ({
-        ...prev,
-        [itemId]: { ...(prev[itemId] ?? EMPTY_ITEM_STATE), ...patch },
-      }));
-    },
-    [],
-  );
+  const setItem = useCallback((itemId: string, patch: Partial<SurveyItemState>) => {
+    setItemState((prev) => ({
+      ...prev,
+      [itemId]: { ...(prev[itemId] ?? EMPTY_ITEM_STATE), ...patch },
+    }));
+  }, []);
 
   // ── Persist the current step, then move ─────────────────────────────────
   async function persistStep(step: Step) {
@@ -385,10 +371,7 @@ function SurveyRunner() {
       // Upsert only items the student actually touched (answered or skipped).
       const rows = step.def.items
         .map((it) => ({ it, st: itemState[it.id] }))
-        .filter(
-          ({ st }) =>
-            st && (st.now != null || st.then != null || st.skipped),
-        )
+        .filter(({ st }) => st && (st.now != null || st.then != null || st.skipped))
         .map(({ it, st }) => ({
           survey_response_id: responseId,
           item_id: it.id,
@@ -418,9 +401,7 @@ function SurveyRunner() {
         }));
       // Clear then re-insert — open responses are few and idempotency is
       // simpler than a composite upsert key here.
-      await sb("survey_open_responses")
-        .delete()
-        .eq("survey_response_id", responseId);
+      await sb("survey_open_responses").delete().eq("survey_response_id", responseId);
       if (rows.length > 0) {
         await sb("survey_open_responses").insert(rows as never);
       }
@@ -444,9 +425,7 @@ function SurveyRunner() {
       setJustFinished(true);
       return;
     }
-    await sb("survey_responses")
-      .update({ progress_index: next })
-      .eq("id", responseId);
+    await sb("survey_responses").update({ progress_index: next }).eq("id", responseId);
     setStepIndex(next);
     setSaving(false);
     window.scrollTo({ top: 0 });
@@ -461,11 +440,7 @@ function SurveyRunner() {
 
   // ── Render gates ────────────────────────────────────────────────────────
   if (authLoading || loading) {
-    return (
-      <main className="mx-auto max-w-2xl px-6 py-24 text-sm text-charcoal-400">
-        Loading…
-      </main>
-    );
+    return <main className="mx-auto max-w-2xl px-6 py-24 text-sm text-ink-500">Loading…</main>;
   }
   if (loadError === "notfound") throw notFound();
   if (loadError) {
@@ -473,7 +448,7 @@ function SurveyRunner() {
       <main className="mx-auto max-w-md px-6 py-24 text-center">
         <p className="eyebrow text-destructive">Error</p>
         <h1 className="mt-3 text-2xl font-light">Couldn&apos;t start the survey</h1>
-        <p className="mt-3 text-sm text-charcoal-500">{loadError}</p>
+        <p className="mt-3 text-sm text-ink-500">{loadError}</p>
         <Link to="/student" className="btn-ink mt-6 inline-block">
           Back to dashboard
         </Link>
@@ -484,12 +459,10 @@ function SurveyRunner() {
     return (
       <main className="mx-auto max-w-md px-6 py-24 text-center">
         <p className="eyebrow">Not yet</p>
-        <h1 className="mt-3 text-2xl font-light">
-          Finish the start-of-program survey first
-        </h1>
-        <p className="mt-3 text-sm text-charcoal-500">
-          This is the end-of-program survey. You&apos;ll be able to take it
-          once you&apos;ve completed the matching start-of-program one.
+        <h1 className="mt-3 text-2xl font-light">Finish the start-of-program survey first</h1>
+        <p className="mt-3 text-sm text-ink-500">
+          This is the end-of-program survey. You&apos;ll be able to take it once you&apos;ve
+          completed the matching start-of-program one.
         </p>
         <Link to="/student" className="btn-ink mt-6 inline-block">
           Back to dashboard
@@ -506,7 +479,7 @@ function SurveyRunner() {
         <h1 className="mt-4 text-2xl font-light">
           {justFinished ? "All done — thank you!" : "You already finished this survey"}
         </h1>
-        <p className="mt-3 text-sm text-charcoal-500">
+        <p className="mt-3 text-sm text-ink-500">
           {justFinished
             ? "Your responses are saved. There's nothing else to do."
             : "Your responses for this survey have already been recorded."}
@@ -518,19 +491,12 @@ function SurveyRunner() {
     );
   }
   if (!assignment || steps.length === 0) {
-    return (
-      <main className="mx-auto max-w-2xl px-6 py-24 text-sm text-charcoal-400">
-        Loading…
-      </main>
-    );
+    return <main className="mx-auto max-w-2xl px-6 py-24 text-sm text-ink-500">Loading…</main>;
   }
 
   const step = steps[stepIndex];
   const isLast = stepIndex === steps.length - 1;
-  const openPrompts = getOpenEndedPrompts(
-    assignment.survey_type,
-    assignment.administration,
-  );
+  const openPrompts = getOpenEndedPrompts(assignment.survey_type, assignment.administration);
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
@@ -546,9 +512,7 @@ function SurveyRunner() {
           <DemographicsScreen
             fields={getDemographicFields(assignment.survey_type)}
             values={demographics}
-            onChange={(id, value) =>
-              setDemographics((prev) => ({ ...prev, [id]: value }))
-            }
+            onChange={(id, value) => setDemographics((prev) => ({ ...prev, [id]: value }))}
           />
         )}
 
@@ -565,13 +529,13 @@ function SurveyRunner() {
           <div>
             <p className="eyebrow">Skills</p>
             <h2 className="mt-1 text-2xl font-light">What skills did you work on?</h2>
-            <p className="mt-3 text-sm text-charcoal-500">
-              Check everything you practiced or learned during your internship —
-              hands-on and people skills both count.
+            <p className="mt-3 text-sm text-ink-500">
+              Check everything you practiced or learned during your internship — hands-on and people
+              skills both count.
             </p>
             <div className="mt-6 grid gap-8 sm:grid-cols-2">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-charcoal-400">
+                <p className="text-xs font-semibold uppercase tracking-wider text-ink-500">
                   Technical / STEM skills
                 </p>
                 <div className="mt-2 space-y-2">
@@ -593,7 +557,7 @@ function SurveyRunner() {
                 </div>
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-charcoal-400">
+                <p className="text-xs font-semibold uppercase tracking-wider text-ink-500">
                   Soft skills
                 </p>
                 <div className="mt-2 space-y-2">
@@ -617,7 +581,7 @@ function SurveyRunner() {
             </div>
             <div className="mt-6">
               <label className="label" htmlFor="skills-other">
-                Other skills? <span className="text-charcoal-400">(optional)</span>
+                Other skills? <span className="text-ink-500">(optional)</span>
               </label>
               <input
                 id="skills-other"
@@ -633,11 +597,15 @@ function SurveyRunner() {
           <div>
             <p className="eyebrow">Your mentor</p>
             <h2 className="mt-1 text-2xl font-light">How was your mentor?</h2>
-            <p className="mt-3 text-sm text-charcoal-500">
-              Rate your internship mentor and tell us briefly why. This helps EXPLR
-              support great mentors.
+            <p className="mt-3 text-sm text-ink-500">
+              Rate your internship mentor and tell us briefly why. This helps EXPLR support great
+              mentors.
             </p>
-            <div className="mt-6 flex items-center gap-2" role="radiogroup" aria-label="Mentor rating out of 5 stars">
+            <div
+              className="mt-6 flex items-center gap-2"
+              role="radiogroup"
+              aria-label="Mentor rating out of 5 stars"
+            >
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
                   key={n}
@@ -650,20 +618,20 @@ function SurveyRunner() {
                   style={{
                     color:
                       mentorStars != null && n <= mentorStars
-                        ? "var(--color-explr-500)"
-                        : "var(--color-charcoal-200)",
+                        ? "var(--color-green)"
+                        : "var(--color-line-strong)",
                   }}
                 >
                   ★
                 </button>
               ))}
               {mentorStars != null && (
-                <span className="ml-2 text-sm text-charcoal-500 tabular-nums">{mentorStars} / 5</span>
+                <span className="ml-2 text-sm text-ink-500 tabular-nums">{mentorStars} / 5</span>
               )}
             </div>
             <div className="mt-6">
               <label className="label" htmlFor="mentor-why">
-                Briefly, why? <span className="text-charcoal-400">(optional)</span>
+                Briefly, why? <span className="text-ink-500">(optional)</span>
               </label>
               <textarea
                 id="mentor-why"
@@ -682,7 +650,7 @@ function SurveyRunner() {
           <div>
             <p className="eyebrow">Next steps</p>
             <h2 className="mt-1 text-2xl font-light">What would you like to do next?</h2>
-            <p className="mt-3 text-sm text-charcoal-500">
+            <p className="mt-3 text-sm text-ink-500">
               Check anything you&apos;d be interested in — EXPLR will help connect you.
             </p>
             <div className="mt-5 space-y-2">
@@ -703,7 +671,7 @@ function SurveyRunner() {
               ))}
               <div className="pt-3">
                 <label className="label" htmlFor="ns-other">
-                  Something else? <span className="text-charcoal-400">(optional)</span>
+                  Something else? <span className="text-ink-500">(optional)</span>
                 </label>
                 <input
                   id="ns-other"
@@ -720,7 +688,7 @@ function SurveyRunner() {
           <div>
             <p className="eyebrow">Reflection</p>
             <h2 className="mt-1 text-2xl font-light">A few last questions</h2>
-            <p className="mt-3 text-sm text-charcoal-500">
+            <p className="mt-3 text-sm text-ink-500">
               These are optional — answer any you&apos;d like.
             </p>
             <div className="mt-4">
@@ -730,9 +698,7 @@ function SurveyRunner() {
                   number={i + 1}
                   prompt={prompt}
                   value={openResponses[prompt] ?? ""}
-                  onChange={(v) =>
-                    setOpenResponses((prev) => ({ ...prev, [prompt]: v }))
-                  }
+                  onChange={(v) => setOpenResponses((prev) => ({ ...prev, [prompt]: v }))}
                 />
               ))}
             </div>
@@ -740,7 +706,7 @@ function SurveyRunner() {
         )}
       </div>
 
-      <div className="mt-10 flex items-center justify-between border-t border-charcoal-100 pt-6">
+      <div className="mt-10 flex items-center justify-between border-t border-line pt-6">
         <button
           type="button"
           onClick={back}
@@ -749,12 +715,7 @@ function SurveyRunner() {
         >
           ← Back
         </button>
-        <button
-          type="button"
-          onClick={advance}
-          disabled={saving}
-          className="btn-ink"
-        >
+        <button type="button" onClick={advance} disabled={saving} className="btn-ink">
           {saving ? "Saving…" : isLast ? "Finish" : "Next →"}
         </button>
       </div>

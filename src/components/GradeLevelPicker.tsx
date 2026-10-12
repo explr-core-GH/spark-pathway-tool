@@ -3,8 +3,19 @@ import { useMemo } from "react";
 // Stored as smallint[] in Supabase: 0 = K, 1..12 = grade 1-12.
 export const GRADE_VALUES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
 export const GRADE_LABEL: Record<number, string> = {
-  0: "K", 1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "6",
-  7: "7", 8: "8", 9: "9", 10: "10", 11: "11", 12: "12",
+  0: "K",
+  1: "1",
+  2: "2",
+  3: "3",
+  4: "4",
+  5: "5",
+  6: "6",
+  7: "7",
+  8: "8",
+  9: "9",
+  10: "10",
+  11: "11",
+  12: "12",
 };
 
 type Props = {
@@ -37,8 +48,8 @@ export function GradeLevelPicker({ value, onChange, className }: Props) {
               onClick={() => toggle(g)}
               className={
                 on
-                  ? "h-8 min-w-[2rem] border border-charcoal-700 bg-charcoal-700 px-2 text-sm font-semibold text-white"
-                  : "h-8 min-w-[2rem] border border-charcoal-200 bg-white px-2 text-sm font-medium text-charcoal-600 hover:border-charcoal-700"
+                  ? "h-8 min-w-[2rem] border border-ink-900-900-900 bg-ink-900-900-900 px-2 text-sm font-semibold text-white"
+                  : "h-8 min-w-[2rem] border border-line-strong bg-paper-raised px-2 text-sm font-medium text-ink-700 hover:border-ink-900-900-900-900-900"
               }
             >
               {GRADE_LABEL[g]}

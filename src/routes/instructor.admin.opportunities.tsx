@@ -95,8 +95,8 @@ function OpportunitiesReview() {
             className="rounded-full px-3 py-1.5 text-xs font-medium"
             style={{
               background: filter === f.id ? "var(--ink)" : "transparent",
-              color: filter === f.id ? "white" : "var(--color-charcoal-600)",
-              border: `1px solid ${filter === f.id ? "var(--ink)" : "var(--color-charcoal-200)"}`,
+              color: filter === f.id ? "white" : "var(--color-ink-700)",
+              border: `1px solid ${filter === f.id ? "var(--ink)" : "var(--color-line-strong)"}`,
             }}
           >
             {f.label}
@@ -105,11 +105,11 @@ function OpportunitiesReview() {
       </div>
 
       {loading ? (
-        <p className="mt-8 text-sm text-charcoal-400">Loading…</p>
+        <p className="mt-8 text-sm text-ink-500">Loading…</p>
       ) : visible.length === 0 ? (
-        <p className="mt-8 text-sm text-charcoal-400">Nothing here.</p>
+        <p className="mt-8 text-sm text-ink-500">Nothing here.</p>
       ) : (
-        <div className="mt-6 divide-y divide-charcoal-100 border-y border-charcoal-100">
+        <div className="mt-6 divide-y divide-line border-y border-line">
           {visible.map((o) => {
             const isOpen = open === o.id;
             const paid = !o.is_free && (o.cost_cents ?? 0) > 0;
@@ -121,16 +121,16 @@ function OpportunitiesReview() {
                     setOpen(isOpen ? null : o.id);
                     setNotes(o.review_notes ?? "");
                   }}
-                  className="flex w-full items-center gap-4 py-4 text-left hover:bg-charcoal-50"
+                  className="flex w-full items-center gap-4 py-4 text-left hover:bg-paper-sunken"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">
                       {o.name || "Untitled"}
-                      <span className="ml-2 text-xs font-normal text-charcoal-400">
+                      <span className="ml-2 text-xs font-normal text-ink-500">
                         {oppTypeMeta(o.type).label} · {orgs[o.org_id]?.name ?? "Organization"}
                       </span>
                     </p>
-                    <p className="truncate text-xs text-charcoal-500">
+                    <p className="truncate text-xs text-ink-500">
                       {[o.start_date, o.location].filter(Boolean).join(" · ") || "—"}
                       {o.riasec_code ? ` · ${o.riasec_code}` : ""}
                     </p>
@@ -141,21 +141,17 @@ function OpportunitiesReview() {
                     </span>
                   )}
                   <GateBadge o={o} />
-                  <span className="shrink-0 text-xs text-charcoal-500">
-                    {STATUS_LABEL[o.status]}
-                  </span>
+                  <span className="shrink-0 text-xs text-ink-500">{STATUS_LABEL[o.status]}</span>
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-charcoal-100 bg-charcoal-50 px-4 py-5">
+                  <div className="border-t border-line bg-paper-sunken px-4 py-5">
                     <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
                       <div className="space-y-3 text-sm">
                         {o.image_url && (
                           <img src={o.image_url} alt="" className="max-h-48 rounded object-cover" />
                         )}
-                        <p className="whitespace-pre-wrap text-charcoal-700">
-                          {o.description || "—"}
-                        </p>
+                        <p className="whitespace-pre-wrap text-ink-700">{o.description || "—"}</p>
                         <dl className="grid grid-cols-2 gap-2 text-xs">
                           <Detail
                             label="Dates"
@@ -220,8 +216,8 @@ function OpportunitiesReview() {
 function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="uppercase tracking-wider text-charcoal-400">{label}</dt>
-      <dd className="mt-0.5 text-charcoal-700">{value}</dd>
+      <dt className="uppercase tracking-wider text-ink-500">{label}</dt>
+      <dd className="mt-0.5 text-ink-700">{value}</dd>
     </div>
   );
 }

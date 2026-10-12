@@ -15,7 +15,7 @@ export const Route = createFileRoute("/org/")({
 const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
 
 const STATUS_STYLE: Record<Opportunity["status"], string> = {
-  draft: "bg-charcoal-100 text-charcoal-600",
+  draft: "bg-paper-sunken text-ink-700",
   submitted: "bg-amber-50 text-amber-700 border border-amber-200",
   approved: "bg-emerald-50 text-emerald-700 border border-emerald-200",
   rejected: "bg-rose-50 text-rose-700 border border-rose-200",
@@ -57,7 +57,7 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
           {logo ? (
             <img src={logo} alt="" className="h-12 w-12 rounded object-cover" />
           ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded bg-charcoal-100 text-sm font-medium text-charcoal-500">
+            <div className="flex h-12 w-12 items-center justify-center rounded bg-paper-sunken text-sm font-medium text-ink-500">
               {orgName.slice(0, 2).toUpperCase()}
             </div>
           )}
@@ -77,12 +77,12 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
       </div>
 
       <section className="mt-12">
-        <h2 className="text-xs uppercase tracking-wider text-charcoal-400">Your opportunities</h2>
+        <h2 className="text-xs uppercase tracking-wider text-ink-500">Your opportunities</h2>
         {opps === null ? (
-          <p className="mt-4 text-sm text-charcoal-400">Loading…</p>
+          <p className="mt-4 text-sm text-ink-500">Loading…</p>
         ) : opps.length === 0 ? (
-          <div className="mt-4 border border-dashed border-charcoal-200 bg-charcoal-50 px-6 py-12 text-center">
-            <p className="text-sm text-charcoal-500">
+          <div className="mt-4 border border-dashed border-line-strong bg-paper-sunken px-6 py-12 text-center">
+            <p className="text-sm text-ink-500">
               No opportunities yet. Build your first one — it takes a few minutes.
             </p>
             <Link to="/org/new" className="btn-ink mt-4 inline-flex">
@@ -90,19 +90,19 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
             </Link>
           </div>
         ) : (
-          <ul className="mt-4 divide-y divide-charcoal-100 border-y border-charcoal-100">
+          <ul className="mt-4 divide-y divide-line border-y border-line">
             {opps.map((o) => (
               <li key={o.id}>
                 <Link
                   to="/org/new"
                   search={{ id: o.id }}
-                  className="flex items-center gap-4 py-4 hover:bg-charcoal-50"
+                  className="flex items-center gap-4 py-4 hover:bg-paper-sunken"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">
                       {o.name || "Untitled opportunity"}
                     </p>
-                    <p className="truncate text-xs text-charcoal-500">
+                    <p className="truncate text-xs text-ink-500">
                       {oppTypeMeta(o.type).label}
                       {o.start_date ? ` · ${o.start_date}` : ""}
                       {o.review_notes && o.status === "rejected" ? ` · ${o.review_notes}` : ""}
@@ -121,27 +121,25 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
       </section>
 
       <section className="mt-16">
-        <h2 className="text-xs uppercase tracking-wider text-charcoal-400">
+        <h2 className="text-xs uppercase tracking-wider text-ink-500">
           Registrations &amp; applicants
         </h2>
         {regs === null ? (
-          <p className="mt-4 text-sm text-charcoal-400">Loading…</p>
+          <p className="mt-4 text-sm text-ink-500">Loading…</p>
         ) : regs.length === 0 ? (
-          <p className="mt-4 text-sm text-charcoal-400">No one has registered or applied yet.</p>
+          <p className="mt-4 text-sm text-ink-500">No one has registered or applied yet.</p>
         ) : (
-          <ul className="mt-4 divide-y divide-charcoal-100 border-y border-charcoal-100">
+          <ul className="mt-4 divide-y divide-line border-y border-line">
             {regs.map((r) => (
               <li key={r.id} className="flex items-center justify-between py-3 text-sm">
                 <span className="min-w-0">
                   <span className="font-medium">{r.contact_name || "Student"}</span>
-                  <span className="ml-2 text-xs text-charcoal-400">
-                    {oppName(r.opportunity_id)}
-                  </span>
+                  <span className="ml-2 text-xs text-ink-500">{oppName(r.opportunity_id)}</span>
                   {r.contact_email && (
-                    <span className="ml-2 text-xs text-charcoal-400">· {r.contact_email}</span>
+                    <span className="ml-2 text-xs text-ink-500">· {r.contact_email}</span>
                   )}
                 </span>
-                <span className="shrink-0 text-xs text-charcoal-500">
+                <span className="shrink-0 text-xs text-ink-500">
                   {r.application_id ? "Applied" : "Registered"} ·{" "}
                   {new Date(r.created_at).toLocaleDateString()}
                 </span>

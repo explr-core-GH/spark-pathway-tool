@@ -21,9 +21,9 @@ type Section = {
   items: Item[];
 };
 
-// Entity-first admin nav. Camps / Internships / Classes each open onto a card
-// grid of rostered groups (the header link); the sub-items are the management
-// pages that act on that entity. People + Library hold cross-cutting tools.
+// Entity-first admin nav. Camps / Classes open onto a card grid of rostered
+// groups (the header link); Internships holds the partner-internship pipeline;
+// People + Library hold cross-cutting tools.
 const SECTIONS: Section[] = [
   {
     key: "camps",
@@ -35,7 +35,6 @@ const SECTIONS: Section[] = [
       match: "/instructor/admin/groups/camps",
     },
     items: [
-      { label: "Curriculum", to: "/instructor/admin/camps", match: "/instructor/admin/camps" },
       {
         label: "Camp logins",
         to: "/instructor/admin/camp-logins",
@@ -51,23 +50,7 @@ const SECTIONS: Section[] = [
   {
     key: "internships",
     label: "Internships",
-    header: {
-      label: "All internships",
-      to: "/instructor/admin/groups/$kind",
-      params: { kind: "internships" },
-      match: "/instructor/admin/groups/internships",
-    },
     items: [
-      {
-        label: "Offerings",
-        to: "/instructor/admin/internships",
-        match: "/instructor/admin/internships",
-      },
-      {
-        label: "Rosters & logins",
-        to: "/instructor/admin/internship-logins",
-        match: "/instructor/admin/internship-logins",
-      },
       {
         label: "Apply requests",
         to: "/instructor/admin/apply-requests",
@@ -82,6 +65,11 @@ const SECTIONS: Section[] = [
         label: "Placements",
         to: "/instructor/admin/placements",
         match: "/instructor/admin/placements",
+      },
+      {
+        label: "Matching tool",
+        to: "/instructor/admin/matching",
+        match: "/instructor/admin/matching",
       },
       {
         label: "Recommendation letters",
@@ -163,11 +151,16 @@ const SECTIONS: Section[] = [
         to: "/instructor/admin/import-explr",
         match: "/instructor/admin/import-explr",
       },
+      {
+        label: "Archive export",
+        to: "/instructor/admin/archive",
+        match: "/instructor/admin/archive",
+      },
     ],
   },
 ];
 
-const linkBase = "block text-sm leading-tight text-charcoal-500 hover:text-ink";
+const linkBase = "block text-sm leading-tight text-ink-500 hover:text-ink";
 const linkActive = "block text-sm leading-tight text-ink font-semibold";
 
 function sectionMatches(section: Section, pathname: string): boolean {
@@ -205,7 +198,7 @@ function AdminLayout() {
   return (
     <RoleGuard requires="admin">
       <div className="flex flex-col md:flex-row">
-        <aside className="print:hidden border-b border-charcoal-100 bg-charcoal-50 md:w-56 md:shrink-0 md:border-b-0 md:border-r">
+        <aside className="print:hidden border-b border-line bg-paper-sunken md:w-56 md:shrink-0 md:border-b-0 md:border-r">
           <nav
             aria-label="Admin"
             className="px-6 py-6 md:sticky md:top-0 md:max-h-screen md:overflow-y-auto"
@@ -230,17 +223,17 @@ function AdminLayout() {
                       aria-expanded={isOpen}
                       aria-label={`${isOpen ? "Collapse" : "Expand"} ${section.label}`}
                       className={`flex w-full items-center justify-between gap-2 py-1 text-left text-[11px] font-semibold uppercase tracking-wider hover:text-ink ${
-                        activeKey === section.key ? "text-ink" : "text-charcoal-500"
+                        activeKey === section.key ? "text-ink" : "text-ink-500"
                       }`}
                     >
                       <span>{section.label}</span>
-                      <span className="text-xs text-charcoal-400" aria-hidden="true">
+                      <span className="text-xs text-ink-500" aria-hidden="true">
                         {isOpen ? "▾" : "▸"}
                       </span>
                     </button>
 
                     {isOpen && (
-                      <ul className="mt-2 space-y-1.5 border-l border-charcoal-200 pl-3">
+                      <ul className="mt-2 space-y-1.5 border-l border-line-strong pl-3">
                         {section.header && (
                           <li>
                             <Link

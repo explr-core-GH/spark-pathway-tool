@@ -111,7 +111,7 @@ function WizardFields() {
         on/off, rename them, mark them required, reorder, and add your own custom fields.
       </p>
 
-      <div className="mt-8 flex flex-wrap gap-1 border-b border-charcoal-100">
+      <div className="mt-8 flex flex-wrap gap-1 border-b border-line">
         {OPP_TYPES.map((t) => (
           <button
             key={t.key}
@@ -119,7 +119,7 @@ function WizardFields() {
             className="border-b-2 px-4 py-2 text-sm"
             style={{
               borderColor: type === t.key ? "var(--ink)" : "transparent",
-              color: type === t.key ? "var(--ink)" : "var(--color-charcoal-400)",
+              color: type === t.key ? "var(--ink)" : "var(--color-ink-500)",
               fontWeight: type === t.key ? 500 : 400,
             }}
           >
@@ -129,25 +129,25 @@ function WizardFields() {
       </div>
 
       {loading ? (
-        <p className="mt-8 text-sm text-charcoal-400">Loading…</p>
+        <p className="mt-8 text-sm text-ink-500">Loading…</p>
       ) : (
         <div className="mt-6 space-y-2">
           {[...fields]
             .sort((a, b) => a.sort_order - b.sort_order)
             .map((f) => (
-              <div key={f.id} className="border border-charcoal-100 p-4">
+              <div key={f.id} className="border border-line p-4 rounded-[var(--radius-card)]">
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="flex flex-col">
                     <button
                       onClick={() => move(f, -1)}
-                      className="text-xs text-charcoal-400 hover:text-ink"
+                      className="text-xs text-ink-500 hover:text-ink"
                       aria-label="Move up"
                     >
                       ▲
                     </button>
                     <button
                       onClick={() => move(f, 1)}
-                      className="text-xs text-charcoal-400 hover:text-ink"
+                      className="text-xs text-ink-500 hover:text-ink"
                       aria-label="Move down"
                     >
                       ▼
@@ -163,10 +163,10 @@ function WizardFields() {
                     }
                     onBlur={(e) => patch(f.id, { label: e.target.value })}
                   />
-                  <span className="text-[11px] uppercase tracking-wider text-charcoal-400">
+                  <span className="text-[11px] uppercase tracking-wider text-ink-500">
                     {f.is_core ? "core" : "custom"} · {f.field_type}
                   </span>
-                  <label className="flex items-center gap-1.5 text-xs text-charcoal-600">
+                  <label className="flex items-center gap-1.5 text-xs text-ink-700">
                     <input
                       type="checkbox"
                       checked={f.enabled}
@@ -174,7 +174,7 @@ function WizardFields() {
                     />
                     Shown
                   </label>
-                  <label className="flex items-center gap-1.5 text-xs text-charcoal-600">
+                  <label className="flex items-center gap-1.5 text-xs text-ink-700">
                     <input
                       type="checkbox"
                       checked={f.required}
@@ -208,7 +208,7 @@ function WizardFields() {
       )}
 
       {/* Add custom field */}
-      <section className="mt-10 border border-charcoal-100 bg-charcoal-50 p-5">
+      <section className="mt-10 border border-line bg-paper-sunken p-5 rounded-[var(--radius-card)]">
         <h2 className="eyebrow" style={{ margin: 0 }}>
           Add a custom field
         </h2>

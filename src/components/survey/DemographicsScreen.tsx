@@ -36,9 +36,9 @@ export function DemographicsScreen({
     <div>
       <p className="eyebrow">About you</p>
       <h2 className="mt-1 text-2xl font-light">A few quick questions</h2>
-      <p className="mt-3 text-sm text-charcoal-500">
-        This helps us understand who&apos;s in the program. Your answers are
-        never shown next to your name.
+      <p className="mt-3 text-sm text-ink-500">
+        This helps us understand who&apos;s in the program. Your answers are never shown next to
+        your name.
       </p>
 
       <div className="mt-6 space-y-6">
@@ -74,7 +74,7 @@ function renderField(
               style={
                 on
                   ? { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" }
-                  : { borderColor: "var(--color-charcoal-200)" }
+                  : { borderColor: "var(--color-line-strong)" }
               }
             >
               {opt}
@@ -96,16 +96,13 @@ function renderField(
               key={opt}
               type="button"
               onClick={() =>
-                onChange(
-                  f.id,
-                  on ? selected.filter((x) => x !== opt) : [...selected, opt],
-                )
+                onChange(f.id, on ? selected.filter((x) => x !== opt) : [...selected, opt])
               }
               className="border px-3 py-2 text-sm"
               style={
                 on
                   ? { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" }
-                  : { borderColor: "var(--color-charcoal-200)" }
+                  : { borderColor: "var(--color-line-strong)" }
               }
             >
               {opt}

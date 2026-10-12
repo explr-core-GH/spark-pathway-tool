@@ -43,7 +43,7 @@ export function WblStep(p: Props) {
 
   return (
     <div className="space-y-8">
-      <p className="text-sm text-charcoal-500">
+      <p className="text-sm text-ink-500">
         Ohio defines work-based learning in stages. Tell us where this fits so students, families,
         and schools know what it counts for. Items marked with a stamp can count toward a student's
         250 verified hours once a mentor stamps them.
@@ -95,7 +95,7 @@ export function WblStep(p: Props) {
 
       <fieldset>
         <legend className="label">Skills students will practice (Ohio Readiness Seal)</legend>
-        <p className="mb-2 text-xs text-charcoal-500">
+        <p className="mb-2 text-xs text-ink-500">
           Pick the ones a mentor could honestly rate. These prefill the evaluation.
         </p>
         <div className="flex flex-wrap gap-2">
@@ -111,7 +111,7 @@ export function WblStep(p: Props) {
                     on ? p.competencies.filter((x) => x !== s) : [...p.competencies, s],
                   )
                 }
-                className={`rounded-full border px-3 py-1.5 text-xs ${on ? "border-explr-600 bg-explr-50 text-explr-800" : "border-charcoal-200 text-charcoal-600"}`}
+                className={`rounded-full border px-3 py-1.5 text-xs ${on ? "border-green bg-mint-tint text-green-deep" : "border-line-strong text-ink-700"}`}
               >
                 {s}
               </button>
@@ -177,7 +177,7 @@ export function WblStep(p: Props) {
         <>
           <section className="space-y-3">
             <h3 className="text-sm font-semibold">The mentor</h3>
-            <p className="text-xs text-charcoal-500">
+            <p className="text-xs text-ink-500">
               The one adult who supervises day to day. They'll get a single emailed link to confirm
               hours and rate skills; no account.
             </p>
@@ -380,7 +380,7 @@ export function WblStep(p: Props) {
 
           <section className="space-y-3">
             <h3 className="text-sm font-semibold">Minor labor and safety</h3>
-            <p className="text-xs text-charcoal-500">
+            <p className="text-xs text-ink-500">
               We run these checks at submission so nobody has to know the rules by heart.
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -415,7 +415,7 @@ export function WblStep(p: Props) {
               checked={w.legal.liabilityInsurance}
               onChange={(v) => set("legal", { liabilityInsurance: v })}
             />
-            <details className="rounded border border-charcoal-100 bg-white p-3">
+            <details className="rounded border border-line bg-paper-raised p-3">
               <summary className="cursor-pointer text-sm">
                 Does the work touch any federal Hazardous Occupations Order? (
                 {w.legal.hazardous.length} selected)
@@ -437,7 +437,7 @@ export function WblStep(p: Props) {
                   />
                 ))}
               </div>
-              <p className="mt-2 text-xs text-charcoal-500">
+              <p className="mt-2 text-xs text-ink-500">
                 16- and 17-year-olds are barred from these; enrolled student-learners in approved
                 programs may get limited exemptions under a written agreement. We'll flag, not
                 block.
@@ -516,7 +516,7 @@ function Field({
           onChange={(e) => onChange(e.target.value)}
         />
       )}
-      {hint && <p className="mt-1 text-xs text-charcoal-500">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-ink-500">{hint}</p>}
     </div>
   );
 }
@@ -533,7 +533,7 @@ function Check({
   small?: boolean;
 }) {
   return (
-    <label className={`flex items-start gap-2 ${small ? "text-xs" : "text-sm"} text-charcoal-700`}>
+    <label className={`flex items-start gap-2 ${small ? "text-xs" : "text-sm"} text-ink-700`}>
       <input
         type="checkbox"
         className="mt-1"

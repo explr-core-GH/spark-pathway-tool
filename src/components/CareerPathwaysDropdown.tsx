@@ -52,22 +52,22 @@ export function CareerPathwaysDropdown({ internshipSlug }: Props) {
   }
 
   return (
-    <div className="mt-4 border-t border-charcoal-100 pt-3">
+    <div className="mt-4 border-t border-line pt-3">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between text-left text-xs font-medium uppercase tracking-wider text-charcoal-500 hover:text-charcoal-700"
+        className="flex w-full items-center justify-between text-left text-xs font-medium uppercase tracking-wider text-ink-500 hover:text-ink-700"
         aria-expanded={open}
       >
         <span>Career pathways · {myOccs.length || "—"} occupations</span>
-        <span className="text-charcoal-400">{open ? "−" : "+"}</span>
+        <span className="text-ink-500">{open ? "−" : "+"}</span>
       </button>
       {open && (
         <div className="mt-3 space-y-4">
           {!loaded ? (
-            <p className="text-xs text-charcoal-400">Loading pathways…</p>
+            <p className="text-xs text-ink-500">Loading pathways…</p>
           ) : myOccs.length === 0 ? (
-            <p className="text-xs text-charcoal-400">
+            <p className="text-xs text-ink-500">
               No occupations tagged yet. An admin can add them in{" "}
               <span className="font-mono">/instructor/admin/pathways</span>.
             </p>
@@ -76,7 +76,7 @@ export function CareerPathwaysDropdown({ internshipSlug }: Props) {
               <div key={clusterId}>
                 <p
                   className="text-[11px] font-medium uppercase tracking-wider"
-                  style={{ color: "var(--explr)" }}
+                  style={{ color: "var(--color-green)" }}
                 >
                   {clustersById[clusterId]?.label ?? clusterId}
                 </p>
@@ -84,52 +84,46 @@ export function CareerPathwaysDropdown({ internshipSlug }: Props) {
                   {list.map((o) => (
                     <li
                       key={o.id}
-                      className="rounded-md border border-charcoal-100 bg-charcoal-50/40 p-3 text-xs"
+                      className="rounded-md border border-line bg-paper-sunken p-3 text-xs"
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <p className="text-sm font-medium text-charcoal-700">{o.title}</p>
+                        <p className="text-sm font-medium text-ink-700">{o.title}</p>
                         {o.soc_code && (
-                          <span className="font-mono text-[10px] text-charcoal-400">
+                          <span className="font-mono text-[10px] text-ink-500">
                             SOC {o.soc_code}
                           </span>
                         )}
                       </div>
-                      {o.description && <p className="mt-1 text-charcoal-600">{o.description}</p>}
+                      {o.description && <p className="mt-1 text-ink-700">{o.description}</p>}
                       <dl className="mt-2 grid grid-cols-3 gap-2 text-[11px]">
                         <div>
-                          <dt className="uppercase tracking-wider text-charcoal-400">
-                            Median wage
-                          </dt>
-                          <dd className="font-medium text-charcoal-700">
-                            {formatWage(o.median_wage)}
-                          </dd>
+                          <dt className="uppercase tracking-wider text-ink-500">Median wage</dt>
+                          <dd className="font-medium text-ink-700">{formatWage(o.median_wage)}</dd>
                         </div>
                         <div>
-                          <dt className="uppercase tracking-wider text-charcoal-400">Growth</dt>
+                          <dt className="uppercase tracking-wider text-ink-500">Growth</dt>
                           <dd
                             className="font-medium"
                             style={{
                               color:
                                 (o.growth_pct ?? 0) >= 0
-                                  ? "var(--color-explr-700)"
-                                  : "var(--color-charcoal-700)",
+                                  ? "var(--color-green-deep)"
+                                  : "var(--color-ink-700)",
                             }}
                           >
                             {formatGrowth(o.growth_pct)}
                           </dd>
                         </div>
                         <div>
-                          <dt className="uppercase tracking-wider text-charcoal-400">
-                            Openings / yr
-                          </dt>
-                          <dd className="font-medium text-charcoal-700">
+                          <dt className="uppercase tracking-wider text-ink-500">Openings / yr</dt>
+                          <dd className="font-medium text-ink-700">
                             {o.annual_openings?.toLocaleString() ?? "—"}
                           </dd>
                         </div>
                       </dl>
                       {o.education && (
-                        <p className="mt-2 text-[11px] text-charcoal-500">
-                          <span className="uppercase tracking-wider text-charcoal-400">
+                        <p className="mt-2 text-[11px] text-ink-500">
+                          <span className="uppercase tracking-wider text-ink-500">
                             Typical entry:{" "}
                           </span>
                           {o.education}
@@ -141,13 +135,13 @@ export function CareerPathwaysDropdown({ internshipSlug }: Props) {
               </div>
             ))
           )}
-          <p className="text-[11px] text-charcoal-400">
+          <p className="text-[11px] text-ink-500">
             Data snapshot · explore more at{" "}
             <a
               href="https://iridescent-panda-3bd940.netlify.app/?tab=dashboard"
               target="_blank"
               rel="noreferrer"
-              className="underline hover:text-charcoal-600"
+              className="underline hover:text-ink-700"
             >
               EXPLR Workforce →
             </a>

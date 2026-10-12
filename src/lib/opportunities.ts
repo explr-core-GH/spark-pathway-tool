@@ -1,6 +1,21 @@
 // Shared types + helpers for the organization opportunity portal.
 
-import type { Internship } from "./internships-catalog";
+/**
+ * Card shape the apply picker and matching tools use for an internship. Every
+ * internship now comes from an approved partner opportunity (the old hardcoded
+ * catalog is gone); `slug` is the synthetic `opp:<id>` ref.
+ */
+export type Internship = {
+  slug: string;
+  name: string;
+  theme: string;
+  lead: string | null;
+  outsidePartners: string;
+  deliverables: string;
+  externalUrl: string;
+  emoji: string;
+  riasec: ("R" | "I" | "A" | "S" | "E" | "C")[];
+};
 
 export type OppType = "camp" | "workshop" | "internship" | "ongoing";
 
@@ -329,8 +344,8 @@ export function oppIdFromSlug(slug: string): string {
   return slug.slice(OPP_SLUG_PREFIX.length);
 }
 
-/** Map an approved org internship into the catalog Internship shape used by
- *  the apply picker, so org + catalog internships unify in one flow. */
+/** Map an approved partner internship into the card shape used by the apply
+ *  picker and the matching tools. */
 export function oppToCatalogInternship(o: Opportunity): Internship {
   const letters = (o.riasec_code ?? "")
     .toUpperCase()

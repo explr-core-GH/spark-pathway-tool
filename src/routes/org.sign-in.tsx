@@ -66,7 +66,7 @@ function OrgSignIn() {
             <button
               type="button"
               onClick={() => setShow((s) => !s)}
-              className="absolute inset-y-0 right-2 my-auto text-xs text-charcoal-500 hover:text-ink"
+              className="absolute inset-y-0 right-2 my-auto text-xs text-ink-500 hover:text-ink"
             >
               {show ? "Hide" : "Show"}
             </button>
@@ -81,12 +81,12 @@ function OrgSignIn() {
           {loading ? "Signing in…" : "Sign in"}
         </button>
       </form>
-      <p className="mt-6 text-sm text-charcoal-500">
+      <p className="mt-6 text-sm text-ink-500">
         New partner?{" "}
         <Link to="/org/sign-up" className="ink-link">
           Register your organization or company
         </Link>
-        <span className="mx-2 text-charcoal-300">·</span>
+        <span className="mx-2 text-ink-500">·</span>
         <Link to="/forgot-password" className="ink-link">
           Forgot password?
         </Link>

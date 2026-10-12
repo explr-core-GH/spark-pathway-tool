@@ -35,7 +35,7 @@ export function HollandHexagon({ size = 360, active, onSelect }: Props) {
       aria-label="RIASEC interest dimensions"
     >
       {/* outer hexagon outline */}
-      <path d={path} fill="none" stroke="var(--color-charcoal-200)" strokeWidth={1} />
+      <path d={path} fill="none" stroke="var(--color-line-strong)" strokeWidth={1} />
       {/* contrast diagonals (R↔S, I↔E, A↔C) */}
       {[0, 1, 2].map((i) => {
         const a = points[i];
@@ -47,7 +47,7 @@ export function HollandHexagon({ size = 360, active, onSelect }: Props) {
             y1={a.y}
             x2={b.x}
             y2={b.y}
-            stroke="var(--color-charcoal-100)"
+            stroke="var(--color-line)"
             strokeWidth={1}
           />
         );

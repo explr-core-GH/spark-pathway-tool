@@ -46,7 +46,12 @@ async function loadDirectory(): Promise<School[]> {
   return directoryPromise;
 }
 
-export function SchoolSearch({ onSelect, initial = null, placeholder, label = "Search schools" }: Props) {
+export function SchoolSearch({
+  onSelect,
+  initial = null,
+  placeholder,
+  label = "Search schools",
+}: Props) {
   const [picked, setPicked] = useState<SchoolPick | null>(initial);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<School[]>([]);
@@ -60,7 +65,9 @@ export function SchoolSearch({ onSelect, initial = null, placeholder, label = "S
   // Keyboard support for the option list (ArrowUp/Down move between options,
   // Escape closes and returns focus to the input).
   function onListKeyDown(e: React.KeyboardEvent<HTMLUListElement>) {
-    const buttons = Array.from(listRef.current?.querySelectorAll<HTMLButtonElement>("button[role='option']") ?? []);
+    const buttons = Array.from(
+      listRef.current?.querySelectorAll<HTMLButtonElement>("button[role='option']") ?? [],
+    );
     const idx = buttons.indexOf(document.activeElement as HTMLButtonElement);
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -126,17 +133,17 @@ export function SchoolSearch({ onSelect, initial = null, placeholder, label = "S
 
   if (picked && picked.irn) {
     return (
-      <div className="flex items-center justify-between rounded-md border border-explr-700/40 bg-explr-50 px-3 py-2">
-        <div className="text-sm text-charcoal-700">
+      <div className="flex items-center justify-between rounded-md border border-green/40 bg-mint-tint px-3 py-2">
+        <div className="text-sm text-ink-700">
           <span className="font-medium">{picked.name}</span>
-          {picked.districtName && <span className="text-charcoal-500"> · {picked.districtName}</span>}
-          {picked.city && <span className="text-charcoal-500"> · {picked.city}</span>}
-          <span className="ml-2 font-mono text-[10px] text-charcoal-400">IRN {picked.irn}</span>
+          {picked.districtName && <span className="text-ink-500"> · {picked.districtName}</span>}
+          {picked.city && <span className="text-ink-500"> · {picked.city}</span>}
+          <span className="ml-2 font-mono text-[10px] text-ink-500">IRN {picked.irn}</span>
         </div>
         <button
           type="button"
           onClick={clear}
-          className="text-xs uppercase tracking-wider text-explr-700 hover:text-explr-800"
+          className="text-xs uppercase tracking-wider text-green-deep hover:text-green-deep"
         >
           Change
         </button>
@@ -159,7 +166,7 @@ export function SchoolSearch({ onSelect, initial = null, placeholder, label = "S
         placeholder={
           missing
             ? "School directory not yet loaded"
-            : placeholder ?? "Search Ohio schools by name, district, city, or IRN…"
+            : (placeholder ?? "Search Ohio schools by name, district, city, or IRN…")
         }
         value={query}
         onFocus={() => {
@@ -178,7 +185,7 @@ export function SchoolSearch({ onSelect, initial = null, placeholder, label = "S
         disabled={missing}
       />
       {missing && (
-        <p className="text-xs text-charcoal-400">
+        <p className="text-xs text-ink-500">
           The Ohio school directory is not available right now.
         </p>
       )}
@@ -189,25 +196,28 @@ export function SchoolSearch({ onSelect, initial = null, placeholder, label = "S
           role="listbox"
           aria-label={label}
           onKeyDown={onListKeyDown}
-          className="absolute z-20 max-h-96 w-full overflow-y-auto rounded-md border border-charcoal-100 bg-white shadow-lg"
+          className="absolute z-20 max-h-96 w-full overflow-y-auto rounded-md border border-line bg-paper-raised shadow-lg"
         >
           {results.map((s) => (
-            <li key={s.irn} className="border-b border-charcoal-100 last:border-0">
+            <li key={s.irn} className="border-b border-line last:border-0">
               <button
                 type="button"
                 role="option"
                 aria-selected={false}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => pick(s)}
-                className="block w-full px-3 py-2 text-left hover:bg-explr-50 focus-visible:bg-explr-50 focus-visible:outline focus-visible:outline-2"
+                className="block w-full px-3 py-2 text-left hover:bg-mint-tint focus-visible:bg-mint-tint focus-visible:outline focus-visible:outline-2"
               >
-                <div className="font-semibold text-charcoal-700">{s.name}</div>
-                <div className="text-xs text-charcoal-500">
-                  {[s.districtName, s.city, s.gradeSpan, s.buildingType].filter(Boolean).join(" · ")}
+                <div className="font-semibold text-ink-700">{s.name}</div>
+                <div className="text-xs text-ink-500">
+                  {[s.districtName, s.city, s.gradeSpan, s.buildingType]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </div>
-                <div className="font-mono text-[10px] text-charcoal-400">
+                <div className="font-mono text-[10px] text-ink-500">
                   Enrollment {s.enrollment ?? "—"} ·{" "}
-                  {s.overallStars != null ? `${s.overallStars.toFixed(1)}★ overall` : "no rating"} · IRN {s.irn}
+                  {s.overallStars != null ? `${s.overallStars.toFixed(1)}★ overall` : "no rating"} ·
+                  IRN {s.irn}
                 </div>
               </button>
             </li>

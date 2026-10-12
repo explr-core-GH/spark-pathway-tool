@@ -59,17 +59,16 @@ export function RosterLiveMonitor({ studentIds, names }: Props) {
         setLoadedOnce(true);
         return;
       }
-      const [{ data: presence, error: pErr }, { data: sessions }] =
-        await Promise.all([
-          sb("student_presence")
-            .select("student_id, label, last_seen_at")
-            .in("student_id", studentIds),
-          supabase
-            .from("assessment_sessions")
-            .select("student_id, current_index, item_sequence, completed_at, started_at")
-            .in("student_id", studentIds)
-            .order("started_at", { ascending: false }),
-        ]);
+      const [{ data: presence, error: pErr }, { data: sessions }] = await Promise.all([
+        sb("student_presence")
+          .select("student_id, label, last_seen_at")
+          .in("student_id", studentIds),
+        supabase
+          .from("assessment_sessions")
+          .select("student_id, current_index, item_sequence, completed_at, started_at")
+          .in("student_id", studentIds)
+          .order("started_at", { ascending: false }),
+      ]);
       if (cancelled) return;
       if (pErr) {
         setErr(pErr.message);
@@ -101,13 +100,8 @@ export function RosterLiveMonitor({ studentIds, names }: Props) {
         if (s.completed_at) {
           qMap.set(s.student_id, "Finished");
         } else {
-          const total = Array.isArray(s.item_sequence)
-            ? s.item_sequence.length
-            : 0;
-          qMap.set(
-            s.student_id,
-            total ? `Q${(s.current_index ?? 0) + 1} of ${total}` : "—",
-          );
+          const total = Array.isArray(s.item_sequence) ? s.item_sequence.length : 0;
+          qMap.set(s.student_id, total ? `Q${(s.current_index ?? 0) + 1} of ${total}` : "—");
         }
       }
 
@@ -125,11 +119,7 @@ export function RosterLiveMonitor({ studentIds, names }: Props) {
       });
       // Online first, then by name.
       out.sort((a, b) =>
-        a.online === b.online
-          ? a.name.localeCompare(b.name)
-          : a.online
-            ? -1
-            : 1,
+        a.online === b.online ? a.name.localeCompare(b.name) : a.online ? -1 : 1,
       );
       setRows(out);
       setLoadedOnce(true);
@@ -144,23 +134,23 @@ export function RosterLiveMonitor({ studentIds, names }: Props) {
   }, [studentIds.join(","), names]);
 
   if (!loadedOnce) {
-    return <p className="text-sm text-charcoal-400">Loading…</p>;
+    return <p className="text-sm text-ink-500">Loading…</p>;
   }
   if (err) {
     return <p className="text-sm text-red-600">Couldn&apos;t load monitor: {err}</p>;
   }
   if (rows.length === 0) {
-    return <p className="text-sm text-charcoal-400">No students in this roster yet.</p>;
+    return <p className="text-sm text-ink-500">No students in this roster yet.</p>;
   }
 
   const onlineCount = rows.filter((r) => r.online).length;
 
   return (
     <div>
-      <p className="text-xs text-charcoal-500">
+      <p className="text-xs text-ink-500">
         <span
           className="mr-1 inline-block h-2 w-2 rounded-full align-middle"
-          style={{ background: "var(--color-explr-500)" }}
+          style={{ background: "var(--color-green)" }}
         />
         {onlineCount} online · refreshes every {POLL_MS / 1000}s
       </p>
@@ -168,29 +158,23 @@ export function RosterLiveMonitor({ studentIds, names }: Props) {
         {rows.map((r) => (
           <div
             key={r.studentId}
-            className="border border-charcoal-100 bg-white p-3"
+            className="border border-line bg-paper-raised p-3 rounded-[var(--radius-card)]"
             style={{ opacity: r.online ? 1 : 0.6 }}
           >
             <div className="flex items-center gap-2">
               <span
                 className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
                 style={{
-                  background: r.online
-                    ? "var(--color-explr-500)"
-                    : "var(--color-charcoal-200)",
+                  background: r.online ? "var(--color-green)" : "var(--color-line-strong)",
                 }}
                 aria-hidden
               />
-              <p className="min-w-0 flex-1 truncate text-sm font-medium">
-                {r.name}
-              </p>
+              <p className="min-w-0 flex-1 truncate text-sm font-medium">{r.name}</p>
             </div>
-            <p className="mt-1.5 text-xs text-charcoal-600">
-              {r.online ? r.label ?? "Online" : `Offline · ${ago(r.lastSeen)}`}
+            <p className="mt-1.5 text-xs text-ink-700">
+              {r.online ? (r.label ?? "Online") : `Offline · ${ago(r.lastSeen)}`}
             </p>
-            {r.question && (
-              <p className="mt-0.5 text-[11px] text-charcoal-400">{r.question}</p>
-            )}
+            {r.question && <p className="mt-0.5 text-[11px] text-ink-500">{r.question}</p>}
           </div>
         ))}
       </div>

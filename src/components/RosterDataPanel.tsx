@@ -75,8 +75,7 @@ function summarize(seconds: number[]): { median: number | null; avg: number | nu
   if (seconds.length === 0) return { median: null, avg: null };
   const sorted = [...seconds].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
-  const median =
-    sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  const median = sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
   const avg = sorted.reduce((a, b) => a + b, 0) / sorted.length;
   return { median, avg };
 }
@@ -98,18 +97,17 @@ export function RosterDataPanel({ studentIds, names }: Props) {
         return;
       }
 
-      const [{ data: sessions, error: sErr }, { data: surveys }] =
-        await Promise.all([
-          supabase
-            .from("assessment_sessions")
-            .select("student_id, started_at, completed_at, holland_code")
-            .in("student_id", studentIds)
-            .order("started_at", { ascending: false }),
-          supabase
-            .from("survey_responses")
-            .select("student_id, started_at, completed_at")
-            .in("student_id", studentIds),
-        ]);
+      const [{ data: sessions, error: sErr }, { data: surveys }] = await Promise.all([
+        supabase
+          .from("assessment_sessions")
+          .select("student_id, started_at, completed_at, holland_code")
+          .in("student_id", studentIds)
+          .order("started_at", { ascending: false }),
+        supabase
+          .from("survey_responses")
+          .select("student_id, started_at, completed_at")
+          .in("student_id", studentIds),
+      ]);
       if (cancelled) return;
       if (sErr) {
         setErr(sErr.message);
@@ -171,13 +169,13 @@ export function RosterDataPanel({ studentIds, names }: Props) {
   }, [studentIds.join(","), names]);
 
   if (loading) {
-    return <p className="text-sm text-charcoal-400">Loading results…</p>;
+    return <p className="text-sm text-ink-500">Loading results…</p>;
   }
   if (err) {
     return <p className="text-sm text-red-600">Couldn&apos;t load results: {err}</p>;
   }
   if (rows.length === 0) {
-    return <p className="text-sm text-charcoal-400">No students in this roster yet.</p>;
+    return <p className="text-sm text-ink-500">No students in this roster yet.</p>;
   }
 
   const done = rows.filter((r) => r.assessmentStatus === "done");
@@ -196,10 +194,10 @@ export function RosterDataPanel({ studentIds, names }: Props) {
       </div>
 
       {/* Per-student table */}
-      <div className="mt-4 overflow-x-auto border border-charcoal-100">
+      <div className="mt-4 overflow-x-auto border border-line">
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="border-b border-charcoal-100 bg-charcoal-50 text-left text-xs uppercase tracking-wider text-charcoal-400">
+            <tr className="border-b border-line bg-paper-sunken text-left text-xs uppercase tracking-wider text-ink-500">
               <th className="px-3 py-2 font-normal">Student</th>
               <th className="px-3 py-2 font-normal">RIASEC</th>
               <th className="px-3 py-2 font-normal">Assessment</th>
@@ -209,76 +207,68 @@ export function RosterDataPanel({ studentIds, names }: Props) {
               <th className="px-3 py-2 font-normal">Results</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-charcoal-100">
+          <tbody className="divide-y divide-line">
             {rows.map((r) => (
               <Fragment key={r.studentId}>
-              <tr>
-                <td className="px-3 py-2 font-medium">{r.name}</td>
-                <td className="px-3 py-2">
-                  {r.hollandCode ? (
-                    <span className="font-mono font-semibold tracking-wide">
-                      {r.hollandCode}
-                    </span>
-                  ) : (
-                    <span className="text-charcoal-400">—</span>
-                  )}
-                </td>
-                <td className="px-3 py-2">
-                  <span
-                    className="text-xs"
-                    style={{
-                      color:
-                        r.assessmentStatus === "done"
-                          ? "var(--color-explr-600)"
-                          : r.assessmentStatus === "in progress"
-                            ? "var(--ink)"
-                            : "var(--color-charcoal-400)",
-                    }}
-                  >
-                    {r.assessmentStatus}
-                  </span>
-                </td>
-                <td className="px-3 py-2 tabular-nums">
-                  {fmtDuration(r.assessmentSeconds)}
-                </td>
-                <td className="px-3 py-2 text-xs text-charcoal-600">
-                  {r.surveysCompleted > 0 || r.surveysInProgress > 0
-                    ? `${r.surveysCompleted} done${
-                        r.surveysInProgress > 0
-                          ? ` · ${r.surveysInProgress} in progress`
-                          : ""
-                      }`
-                    : "—"}
-                </td>
-                <td className="px-3 py-2 tabular-nums">
-                  {fmtDuration(r.surveySeconds)}
-                </td>
-                <td className="px-3 py-2">
-                  <button
-                    onClick={() => setOpen(open === r.studentId ? null : r.studentId)}
-                    className="text-xs text-explr-600 hover:underline"
-                  >
-                    {open === r.studentId ? "Hide" : "View"}
-                  </button>
-                </td>
-              </tr>
-              {open === r.studentId && (
                 <tr>
-                  <td colSpan={7} className="border-t border-charcoal-100 bg-charcoal-50 p-0">
-                    <StudentAssessmentDetail studentId={r.studentId} />
+                  <td className="px-3 py-2 font-medium">{r.name}</td>
+                  <td className="px-3 py-2">
+                    {r.hollandCode ? (
+                      <span className="font-mono font-semibold tracking-wide">{r.hollandCode}</span>
+                    ) : (
+                      <span className="text-ink-500">—</span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2">
+                    <span
+                      className="text-xs"
+                      style={{
+                        color:
+                          r.assessmentStatus === "done"
+                            ? "var(--color-green-deep)"
+                            : r.assessmentStatus === "in progress"
+                              ? "var(--ink)"
+                              : "var(--color-ink-500)",
+                      }}
+                    >
+                      {r.assessmentStatus}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 tabular-nums">{fmtDuration(r.assessmentSeconds)}</td>
+                  <td className="px-3 py-2 text-xs text-ink-700">
+                    {r.surveysCompleted > 0 || r.surveysInProgress > 0
+                      ? `${r.surveysCompleted} done${
+                          r.surveysInProgress > 0 ? ` · ${r.surveysInProgress} in progress` : ""
+                        }`
+                      : "—"}
+                  </td>
+                  <td className="px-3 py-2 tabular-nums">{fmtDuration(r.surveySeconds)}</td>
+                  <td className="px-3 py-2">
+                    <button
+                      onClick={() => setOpen(open === r.studentId ? null : r.studentId)}
+                      className="text-xs text-green-deep hover:underline"
+                    >
+                      {open === r.studentId ? "Hide" : "View"}
+                    </button>
                   </td>
                 </tr>
-              )}
+                {open === r.studentId && (
+                  <tr>
+                    <td colSpan={7} className="border-t border-line bg-paper-sunken p-0">
+                      <StudentAssessmentDetail studentId={r.studentId} />
+                    </td>
+                  </tr>
+                )}
               </Fragment>
             ))}
           </tbody>
         </table>
       </div>
 
-      <p className="mt-2 text-[11px] text-charcoal-400">
-        Time is wall-clock from start to finish, and the clock stops at one
-        hour — longer almost always means the tab was left open, not active
-        work, so it&apos;s recorded as &ldquo;1h&rdquo;.
+      <p className="mt-2 text-[11px] text-ink-500">
+        Time is wall-clock from start to finish, and the clock stops at one hour — longer almost
+        always means the tab was left open, not active work, so it&apos;s recorded as
+        &ldquo;1h&rdquo;.
       </p>
     </div>
   );
@@ -286,10 +276,8 @@ export function RosterDataPanel({ studentIds, names }: Props) {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border border-charcoal-100 bg-white p-3">
-      <p className="text-[10px] uppercase tracking-wider text-charcoal-400">
-        {label}
-      </p>
+    <div className="border border-line bg-paper-raised p-3 rounded-[var(--radius-card)]">
+      <p className="text-[10px] uppercase tracking-wider text-ink-500">{label}</p>
       <p className="mt-1 text-lg font-light tabular-nums text-ink">{value}</p>
     </div>
   );

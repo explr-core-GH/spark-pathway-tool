@@ -58,15 +58,15 @@ function label(g: string) {
 }
 
 function Stars({ value }: { value: number | null | undefined }) {
-  if (value == null) return <span className="text-charcoal-400">—</span>;
+  if (value == null) return <span className="text-ink-500">—</span>;
   return <span>{value.toFixed(1)}★</span>;
 }
 
 function StatTile({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-md border border-charcoal-100 bg-white px-4 py-3">
-      <div className="text-[10px] uppercase tracking-wider text-charcoal-400">{label}</div>
-      <div className="mt-1 text-xl font-light text-charcoal-700">{value}</div>
+    <div className="rounded-md border border-line bg-paper-raised px-4 py-3">
+      <div className="text-[10px] uppercase tracking-wider text-ink-500">{label}</div>
+      <div className="mt-1 text-xl font-light text-ink-700">{value}</div>
     </div>
   );
 }
@@ -74,24 +74,24 @@ function StatTile({ label, value }: { label: string; value: React.ReactNode }) {
 function DemoPanel({ title, rows }: { title: string; rows: DemoRow[] | undefined }) {
   const visible = (rows ?? []).filter((r) => r.pctOfTotal != null);
   return (
-    <div className="rounded-md border border-charcoal-100 bg-white p-4">
-      <div className="text-xs uppercase tracking-wider text-charcoal-400">{title}</div>
+    <div className="rounded-md border border-line bg-paper-raised p-4">
+      <div className="text-xs uppercase tracking-wider text-ink-500">{title}</div>
       {visible.length === 0 ? (
-        <p className="mt-3 text-xs text-charcoal-400">Suppressed (small population).</p>
+        <p className="mt-3 text-xs text-ink-500">Suppressed (small population).</p>
       ) : (
         <ul className="mt-3 space-y-2">
           {(rows ?? []).map((r) => (
             <li key={r.group}>
-              <div className="flex items-baseline justify-between text-xs text-charcoal-700">
+              <div className="flex items-baseline justify-between text-xs text-ink-700">
                 <span>{label(r.group)}</span>
-                <span className="font-mono text-charcoal-500">
+                <span className="font-mono text-ink-500">
                   {r.pctOfTotal != null ? `${r.pctOfTotal.toFixed(1)}%` : "—"}
-                  <span className="ml-2 text-charcoal-400">n={r.enrollment}</span>
+                  <span className="ml-2 text-ink-500">n={r.enrollment}</span>
                 </span>
               </div>
-              <div className="mt-1 h-1.5 w-full rounded bg-charcoal-50">
+              <div className="mt-1 h-1.5 w-full rounded bg-paper-sunken">
                 <div
-                  className="h-full rounded bg-explr-500"
+                  className="h-full rounded bg-mint"
                   style={{ width: `${Math.min(100, r.pctOfTotal ?? 0)}%` }}
                 />
               </div>
@@ -126,31 +126,31 @@ export function SchoolDemographics({ irn }: Props) {
     );
   }
   if (!data) {
-    return <div className="text-sm text-charcoal-400">Loading school details…</div>;
+    return <div className="text-sm text-ink-500">Loading school details…</div>;
   }
 
   const r = data.ratings ?? {};
   return (
     <div className="space-y-6">
-      <header className="rounded-md border border-charcoal-100 bg-white p-5">
-        <h3 className="text-lg font-medium text-charcoal-700">{data.name}</h3>
-        <p className="mt-1 text-sm text-charcoal-500">
+      <header className="rounded-md border border-line bg-paper-raised p-5">
+        <h3 className="text-lg font-medium text-ink-700">{data.name}</h3>
+        <p className="mt-1 text-sm text-ink-500">
           {[data.districtName, data.city, data.zip].filter(Boolean).join(" · ")}
         </p>
-        <p className="text-xs text-charcoal-400">
+        <p className="text-xs text-ink-500">
           {[data.gradeSpan, data.buildingType].filter(Boolean).join(" · ")}
         </p>
-        <dl className="mt-4 grid gap-x-6 gap-y-1 text-xs text-charcoal-500 sm:grid-cols-2">
+        <dl className="mt-4 grid gap-x-6 gap-y-1 text-xs text-ink-500 sm:grid-cols-2">
           {data.principal && (
             <div>
-              <dt className="inline text-charcoal-400">Principal: </dt>
-              <dd className="inline text-charcoal-700">{data.principal}</dd>
+              <dt className="inline text-ink-500">Principal: </dt>
+              <dd className="inline text-ink-700">{data.principal}</dd>
             </div>
           )}
           {data.superintendent && (
             <div>
-              <dt className="inline text-charcoal-400">Superintendent: </dt>
-              <dd className="inline text-charcoal-700">{data.superintendent}</dd>
+              <dt className="inline text-ink-500">Superintendent: </dt>
+              <dd className="inline text-ink-700">{data.superintendent}</dd>
             </div>
           )}
         </dl>
@@ -172,7 +172,7 @@ export function SchoolDemographics({ irn }: Props) {
         <DemoPanel title="Gifted" rows={data.demographics?.gifted} />
       </div>
 
-      <p className="text-[10px] uppercase tracking-wider text-charcoal-400">
+      <p className="text-[10px] uppercase tracking-wider text-ink-500">
         Source: Ohio Department of Education and Workforce · 2024–2025 Report Card
       </p>
     </div>

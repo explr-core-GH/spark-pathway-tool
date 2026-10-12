@@ -1,5 +1,5 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import type { Internship } from "@/lib/internships-catalog";
+import type { Internship } from "@/lib/opportunities";
 import type { RIASECCode } from "@/lib/riasec";
 
 export type ScaleScores = Partial<Record<RIASECCode, number>>;
@@ -14,8 +14,12 @@ export const RIASEC_LABELS: Record<RIASECCode, string> = {
 };
 
 export const RIASEC_NAMES: Record<RIASECCode, string> = {
-  R: "Realistic", I: "Investigative", A: "Artistic",
-  S: "Social", E: "Enterprising", C: "Conventional",
+  R: "Realistic",
+  I: "Investigative",
+  A: "Artistic",
+  S: "Social",
+  E: "Enterprising",
+  C: "Conventional",
 };
 
 function joinList(items: string[]): string {
@@ -33,7 +37,7 @@ export function HollandLetter({ code }: { code: RIASECCode }) {
         <button
           type="button"
           title={`${name} — ${label}`}
-          className="inline-flex items-center justify-center rounded-sm border border-charcoal-200 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink hover:bg-charcoal-50 focus:outline-none focus:ring-1 focus:ring-ink"
+          className="inline-flex items-center justify-center rounded-sm border border-line-strong px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink hover:bg-paper-sunken focus:outline-none focus:ring-1 focus:ring-ink"
           aria-label={`${name}: ${label}`}
           onClick={(e) => e.preventDefault()}
         >
@@ -41,8 +45,10 @@ export function HollandLetter({ code }: { code: RIASECCode }) {
         </button>
       </PopoverTrigger>
       <PopoverContent side="top" className="w-56 text-xs">
-        <p className="font-semibold text-ink">{code} — {name}</p>
-        <p className="mt-1 text-charcoal-500">{label}</p>
+        <p className="font-semibold text-ink">
+          {code} — {name}
+        </p>
+        <p className="mt-1 text-ink-500">{label}</p>
       </PopoverContent>
     </Popover>
   );
@@ -62,18 +68,21 @@ export function buildWhyFits(
           .map(([k]) => k)
       : (hollandCode ?? "").split(""),
   );
-  const matches = i.riasec.filter((c) => studentLetters.has(c));
+  const matches = i.riasec.filter((c: RIASECCode) => studentLetters.has(c));
   const interestBit =
-    interest === "yes" ? "You said you're interested in this one" :
-    interest === "maybe" ? "You marked this one as a maybe" : null;
+    interest === "yes"
+      ? "You said you're interested in this one"
+      : interest === "maybe"
+        ? "You marked this one as a maybe"
+        : null;
 
   let hollandBit: string | null = null;
   if (matches.length > 0) {
-    const traits = joinList(matches.map((c) => RIASEC_LABELS[c]));
-    const letters = matches.map((c) => `${c} (${RIASEC_NAMES[c]})`).join(" / ");
+    const traits = joinList(matches.map((c: RIASECCode) => RIASEC_LABELS[c]));
+    const letters = matches.map((c: RIASECCode) => `${c} (${RIASEC_NAMES[c]})`).join(" / ");
     hollandBit = `it centers on ${traits} — a strong match for your top Holland ${matches.length > 1 ? "traits" : "trait"} ${letters}`;
   } else if (i.riasec.length > 0 && studentLetters.size > 0) {
-    const traits = joinList(i.riasec.map((c) => RIASEC_LABELS[c]));
+    const traits = joinList(i.riasec.map((c: RIASECCode) => RIASEC_LABELS[c]));
     hollandBit = `it focuses on ${traits}, which is outside your top Holland traits — a good stretch if you want to try something new`;
   }
 

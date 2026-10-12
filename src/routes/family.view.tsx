@@ -77,12 +77,7 @@ function View() {
   }, [t]);
 
   const data: FamilyResultsData | null = view
-    ? {
-        riasec: view.riasec,
-        survey: view.survey as FamilyResultsData["survey"],
-        apt: view.apt,
-        stemDone: view.stemDone,
-      }
+    ? { riasec: view.riasec, stemDone: view.stemDone }
     : null;
 
   return (

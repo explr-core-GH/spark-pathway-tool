@@ -128,12 +128,12 @@ function InvitesAdmin() {
 
       <form
         onSubmit={create}
-        className="mt-10 grid gap-4 border border-charcoal-100 p-6 md:grid-cols-[2fr_2fr_auto]"
+        className="mt-10 grid gap-4 border border-line p-6 md:grid-cols-[2fr_2fr_auto] rounded-[var(--radius-card)]"
       >
         {/* Role picker spans the full width on top */}
         <div className="md:col-span-3">
           <label className="label">Role</label>
-          <div className="mt-1 inline-flex border border-charcoal-200">
+          <div className="mt-1 inline-flex border border-line-strong">
             {(["educator", "admin"] as InviteRole[]).map((r) => {
               const on = r === role;
               return (
@@ -145,7 +145,7 @@ function InvitesAdmin() {
                   className={
                     on
                       ? "px-4 py-1.5 text-xs font-semibold"
-                      : "px-4 py-1.5 text-xs font-medium text-charcoal-500 hover:text-ink"
+                      : "px-4 py-1.5 text-xs font-medium text-ink-500 hover:text-ink"
                   }
                   style={on ? { background: "var(--ink)", color: "var(--bg)" } : undefined}
                 >
@@ -154,7 +154,7 @@ function InvitesAdmin() {
               );
             })}
           </div>
-          <p className="mt-2 text-xs text-charcoal-500">
+          <p className="mt-2 text-xs text-ink-500">
             {role === "educator"
               ? "Instructor accounts auto-approve on activation. Admins assign them to camp sessions afterwards."
               : "Admin accounts have full access to the admin tools."}
@@ -191,27 +191,27 @@ function InvitesAdmin() {
       </form>
 
       <h2 className="eyebrow mt-12">All invites</h2>
-      <ul className="mt-4 divide-y divide-charcoal-100 border-y border-charcoal-100">
+      <ul className="mt-4 divide-y divide-line border-y border-line">
         {rows.map((r) => {
           const expired = new Date(r.expires_at) < new Date();
           const status = r.accepted_at ? "Accepted" : expired ? "Expired" : "Pending";
           const statusColor = r.accepted_at
-            ? "var(--color-explr-600)"
+            ? "var(--color-green-deep)"
             : expired
-              ? "var(--color-charcoal-400)"
+              ? "var(--color-ink-500)"
               : "var(--ink)";
           return (
             <li key={r.id} className="py-3">
               <div className="flex items-center gap-4">
                 <span
-                  className="w-16 shrink-0 text-[10px] uppercase tracking-wider font-semibold text-charcoal-500"
+                  className="w-16 shrink-0 text-[10px] uppercase tracking-wider font-semibold text-ink-500"
                   title={r.role === "admin" ? "Admin invite" : "Instructor invite"}
                 >
                   {r.role === "admin" ? "Admin" : "Instructor"}
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium truncate">{r.email}</p>
-                  <p className="text-xs text-charcoal-500 truncate">
+                  <p className="text-xs text-ink-500 truncate">
                     {r.role === "admin" ? "Admin" : "Instructor"}
                     {r.organization ? ` · ${r.organization}` : ""}
                     {" · invited "}
@@ -226,8 +226,7 @@ function InvitesAdmin() {
                     onClick={() => copy(r.id, r.token)}
                     className="text-xs underline hover:text-ink"
                     style={{
-                      color:
-                        copiedId === r.id ? "var(--color-explr-600)" : "var(--color-charcoal-500)",
+                      color: copiedId === r.id ? "var(--color-green-deep)" : "var(--color-ink-500)",
                     }}
                   >
                     {copiedId === r.id ? "Copied!" : "Copy link"}
@@ -253,7 +252,7 @@ function InvitesAdmin() {
             </li>
           );
         })}
-        {rows.length === 0 && <li className="py-6 text-sm text-charcoal-500">No invites yet.</li>}
+        {rows.length === 0 && <li className="py-6 text-sm text-ink-500">No invites yet.</li>}
       </ul>
     </main>
   );

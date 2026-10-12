@@ -28,7 +28,13 @@ type ItemRow = {
   value_then: number | null;
   skipped: boolean;
 };
-type ConstructScore = { id: ConstructId; name: string; max: number; before: number | null; after: number | null };
+type ConstructScore = {
+  id: ConstructId;
+  name: string;
+  max: number;
+  before: number | null;
+  after: number | null;
+};
 type ResultCard = {
   key: string;
   title: string;
@@ -47,7 +53,10 @@ const ADMIN_LABEL: Record<string, string> = {
 function meansFromItems(items: ItemRow[], which: "now" | "then"): Record<string, number | null> {
   const byId: Record<string, ItemResponseValue> = {};
   for (const it of items) {
-    byId[it.item_id] = { value: which === "now" ? it.value_now : it.value_then, skipped: it.skipped };
+    byId[it.item_id] = {
+      value: which === "now" ? it.value_now : it.value_then,
+      skipped: it.skipped,
+    };
   }
   const out: Record<string, number | null> = {};
   for (const cid of ALL_CONSTRUCTS) out[cid] = scoreConstruct(getConstruct(cid).items, byId);
@@ -85,7 +94,8 @@ export function SurveyResultsPanel({ studentId }: { studentId: string }) {
         meta[a.id] = { title: a.title, unitRef: a.unit_ref };
       }
       const itemsByResp: Record<string, ItemRow[]> = {};
-      for (const it of (items ?? []) as ItemRow[]) (itemsByResp[it.survey_response_id] ??= []).push(it);
+      for (const it of (items ?? []) as ItemRow[])
+        (itemsByResp[it.survey_response_id] ??= []).push(it);
 
       // Group a pre + post (or a retrospective) for the same program together.
       const groups: Record<string, RespRow[]> = {};
@@ -130,7 +140,13 @@ export function SurveyResultsPanel({ studentId }: { studentId: string }) {
           const b = before?.[cid] ?? null;
           const a = after?.[cid] ?? null;
           if (b == null && a == null) continue;
-          scores.push({ id: cid, name: getConstruct(cid).name, max: getScale(getConstruct(cid).scale).max, before: b, after: a });
+          scores.push({
+            id: cid,
+            name: getConstruct(cid).name,
+            max: getScale(getConstruct(cid).scale).max,
+            before: b,
+            after: a,
+          });
         }
         if (scores.length > 0) out.push({ key, title, growth, beforeLabel, afterLabel, scores });
       }
@@ -141,10 +157,10 @@ export function SurveyResultsPanel({ studentId }: { studentId: string }) {
     };
   }, [studentId]);
 
-  if (cards === null) return <p className="mt-3 text-sm text-charcoal-400">Loading survey results…</p>;
+  if (cards === null) return <p className="mt-3 text-sm text-ink-500">Loading survey results…</p>;
   if (cards.length === 0) {
     return (
-      <p className="mt-3 text-sm text-charcoal-500">
+      <p className="mt-3 text-sm text-ink-500">
         No STEM survey results yet — they&rsquo;ll appear here once a survey is finished.
       </p>
     );
@@ -153,38 +169,44 @@ export function SurveyResultsPanel({ studentId }: { studentId: string }) {
   return (
     <div className="mt-4 space-y-6">
       {cards.map((card) => (
-        <div key={card.key} className="border border-charcoal-100 p-5">
+        <div key={card.key} className="border border-line p-5 rounded-[var(--radius-card)]">
           <p className="font-medium">{card.title}</p>
-          <p className="mt-1 text-xs text-charcoal-500">
-            {card.growth ? `${card.beforeLabel} → ${card.afterLabel}` : card.afterLabel} ·
-            higher means more confidence / interest
+          <p className="mt-1 text-xs text-ink-500">
+            {card.growth ? `${card.beforeLabel} → ${card.afterLabel}` : card.afterLabel} · higher
+            means more confidence / interest
           </p>
           <ul className="mt-4 space-y-3">
             {card.scores.map((s) => (
               <li key={s.id}>
                 <div className="flex items-baseline justify-between gap-3 text-sm">
                   <span>{s.name}</span>
-                  <span className="tabular-nums text-charcoal-500">
+                  <span className="tabular-nums text-ink-500">
                     {card.growth && s.before != null ? (
                       <>
                         {s.before.toFixed(1)} →{" "}
-                        <span className="font-medium text-ink">{s.after?.toFixed(1) ?? "—"}</span> / {s.max}
+                        <span className="font-medium text-ink">{s.after?.toFixed(1) ?? "—"}</span> /{" "}
+                        {s.max}
                       </>
                     ) : (
-                      <>{s.after?.toFixed(1) ?? "—"} / {s.max}</>
+                      <>
+                        {s.after?.toFixed(1) ?? "—"} / {s.max}
+                      </>
                     )}
                   </span>
                 </div>
-                <div className="relative mt-1 h-1.5 bg-charcoal-100">
+                <div className="relative mt-1 h-1.5 bg-paper-sunken">
                   {card.growth && s.before != null && (
                     <div
-                      className="absolute left-0 top-0 h-1.5 bg-charcoal-300"
+                      className="absolute left-0 top-0 h-1.5 bg-line-strong"
                       style={{ width: `${Math.min(100, (s.before / s.max) * 100)}%` }}
                     />
                   )}
                   <div
                     className="absolute left-0 top-0 h-1.5"
-                    style={{ width: `${Math.min(100, ((s.after ?? 0) / s.max) * 100)}%`, background: "var(--color-explr-500)" }}
+                    style={{
+                      width: `${Math.min(100, ((s.after ?? 0) / s.max) * 100)}%`,
+                      background: "var(--color-green)",
+                    }}
                   />
                 </div>
               </li>

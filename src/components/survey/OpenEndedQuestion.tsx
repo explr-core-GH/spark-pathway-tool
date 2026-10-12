@@ -17,14 +17,12 @@ export function OpenEndedQuestion({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="border-b border-charcoal-100 py-5 last:border-b-0">
+    <div className="border-b border-line py-5 last:border-b-0">
       <div className="flex gap-3">
-        <span className="select-none text-sm font-semibold text-charcoal-400">
-          {number}.
-        </span>
+        <span className="select-none text-sm font-semibold text-ink-500">{number}.</span>
         <label className="flex-1 text-sm leading-relaxed text-ink">
           {prompt}
-          <span className="ml-1 text-xs text-charcoal-400">(optional)</span>
+          <span className="ml-1 text-xs text-ink-500">(optional)</span>
         </label>
       </div>
       <textarea
@@ -35,7 +33,7 @@ export function OpenEndedQuestion({
         onChange={(e) => onChange(e.target.value)}
         placeholder="Type your answer here…"
       />
-      <p className="mt-1 text-right text-[11px] text-charcoal-400">
+      <p className="mt-1 text-right text-[11px] text-ink-500">
         {value.length} / {MAX}
       </p>
     </div>

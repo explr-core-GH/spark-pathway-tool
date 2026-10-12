@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { EducatorGate } from "@/components/EducatorGate";
-import { INTERNSHIPS } from "@/lib/internships-catalog";
+import { useInternshipRefs } from "@/lib/internship-refs";
 import { RIASEC, type RIASECCode } from "@/lib/riasec";
 
 export const Route = createFileRoute("/instructor/students")({
@@ -27,16 +27,12 @@ type AppRow = {
   selected_internship_ids: string[];
 };
 type PlacementRow = { student_id: string; approved_internship_id: string };
-type AptitudeRow = { student_id: string; band: string; total_score: number; total_items: number };
-type InterestCompletion = { student_id: string };
 
 type StudentSummary = {
   student_id: string;
   latestSession: SessionRow | null;
   application: AppRow | null;
   placement: PlacementRow | null;
-  aptitude: AptitudeRow | null;
-  interestDone: boolean;
 };
 
 function StudentsRoster() {
@@ -48,24 +44,18 @@ function StudentsRoster() {
 
   useEffect(() => {
     (async () => {
-      const [{ data: sess }, { data: apps }, { data: placs }, { data: apt }, { data: interest }] =
-        await Promise.all([
-          supabase
-            .from("assessment_sessions")
-            .select("student_id, holland_code, completed_at, started_at")
-            .order("started_at", { ascending: false }),
-          supabase
-            .from("internship_applications")
-            .select("student_id, status, submitted_at, selected_internship_ids")
-            .order("submitted_at", { ascending: false }),
-          // Placements: educators can't read all by RLS, only admins. Try and fall back silently.
-          supabase.from("internship_placements").select("student_id, approved_internship_id"),
-          supabase
-            .from("aptitude_results")
-            .select("student_id, band, total_score, total_items")
-            .order("completed_at", { ascending: false }),
-          supabase.from("internship_interest_completions").select("student_id"),
-        ]);
+      const [{ data: sess }, { data: apps }, { data: placs }] = await Promise.all([
+        supabase
+          .from("assessment_sessions")
+          .select("student_id, holland_code, completed_at, started_at")
+          .order("started_at", { ascending: false }),
+        supabase
+          .from("internship_applications")
+          .select("student_id, status, submitted_at, selected_internship_ids")
+          .order("submitted_at", { ascending: false }),
+        // Placements: educators can't read all by RLS, only admins. Try and fall back silently.
+        supabase.from("internship_placements").select("student_id, approved_internship_id"),
+      ]);
 
       const sessionsByStudent = new Map<string, SessionRow>();
       ((sess as SessionRow[]) ?? []).forEach((s) => {
@@ -77,20 +67,11 @@ function StudentsRoster() {
       });
       const placByStudent = new Map<string, PlacementRow>();
       ((placs as PlacementRow[]) ?? []).forEach((p) => placByStudent.set(p.student_id, p));
-      const aptByStudent = new Map<string, AptitudeRow>();
-      ((apt as AptitudeRow[]) ?? []).forEach((a) => {
-        if (!aptByStudent.has(a.student_id)) aptByStudent.set(a.student_id, a);
-      });
-      const interestSet = new Set(
-        ((interest as InterestCompletion[]) ?? []).map((r) => r.student_id),
-      );
 
       const allIds = new Set<string>([
         ...sessionsByStudent.keys(),
         ...appsByStudent.keys(),
         ...placByStudent.keys(),
-        ...aptByStudent.keys(),
-        ...interestSet,
       ]);
 
       const summaries: StudentSummary[] = Array.from(allIds).map((id) => ({
@@ -98,8 +79,6 @@ function StudentsRoster() {
         latestSession: sessionsByStudent.get(id) ?? null,
         application: appsByStudent.get(id) ?? null,
         placement: placByStudent.get(id) ?? null,
-        aptitude: aptByStudent.get(id) ?? null,
-        interestDone: interestSet.has(id),
       }));
 
       summaries.sort((a, b) => {
@@ -132,13 +111,12 @@ function StudentsRoster() {
     [rows],
   );
 
-  const internshipName = (slug: string) => INTERNSHIPS.find((i) => i.slug === slug)?.name ?? slug;
+  // Placements point at partner opportunities (`opp:<id>`); staff may see unapproved ones.
+  const { nameFor: internshipName } = useInternshipRefs({ includeUnapproved: true });
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-6xl px-6 py-24 text-sm text-charcoal-400">
-        Loading roster…
-      </main>
+      <main className="mx-auto max-w-6xl px-6 py-24 text-sm text-ink-500">Loading roster…</main>
     );
   }
 
@@ -146,12 +124,12 @@ function StudentsRoster() {
     <main className="mx-auto max-w-6xl px-6 py-16">
       <p className="eyebrow">Cohort</p>
       <h1 className="mt-3 text-4xl font-light">Students</h1>
-      <p className="mt-2 text-sm text-charcoal-500">
+      <p className="mt-2 text-sm text-ink-500">
         Aggregated view across all students whose data is visible to your instructor role.
       </p>
 
       {/* Stat tiles */}
-      <div className="mt-10 grid gap-px bg-charcoal-100 sm:grid-cols-4">
+      <div className="mt-10 grid gap-px bg-paper-sunken sm:grid-cols-4">
         <StatTile label="Total" value={counts.total} />
         <StatTile label="Assessed" value={counts.assessed} />
         <StatTile label="Applied" value={counts.applied} />
@@ -172,7 +150,7 @@ function StudentsRoster() {
           <button
             key={k}
             onClick={() => setFilter(k)}
-            className={`px-3 py-1.5 border ${filter === k ? "border-ink bg-ink text-canvas" : "border-charcoal-200 text-charcoal-500 hover:border-ink hover:text-ink"}`}
+            className={`px-3 py-1.5 border ${filter === k ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-500 hover:border-ink-900-900 hover:text-ink"}`}
           >
             {label}
           </button>
@@ -180,23 +158,21 @@ function StudentsRoster() {
       </div>
 
       {/* Roster table */}
-      <div className="mt-6 overflow-x-auto border border-charcoal-100">
+      <div className="mt-6 overflow-x-auto border border-line">
         <table className="w-full text-sm">
-          <thead className="bg-charcoal-50 text-left text-xs uppercase tracking-wider text-charcoal-500">
+          <thead className="bg-paper-sunken text-left text-xs uppercase tracking-wider text-ink-500">
             <tr>
               <th className="px-4 py-3 font-normal">Student</th>
               <th className="px-4 py-3 font-normal">Assessment</th>
               <th className="px-4 py-3 font-normal">Holland</th>
-              <th className="px-4 py-3 font-normal">Aptitude</th>
-              <th className="px-4 py-3 font-normal">Interest</th>
               <th className="px-4 py-3 font-normal">Application</th>
               <th className="px-4 py-3 font-normal">Placement</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-charcoal-100">
+          <tbody className="divide-y divide-line">
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-charcoal-400">
+                <td colSpan={5} className="px-4 py-10 text-center text-ink-500">
                   No students match this filter.
                 </td>
               </tr>
@@ -205,17 +181,17 @@ function StudentsRoster() {
               const code = r.latestSession?.holland_code;
               const top = code ? (code[0] as RIASECCode) : null;
               return (
-                <tr key={r.student_id} className="hover:bg-charcoal-50/50">
-                  <td className="px-4 py-3 font-mono text-xs text-charcoal-500">
+                <tr key={r.student_id} className="hover:bg-paper-sunken">
+                  <td className="px-4 py-3 font-mono text-xs text-ink-500">
                     {r.student_id.slice(0, 8)}…
                   </td>
                   <td className="px-4 py-3">
                     {r.latestSession?.completed_at ? (
                       <span className="text-ink">Complete</span>
                     ) : r.latestSession ? (
-                      <span className="text-charcoal-500">In progress</span>
+                      <span className="text-ink-500">In progress</span>
                     ) : (
-                      <span className="text-charcoal-300">—</span>
+                      <span className="text-ink-500">—</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
@@ -224,24 +200,14 @@ function StudentsRoster() {
                         {code}
                       </span>
                     ) : (
-                      <span className="text-charcoal-300">—</span>
+                      <span className="text-ink-500">—</span>
                     )}
-                  </td>
-                  <td className="px-4 py-3">
-                    {r.aptitude ? (
-                      `${r.aptitude.total_score}/${r.aptitude.total_items} (${r.aptitude.band})`
-                    ) : (
-                      <span className="text-charcoal-300">—</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    {r.interestDone ? "✓" : <span className="text-charcoal-300">—</span>}
                   </td>
                   <td className="px-4 py-3">
                     {r.application ? (
                       <span className="capitalize">{r.application.status.replace(/_/g, " ")}</span>
                     ) : (
-                      <span className="text-charcoal-300">—</span>
+                      <span className="text-ink-500">—</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
@@ -250,7 +216,7 @@ function StudentsRoster() {
                         {internshipName(r.placement.approved_internship_id)}
                       </span>
                     ) : (
-                      <span className="text-charcoal-300">—</span>
+                      <span className="text-ink-500">—</span>
                     )}
                   </td>
                 </tr>
@@ -260,7 +226,7 @@ function StudentsRoster() {
         </table>
       </div>
 
-      <p className="mt-6 text-xs text-charcoal-400">
+      <p className="mt-6 text-xs text-ink-500">
         Need finer-grain controls (per-program rosters, exports)?{" "}
         <Link to="/instructor/admin" className="ink-link">
           Admin tools →
@@ -273,7 +239,7 @@ function StudentsRoster() {
 function StatTile({ label, value }: { label: string; value: number }) {
   return (
     <div className="bg-canvas p-5">
-      <div className="text-xs uppercase tracking-wider text-charcoal-400">{label}</div>
+      <div className="text-xs uppercase tracking-wider text-ink-500">{label}</div>
       <div className="mt-2 text-3xl font-light">{value}</div>
     </div>
   );

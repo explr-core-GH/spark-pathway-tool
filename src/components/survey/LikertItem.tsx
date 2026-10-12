@@ -28,11 +28,9 @@ export function LikertItem({
   onSkip: () => void;
 }) {
   return (
-    <div className="border-b border-charcoal-100 py-5 last:border-b-0">
+    <div className="border-b border-line py-5 last:border-b-0">
       <div className="flex gap-3">
-        <span className="select-none text-sm font-semibold text-charcoal-400">
-          {number}.
-        </span>
+        <span className="select-none text-sm font-semibold text-ink-500">{number}.</span>
         <p className="flex-1 text-sm leading-relaxed text-ink">{text}</p>
       </div>
       <div className={skipped ? "mt-3 opacity-40" : "mt-3"}>
@@ -46,13 +44,9 @@ export function LikertItem({
       </div>
       <div className="mt-2 flex items-center gap-3 text-xs">
         {skipped ? (
-          <span className="text-charcoal-400">Skipped</span>
+          <span className="text-ink-500">Skipped</span>
         ) : (
-          <button
-            type="button"
-            onClick={onSkip}
-            className="text-charcoal-400 underline hover:text-ink"
-          >
+          <button type="button" onClick={onSkip} className="text-ink-500 underline hover:text-ink">
             Skip this question
           </button>
         )}

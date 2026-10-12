@@ -49,7 +49,7 @@ function ResetPassword() {
       <h1 className="text-3xl font-light">Set a new password</h1>
 
       {done ? (
-        <div className="mt-4 text-sm text-charcoal-600">
+        <div className="mt-4 text-sm text-ink-700">
           <p>Your password has been updated. Sign in with it now.</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link to="/sign-in" className="btn-ink">
@@ -94,12 +94,12 @@ function ResetPassword() {
                 <button
                   type="button"
                   onClick={() => setShow((s) => !s)}
-                  className="absolute inset-y-0 right-2 my-auto text-xs text-charcoal-500 hover:text-ink"
+                  className="absolute inset-y-0 right-2 my-auto text-xs text-ink-500 hover:text-ink"
                 >
                   {show ? "Hide" : "Show"}
                 </button>
               </div>
-              <p className="mt-1 text-[11px] text-charcoal-400">At least 8 characters.</p>
+              <p className="mt-1 text-[11px] text-ink-500">At least 8 characters.</p>
             </div>
             {error && (
               <p className="text-sm text-destructive" role="alert">

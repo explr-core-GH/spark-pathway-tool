@@ -12,14 +12,14 @@ const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(
 export function GateBadge({ o }: { o: Opportunity }) {
   if (o.gate_status === "pass") {
     return (
-      <span className="rounded-full border border-explr-600 bg-explr-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-explr-800">
+      <span className="rounded-full border border-green bg-mint-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-green-deep">
         EXPLR-endorsed
       </span>
     );
   }
   if (o.gate_status === "fail") {
     return (
-      <span className="rounded-full border border-charcoal-200 bg-charcoal-50 px-2 py-0.5 text-[10px] uppercase tracking-wider text-charcoal-500">
+      <span className="rounded-full border border-line-strong bg-paper-sunken px-2 py-0.5 text-[10px] uppercase tracking-wider text-ink-500">
         Exposure · not EXPLR-endorsed
       </span>
     );
@@ -63,14 +63,14 @@ export function WblPublicSection({ o }: { o: Opportunity }) {
   if (rows.length === 0 && skills.length === 0 && !w.work.positionDescription) return null;
   return (
     <section className="mt-6">
-      <p className="text-xs uppercase tracking-wider text-charcoal-400">What you need to know</p>
+      <p className="text-xs uppercase tracking-wider text-ink-500">What you need to know</p>
       {w.work.positionDescription && (
-        <p className="mt-2 whitespace-pre-wrap text-sm text-charcoal-700">
+        <p className="mt-2 whitespace-pre-wrap text-sm text-ink-700">
           {w.work.positionDescription}
         </p>
       )}
       {w.work.duties.length > 0 && (
-        <ul className="mt-2 list-disc pl-5 text-sm text-charcoal-700">
+        <ul className="mt-2 list-disc pl-5 text-sm text-ink-700">
           {w.work.duties.map((d) => (
             <li key={d}>{d}</li>
           ))}
@@ -80,15 +80,15 @@ export function WblPublicSection({ o }: { o: Opportunity }) {
         <dl className="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
           {rows.map(([k, v]) => (
             <div key={k}>
-              <dt className="text-xs uppercase tracking-wider text-charcoal-400">{k}</dt>
-              <dd className="mt-0.5 text-charcoal-700">{v}</dd>
+              <dt className="text-xs uppercase tracking-wider text-ink-500">{k}</dt>
+              <dd className="mt-0.5 text-ink-700">{v}</dd>
             </div>
           ))}
         </dl>
       )}
       {skills.length > 0 && (
-        <p className="mt-3 text-sm text-charcoal-700">
-          <span className="text-xs uppercase tracking-wider text-charcoal-400">
+        <p className="mt-3 text-sm text-ink-700">
+          <span className="text-xs uppercase tracking-wider text-ink-500">
             Skills you'll practice ·{" "}
           </span>
           {skills.join(", ")}
@@ -125,13 +125,13 @@ export function GatePanel({ o, onDone }: { o: Opportunity; onDone: () => void })
   }
 
   return (
-    <div className="mt-4 rounded border border-charcoal-200 bg-white p-4 text-sm">
-      <p className="text-xs font-semibold uppercase tracking-wider text-charcoal-500">
+    <div className="mt-4 rounded border border-line-strong bg-paper-raised p-4 text-sm">
+      <p className="text-xs font-semibold uppercase tracking-wider text-ink-500">
         EXPLR gate · currently {o.gate_status ?? "pending"}
       </p>
-      <dl className="mt-2 grid grid-cols-2 gap-2 text-xs text-charcoal-700">
+      <dl className="mt-2 grid grid-cols-2 gap-2 text-xs text-ink-700">
         <div>
-          <dt className="uppercase tracking-wider text-charcoal-400">Stage · type</dt>
+          <dt className="uppercase tracking-wider text-ink-500">Stage · type</dt>
           <dd>
             {o.stage ? STAGES[o.stage].label : "—"}
             {o.experience_type
@@ -140,11 +140,11 @@ export function GatePanel({ o, onDone }: { o: Opportunity; onDone: () => void })
           </dd>
         </div>
         <div>
-          <dt className="uppercase tracking-wider text-charcoal-400">Mentor</dt>
+          <dt className="uppercase tracking-wider text-ink-500">Mentor</dt>
           <dd>{w.mentor.name ? `${w.mentor.name} · ${w.mentor.email}` : "—"}</dd>
         </div>
         <div>
-          <dt className="uppercase tracking-wider text-charcoal-400">Pay · hours</dt>
+          <dt className="uppercase tracking-wider text-ink-500">Pay · hours</dt>
           <dd>
             {[
               w.compensation.type || null,
@@ -156,7 +156,7 @@ export function GatePanel({ o, onDone }: { o: Opportunity; onDone: () => void })
           </dd>
         </div>
         <div>
-          <dt className="uppercase tracking-wider text-charcoal-400">Legal</dt>
+          <dt className="uppercase tracking-wider text-ink-500">Legal</dt>
           <dd>
             {[
               w.legal.workersComp ? "WC ✓" : "WC ·",
@@ -167,7 +167,7 @@ export function GatePanel({ o, onDone }: { o: Opportunity; onDone: () => void })
         </div>
       </dl>
       {w.work.positionDescription && (
-        <p className="mt-2 whitespace-pre-wrap text-xs text-charcoal-700">
+        <p className="mt-2 whitespace-pre-wrap text-xs text-ink-700">
           {w.work.positionDescription}
         </p>
       )}
@@ -268,7 +268,7 @@ export function GatePanel({ o, onDone }: { o: Opportunity; onDone: () => void })
             type="button"
             disabled={busy}
             onClick={() => save("pending")}
-            className="text-xs text-charcoal-500 hover:text-ink"
+            className="text-xs text-ink-500 hover:text-ink"
           >
             Reset to pending
           </button>

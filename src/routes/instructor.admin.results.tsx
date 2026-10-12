@@ -3,8 +3,13 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ALL_CONSTRUCTS, getConstruct, getScale } from "@/lib/explr-stem";
 import { scoreConstruct, type ItemResponseValue } from "@/lib/explr-stem/scoring";
-import { INTERNSHIPS } from "@/lib/internships-catalog";
-import { fetchGroups, type GroupKind, type GroupSummary } from "@/lib/admin-groups";
+import {
+  fetchGroups,
+  GROUP_KINDS,
+  KIND_META,
+  type GroupKind,
+  type GroupSummary,
+} from "@/lib/admin-groups";
 
 export const Route = createFileRoute("/instructor/admin/results")({
   head: () => ({ meta: [{ title: "Results & downloads — Admin" }] }),
@@ -20,9 +25,6 @@ export const Route = createFileRoute("/instructor/admin/results")({
  */
 
 const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
-const SLUG_NAME: Record<string, string> = Object.fromEntries(
-  INTERNSHIPS.map((i) => [i.slug, i.name]),
-);
 const RIASEC_LETTERS = ["R", "I", "A", "S", "E", "C"] as const;
 const DISPLAY_CAP = 200;
 
@@ -58,13 +60,6 @@ type StemRow = {
   /** constructId → { before, after } (before null unless retro/then) */
   scores: Record<string, { before: number | null; after: number | null }>;
 };
-type InterestRow = {
-  sid: string;
-  student: string;
-  internship: string;
-  response: string;
-  date: string;
-};
 type OpenRow = {
   sid: string;
   student: string;
@@ -72,15 +67,6 @@ type OpenRow = {
   prompt: string;
   response: string;
   date: string;
-};
-type AptRow = {
-  sid: string;
-  student: string;
-  band: string;
-  subscale: Record<string, number>;
-  total: number;
-  items: number;
-  completed: string;
 };
 /** Item-level Likert response (used by the choice-distribution view). */
 type StemItemRow = {
@@ -94,13 +80,11 @@ type StemItemRow = {
   skipped: boolean;
 };
 
-type TabId = "charts" | "riasec" | "stem" | "interest" | "aptitude";
+type TabId = "charts" | "riasec" | "stem";
 const TABS: Array<{ id: TabId; label: string }> = [
   { id: "charts", label: "Charts & impact" },
   { id: "riasec", label: "RIASEC assessment" },
   { id: "stem", label: "STEM survey" },
-  { id: "interest", label: "Internship interest" },
-  { id: "aptitude", label: "Aptitude" },
 ];
 
 function ResultsHub() {
@@ -108,8 +92,6 @@ function ResultsHub() {
   const [riasec, setRiasec] = useState<RiasecRow[] | null>(null);
   const [stem, setStem] = useState<StemRow[] | null>(null);
   const [stemItems, setStemItems] = useState<StemItemRow[] | null>(null);
-  const [interest, setInterest] = useState<InterestRow[] | null>(null);
-  const [apt, setApt] = useState<AptRow[] | null>(null);
   const [openResp, setOpenResp] = useState<OpenRow[] | null>(null);
 
   const [err, setErr] = useState<string | null>(null);
@@ -122,19 +104,16 @@ function ResultsHub() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
-  // Per-tab focus pickers — narrow to ONE construct/letter/subscale/prompt so
-  // camps-vs-internships or before-vs-after comparisons are readable.
+  // Per-tab focus pickers — narrow to ONE construct/letter/prompt so
+  // camps-vs-classes or before-vs-after comparisons are readable.
   const [riasecFocus, setRiasecFocus] = useState<string>("all");
   const [stemFocus, setStemFocus] = useState<string>("all");
-  const [aptFocus, setAptFocus] = useState<string>("all");
   const [openFocus, setOpenFocus] = useState<string>("all");
-  const [interestFocus, setInterestFocus] = useState<string>("all");
 
   useEffect(() => {
     (async () => {
-      const kinds: GroupKind[] = ["camps", "classes", "internships"];
       const loaded = await Promise.all(
-        kinds.map((k) =>
+        GROUP_KINDS.map((k) =>
           fetchGroups(k)
             .then((gs) => gs.map((g) => ({ kind: k, g })))
             .catch(() => []),
@@ -315,54 +294,6 @@ function ResultsHub() {
             ];
           }),
         );
-
-        // Internship interest — long format.
-        const ints = await fetchAll<{
-          student_id: string;
-          internship_slug: string;
-          response: string;
-          responded_at: string;
-        }>(() =>
-          sb("internship_interest_responses")
-            .select("student_id, internship_slug, response, responded_at")
-            .order("responded_at", { ascending: false }),
-        );
-        if (cancelled) return;
-        setInterest(
-          ints.map((i) => ({
-            sid: i.student_id,
-            student: nm(i.student_id),
-            internship: SLUG_NAME[i.internship_slug] ?? i.internship_slug,
-            response: i.response,
-            date: (i.responded_at ?? "").slice(0, 10),
-          })),
-        );
-
-        // Aptitude.
-        const aps = await fetchAll<{
-          student_id: string;
-          band: string;
-          subscale_scores: Record<string, number> | null;
-          total_score: number;
-          total_items: number;
-          completed_at: string;
-        }>(() =>
-          sb("aptitude_results")
-            .select("student_id, band, subscale_scores, total_score, total_items, completed_at")
-            .order("completed_at", { ascending: false }),
-        );
-        if (cancelled) return;
-        setApt(
-          aps.map((a) => ({
-            sid: a.student_id,
-            student: nm(a.student_id),
-            band: a.band,
-            subscale: a.subscale_scores ?? {},
-            total: a.total_score,
-            items: a.total_items,
-            completed: (a.completed_at ?? "").slice(0, 10),
-          })),
-        );
       } catch (e) {
         if (!cancelled) setErr(e instanceof Error ? e.message : "Failed to load results");
       }
@@ -371,12 +302,6 @@ function ResultsHub() {
       cancelled = true;
     };
   }, []);
-
-  const aptSubscales = useMemo(() => {
-    const keys = new Set<string>();
-    for (const a of apt ?? []) for (const k of Object.keys(a.subscale)) keys.add(k);
-    return [...keys].sort();
-  }, [apt]);
 
   // Membership set for the selected group/kind (null = whole population).
   const memberSet = useMemo(() => {
@@ -418,16 +343,6 @@ function ResultsHub() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stemItems, memberSet, dateFrom, dateTo]);
 
-  const fInterest = useMemo(() => {
-    const pass = makeFilter();
-    return interest?.filter((r) => pass(r.sid, r.date)) ?? null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [interest, memberSet, dateFrom, dateTo]);
-  const fApt = useMemo(() => {
-    const pass = makeFilter();
-    return apt?.filter((r) => pass(r.sid, r.completed)) ?? null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apt, memberSet, dateFrom, dateTo]);
   const fOpen = useMemo(() => {
     const pass = makeFilter();
     return openResp?.filter((r) => pass(r.sid, r.date)) ?? null;
@@ -465,14 +380,6 @@ function ResultsHub() {
       return row;
     });
   }
-  function interestSheetRows() {
-    return (fInterest ?? []).map((r) => ({
-      Student: r.student,
-      Internship: r.internship,
-      Response: r.response,
-      Date: r.date,
-    }));
-  }
   function openSheetRows() {
     return (fOpen ?? []).map((r) => ({
       Student: r.student,
@@ -480,16 +387,6 @@ function ResultsHub() {
       Question: r.prompt,
       Answer: r.response,
       Date: r.date,
-    }));
-  }
-  function aptSheetRows() {
-    return (fApt ?? []).map((a) => ({
-      Student: a.student,
-      Band: a.band,
-      ...Object.fromEntries(aptSubscales.map((k) => [k.replace(/_/g, " "), a.subscale[k] ?? ""])),
-      Total: a.total,
-      Items: a.items,
-      Completed: a.completed,
     }));
   }
 
@@ -519,12 +416,6 @@ function ResultsHub() {
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(riasecSheetRows()), "RIASEC");
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stemSheetRows()), "STEM survey");
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(openSheetRows()), "Open responses");
-      XLSX.utils.book_append_sheet(
-        wb,
-        XLSX.utils.json_to_sheet(interestSheetRows()),
-        "Internship interest",
-      );
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(aptSheetRows()), "Aptitude");
       XLSX.writeFile(wb, `explr-results-${fileTag()}.xlsx`);
     } finally {
       setExporting(false);
@@ -535,14 +426,7 @@ function ResultsHub() {
     try {
       const XLSX = await import("xlsx");
       const wb = XLSX.utils.book_new();
-      const rows =
-        tab === "riasec"
-          ? riasecSheetRows()
-          : tab === "stem"
-            ? stemSheetRows()
-            : tab === "interest"
-              ? interestSheetRows()
-              : aptSheetRows();
+      const rows = tab === "riasec" ? riasecSheetRows() : stemSheetRows();
       const label = TABS.find((t) => t.id === tab)?.label ?? "Results";
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), label.slice(0, 31));
       if (tab === "stem") {
@@ -562,8 +446,6 @@ function ResultsHub() {
     charts: null,
     riasec: fRiasec?.length ?? null,
     stem: fStem?.length ?? null,
-    interest: fInterest?.length ?? null,
-    aptitude: fApt?.length ?? null,
   };
 
   return (
@@ -579,7 +461,7 @@ function ResultsHub() {
         </div>
         <button
           onClick={exportAll}
-          disabled={exporting || !riasec || !stem || !interest || !apt}
+          disabled={exporting || !riasec || !stem}
           className="print:hidden btn-ink disabled:opacity-40"
         >
           {exporting ? "Exporting…" : "Download all (Excel)"}
@@ -590,8 +472,8 @@ function ResultsHub() {
 
       {/* Filter — program type + specific group + date range.
           Applies to the tables AND the downloads. */}
-      <div className="print:hidden mt-8 flex flex-wrap items-end gap-3 border border-charcoal-100 bg-charcoal-50 px-4 py-3">
-        <label className="text-xs text-charcoal-500">
+      <div className="print:hidden mt-8 flex flex-wrap items-end gap-3 border border-line bg-paper-sunken px-4 py-3 rounded-[var(--radius-card)]">
+        <label className="text-xs text-ink-500">
           Program type
           <select
             className="field mt-1 w-44"
@@ -602,12 +484,14 @@ function ResultsHub() {
             }}
           >
             <option value="all">All types</option>
-            <option value="camps">Camps only</option>
-            <option value="internships">Internships only</option>
-            <option value="classes">Classes only</option>
+            {GROUP_KINDS.map((k) => (
+              <option key={k} value={k}>
+                {KIND_META[k].label} only
+              </option>
+            ))}
           </select>
         </label>
-        <label className="text-xs text-charcoal-500">
+        <label className="text-xs text-ink-500">
           Group
           <select
             className="field mt-1 max-w-xs"
@@ -615,26 +499,26 @@ function ResultsHub() {
             onChange={(e) => setGroupKey(e.target.value)}
           >
             <option value="all">
-              {kindKey === "all" ? "All students (everyone)" : `All ${kindKey}`}
+              {kindKey === "all"
+                ? "All students (everyone)"
+                : `All ${KIND_META[kindKey].label.toLowerCase()}`}
             </option>
-            {(["camps", "classes", "internships"] as GroupKind[])
-              .filter((k) => kindKey === "all" || k === kindKey)
-              .map((kind) => {
-                const of = groups.filter((x) => x.kind === kind && x.g.studentIds.length > 0);
-                if (of.length === 0) return null;
-                return (
-                  <optgroup key={kind} label={kind[0].toUpperCase() + kind.slice(1)}>
-                    {of.map(({ g }) => (
-                      <option key={`${kind}:${g.id}`} value={`${kind}:${g.id}`}>
-                        {g.name} ({g.studentIds.length})
-                      </option>
-                    ))}
-                  </optgroup>
-                );
-              })}
+            {GROUP_KINDS.filter((k) => kindKey === "all" || k === kindKey).map((kind) => {
+              const of = groups.filter((x) => x.kind === kind && x.g.studentIds.length > 0);
+              if (of.length === 0) return null;
+              return (
+                <optgroup key={kind} label={KIND_META[kind].label}>
+                  {of.map(({ g }) => (
+                    <option key={`${kind}:${g.id}`} value={`${kind}:${g.id}`}>
+                      {g.name} ({g.studentIds.length})
+                    </option>
+                  ))}
+                </optgroup>
+              );
+            })}
           </select>
         </label>
-        <label className="text-xs text-charcoal-500">
+        <label className="text-xs text-ink-500">
           From
           <input
             type="date"
@@ -643,7 +527,7 @@ function ResultsHub() {
             onChange={(e) => setDateFrom(e.target.value)}
           />
         </label>
-        <label className="text-xs text-charcoal-500">
+        <label className="text-xs text-ink-500">
           To
           <input
             type="date"
@@ -665,14 +549,14 @@ function ResultsHub() {
             Clear — show everyone
           </button>
         )}
-        <span className="ml-auto self-center text-xs text-charcoal-400">
+        <span className="ml-auto self-center text-xs text-ink-500">
           {filterActive
             ? "Filter applies to tables and downloads."
             : "Showing the whole population."}
         </span>
       </div>
 
-      <div className="print:hidden mt-6 flex flex-wrap gap-1 border-b border-charcoal-100">
+      <div className="print:hidden mt-6 flex flex-wrap gap-1 border-b border-line">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -680,20 +564,20 @@ function ResultsHub() {
             className="border-b-2 px-4 py-2 text-sm"
             style={{
               borderColor: tab === t.id ? "var(--ink)" : "transparent",
-              color: tab === t.id ? "var(--ink)" : "var(--color-charcoal-400)",
+              color: tab === t.id ? "var(--ink)" : "var(--color-ink-500)",
               fontWeight: tab === t.id ? 500 : 400,
             }}
           >
             {t.label}
             {counts[t.id] != null && (
-              <span className="ml-1.5 text-xs text-charcoal-400">({counts[t.id]})</span>
+              <span className="ml-1.5 text-xs text-ink-500">({counts[t.id]})</span>
             )}
           </button>
         ))}
         {tab === "charts" ? (
           <button
             onClick={() => window.print()}
-            className="ml-auto self-center text-xs text-explr-600 hover:underline"
+            className="ml-auto self-center text-xs text-green-deep hover:underline"
           >
             Print / save as PDF
           </button>
@@ -701,7 +585,7 @@ function ResultsHub() {
           <button
             onClick={exportTab}
             disabled={exporting}
-            className="ml-auto self-center text-xs text-explr-600 hover:underline disabled:opacity-40"
+            className="ml-auto self-center text-xs text-green-deep hover:underline disabled:opacity-40"
           >
             Export this tab
           </button>
@@ -711,8 +595,8 @@ function ResultsHub() {
       {/* Per-tab focus picker — narrow to ONE question/construct/subscale so
           side-by-side comparison across groups is readable. */}
       {tab !== "charts" && (
-        <div className="print:hidden mt-4 flex flex-wrap items-center gap-2 text-xs text-charcoal-500">
-          <span className="uppercase tracking-wider text-charcoal-400">Focus</span>
+        <div className="print:hidden mt-4 flex flex-wrap items-center gap-2 text-xs text-ink-500">
+          <span className="uppercase tracking-wider text-ink-500">Focus</span>
           {tab === "riasec" && (
             <select
               className="field w-56"
@@ -741,34 +625,6 @@ function ResultsHub() {
               ))}
             </select>
           )}
-          {tab === "aptitude" && (
-            <select
-              className="field w-64"
-              value={aptFocus}
-              onChange={(e) => setAptFocus(e.target.value)}
-            >
-              <option value="all">All subscales</option>
-              {aptSubscales.map((k) => (
-                <option key={k} value={k}>
-                  {k.replace(/_/g, " ")}
-                </option>
-              ))}
-            </select>
-          )}
-          {tab === "interest" && (
-            <select
-              className="field w-72"
-              value={interestFocus}
-              onChange={(e) => setInterestFocus(e.target.value)}
-            >
-              <option value="all">All internships</option>
-              {[...new Set((fInterest ?? []).map((r) => r.internship))].sort().map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-          )}
           {tab === "stem" && (
             <select
               className="field w-72"
@@ -792,13 +648,12 @@ function ResultsHub() {
             riasec={fRiasec}
             stem={fStem}
             stemItems={fStemItems}
-            interest={fInterest}
             scope={
               (selectedGroup
                 ? selectedGroup.g.name
                 : kindKey === "all"
                   ? "All students"
-                  : `All ${kindKey}`) +
+                  : `All ${KIND_META[kindKey].label.toLowerCase()}`) +
               (dateFrom || dateTo ? ` · ${dateFrom || "start"} → ${dateTo || "now"}` : "")
             }
           />
@@ -815,19 +670,6 @@ function ResultsHub() {
             />
           </>
         )}
-
-        {tab === "interest" && (
-          <InterestTable
-            rows={
-              interestFocus === "all"
-                ? fInterest
-                : (fInterest ?? []).filter((r) => r.internship === interestFocus)
-            }
-          />
-        )}
-        {tab === "aptitude" && (
-          <AptTable rows={fApt} subscales={aptFocus === "all" ? aptSubscales : [aptFocus]} />
-        )}
       </div>
     </main>
   );
@@ -835,20 +677,18 @@ function ResultsHub() {
 
 function Th({ children }: { children: React.ReactNode }) {
   return (
-    <th className="px-3 py-2 text-left text-xs font-normal uppercase tracking-wider text-charcoal-400">
+    <th className="px-3 py-2 text-left text-xs font-normal uppercase tracking-wider text-ink-500">
       {children}
     </th>
   );
 }
 function Empty({ loading }: { loading: boolean }) {
-  return (
-    <p className="py-8 text-sm text-charcoal-400">{loading ? "Loading…" : "No results yet."}</p>
-  );
+  return <p className="py-8 text-sm text-ink-500">{loading ? "Loading…" : "No results yet."}</p>;
 }
 function Capped({ total }: { total: number }) {
   if (total <= DISPLAY_CAP) return null;
   return (
-    <p className="mt-2 text-xs text-charcoal-400">
+    <p className="mt-2 text-xs text-ink-500">
       Showing the first {DISPLAY_CAP} of {total} — the Excel download has everything.
     </p>
   );
@@ -861,7 +701,7 @@ function RiasecTable({ rows, focus = "all" }: { rows: RiasecRow[] | null; focus?
     <>
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b border-charcoal-100 bg-charcoal-50">
+          <tr className="border-b border-line bg-paper-sunken">
             <Th>Student</Th>
             <Th>Grade</Th>
             <Th>Code</Th>
@@ -871,7 +711,7 @@ function RiasecTable({ rows, focus = "all" }: { rows: RiasecRow[] | null; focus?
             <Th>Completed</Th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-charcoal-100">
+        <tbody className="divide-y divide-line">
           {rows.slice(0, DISPLAY_CAP).map((r, i) => (
             <tr key={i}>
               <td className="px-3 py-2 font-medium">{r.student}</td>
@@ -882,7 +722,7 @@ function RiasecTable({ rows, focus = "all" }: { rows: RiasecRow[] | null; focus?
                   {r.scores[l] ?? r.scores[l.toLowerCase()] ?? "—"}
                 </td>
               ))}
-              <td className="px-3 py-2 text-xs text-charcoal-500">{r.completed}</td>
+              <td className="px-3 py-2 text-xs text-ink-500">{r.completed}</td>
             </tr>
           ))}
         </tbody>
@@ -899,7 +739,7 @@ function StemTable({ rows, focus = "all" }: { rows: StemRow[] | null; focus?: st
     <>
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b border-charcoal-100 bg-charcoal-50">
+          <tr className="border-b border-line bg-paper-sunken">
             <Th>Student</Th>
             <Th>Survey</Th>
             <Th>Admin</Th>
@@ -909,12 +749,12 @@ function StemTable({ rows, focus = "all" }: { rows: StemRow[] | null; focus?: st
             <Th>Completed</Th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-charcoal-100">
+        <tbody className="divide-y divide-line">
           {rows.slice(0, DISPLAY_CAP).map((r, i) => (
             <tr key={i}>
               <td className="px-3 py-2 font-medium">{r.student}</td>
               <td className="px-3 py-2 text-xs">{r.survey}</td>
-              <td className="px-3 py-2 text-xs text-charcoal-500">{r.administration}</td>
+              <td className="px-3 py-2 text-xs text-ink-500">{r.administration}</td>
               {constructs.map((cid) => {
                 const s = r.scores[cid];
                 return (
@@ -927,7 +767,7 @@ function StemTable({ rows, focus = "all" }: { rows: StemRow[] | null; focus?: st
                   </td>
                 );
               })}
-              <td className="px-3 py-2 text-xs text-charcoal-500">{r.completed}</td>
+              <td className="px-3 py-2 text-xs text-ink-500">{r.completed}</td>
             </tr>
           ))}
         </tbody>
@@ -943,63 +783,22 @@ function OpenResponsesList({ rows }: { rows: OpenRow[] | null }) {
   return (
     <section className="mt-10">
       <h3 className="text-sm font-semibold">Open responses ({rows.length})</h3>
-      <p className="mt-1 text-xs text-charcoal-500">
+      <p className="mt-1 text-xs text-ink-500">
         What students wrote in their own words — also in the Excel download as its own sheet.
       </p>
       <div className="mt-4 space-y-3">
         {rows.slice(0, DISPLAY_CAP).map((r, i) => (
-          <div key={i} className="border border-charcoal-100 p-3">
-            <p className="text-xs text-charcoal-500">
+          <div key={i} className="border border-line p-3 rounded-[var(--radius-card)]">
+            <p className="text-xs text-ink-500">
               <span className="font-medium text-ink">{r.student}</span> · {r.survey} · {r.date}
             </p>
-            <p className="mt-1 text-xs text-charcoal-400">{r.prompt}</p>
-            <p className="mt-1 whitespace-pre-wrap text-sm text-charcoal-700">{r.response}</p>
+            <p className="mt-1 text-xs text-ink-500">{r.prompt}</p>
+            <p className="mt-1 whitespace-pre-wrap text-sm text-ink-700">{r.response}</p>
           </div>
         ))}
       </div>
       <Capped total={rows.length} />
     </section>
-  );
-}
-
-function InterestTable({ rows }: { rows: InterestRow[] | null }) {
-  if (!rows || rows.length === 0) return <Empty loading={!rows} />;
-  return (
-    <>
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr className="border-b border-charcoal-100 bg-charcoal-50">
-            <Th>Student</Th>
-            <Th>Internship</Th>
-            <Th>Response</Th>
-            <Th>Date</Th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-charcoal-100">
-          {rows.slice(0, DISPLAY_CAP).map((r, i) => (
-            <tr key={i}>
-              <td className="px-3 py-2 font-medium">{r.student}</td>
-              <td className="px-3 py-2">{r.internship}</td>
-              <td className="px-3 py-2">
-                <span
-                  className={
-                    r.response === "yes"
-                      ? "text-explr-600"
-                      : r.response === "no"
-                        ? "text-charcoal-400"
-                        : ""
-                  }
-                >
-                  {r.response}
-                </span>
-              </td>
-              <td className="px-3 py-2 text-xs text-charcoal-500">{r.date}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <Capped total={rows.length} />
-    </>
   );
 }
 
@@ -1013,16 +812,14 @@ function ImpactCharts({
   riasec,
   stem,
   stemItems,
-  interest,
   scope,
 }: {
   riasec: RiasecRow[] | null;
   stem: StemRow[] | null;
   stemItems: StemItemRow[] | null;
-  interest: InterestRow[] | null;
   scope: string;
 }) {
-  const loading = !riasec || !stem || !interest;
+  const loading = !riasec || !stem;
 
   // ── STEM start→end pairs per construct ──────────────────────────────────
   const efficacy = useMemo(() => {
@@ -1121,44 +918,15 @@ function ImpactCharts({
   }, [riasec]);
   const riasecMax = Math.max(1, ...riasecDist.map((d) => d.count));
 
-  // ── Internship demand (top yes counts) ───────────────────────────────────
-  const demand = useMemo(() => {
-    const yes = new Map<string, number>();
-    for (const i of interest ?? []) {
-      if (i.response !== "yes") continue;
-      yes.set(i.internship, (yes.get(i.internship) ?? 0) + 1);
-    }
-    return [...yes.entries()]
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 8);
-  }, [interest]);
-  const demandMax = Math.max(1, ...demand.map((d) => d.count));
-
-  // ── Interest yes/maybe/no overall split ──────────────────────────────────
-  const interestSplit = useMemo(() => {
-    let yes = 0,
-      maybe = 0,
-      no = 0;
-    for (const i of interest ?? []) {
-      if (i.response === "yes") yes++;
-      else if (i.response === "maybe") maybe++;
-      else if (i.response === "no") no++;
-    }
-    const total = yes + maybe + no;
-    const pct = (n: number) => (total ? Math.round((n / total) * 100) : 0);
-    return { yes, maybe, no, total, pct };
-  }, [interest]);
-
   const assessed = new Set((riasec ?? []).map((r) => r.sid)).size;
 
-  if (loading) return <p className="py-8 text-sm text-charcoal-400">Loading…</p>;
+  if (loading) return <p className="py-8 text-sm text-ink-500">Loading…</p>;
 
   return (
     <div className="max-w-4xl">
-      <p className="text-sm text-charcoal-500">
+      <p className="text-sm text-ink-500">
         <span className="font-medium text-ink">{scope}</span>
-        <span className="ml-2 text-xs text-charcoal-400">
+        <span className="ml-2 text-xs text-ink-500">
           generated {new Date().toLocaleDateString()}
         </span>
       </p>
@@ -1172,18 +940,18 @@ function ImpactCharts({
           value={avgGrowth == null ? "—" : `${avgGrowth >= 0 ? "+" : ""}${avgGrowth.toFixed(2)}`}
           accent={avgGrowth != null && avgGrowth > 0}
         />
-        <Tile label="Interest responses" value={String(interest!.length)} />
+        <Tile label="RIASEC assessments" value={String(riasec!.length)} />
       </div>
 
       {/* STEM efficacy start → end */}
       <section className="mt-10">
         <h3 className="text-sm font-semibold">STEM efficacy — start vs. end of program</h3>
-        <p className="mt-1 text-xs text-charcoal-500">
+        <p className="mt-1 text-xs text-ink-500">
           Average construct score before and after, from matched pre/post surveys and retrospective
           before/after items. Higher = more confidence and interest.
         </p>
         {efficacy.length === 0 ? (
-          <p className="mt-4 text-sm text-charcoal-400">
+          <p className="mt-4 text-sm text-ink-500">
             No matched start/end surveys in this selection yet.
           </p>
         ) : (
@@ -1194,40 +962,40 @@ function ImpactCharts({
                 <div key={e.cid}>
                   <div className="flex items-baseline justify-between text-sm">
                     <span>{e.name}</span>
-                    <span className="text-xs text-charcoal-500">
+                    <span className="text-xs text-ink-500">
                       {e.before!.toFixed(2)} → {e.after!.toFixed(2)} / {e.max}
                       <span
                         className="ml-2 font-semibold"
-                        style={{ color: delta >= 0 ? "var(--color-explr-600)" : "#B85042" }}
+                        style={{ color: delta >= 0 ? "var(--color-green-deep)" : "#B85042" }}
                       >
                         {delta >= 0 ? "+" : ""}
                         {delta.toFixed(2)}
                       </span>
-                      <span className="ml-2 text-charcoal-400">n={e.n}</span>
+                      <span className="ml-2 text-ink-500">n={e.n}</span>
                     </span>
                   </div>
                   <div className="mt-1.5 space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="w-10 shrink-0 text-[10px] uppercase tracking-wider text-charcoal-400">
+                      <span className="w-10 shrink-0 text-[10px] uppercase tracking-wider text-ink-500">
                         start
                       </span>
-                      <div className="h-3 flex-1 bg-charcoal-100">
+                      <div className="h-3 flex-1 bg-paper-sunken">
                         <div
-                          className="h-3 bg-charcoal-400"
+                          className="h-3 bg-ink-500"
                           style={{ width: `${Math.min(100, (e.before! / e.max) * 100)}%` }}
                         />
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="w-10 shrink-0 text-[10px] uppercase tracking-wider text-charcoal-400">
+                      <span className="w-10 shrink-0 text-[10px] uppercase tracking-wider text-ink-500">
                         end
                       </span>
-                      <div className="h-3 flex-1 bg-charcoal-100">
+                      <div className="h-3 flex-1 bg-paper-sunken">
                         <div
                           className="h-3"
                           style={{
                             width: `${Math.min(100, (e.after! / e.max) * 100)}%`,
-                            background: "var(--color-explr-500)",
+                            background: "var(--color-green)",
                           }}
                         />
                       </div>
@@ -1243,23 +1011,23 @@ function ImpactCharts({
       {/* RIASEC distribution */}
       <section className="mt-10">
         <h3 className="text-sm font-semibold">Interest profile of this group</h3>
-        <p className="mt-1 text-xs text-charcoal-500">
+        <p className="mt-1 text-xs text-ink-500">
           Students by dominant Holland (RIASEC) interest type.
         </p>
         <div className="mt-4 space-y-2">
           {riasecDist.map((d) => (
             <div key={d.letter} className="flex items-center gap-3 text-sm">
-              <span className="w-28 shrink-0 text-charcoal-600">{d.label}</span>
-              <div className="h-4 flex-1 bg-charcoal-100">
+              <span className="w-28 shrink-0 text-ink-700">{d.label}</span>
+              <div className="h-4 flex-1 bg-paper-sunken">
                 <div
                   className="h-4"
                   style={{
                     width: `${(d.count / riasecMax) * 100}%`,
-                    background: "var(--color-explr-500)",
+                    background: "var(--color-green)",
                   }}
                 />
               </div>
-              <span className="w-20 shrink-0 text-right text-xs tabular-nums text-charcoal-500">
+              <span className="w-20 shrink-0 text-right text-xs tabular-nums text-ink-500">
                 {d.count} · {d.pct}%
               </span>
             </div>
@@ -1267,91 +1035,17 @@ function ImpactCharts({
         </div>
       </section>
 
-      {/* Internship demand */}
-      {demand.length > 0 && (
-        <section className="mt-10">
-          <h3 className="text-sm font-semibold">Internship demand</h3>
-          <p className="mt-1 text-xs text-charcoal-500">
-            Programs students said &ldquo;yes&rdquo; to on the interest survey.
-          </p>
-          <div className="mt-4 space-y-2">
-            {demand.map((d) => (
-              <div key={d.name} className="flex items-center gap-3 text-sm">
-                <span className="w-44 shrink-0 truncate text-charcoal-600">{d.name}</span>
-                <div className="h-4 flex-1 bg-charcoal-100">
-                  <div
-                    className="h-4"
-                    style={{
-                      width: `${(d.count / demandMax) * 100}%`,
-                      background: "var(--color-explr-500)",
-                    }}
-                  />
-                </div>
-                <span className="w-10 shrink-0 text-right text-xs tabular-nums text-charcoal-500">
-                  {d.count}
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Interest yes / maybe / no split */}
-      {interestSplit.total > 0 && (
-        <section className="mt-10">
-          <h3 className="text-sm font-semibold">Overall internship interest</h3>
-          <p className="mt-1 text-xs text-charcoal-500">
-            Every yes / maybe / no reply across every internship shown (
-            {interestSplit.total.toLocaleString()} replies).
-          </p>
-          <div className="mt-4 flex h-6 w-full overflow-hidden bg-charcoal-100 text-[10px] font-medium text-white">
-            {(["yes", "maybe", "no"] as const).map((k) => {
-              const n = interestSplit[k];
-              const pct = interestSplit.pct(n);
-              const bg =
-                k === "yes" ? "var(--color-explr-500)" : k === "maybe" ? "#C9A227" : "#8A8A8A";
-              return pct > 0 ? (
-                <div
-                  key={k}
-                  className="flex items-center justify-center"
-                  style={{ width: `${pct}%`, background: bg }}
-                >
-                  {pct >= 8 ? `${pct}%` : ""}
-                </div>
-              ) : null;
-            })}
-          </div>
-          <div className="mt-2 flex gap-4 text-xs text-charcoal-500">
-            <span>
-              <span
-                className="mr-1 inline-block h-2 w-2"
-                style={{ background: "var(--color-explr-500)" }}
-              />
-              Yes {interestSplit.yes} ({interestSplit.pct(interestSplit.yes)}%)
-            </span>
-            <span>
-              <span className="mr-1 inline-block h-2 w-2" style={{ background: "#C9A227" }} />
-              Maybe {interestSplit.maybe} ({interestSplit.pct(interestSplit.maybe)}%)
-            </span>
-            <span>
-              <span className="mr-1 inline-block h-2 w-2" style={{ background: "#8A8A8A" }} />
-              No {interestSplit.no} ({interestSplit.pct(interestSplit.no)}%)
-            </span>
-          </div>
-        </section>
-      )}
-
       {/* STEM item-level response distribution — full choice breakdown */}
       <section className="mt-10">
         <h3 className="text-sm font-semibold">STEM survey — response breakdown</h3>
-        <p className="mt-1 text-xs text-charcoal-500">
+        <p className="mt-1 text-xs text-ink-500">
           Every Likert response shown as a percentage of respondents per question. Switch focused
           construct on the &ldquo;STEM survey&rdquo; tab to change scope.
         </p>
         <StemItemDistribution rows={stemItems} focus="all" compact />
       </section>
 
-      <p className="mt-10 text-[11px] text-charcoal-400">
+      <p className="mt-10 text-[11px] text-ink-500">
         EXPLR Pathways · RIASEC interest assessment &amp; S-STEM survey · Use &ldquo;Print / save as
         PDF&rdquo; to share this page.
       </p>
@@ -1361,54 +1055,15 @@ function ImpactCharts({
 
 function Tile({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className="border border-charcoal-100 bg-white p-4">
-      <p className="text-[10px] uppercase tracking-wider text-charcoal-400">{label}</p>
+    <div className="border border-line bg-paper-raised p-4 rounded-[var(--radius-card)]">
+      <p className="text-[10px] uppercase tracking-wider text-ink-500">{label}</p>
       <p
         className="mt-1 text-3xl font-light tabular-nums"
-        style={accent ? { color: "var(--color-explr-600)" } : undefined}
+        style={accent ? { color: "var(--color-green-deep)" } : undefined}
       >
         {value}
       </p>
     </div>
-  );
-}
-
-function AptTable({ rows, subscales }: { rows: AptRow[] | null; subscales: string[] }) {
-  if (!rows || rows.length === 0) return <Empty loading={!rows} />;
-  return (
-    <>
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr className="border-b border-charcoal-100 bg-charcoal-50">
-            <Th>Student</Th>
-            <Th>Band</Th>
-            {subscales.map((k) => (
-              <Th key={k}>{k.replace(/_/g, " ")}</Th>
-            ))}
-            <Th>Total</Th>
-            <Th>Completed</Th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-charcoal-100">
-          {rows.slice(0, DISPLAY_CAP).map((a, i) => (
-            <tr key={i}>
-              <td className="px-3 py-2 font-medium">{a.student}</td>
-              <td className="px-3 py-2">{a.band}</td>
-              {subscales.map((k) => (
-                <td key={k} className="px-3 py-2 tabular-nums">
-                  {a.subscale[k] ?? "—"}
-                </td>
-              ))}
-              <td className="px-3 py-2 tabular-nums">
-                {a.total}/{a.items}
-              </td>
-              <td className="px-3 py-2 text-xs text-charcoal-500">{a.completed}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <Capped total={rows.length} />
-    </>
   );
 }
 
@@ -1443,7 +1098,7 @@ function buildItemCatalog(): ItemCatalog[] {
   return out;
 }
 
-const LIKERT_COLORS = ["#B85042", "#D48A7A", "#B0B0B0", "#8FC0B3", "var(--color-explr-500)"];
+const LIKERT_COLORS = ["#B85042", "#D48A7A", "#B0B0B0", "#8FC0B3", "var(--color-green)"];
 
 function StemItemDistribution({
   rows,
@@ -1525,12 +1180,10 @@ function StemItemDistribution({
     return out;
   }, [rows, focusName, byId]);
 
-  if (!rows) return <p className="mt-6 text-sm text-charcoal-400">Loading response breakdown…</p>;
+  if (!rows) return <p className="mt-6 text-sm text-ink-500">Loading response breakdown…</p>;
   if (!distributions || distributions.length === 0) {
     return (
-      <p className="mt-6 text-sm text-charcoal-400">
-        No STEM survey responses in this selection yet.
-      </p>
+      <p className="mt-6 text-sm text-ink-500">No STEM survey responses in this selection yet.</p>
     );
   }
 
@@ -1545,7 +1198,7 @@ function StemItemDistribution({
     <section className={compact ? "mt-6" : "mt-10"}>
       {!compact && <h3 className="text-sm font-semibold">Response breakdown per question</h3>}
       {!compact && (
-        <p className="mt-1 text-xs text-charcoal-500">
+        <p className="mt-1 text-xs text-ink-500">
           For each Likert item, % of students picking each option. Retrospective surveys show a
           Before → After pair.
         </p>
@@ -1553,10 +1206,8 @@ function StemItemDistribution({
       <div className="mt-4 space-y-8">
         {[...byConstruct.entries()].map(([cname, items]) => (
           <div key={cname}>
-            <p className="text-xs font-semibold uppercase tracking-wider text-charcoal-500">
-              {cname}
-            </p>
-            <div className="mt-2 flex flex-wrap gap-3 text-[10px] text-charcoal-500">
+            <p className="text-xs font-semibold uppercase tracking-wider text-ink-500">{cname}</p>
+            <div className="mt-2 flex flex-wrap gap-3 text-[10px] text-ink-500">
               {items[0].scale.points.map((p, i) => (
                 <span key={p.value} className="inline-flex items-center gap-1">
                   <span
@@ -1572,13 +1223,13 @@ function StemItemDistribution({
                 <div key={d.itemId}>
                   <div className="flex items-baseline justify-between gap-3 text-sm">
                     <span className="flex-1">{d.text}</span>
-                    <span className="text-[10px] tabular-nums text-charcoal-400">
+                    <span className="text-[10px] tabular-nums text-ink-500">
                       n={d.nNow || d.nThen}
                     </span>
                   </div>
                   {d.then && (
                     <div className="mt-1.5 flex items-center gap-2">
-                      <span className="w-12 shrink-0 text-[10px] uppercase tracking-wider text-charcoal-400">
+                      <span className="w-12 shrink-0 text-[10px] uppercase tracking-wider text-ink-500">
                         before
                       </span>
                       <StackedBar segments={d.then} />
@@ -1586,7 +1237,7 @@ function StemItemDistribution({
                   )}
                   <div className="mt-1 flex items-center gap-2">
                     {d.then && (
-                      <span className="w-12 shrink-0 text-[10px] uppercase tracking-wider text-charcoal-400">
+                      <span className="w-12 shrink-0 text-[10px] uppercase tracking-wider text-ink-500">
                         after
                       </span>
                     )}
@@ -1608,7 +1259,7 @@ function StackedBar({
   segments: Array<{ value: number; label: string; count: number; pct: number }>;
 }) {
   return (
-    <div className="flex h-5 flex-1 overflow-hidden bg-charcoal-100 text-[9px] font-medium text-white">
+    <div className="flex h-5 flex-1 overflow-hidden bg-paper-sunken text-[9px] font-medium text-white">
       {segments.map((s, i) =>
         s.pct > 0 ? (
           <div

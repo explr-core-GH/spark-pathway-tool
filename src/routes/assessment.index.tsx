@@ -104,17 +104,16 @@ function AssessmentIntro() {
     navigate({ to: "/assessment/$sessionId", params: { sessionId } });
   }
 
-  if (loading)
-    return <div className="mx-auto max-w-2xl px-6 py-24 text-charcoal-500">Loading…</div>;
+  if (loading) return <div className="mx-auto max-w-2xl px-6 py-24 text-ink-500">Loading…</div>;
 
   if (educatorMismatch) {
     return (
       <main className="mx-auto max-w-md px-6 py-24 text-center">
         <p className="eyebrow">Instructor account</p>
         <h1 className="mt-3 text-2xl font-light">This area is for students</h1>
-        <p className="mt-4 text-sm text-charcoal-500">
+        <p className="mt-4 text-sm text-ink-500">
           Your account is registered as an instructor. Head to your instructor dashboard for
-          curriculum, internships, and rosters.
+          rosters, checkpoints, and experiences to review.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link to="/instructor/dashboard" className="btn-ink">
@@ -137,12 +136,12 @@ function AssessmentIntro() {
         <h1 className="display mt-10">Get started.</h1>
         <p className="lead mt-4">Pick your pathway.</p>
         <div className="mt-12 grid gap-6 md:grid-cols-2">
-          <div className="r-md border border-charcoal-100 p-8">
+          <div className="r-md border border-line p-8 rounded-[var(--radius-card)]">
             <p className="eyebrow">For students</p>
-            <h4 className="mt-3 text-xl font-light text-charcoal-700">
+            <h4 className="mt-3 text-xl font-light text-ink-700">
               A starting point you actually own.
             </h4>
-            <p className="mt-3 text-sm text-charcoal-500">
+            <p className="mt-3 text-sm text-ink-500">
               Take the survey. See your Holland code. Use it to ask better questions about what
               comes after high school.
             </p>
@@ -155,12 +154,12 @@ function AssessmentIntro() {
               </Link>
             </div>
           </div>
-          <div className="r-md border border-charcoal-100 p-8">
+          <div className="r-md border border-line p-8 rounded-[var(--radius-card)]">
             <p className="eyebrow">For instructors</p>
-            <h4 className="mt-3 text-xl font-light text-charcoal-700">
-              Curriculum and rosters in one place.
+            <h4 className="mt-3 text-xl font-light text-ink-700">
+              Rosters and checkpoints in one place.
             </h4>
-            <p className="mt-3 text-sm text-charcoal-500">
+            <p className="mt-3 text-sm text-ink-500">
               STEM, CS, robotics coaches, camp instructors, and internship supervisors — manage
               assignments and student lists per program.
             </p>
@@ -190,7 +189,7 @@ function AssessmentIntro() {
             Forty-eight short statements. For each one, say how much you'd like to do it. About ten
             minutes. Be honest — there are no right answers.
           </p>
-          <ul className="mt-8 space-y-2 text-sm text-charcoal-500">
+          <ul className="mt-8 space-y-2 text-sm text-ink-500">
             <li>· Your answers are private to you.</li>
             <li>· You can pause and come back later.</li>
             <li>· You'll get a personal Holland code at the end.</li>
@@ -217,7 +216,7 @@ function AssessmentIntro() {
                   </option>
                 ))}
               </select>
-              <p id="assess-grade-hint" className="mt-1 text-[11px] text-charcoal-400">
+              <p id="assess-grade-hint" className="mt-1 text-[11px] text-ink-500">
                 The grade you&apos;re entering this fall.
               </p>
             </div>

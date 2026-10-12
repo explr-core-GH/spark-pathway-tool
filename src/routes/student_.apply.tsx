@@ -3,15 +3,16 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
-import { INTERNSHIPS, type Internship } from "@/lib/internships-catalog";
 import { HollandLetter, buildWhyFits, type ScaleScores } from "@/lib/holland-fit";
 import {
-  oppToCatalogInternship,
   oppSlug,
   isOppSlug,
   oppIdFromSlug,
+  type Internship,
   type Opportunity,
 } from "@/lib/opportunities";
+import { fetchInternshipCatalog } from "@/lib/internship-refs";
+import type { RIASECCode } from "@/lib/riasec";
 import { acknowledgmentsFor, targetFromOpportunity } from "@/lib/matching/placement";
 
 export const Route = createFileRoute("/student_/apply")({
@@ -29,7 +30,6 @@ export const Route = createFileRoute("/student_/apply")({
 const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
 const MIN_CHOICES = 4;
 
-type InterestMap = Record<string, "yes" | "maybe" | "no">;
 const STATUS_LABEL: Record<string, string> = {
   requested: "Requested",
   approved: "Approved — complete it",
@@ -43,7 +43,6 @@ function SelectPage() {
   const { opportunity } = Route.useSearch();
 
   const [internships, setInternships] = useState<Internship[]>([]);
-  const [interest, setInterest] = useState<InterestMap>({});
   const [hollandCode, setHollandCode] = useState<string | null>(null);
   const [scaleScores, setScaleScores] = useState<ScaleScores>({});
   // Ordered = rank order (index 0 = #1 choice).
@@ -63,36 +62,28 @@ function SelectPage() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const [{ data: vis }, { data: ints }, { data: sess }, { data: orgInts }, { data: sels }] =
-        await Promise.all([
-          supabase.from("internship_visibility").select("internship_slug, visible"),
-          supabase
-            .from("internship_interest_responses")
-            .select("internship_slug, response")
-            .eq("student_id", user.id),
-          supabase
-            .from("assessment_sessions")
-            .select("holland_code, scale_scores, completed_at")
-            .eq("student_id", user.id)
-            .not("completed_at", "is", null)
-            .order("completed_at", { ascending: false })
-            .limit(1)
-            .maybeSingle(),
-          sb("opportunities").select("*").eq("type", "internship").eq("status", "approved"),
-          sb("internship_selections")
-            .select("internship_ref, status, rank, acknowledgments")
-            .eq("student_id", user.id),
-        ]);
+      const [{ data: sess }, catalog, { data: sels }] = await Promise.all([
+        supabase
+          .from("assessment_sessions")
+          .select("holland_code, scale_scores, completed_at")
+          .eq("student_id", user.id)
+          .not("completed_at", "is", null)
+          .order("completed_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        fetchInternshipCatalog(),
+        sb("internship_selections")
+          .select("internship_ref, status, rank, acknowledgments")
+          .eq("student_id", user.id),
+      ]);
       const { data: prof } = await sb("internship_profiles")
         .select("student_id")
         .eq("student_id", user.id)
         .maybeSingle();
       if (cancelled) return;
-      const hidden = new Set(
-        (vis ?? []).filter((r) => r.visible === false).map((r) => r.internship_slug),
-      );
-      const orgList = ((orgInts as Opportunity[]) ?? []).map(oppToCatalogInternship);
-      setOppRows((orgInts as Opportunity[]) ?? []);
+      // Every internship is an approved partner opportunity.
+      const orgList: Internship[] = catalog.cards;
+      setOppRows(catalog.rows);
       setHasProfile(!!prof);
       const ackMap: Record<string, string[]> = {};
       for (const s of (sels as Array<{
@@ -102,10 +93,7 @@ function SelectPage() {
         if (s.acknowledgments?.length) ackMap[s.internship_ref] = s.acknowledgments;
       }
       setAcks(ackMap);
-      setInternships([...INTERNSHIPS.filter((i) => !hidden.has(i.slug)), ...orgList]);
-      const map: InterestMap = {};
-      for (const r of ints ?? []) map[r.internship_slug] = r.response as "yes" | "maybe" | "no";
-      setInterest(map);
+      setInternships(orgList);
       setHollandCode(sess?.holland_code ?? null);
       setScaleScores((sess?.scale_scores as ScaleScores) ?? {});
 
@@ -134,28 +122,20 @@ function SelectPage() {
   }, [user, opportunity]);
 
   const ranked = useMemo(() => {
-    const interestWeight = (slug: string) => {
-      const r = interest[slug];
-      if (r === "yes") return 3;
-      if (r === "maybe") return 2;
-      if (r === "no") return 0;
-      return 1;
-    };
     const riasecScore = (i: Internship) => {
       if (Object.keys(scaleScores).length > 0)
-        return i.riasec.reduce((s, c) => s + (scaleScores[c] ?? 0), 0);
+        return i.riasec.reduce((s: number, c: RIASECCode) => s + (scaleScores[c] ?? 0), 0);
       if (hollandCode) {
         const codes = hollandCode.split("");
-        return i.riasec.reduce((s, c) => s + (codes.includes(c) ? 3 - codes.indexOf(c) : 0), 0);
+        return i.riasec.reduce(
+          (s: number, c: RIASECCode) => s + (codes.includes(c) ? 3 - codes.indexOf(c) : 0),
+          0,
+        );
       }
       return 0;
     };
-    return [...internships].sort((a, b) => {
-      const iw = interestWeight(b.slug) - interestWeight(a.slug);
-      if (iw !== 0) return iw;
-      return riasecScore(b) - riasecScore(a);
-    });
-  }, [internships, interest, scaleScores, hollandCode]);
+    return [...internships].sort((a, b) => riasecScore(b) - riasecScore(a));
+  }, [internships, scaleScores, hollandCode]);
 
   function toggle(ref: string) {
     setSelected((prev) => (prev.includes(ref) ? prev.filter((r) => r !== ref) : [...prev, ref]));
@@ -176,7 +156,7 @@ function SelectPage() {
     return (ref: string) => m.get(ref) ?? ref;
   }, [internships]);
 
-  // Requirements a student must acknowledge for a partner listing (none for catalog internships).
+  // Requirements a student must acknowledge for a partner listing.
   const requiredAcks = useMemo(() => {
     const m = new Map<string, string[]>();
     for (const o of oppRows)
@@ -247,17 +227,17 @@ function SelectPage() {
   }
 
   if (authLoading || loading) {
-    return <main className="mx-auto max-w-3xl px-6 py-24 text-sm text-charcoal-400">Loading…</main>;
+    return <main className="mx-auto max-w-3xl px-6 py-24 text-sm text-ink-500">Loading…</main>;
   }
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-charcoal-100">
+      <header className="border-b border-line">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
           <Link to="/student" className="text-sm tracking-tight">
             ← My passport
           </Link>
-          <Link to="/sign-out" className="text-sm text-charcoal-500 hover:text-ink">
+          <Link to="/sign-out" className="text-sm text-ink-500 hover:text-ink">
             Sign out
           </Link>
         </div>
@@ -266,24 +246,20 @@ function SelectPage() {
       <main className="mx-auto max-w-4xl px-6 py-16">
         <p className="eyebrow">Internships · step 1 of 2</p>
         <h1 className="display mt-3">Choose &amp; rank internships</h1>
-        <p className="mt-4 max-w-2xl text-charcoal-500">
+        <p className="mt-4 max-w-2xl text-ink-500">
           Pick at least <span className="font-medium text-ink">{MIN_CHOICES}</span> internships
           you&apos;re interested in and put them in order of preference. An EXPLR admin reviews your
           picks and approves which ones you can apply to — then you complete the application.
         </p>
 
         {Object.keys(existing).length > 0 && (
-          <div className="mt-8 border border-charcoal-100 bg-charcoal-50 p-4">
-            <p className="text-xs uppercase tracking-wider text-charcoal-400">
-              Your requests so far
-            </p>
+          <div className="mt-8 border border-line bg-paper-sunken p-4 rounded-[var(--radius-card)]">
+            <p className="text-xs uppercase tracking-wider text-ink-500">Your requests so far</p>
             <ul className="mt-2 space-y-1 text-sm">
               {Object.entries(existing).map(([ref, status]) => (
                 <li key={ref} className="flex items-center justify-between">
                   <span>{nameByRef(ref)}</span>
-                  <span className="text-xs text-charcoal-500">
-                    {STATUS_LABEL[status] ?? status}
-                  </span>
+                  <span className="text-xs text-ink-500">{STATUS_LABEL[status] ?? status}</span>
                 </li>
               ))}
             </ul>
@@ -326,19 +302,19 @@ function SelectPage() {
         ) : (
           <form onSubmit={handleSubmit} className="mt-10">
             {/* Ranked choices */}
-            <section className="border border-charcoal-100 p-5">
+            <section className="border border-line p-5 rounded-[var(--radius-card)]">
               <div className="flex items-baseline justify-between">
                 <p className="eyebrow" style={{ margin: 0 }}>
                   Your ranked choices
                 </p>
                 <span
-                  className={`text-xs ${selected.length >= MIN_CHOICES ? "text-explr-600" : "text-amber-700"}`}
+                  className={`text-xs ${selected.length >= MIN_CHOICES ? "text-green-deep" : "text-amber-700"}`}
                 >
                   {selected.length} of {MIN_CHOICES}+ chosen
                 </span>
               </div>
               {selected.length === 0 ? (
-                <p className="mt-3 text-sm text-charcoal-400">
+                <p className="mt-3 text-sm text-ink-500">
                   Check internships below to add them here, then order them #1 (top) and down.
                 </p>
               ) : (
@@ -346,14 +322,14 @@ function SelectPage() {
                   {selected.map((ref, idx) => (
                     <li
                       key={ref}
-                      className="flex items-center gap-3 border border-charcoal-100 px-3 py-2 text-sm"
+                      className="flex items-center gap-3 border border-line px-3 py-2 text-sm rounded-[var(--radius-card)]"
                     >
                       <span className="w-6 shrink-0 text-center font-medium tabular-nums">
                         {idx + 1}
                       </span>
                       <span className="flex-1">{nameByRef(ref)}</span>
                       {existing[ref] && (
-                        <span className="text-xs text-charcoal-400">
+                        <span className="text-xs text-ink-500">
                           {STATUS_LABEL[existing[ref]] ?? existing[ref]}
                         </span>
                       )}
@@ -361,7 +337,7 @@ function SelectPage() {
                         type="button"
                         onClick={() => move(ref, -1)}
                         disabled={idx === 0}
-                        className="px-1 text-charcoal-400 hover:text-ink disabled:opacity-30"
+                        className="px-1 text-ink-500 hover:text-ink disabled:opacity-30"
                         aria-label="Move up"
                       >
                         ▲
@@ -370,7 +346,7 @@ function SelectPage() {
                         type="button"
                         onClick={() => move(ref, 1)}
                         disabled={idx === selected.length - 1}
-                        className="px-1 text-charcoal-400 hover:text-ink disabled:opacity-30"
+                        className="px-1 text-ink-500 hover:text-ink disabled:opacity-30"
                         aria-label="Move down"
                       >
                         ▼
@@ -378,7 +354,7 @@ function SelectPage() {
                       <button
                         type="button"
                         onClick={() => toggle(ref)}
-                        className="px-1 text-charcoal-400 hover:text-red-600"
+                        className="px-1 text-ink-500 hover:text-red-600"
                         aria-label="Remove"
                       >
                         ✕
@@ -389,34 +365,31 @@ function SelectPage() {
               )}
             </section>
 
-            <p className="mt-8 text-sm text-charcoal-500">
-              Listed by fit — from your interest survey
+            <p className="mt-8 text-sm text-ink-500">
               {hollandCode ? (
                 <>
-                  {" "}
-                  and Holland code <span className="font-medium text-ink">{hollandCode}</span>
+                  Listed by fit with your Holland code{" "}
+                  <span className="font-medium text-ink-900">{hollandCode}</span>.
                 </>
-              ) : null}
-              . Check the ones you want.
+              ) : (
+                <>Approved partner internships.</>
+              )}{" "}
+              Check the ones you want.
             </p>
             <ul className="mt-4 grid gap-3">
+              {ranked.length === 0 && (
+                <li className="border border-line bg-paper-raised p-4 text-sm text-ink-500 rounded-[var(--radius-card)]">
+                  No partner internships are open right now. Check back soon.
+                </li>
+              )}
               {ranked.map((i) => {
-                const r = interest[i.slug];
-                const tag =
-                  r === "yes"
-                    ? "Interested"
-                    : r === "maybe"
-                      ? "Maybe"
-                      : r === "no"
-                        ? "Not for me"
-                        : "Unrated";
                 const checked = selected.includes(i.slug);
                 const status = existing[i.slug];
-                const why = buildWhyFits(i, r, scaleScores, hollandCode);
+                const why = buildWhyFits(i, undefined, scaleScores, hollandCode);
                 return (
                   <li key={i.slug}>
                     <label
-                      className={`flex cursor-pointer items-start gap-4 border p-4 transition-colors ${checked ? "border-ink bg-charcoal-50" : "border-charcoal-100 hover:border-charcoal-300"}`}
+                      className={`flex cursor-pointer items-start gap-4 border p-4 transition-colors ${checked ? "border-ink-900 bg-paper-sunken" : "border-line hover:border-line-strong"}`}
                     >
                       <input
                         type="checkbox"
@@ -427,18 +400,23 @@ function SelectPage() {
                       <span className="flex-1">
                         <span className="flex items-baseline justify-between gap-3">
                           <span className="font-medium">
-                            {i.emoji} {i.name}
+                            {i.name}
+                            {i.outsidePartners ? (
+                              <span className="ml-2 text-xs font-normal text-ink-500">
+                                {i.outsidePartners}
+                              </span>
+                            ) : null}
                           </span>
-                          <span className="text-xs uppercase tracking-wider text-charcoal-500">
-                            {status ? (STATUS_LABEL[status] ?? status) : tag}
-                          </span>
+                          {status && (
+                            <span className="text-xs uppercase tracking-wider text-ink-500">
+                              {STATUS_LABEL[status] ?? status}
+                            </span>
+                          )}
                         </span>
-                        <span className="mt-1 block text-sm text-charcoal-500">
-                          {i.deliverables}
-                        </span>
-                        <span className="mt-1 block text-xs text-charcoal-400">
+                        <span className="mt-1 block text-sm text-ink-500">{i.deliverables}</span>
+                        <span className="mt-1 block text-xs text-ink-500">
                           Holland fit:{" "}
-                          {i.riasec.map((c, idx2) => (
+                          {i.riasec.map((c: RIASECCode, idx2: number) => (
                             <span key={c}>
                               {idx2 > 0 && " · "}
                               <HollandLetter code={c} />
@@ -448,7 +426,7 @@ function SelectPage() {
                         {why && (
                           <span
                             className="mt-2 block text-sm italic"
-                            style={{ color: "var(--explr)" }}
+                            style={{ color: "var(--color-green)" }}
                           >
                             Why this fits you: {why}
                           </span>
@@ -461,11 +439,11 @@ function SelectPage() {
             </ul>
 
             {selected.some((ref) => requiredAcks(ref).length > 0) && (
-              <section className="mt-8 border border-charcoal-100 p-5">
+              <section className="mt-8 border border-line p-5 rounded-[var(--radius-card)]">
                 <p className="eyebrow" style={{ margin: 0 }}>
                   Before you request: the fine print
                 </p>
-                <p className="mt-2 text-sm text-charcoal-500">
+                <p className="mt-2 text-sm text-ink-500">
                   These listings have special requirements. Check each one to confirm it works for
                   you. We won't place you somewhere that doesn't.
                 </p>
@@ -477,7 +455,7 @@ function SelectPage() {
                       <ul className="mt-1 space-y-1">
                         {requiredAcks(ref).map((a) => (
                           <li key={a}>
-                            <label className="flex items-start gap-2 text-sm text-charcoal-700">
+                            <label className="flex items-start gap-2 text-sm text-ink-700">
                               <input
                                 type="checkbox"
                                 className="mt-1"
@@ -496,8 +474,8 @@ function SelectPage() {
 
             {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
-            <div className="mt-8 flex items-center justify-between border-t border-charcoal-100 pt-8">
-              <p className="text-sm text-charcoal-500">
+            <div className="mt-8 flex items-center justify-between border-t border-line pt-8">
+              <p className="text-sm text-ink-500">
                 {selected.length} selected · need {MIN_CHOICES}+
               </p>
               <button

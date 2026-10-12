@@ -30,19 +30,22 @@ export function OrgInternshipExtras({
   const [completions, setCompletions] = useState<Record<string, FormCompletion>>({});
   const key = oppIds.slice().sort().join(",");
 
-  const loadCompletions = useCallback(async (formIds: string[]) => {
-    if (formIds.length === 0) {
-      setCompletions({});
-      return;
-    }
-    const { data } = await sb("form_completions")
-      .select("*")
-      .eq("student_id", studentId)
-      .in("form_id", formIds);
-    const m: Record<string, FormCompletion> = {};
-    for (const c of (data as FormCompletion[]) ?? []) m[c.form_id] = c;
-    setCompletions(m);
-  }, [studentId]);
+  const loadCompletions = useCallback(
+    async (formIds: string[]) => {
+      if (formIds.length === 0) {
+        setCompletions({});
+        return;
+      }
+      const { data } = await sb("form_completions")
+        .select("*")
+        .eq("student_id", studentId)
+        .in("form_id", formIds);
+      const m: Record<string, FormCompletion> = {};
+      for (const c of (data as FormCompletion[]) ?? []) m[c.form_id] = c;
+      setCompletions(m);
+    },
+    [studentId],
+  );
 
   useEffect(() => {
     if (oppIds.length === 0) {
@@ -106,27 +109,31 @@ export function OrgInternshipExtras({
   if (oppIds.length === 0) return null;
 
   return (
-    <section className="border-t border-charcoal-100 pt-10">
+    <section className="border-t border-line pt-10">
       <p className="eyebrow">Worksite requirements &amp; forms</p>
-      <p className="mt-3 text-sm text-charcoal-500">
-        For the partner internships you selected. Review the requirements, complete the
-        links, and download / sign the forms.
+      <p className="mt-3 text-sm text-ink-500">
+        For the partner internships you selected. Review the requirements, complete the links, and
+        download / sign the forms.
       </p>
 
       <div className="mt-6 space-y-8">
         {opps.map((o) => {
-          const oForms = forms.filter((f) => oppIds.includes((f as { opportunity_id: string }).opportunity_id) && isFormFor(f, o.id));
+          const oForms = forms.filter(
+            (f) =>
+              oppIds.includes((f as { opportunity_id: string }).opportunity_id) &&
+              isFormFor(f, o.id),
+          );
           return (
-            <div key={o.id} className="border border-charcoal-100 p-5">
+            <div key={o.id} className="border border-line p-5 rounded-[var(--radius-card)]">
               <p className="font-medium">{o.name || "Internship"}</p>
 
               {(o.requirements ?? []).length > 0 && (
                 <div className="mt-3">
-                  <p className="text-xs uppercase tracking-wider text-charcoal-400">Requirements</p>
+                  <p className="text-xs uppercase tracking-wider text-ink-500">Requirements</p>
                   <ul className="mt-1.5 space-y-1 text-sm">
                     {(o.requirements ?? []).map((r) => (
                       <li key={r} className="flex items-start gap-2">
-                        <span className="text-charcoal-400">•</span>
+                        <span className="text-ink-500">•</span>
                         {r}
                       </li>
                     ))}
@@ -136,11 +143,16 @@ export function OrgInternshipExtras({
 
               {(o.application_links ?? []).length > 0 && (
                 <div className="mt-4">
-                  <p className="text-xs uppercase tracking-wider text-charcoal-400">Links to complete</p>
+                  <p className="text-xs uppercase tracking-wider text-ink-500">Links to complete</p>
                   <ul className="mt-1.5 space-y-1 text-sm">
                     {(o.application_links ?? []).map((l, i) => (
                       <li key={i}>
-                        <a href={l.url} target="_blank" rel="noreferrer" className="text-explr-600 hover:underline">
+                        <a
+                          href={l.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-green-deep hover:underline"
+                        >
                           {l.label || l.url} ↗
                         </a>
                       </li>
@@ -151,7 +163,7 @@ export function OrgInternshipExtras({
 
               {oForms.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-xs uppercase tracking-wider text-charcoal-400">Forms</p>
+                  <p className="text-xs uppercase tracking-wider text-ink-500">Forms</p>
                   <ul className="mt-2 space-y-3">
                     {oForms.map((f) => (
                       <FormRow
@@ -190,15 +202,20 @@ function FormRow({
 }) {
   const [name, setName] = useState("");
   return (
-    <li className="border border-charcoal-100 p-3">
+    <li className="border border-line p-3 rounded-[var(--radius-card)]">
       <div className="flex flex-wrap items-center gap-3">
         <span className="flex-1 text-sm font-medium">{form.name}</span>
         {form.file_url && (
-          <a href={form.file_url} target="_blank" rel="noreferrer" className="text-xs text-explr-600 hover:underline">
+          <a
+            href={form.file_url}
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs text-green-deep hover:underline"
+          >
             Download
           </a>
         )}
-        <label className="cursor-pointer border border-dashed border-charcoal-300 bg-white px-3 py-1 text-xs hover:border-charcoal-500">
+        <label className="cursor-pointer border border-dashed border-line-strong bg-paper-raised px-3 py-1 text-xs hover:border-ink-900-900-900-900-900">
           {completion?.completed_file_url ? "Replace upload" : "Upload completed"}
           <input
             type="file"
@@ -215,9 +232,7 @@ function FormRow({
       {form.requires_signature && (
         <div className="mt-2 flex flex-wrap items-center gap-2">
           {completion?.signed_name ? (
-            <span className="text-xs text-emerald-700">
-              ✓ Signed by {completion.signed_name}
-            </span>
+            <span className="text-xs text-emerald-700">✓ Signed by {completion.signed_name}</span>
           ) : (
             <>
               <input

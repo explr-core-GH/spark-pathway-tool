@@ -141,7 +141,7 @@ function ProgramRiasecPage() {
   }
 
   if (!hydrated) {
-    return <main className="mx-auto max-w-6xl px-6 py-16 text-sm text-charcoal-500">Loading…</main>;
+    return <main className="mx-auto max-w-6xl px-6 py-16 text-sm text-ink-500">Loading…</main>;
   }
 
   return (
@@ -155,7 +155,7 @@ function ProgramRiasecPage() {
       </p>
 
       {/* Toolbar */}
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-b border-charcoal-100 pb-3">
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
         <div className="flex gap-1">
           {(["programs", "compare", "reference"] as Tab[]).map((t) => (
             <button
@@ -165,7 +165,7 @@ function ProgramRiasecPage() {
               className="border-b-2 px-4 py-2 text-sm"
               style={{
                 borderColor: tab === t ? "var(--ink)" : "transparent",
-                color: tab === t ? "var(--ink)" : "var(--color-charcoal-400)",
+                color: tab === t ? "var(--ink)" : "var(--color-ink-500)",
               }}
             >
               {t === "programs" ? "Programs" : t === "compare" ? "Compare" : "Reference"}
@@ -198,9 +198,9 @@ function ProgramRiasecPage() {
             <button onClick={addProgram} className="btn-mint w-full justify-center">
               + New program
             </button>
-            <ul className="mt-4 divide-y divide-charcoal-100 border-y border-charcoal-100">
+            <ul className="mt-4 divide-y divide-line border-y border-line">
               {programs.length === 0 && (
-                <li className="py-4 text-sm text-charcoal-400">No programs yet.</li>
+                <li className="py-4 text-sm text-ink-500">No programs yet.</li>
               )}
               {programs.map((p) => (
                 <li key={p.id}>
@@ -214,7 +214,7 @@ function ProgramRiasecPage() {
                     >
                       {p.name || "Untitled"}
                     </p>
-                    <p className="mt-0.5 text-xs text-charcoal-500">
+                    <p className="mt-0.5 text-xs text-ink-500">
                       {p.ageBand || "—"} · {p.formatType || "—"}
                     </p>
                   </button>
@@ -229,8 +229,8 @@ function ProgramRiasecPage() {
               onDelete={() => deleteProgram(selected.id)}
             />
           ) : (
-            <div className="border border-dashed border-charcoal-200 p-10 text-center">
-              <p className="text-sm text-charcoal-500">No program selected.</p>
+            <div className="border border-dashed border-line-strong p-10 text-center">
+              <p className="text-sm text-ink-500">No program selected.</p>
               <button onClick={addProgram} className="btn-ink mt-4">
                 + New program
               </button>
@@ -296,7 +296,7 @@ function ProgramEditor({
   return (
     <div className="space-y-10">
       {/* Identity + metadata */}
-      <section className="border border-charcoal-100 p-6">
+      <section className="border border-line p-6 rounded-[var(--radius-card)]">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Program name">
             <input
@@ -306,7 +306,7 @@ function ProgramEditor({
             />
           </Field>
           <Field label="Program ID">
-            <input className="field bg-charcoal-50 text-charcoal-500" value={program.id} readOnly />
+            <input className="field bg-paper-sunken text-ink-500" value={program.id} readOnly />
           </Field>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -360,7 +360,7 @@ function ProgramEditor({
               checked={program.branchingPaths}
               onChange={(e) => set("branchingPaths", e.target.checked)}
             />
-            <span className="text-charcoal-700">Branching paths</span>
+            <span className="text-ink-700">Branching paths</span>
           </label>
         </div>
         <Field label="Notes" className="mt-4">
@@ -375,12 +375,10 @@ function ProgramEditor({
 
       {/* Computed Holland profile + hexagon */}
       <section className="grid gap-6 md:grid-cols-2">
-        <div className="border border-charcoal-100 p-5">
+        <div className="border border-line p-5 rounded-[var(--radius-card)]">
           <h3 className="text-sm font-semibold text-ink">Computed Holland profile</h3>
           {program.activities.length === 0 ? (
-            <p className="mt-3 text-xs text-charcoal-400">
-              Add activities below to compute a profile.
-            </p>
+            <p className="mt-3 text-xs text-ink-500">Add activities below to compute a profile.</p>
           ) : (
             <ul className="mt-3 space-y-2">
               {RIASEC_LETTERS.map((l) => {
@@ -396,9 +394,9 @@ function ProgramEditor({
                         />
                         {l} · {d.name}
                       </span>
-                      <span className="tabular-nums text-charcoal-500">{pct.toFixed(1)}%</span>
+                      <span className="tabular-nums text-ink-500">{pct.toFixed(1)}%</span>
                     </div>
-                    <div className="mt-1 h-1.5 bg-charcoal-50">
+                    <div className="mt-1 h-1.5 bg-paper-sunken">
                       <div
                         className="h-full"
                         style={{
@@ -413,13 +411,13 @@ function ProgramEditor({
             </ul>
           )}
         </div>
-        <div className="flex items-center justify-center border border-charcoal-100 p-5">
+        <div className="flex items-center justify-center border border-line p-5 rounded-[var(--radius-card)]">
           <HollandHexagon size={300} active={top} />
         </div>
       </section>
 
       {/* Activities */}
-      <section className="border border-charcoal-100 p-6">
+      <section className="border border-line p-6 rounded-[var(--radius-card)]">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-ink">Activities</h3>
           <button onClick={addActivity} className="btn-mint">
@@ -427,14 +425,14 @@ function ProgramEditor({
           </button>
         </div>
         {program.activities.length === 0 ? (
-          <p className="mt-3 text-sm text-charcoal-500">
+          <p className="mt-3 text-sm text-ink-500">
             Add the activities that make up this program, allocate time %, and rate each one 0-3
             across the six dimensions.
           </p>
         ) : (
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[720px] text-sm">
-              <thead className="text-left text-xs uppercase tracking-wider text-charcoal-500">
+              <thead className="text-left text-xs uppercase tracking-wider text-ink-500">
                 <tr>
                   <th className="py-2 pr-3 font-semibold">Activity</th>
                   <th className="px-2 py-2 font-semibold">Time %</th>
@@ -455,7 +453,7 @@ function ProgramEditor({
                 {program.activities.map((a) => {
                   const sum = activitySum(a);
                   return (
-                    <tr key={a.id} className="border-t border-charcoal-100 align-top">
+                    <tr key={a.id} className="border-t border-line align-top">
                       <td className="py-2 pr-3">
                         <input
                           className="field h-8"
@@ -505,14 +503,12 @@ function ProgramEditor({
                           />
                         </td>
                       ))}
-                      <td className="px-2 py-2 text-center tabular-nums text-charcoal-500">
-                        {sum}
-                      </td>
+                      <td className="px-2 py-2 text-center tabular-nums text-ink-500">{sum}</td>
                       <td className="pl-2 text-right">
                         <button
                           onClick={() => removeActivity(a.id)}
                           aria-label={`Delete ${a.name || a.id}`}
-                          className="px-2 py-1 text-charcoal-400 hover:text-destructive"
+                          className="px-2 py-1 text-ink-500 hover:text-destructive"
                         >
                           ✕
                         </button>
@@ -522,11 +518,11 @@ function ProgramEditor({
                 })}
               </tbody>
               <tfoot>
-                <tr className="border-t border-charcoal-200">
-                  <td className="py-2 pr-3 text-xs font-semibold uppercase tracking-wider text-charcoal-500">
+                <tr className="border-t border-line-strong">
+                  <td className="py-2 pr-3 text-xs font-semibold uppercase tracking-wider text-ink-500">
                     Total time
                   </td>
-                  <td className="px-2 py-2 text-xs tabular-nums text-charcoal-700">{totalTime}%</td>
+                  <td className="px-2 py-2 text-xs tabular-nums text-ink-700">{totalTime}%</td>
                   <td colSpan={8} />
                 </tr>
               </tfoot>
@@ -536,11 +532,9 @@ function ProgramEditor({
       </section>
 
       {/* Skills */}
-      <section className="border border-charcoal-100 p-6">
+      <section className="border border-line p-6 rounded-[var(--radius-card)]">
         <h3 className="text-sm font-semibold text-ink">Top 5 skills built</h3>
-        <p className="mt-1 text-xs text-charcoal-500">
-          From the O*NET cross-functional skill list.
-        </p>
+        <p className="mt-1 text-xs text-ink-500">From the O*NET cross-functional skill list.</p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {program.topSkills.map((s, idx) => (
             <Select
@@ -562,7 +556,7 @@ function ProgramEditor({
       </section>
 
       {/* Career clusters */}
-      <section className="border border-charcoal-100 p-6">
+      <section className="border border-line p-6 rounded-[var(--radius-card)]">
         <h3 className="text-sm font-semibold text-ink">Career clusters</h3>
         <div className="mt-3">
           <Select
@@ -581,8 +575,8 @@ function ProgramEditor({
                 <label
                   className={
                     on
-                      ? "flex cursor-pointer items-start gap-2 border border-explr-500 bg-explr-50 px-2.5 py-2 text-sm"
-                      : "flex cursor-pointer items-start gap-2 border border-charcoal-200 px-2.5 py-2 text-sm hover:border-charcoal-400"
+                      ? "flex cursor-pointer items-start gap-2 border border-green bg-mint-tint px-2.5 py-2 text-sm"
+                      : "flex cursor-pointer items-start gap-2 border border-line-strong px-2.5 py-2 text-sm hover:border-ink-900-900-900"
                   }
                 >
                   <input
@@ -591,7 +585,7 @@ function ProgramEditor({
                     onChange={() => toggleSecondaryCluster(c)}
                     className="mt-0.5"
                   />
-                  <span className="text-charcoal-700">{c}</span>
+                  <span className="text-ink-700">{c}</span>
                 </label>
               </li>
             );
@@ -623,7 +617,7 @@ function ProgramEditor({
 
 function CompareTab({ programs }: { programs: Program[] }) {
   if (programs.length === 0) {
-    return <p className="mt-8 text-sm text-charcoal-500">Add at least one program to compare.</p>;
+    return <p className="mt-8 text-sm text-ink-500">Add at least one program to compare.</p>;
   }
   return (
     <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -633,15 +627,15 @@ function CompareTab({ programs }: { programs: Program[] }) {
         const code = sorted.slice(0, 3).join("");
         const top = sorted[0] && profile[sorted[0]] > 0 ? sorted[0] : null;
         return (
-          <article key={p.id} className="border border-charcoal-100 p-5">
+          <article key={p.id} className="border border-line p-5 rounded-[var(--radius-card)]">
             <header className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">{p.name || "Untitled"}</p>
-                <p className="mt-0.5 text-xs text-charcoal-500">
+                <p className="mt-0.5 text-xs text-ink-500">
                   {p.ageBand || "—"} · {p.formatType || "—"} · {p.duration || "—"}
                 </p>
               </div>
-              <span className="bg-charcoal-700 px-2 py-1 text-xs font-semibold tabular-nums text-white">
+              <span className="bg-ink-900-900 px-2 py-1 text-xs font-semibold tabular-nums text-white">
                 {code || "—"}
               </span>
             </header>
@@ -651,14 +645,14 @@ function CompareTab({ programs }: { programs: Program[] }) {
             <ul className="space-y-1 text-xs">
               {RIASEC_LETTERS.map((l) => (
                 <li key={l} className="flex items-center justify-between">
-                  <span className="text-charcoal-600">
+                  <span className="text-ink-700">
                     <span
                       className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full align-middle"
                       style={{ background: RIASEC[l].color }}
                     />
                     {RIASEC[l].name}
                   </span>
-                  <span className="tabular-nums text-charcoal-500">{profile[l].toFixed(1)}%</span>
+                  <span className="tabular-nums text-ink-500">{profile[l].toFixed(1)}%</span>
                 </li>
               ))}
             </ul>
@@ -674,9 +668,9 @@ function CompareTab({ programs }: { programs: Program[] }) {
 function ReferenceTab() {
   return (
     <div className="mt-8 space-y-8">
-      <section className="border border-charcoal-100 p-5">
+      <section className="border border-line p-5 rounded-[var(--radius-card)]">
         <h3 className="text-sm font-semibold text-ink">How the score works</h3>
-        <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-sm text-charcoal-700">
+        <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-sm text-ink-700">
           <li>Break the program into activities — 3 to 12 is typical.</li>
           <li>
             Estimate each activity&apos;s relative time %. Doesn&apos;t have to sum to 100, but
@@ -690,29 +684,29 @@ function ReferenceTab() {
           <li>Use the Holland hexagon for the top dimension at a glance.</li>
         </ol>
       </section>
-      <section className="border border-charcoal-100 p-5">
+      <section className="border border-line p-5 rounded-[var(--radius-card)]">
         <h3 className="text-sm font-semibold text-ink">The six dimensions</h3>
         <ul className="mt-3 grid gap-3 sm:grid-cols-2">
           {RIASEC_LETTERS.map((l) => {
             const d = RIASEC[l];
             return (
-              <li key={l} className="border border-charcoal-100 p-3">
+              <li key={l} className="border border-line p-3 rounded-[var(--radius-card)]">
                 <div className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full" style={{ background: d.color }} />
                   <span className="text-sm font-semibold">
                     {l} — {d.name}
                   </span>
                 </div>
-                <p className="mt-1 text-xs italic text-charcoal-500">{d.hsPlainName}</p>
-                <p className="mt-1 text-sm text-charcoal-700">{d.hsDescription}</p>
+                <p className="mt-1 text-xs italic text-ink-500">{d.hsPlainName}</p>
+                <p className="mt-1 text-sm text-ink-700">{d.hsDescription}</p>
               </li>
             );
           })}
         </ul>
       </section>
-      <section className="border border-charcoal-100 p-5">
+      <section className="border border-line p-5 rounded-[var(--radius-card)]">
         <h3 className="text-sm font-semibold text-ink">Tips</h3>
-        <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-charcoal-700">
+        <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-ink-700">
           <li>Rate the activity, not what you wish students did. Be honest.</li>
           <li>
             A single activity can score on multiple dimensions — a team build is Realistic (3) and

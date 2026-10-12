@@ -30,7 +30,6 @@ const ROUTES: Array<{ path: string; name: string }> = [
   { path: "/instructor/sign-in", name: "educator sign-in" },
   { path: "/instructor/sign-up", name: "educator sign-up" },
   { path: "/assessment", name: "assessment intro (signed-out)" },
-  { path: "/stem-lab", name: "stem lab" },
   { path: "/worksites", name: "worksites" },
 ];
 

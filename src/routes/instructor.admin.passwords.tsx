@@ -2,8 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { adminCreateEducator, adminResetPassword } from "@/lib/admin-users.functions";
-import { INTERNSHIPS } from "@/lib/internships-catalog";
-import { oppSlug } from "@/lib/opportunities";
+import { loadInternshipRefs } from "@/lib/internship-refs";
 
 export const Route = createFileRoute("/instructor/admin/passwords")({
   head: () => ({ meta: [{ title: "Instructor accounts — Admin" }] }),
@@ -63,14 +62,10 @@ function AccountsAdmin() {
 
   useEffect(() => {
     (async () => {
-      const opts: InternshipOpt[] = INTERNSHIPS.map((i) => ({ ref: i.slug, label: i.name }));
-      const { data: opps } = await sb("opportunities")
-        .select("id, name")
-        .eq("type", "internship")
-        .eq("status", "approved");
-      for (const o of (opps ?? []) as Array<{ id: string; name: string | null }>) {
-        opts.push({ ref: oppSlug(o.id), label: `${o.name ?? "Internship"} (partner)` });
-      }
+      const refs = await loadInternshipRefs();
+      const opts: InternshipOpt[] = [...refs.values()]
+        .map((r) => ({ ref: r.ref, label: r.orgName ? `${r.name} · ${r.orgName}` : r.name }))
+        .sort((a, b) => a.label.localeCompare(b.label));
       setOptions(opts);
     })();
   }, []);
@@ -129,7 +124,10 @@ function AccountsAdmin() {
       </p>
 
       {/* ── Create ── */}
-      <form onSubmit={create} className="mt-8 space-y-5 border border-charcoal-100 p-6">
+      <form
+        onSubmit={create}
+        className="mt-8 space-y-5 border border-line p-6 rounded-[var(--radius-card)]"
+      >
         <h2 className="eyebrow" style={{ margin: 0 }}>
           Add an instructor
         </h2>
@@ -185,9 +183,9 @@ function AccountsAdmin() {
         </div>
         <div>
           <label className="label">
-            Connect to internships <span className="text-charcoal-400">(optional)</span>
+            Connect to internships <span className="text-ink-500">(optional)</span>
           </label>
-          <div className="mt-1 max-h-40 space-y-1 overflow-y-auto border border-charcoal-200 bg-white p-2">
+          <div className="mt-1 max-h-40 space-y-1 overflow-y-auto border border-line-strong bg-paper-raised p-2">
             {options.map((o) => (
               <label key={o.ref} className="flex items-center gap-2 px-1 py-0.5 text-sm">
                 <input
@@ -203,7 +201,7 @@ function AccountsAdmin() {
               </label>
             ))}
           </div>
-          <p className="mt-1 text-[11px] text-charcoal-400">
+          <p className="mt-1 text-[11px] text-ink-500">
             They&apos;ll see these rosters on &ldquo;Rate your interns.&rdquo; You can also connect
             later from each internship&apos;s Educators tab.
           </p>
@@ -242,11 +240,14 @@ function AccountsAdmin() {
       </form>
 
       {/* ── Reset ── */}
-      <form onSubmit={reset} className="mt-8 space-y-5 border border-charcoal-100 p-6">
+      <form
+        onSubmit={reset}
+        className="mt-8 space-y-5 border border-line p-6 rounded-[var(--radius-card)]"
+      >
         <h2 className="eyebrow" style={{ margin: 0 }}>
           Reset a password
         </h2>
-        <p className="text-sm text-charcoal-500">
+        <p className="text-sm text-ink-500">
           Works for any account — student, instructor, organization, or admin. Camp usernames (e.g.{" "}
           <span className="font-mono">maya42</span>) work too, and the printable sheet stays in
           sync.
@@ -322,7 +323,7 @@ function AccountsAdmin() {
         </button>
       </form>
 
-      <p className="mt-4 text-xs text-charcoal-400">
+      <p className="mt-4 text-xs text-ink-500">
         Users with a real email can also self-reset from the &ldquo;Forgot password&rdquo; link on
         any sign-in page.
       </p>

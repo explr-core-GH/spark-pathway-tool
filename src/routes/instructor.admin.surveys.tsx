@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { loadInternshipRefs } from "@/lib/internship-refs";
 import { useSession } from "@/lib/auth";
 import {
   ALL_CONSTRUCTS,
@@ -114,7 +115,7 @@ export function SurveyAdminPanel() {
   const [busy, setBusy] = useState(false);
 
   // Pickable units for the create form — camp sessions (explr_camps) and
-  // internships, so the admin never hand-types a slug / id.
+  // partner internships, so the admin never hand-types a ref / id.
   const [campSessions, setCampSessions] = useState<
     Array<{ id: string; title: string; date: string | null }>
   >([]);
@@ -202,13 +203,13 @@ export function SurveyAdminPanel() {
       .then(({ data }: { data: unknown }) => {
         setCampSessions((data ?? []) as Array<{ id: string; title: string; date: string | null }>);
       });
-    supabase
-      .from("internships")
-      .select("slug, name")
-      .order("name")
-      .then(({ data }) => {
-        setInternships((data ?? []) as Array<{ slug: string; name: string }>);
-      });
+    loadInternshipRefs({ includeUnapproved: true }).then((refs) => {
+      setInternships(
+        [...refs.values()]
+          .map((r) => ({ slug: r.ref, name: r.orgName ? `${r.name} · ${r.orgName}` : r.name }))
+          .sort((a, b) => a.name.localeCompare(b.name)),
+      );
+    });
   }, []);
 
   async function createAssignment(e: React.FormEvent) {
@@ -311,7 +312,7 @@ export function SurveyAdminPanel() {
       </p>
 
       {/* Create */}
-      <section className="mt-10 border border-charcoal-100 p-6">
+      <section className="mt-10 border border-line p-6 rounded-[var(--radius-card)]">
         <h2 className="eyebrow">New survey assignment</h2>
         <form onSubmit={createAssignment} className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
@@ -327,7 +328,7 @@ export function SurveyAdminPanel() {
                 </option>
               ))}
             </select>
-            <p className="mt-1 text-[11px] text-charcoal-400">
+            <p className="mt-1 text-[11px] text-ink-500">
               {fSurveyType === "retrospective"
                 ? "Single sitting on the last day (then/now ratings)."
                 : fSurveyType === "internship_exit"
@@ -337,7 +338,7 @@ export function SurveyAdminPanel() {
           </div>
           <div>
             <label className="label">Attach to</label>
-            <div className="mt-1 inline-flex border border-charcoal-200">
+            <div className="mt-1 inline-flex border border-line-strong">
               {(["camp", "internship"] as const).map((u) => (
                 <button
                   key={u}
@@ -349,7 +350,7 @@ export function SurveyAdminPanel() {
                   className="px-3 py-1.5 text-xs"
                   style={{
                     background: fUnitType === u ? "var(--ink)" : "white",
-                    color: fUnitType === u ? "white" : "var(--color-charcoal-500)",
+                    color: fUnitType === u ? "white" : "var(--color-ink-500)",
                   }}
                 >
                   {u === "camp" ? "Camp session" : "Internship"}
@@ -361,7 +362,7 @@ export function SurveyAdminPanel() {
             <label className="label">
               {fUnitType === "camp" ? "Camp sessions" : "Internships"} — pick one or more
             </label>
-            <div className="mt-1 max-h-48 space-y-1 overflow-y-auto border border-charcoal-200 bg-white p-2">
+            <div className="mt-1 max-h-48 space-y-1 overflow-y-auto border border-line-strong bg-paper-raised p-2">
               {(fUnitType === "camp"
                 ? campSessions.map((s) => ({
                     ref: s.id,
@@ -383,18 +384,18 @@ export function SurveyAdminPanel() {
                 </label>
               ))}
               {fUnitType === "camp" && campSessions.length === 0 && (
-                <p className="px-1 py-2 text-[11px] text-charcoal-400">
+                <p className="px-1 py-2 text-[11px] text-ink-500">
                   No camp sessions synced yet — run an ExplrMore sync first.
                 </p>
               )}
             </div>
-            <p className="mt-1 text-[11px] text-charcoal-400">
+            <p className="mt-1 text-[11px] text-ink-500">
               {fUnitRefs.length} selected — one assignment per selection.
             </p>
           </div>
           <div>
             <label className="label">
-              Title shown to students <span className="text-charcoal-400">(optional)</span>
+              Title shown to students <span className="text-ink-500">(optional)</span>
             </label>
             <input
               className="field mt-1"
@@ -424,22 +425,22 @@ export function SurveyAdminPanel() {
       <section className="mt-12">
         <h2 className="eyebrow">Assignments</h2>
         {loading ? (
-          <p className="mt-4 text-sm text-charcoal-400">Loading…</p>
+          <p className="mt-4 text-sm text-ink-500">Loading…</p>
         ) : assignments.length === 0 ? (
-          <p className="mt-4 text-sm text-charcoal-400">No assignments yet.</p>
+          <p className="mt-4 text-sm text-ink-500">No assignments yet.</p>
         ) : (
-          <ul className="mt-4 divide-y divide-charcoal-100 border-y border-charcoal-100">
+          <ul className="mt-4 divide-y divide-line border-y border-line">
             {assignments.map((a) => (
               <li key={a.id} className="flex items-center gap-4 py-3">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{a.title}</p>
-                  <p className="truncate text-xs text-charcoal-500">
+                  <p className="truncate text-xs text-ink-500">
                     {SURVEY_TYPE_LABEL[a.survey_type]} ·{" "}
                     <span className="capitalize">{a.administration}</span> · {a.unit_type}/
                     {a.unit_ref}
                   </p>
                 </div>
-                <span className="text-xs text-charcoal-500">{completedCount(a.id)} completed</span>
+                <span className="text-xs text-ink-500">{completedCount(a.id)} completed</span>
                 <button
                   onClick={() => removeAssignment(a.id)}
                   className="text-xs text-red-600 hover:underline"
@@ -483,7 +484,7 @@ export function SurveyAdminPanel() {
             onSetDisagg={setDisagg}
           />
         ) : (
-          <p className="mt-4 text-sm text-charcoal-400">
+          <p className="mt-4 text-sm text-ink-500">
             Pick a survey above to see pre/post construct change.
           </p>
         )}
@@ -572,16 +573,16 @@ function ResultsPanel({
   function constructTable(rows: Paired[], label: string) {
     return (
       <div key={label} className="mt-5">
-        <p className="text-xs font-semibold text-charcoal-600">
+        <p className="text-xs font-semibold text-ink-700">
           {label} · n = {rows.length}
         </p>
         {rows.length === 0 ? (
-          <p className="mt-2 text-xs text-charcoal-400">No matched pre/post pairs yet.</p>
+          <p className="mt-2 text-xs text-ink-500">No matched pre/post pairs yet.</p>
         ) : (
           <div className="mt-2 overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="border-y border-charcoal-100 text-left text-xs uppercase tracking-wider text-charcoal-400">
+                <tr className="border-y border-line text-left text-xs uppercase tracking-wider text-ink-500">
                   <th className="py-2 pr-4 font-normal">Construct</th>
                   <th className="py-2 pr-4 font-normal">Pre</th>
                   <th className="py-2 pr-4 font-normal">Post</th>
@@ -591,7 +592,7 @@ function ResultsPanel({
                   <th className="py-2 pr-4 font-normal">Significance</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-charcoal-100">
+              <tbody className="divide-y divide-line">
                 {ALL_CONSTRUCTS.map((c) => {
                   const pre: number[] = [];
                   const post: number[] = [];
@@ -620,14 +621,14 @@ function ResultsPanel({
                   return (
                     <tr key={c}>
                       <td className="py-2 pr-4 font-medium">{getConstruct(c)?.name ?? c}</td>
-                      <td className="py-2 pr-4 text-charcoal-600">{meanPre.toFixed(2)}</td>
-                      <td className="py-2 pr-4 text-charcoal-600">{meanPost.toFixed(2)}</td>
+                      <td className="py-2 pr-4 text-ink-700">{meanPre.toFixed(2)}</td>
+                      <td className="py-2 pr-4 text-ink-700">{meanPost.toFixed(2)}</td>
                       <td
                         className="py-2 pr-4 font-medium"
                         style={{
                           color:
                             meanChange > 0
-                              ? "var(--color-explr-600)"
+                              ? "var(--color-green-deep)"
                               : meanChange < 0
                                 ? "var(--color-destructive, #b91c1c)"
                                 : undefined,
@@ -636,27 +637,25 @@ function ResultsPanel({
                         {meanChange > 0 ? "+" : ""}
                         {meanChange.toFixed(2)}
                       </td>
-                      <td className="py-2 pr-4 text-charcoal-500">{nPairs}</td>
-                      <td className="py-2 pr-4 text-charcoal-600">
+                      <td className="py-2 pr-4 text-ink-500">{nPairs}</td>
+                      <td className="py-2 pr-4 text-ink-700">
                         {r ? (
                           <>
                             {r.cohensD.toFixed(2)}{" "}
-                            <span className="text-xs text-charcoal-400">
-                              ({cohenLabel(r.cohensD)})
-                            </span>
+                            <span className="text-xs text-ink-500">({cohenLabel(r.cohensD)})</span>
                           </>
                         ) : (
                           "—"
                         )}
                       </td>
-                      <td className="py-2 pr-4 text-charcoal-600">
+                      <td className="py-2 pr-4 text-ink-700">
                         {pVal != null ? (
                           <>
                             p = {pVal < 0.001 ? "<0.001" : pVal.toFixed(3)}{" "}
-                            <span className="text-xs text-charcoal-400">({testName})</span>
+                            <span className="text-xs text-ink-500">({testName})</span>
                           </>
                         ) : nPairs < 2 ? (
-                          <span className="text-xs text-charcoal-400">n ≥ 2 needed</span>
+                          <span className="text-xs text-ink-500">n ≥ 2 needed</span>
                         ) : (
                           "—"
                         )}
@@ -758,21 +757,21 @@ function ResultsPanel({
   };
 
   return (
-    <div className="mt-4 border border-charcoal-100 p-6">
+    <div className="mt-4 border border-line p-6 rounded-[var(--radius-card)]">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h3 className="text-base font-medium">{group.title}</h3>
         <button onClick={exportCsv} className="ink-link text-xs">
           Export raw CSV
         </button>
       </div>
-      <p className="mt-1 text-xs text-charcoal-500">
+      <p className="mt-1 text-xs text-ink-500">
         {completed.length} completed response
         {completed.length === 1 ? "" : "s"} · {pairs.length} matched pre/post pair
         {pairs.length === 1 ? "" : "s"}
       </p>
 
       {/* Disaggregation control */}
-      <div className="mt-4 inline-flex flex-wrap border border-charcoal-200">
+      <div className="mt-4 inline-flex flex-wrap border border-line-strong">
         {(["none", "grade", "holland", "year"] as Disaggregation[]).map((d) => (
           <button
             key={d}
@@ -781,7 +780,7 @@ function ResultsPanel({
             className="px-3 py-1.5 text-xs"
             style={{
               background: disagg === d ? "var(--ink)" : "white",
-              color: disagg === d ? "white" : "var(--color-charcoal-500)",
+              color: disagg === d ? "white" : "var(--color-ink-500)",
             }}
           >
             {DISAGG_LABELS[d]}
@@ -790,12 +789,12 @@ function ResultsPanel({
       </div>
 
       {buckets.length === 0 ? (
-        <p className="mt-4 text-xs text-charcoal-400">No data for this breakdown yet.</p>
+        <p className="mt-4 text-xs text-ink-500">No data for this breakdown yet.</p>
       ) : (
         buckets.map((b) => constructTable(b.rows, b.label))
       )}
 
-      <p className="mt-5 text-[11px] text-charcoal-400">
+      <p className="mt-5 text-[11px] text-ink-500">
         Cohen&apos;s d: 0.2 small · 0.5 medium · 0.8 large. Significance uses the paired t-test at n
         ≥ 30 and the non-parametric Wilcoxon signed-rank test below that. The S-STEM is validated at
         the construct level — treat item-level numbers as diagnostic only.

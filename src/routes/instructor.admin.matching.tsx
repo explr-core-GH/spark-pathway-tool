@@ -2,14 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { RoleGuard } from "@/components/RoleGuard";
-import { INTERNSHIPS } from "@/lib/internships-catalog";
 import { isOppSlug, oppIdFromSlug, type Opportunity } from "@/lib/opportunities";
 import type { RIASECCode } from "@/lib/riasec";
 import { hoursCount } from "@/lib/wbl-taxonomy";
 import {
   MATCH_WEIGHTS,
   rankFor,
-  targetFromCatalog,
   targetFromOpportunity,
   type Candidate,
   type MatchOutcome,
@@ -126,13 +124,10 @@ function Matching() {
 
     const tgs: Target[] = [];
     for (const ref of refs) {
-      if (isOppSlug(ref)) {
-        const o = ((opps ?? []) as Opportunity[]).find((x) => x.id === oppIdFromSlug(ref));
-        if (o) tgs.push(targetFromOpportunity(o as never));
-      } else {
-        const i = INTERNSHIPS.find((x) => x.slug === ref);
-        if (i) tgs.push(targetFromCatalog(i as never));
-      }
+      // Non-`opp:` refs are legacy catalog slugs; skip them.
+      if (!isOppSlug(ref)) continue;
+      const o = ((opps ?? []) as Opportunity[]).find((x) => x.id === oppIdFromSlug(ref));
+      if (o) tgs.push(targetFromOpportunity(o as never));
     }
 
     const sessByStudent = new Map<
@@ -312,7 +307,7 @@ function Matching() {
     <main className="mx-auto max-w-6xl px-6 py-12">
       <p className="eyebrow">Admin</p>
       <h1 className="mt-2 text-3xl font-light">Internship matching</h1>
-      <p className="mt-2 max-w-2xl text-sm text-charcoal-500">
+      <p className="mt-2 max-w-2xl text-sm text-ink-500">
         Each requesting student is scored against each internship they picked. Hard requirements
         come first: grade, age at start, hazardous work under 16, every acknowledgment accepted,
         transportation, and days. Then a weighted score: interest fit{" "}
@@ -348,13 +343,13 @@ function Matching() {
         </button>
       </div>
 
-      {loading && <p className="mt-8 text-sm text-charcoal-400">Loading…</p>}
+      {loading && <p className="mt-8 text-sm text-ink-500">Loading…</p>}
       {!loading && targets.length === 0 && (
-        <p className="mt-8 text-sm text-charcoal-500">No open internship requests yet.</p>
+        <p className="mt-8 text-sm text-ink-500">No open internship requests yet.</p>
       )}
 
       {view === "listing" && (
-        <div className="mt-6 divide-y divide-charcoal-100 border-y border-charcoal-100">
+        <div className="mt-6 divide-y divide-line border-y border-line">
           {targets.map((t) => {
             const list = outcomes[t.ref] ?? [];
             const isOpen = open === t.ref;
@@ -363,20 +358,20 @@ function Matching() {
                 <button
                   type="button"
                   onClick={() => setOpen(isOpen ? null : t.ref)}
-                  className="flex w-full items-center gap-4 py-4 text-left hover:bg-charcoal-50"
+                  className="flex w-full items-center gap-4 py-4 text-left hover:bg-paper-sunken"
                 >
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-medium">{t.name}</span>
-                    <span className="block text-xs text-charcoal-500">
+                    <span className="block text-xs text-ink-500">
                       {list.length} requesting · {list.filter((o) => o.eligible).length} eligible ·
                       grades {t.gradeMin ?? "?"}-{t.gradeMax ?? "?"}
                       {t.wbl.legal.minAge ? ` · age ${t.wbl.legal.minAge}+` : ""}
                     </span>
                   </span>
-                  <span className="text-xs text-charcoal-400">{isOpen ? "Hide" : "Show"}</span>
+                  <span className="text-xs text-ink-500">{isOpen ? "Hide" : "Show"}</span>
                 </button>
                 {isOpen && (
-                  <ol className="divide-y divide-charcoal-100 bg-charcoal-50 px-4">
+                  <ol className="divide-y divide-line bg-paper-sunken px-4">
                     {list.map((o) => (
                       <li key={o.studentId} className="py-3">
                         <OutcomeRow
@@ -390,7 +385,7 @@ function Matching() {
                       </li>
                     ))}
                     {list.length === 0 && (
-                      <li className="py-3 text-xs text-charcoal-400">No requests.</li>
+                      <li className="py-3 text-xs text-ink-500">No requests.</li>
                     )}
                   </ol>
                 )}
@@ -401,14 +396,14 @@ function Matching() {
       )}
 
       {view === "student" && (
-        <div className="mt-6 divide-y divide-charcoal-100 border-y border-charcoal-100">
+        <div className="mt-6 divide-y divide-line border-y border-line">
           {Object.entries(byStudent).map(([sid, list]) => (
             <div key={sid} className="py-4">
               <p className="text-sm font-medium">{nameOf(sid)}</p>
               <ol className="mt-2 flex flex-col gap-2">
                 {list.map((o) => (
-                  <li key={o.ref} className="rounded border border-charcoal-100 bg-white px-3 py-2">
-                    <p className="text-xs text-charcoal-500">
+                  <li key={o.ref} className="rounded border border-line bg-paper-raised px-3 py-2">
+                    <p className="text-xs text-ink-500">
                       {targets.find((t) => t.ref === o.ref)?.name}
                     </p>
                     <OutcomeRow
@@ -451,11 +446,11 @@ function OutcomeRow({
       <div className="min-w-[200px] flex-1">
         <p className="text-sm">
           {name && <span className="font-medium">{name} · </span>}
-          <span className={o.eligible ? "text-explr-800" : "text-charcoal-500"}>{pct}%</span>
-          <span className="text-xs text-charcoal-500"> · {o.why}</span>
+          <span className={o.eligible ? "text-green-deep" : "text-ink-500"}>{pct}%</span>
+          <span className="text-xs text-ink-500"> · {o.why}</span>
         </p>
-        <div className="mt-1 h-1.5 w-full max-w-xs overflow-hidden rounded bg-charcoal-100">
-          <div className="h-full bg-explr-500" style={{ width: `${pct}%` }} />
+        <div className="mt-1 h-1.5 w-full max-w-xs overflow-hidden rounded bg-paper-sunken">
+          <div className="h-full bg-mint" style={{ width: `${pct}%` }} />
         </div>
         {o.hardFails.length > 0 && (
           <ul className="mt-1 flex flex-wrap gap-1">
@@ -469,14 +464,14 @@ function OutcomeRow({
             ))}
           </ul>
         )}
-        <p className="mt-1 text-[11px] text-charcoal-400">
+        <p className="mt-1 text-[11px] text-ink-500">
           {Object.entries(o.breakdown)
             .map(([k, v]) => `${k} ${Math.round((v ?? 0) * 100)}`)
             .join(" · ")}
         </p>
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-xs text-charcoal-500">{status}</span>
+        <span className="text-xs text-ink-500">{status}</span>
         {status !== "approved" && (
           <button
             type="button"

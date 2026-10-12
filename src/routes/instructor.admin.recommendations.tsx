@@ -1,17 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import jsPDF from "jspdf";
 import { supabase } from "@/integrations/supabase/client";
 import { RoleGuard } from "@/components/RoleGuard";
-import { INTERNSHIPS } from "@/lib/internships-catalog";
-import { isOppSlug, oppIdFromSlug } from "@/lib/opportunities";
-import {
-  generateRecommendationLetters,
-  type GeneratedLetter,
-  type LetterInput,
-} from "@/lib/recommendations.functions";
+import { PROFICIENT, RATING_LEVELS } from "@/lib/competencies";
 
+/**
+ * /instructor/admin/recommendations — draft recommendation letters from the
+ * passport. A letter is built per verified experience: the organization, role
+ * and verified hours, the OhioMeansJobs Readiness Seal skills the supervisor
+ * rated Proficient or above, and the supervisor's own comment when they left
+ * one. Output is a single PDF, one letter per page.
+ */
 export const Route = createFileRoute("/instructor/admin/recommendations")({
   head: () => ({ meta: [{ title: "Recommendation letters — Admin" }] }),
   component: () => (
@@ -21,30 +21,145 @@ export const Route = createFileRoute("/instructor/admin/recommendations")({
   ),
 });
 
-type EvalRow = {
-  internship_ref: string;
-  student_id: string;
-  evaluator_id: string;
-  rubric: Record<string, number> | null;
-  recommend: boolean | null;
-  notes: string | null;
-};
-
 const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
 
-const CATALOG_NAME: Record<string, string> = Object.fromEntries(
-  INTERNSHIPS.map((i) => [i.slug, i.name]),
-);
+type ExperienceRow = {
+  id: string;
+  student_id: string;
+  title: string;
+  organization: string | null;
+  role_title: string | null;
+  duties: string | null;
+  reflection: string | null;
+  hours: number | null;
+  verified_hours: number | null;
+  supervisor_name: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  verified_at: string | null;
+};
 
-function keyFor(e: { internship_ref: string; student_id: string; evaluator_id: string }) {
-  return `${e.internship_ref}::${e.student_id}::${e.evaluator_id}`;
+type RatingRow = {
+  id: string;
+  experience_id: string;
+  competency: string;
+  omj_skill: string | null;
+  rating_final: number;
+  setting: "school" | "work" | "community";
+  rater_name: string;
+  comment: string | null;
+};
+
+/** One verified experience with its supervisor ratings folded in. */
+type LetterSource = {
+  experience: ExperienceRow;
+  ratings: RatingRow[];
+  firstName: string;
+  supervisorName: string;
+  /** Distinct OMJ skills (or competencies) rated Proficient or above. */
+  proficientSkills: string[];
+  /** The first non-empty supervisor comment. */
+  comment: { text: string; by: string } | null;
+};
+
+type GeneratedLetter = {
+  studentName: string;
+  internshipName: string;
+  supervisorName: string;
+  bodyParagraphs: string[];
+};
+
+function joinList(items: string[]): string {
+  if (items.length <= 1) return items[0] ?? "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+}
+
+function fmtHours(h: number | null): string | null {
+  if (h === null || h === undefined || !(h > 0)) return null;
+  return Number.isInteger(h) ? String(h) : h.toFixed(1);
+}
+
+function fmtDateRange(start: string | null, end: string | null): string | null {
+  const f = (d: string) =>
+    new Date(`${d.slice(0, 10)}T00:00:00`).toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    });
+  if (start && end) return `${f(start)} to ${f(end)}`;
+  if (start) return `beginning ${f(start)}`;
+  if (end) return `ending ${f(end)}`;
+  return null;
+}
+
+function clean(text: string | null | undefined): string {
+  return (text ?? "").replace(/\s+/g, " ").trim();
+}
+
+/** Deterministic letter body from the verified experience and its ratings. */
+function draftLetter(src: LetterSource): GeneratedLetter {
+  const e = src.experience;
+  const first = src.firstName;
+  const org = clean(e.organization) || "a partner organization";
+  const role = clean(e.role_title);
+  const hours = fmtHours(e.verified_hours ?? e.hours);
+  const dates = fmtDateRange(e.start_date, e.end_date);
+  const paragraphs: string[] = [];
+
+  // Paragraph 1: who, where, what role, how long — all verified facts.
+  const intro: string[] = [];
+  intro.push(
+    `I am pleased to recommend ${first} based on their work ${role ? `as ${role} ` : ""}at ${org}${
+      clean(e.title) && clean(e.title) !== org ? ` (${clean(e.title)})` : ""
+    } through the EXPLR Pathways program${dates ? `, ${dates}` : ""}.`,
+  );
+  if (hours) {
+    intro.push(
+      `${src.supervisorName} verified ${hours} hour${hours === "1" ? "" : "s"} of work-based learning for this experience.`,
+    );
+  } else {
+    intro.push(`${src.supervisorName} verified this experience.`);
+  }
+  if (clean(e.duties)) intro.push(`${first}'s responsibilities included ${clean(e.duties)}`);
+  paragraphs.push(intro.join(" ").replace(/([^.!?])$/, "$1."));
+
+  // Paragraph 2: the skills the supervisor rated proficient or above.
+  if (src.proficientSkills.length > 0) {
+    const level = RATING_LEVELS[PROFICIENT - 1];
+    paragraphs.push(
+      `On the OhioMeansJobs Readiness Seal scale, ${src.supervisorName} rated ${first} ${level} or above in ${joinList(
+        src.proficientSkills,
+      )}. These are the professional skills Ohio employers look for, and ${first} demonstrated them in a real work setting.`,
+    );
+  } else {
+    paragraphs.push(
+      `${first} completed this experience with the consistent effort and reliability their supervisor expects of a student just beginning their professional path.`,
+    );
+  }
+
+  // Paragraph 3: the supervisor's own words, and the student's reflection.
+  if (src.comment) {
+    paragraphs.push(`In ${src.comment.by}'s words: "${src.comment.text}"`);
+  }
+  if (clean(e.reflection)) {
+    paragraphs.push(`Reflecting on the experience, ${first} wrote: "${clean(e.reflection)}"`);
+  }
+
+  // Closing.
+  paragraphs.push(
+    `I recommend ${first} without reservation and would be glad to speak further about their work. Please feel free to contact me with any questions.`,
+  );
+
+  return {
+    studentName: first,
+    internshipName: role ? `${role} at ${org}` : org,
+    supervisorName: src.supervisorName,
+    bodyParagraphs: paragraphs,
+  };
 }
 
 function RecommendationsPage() {
-  const [evals, setEvals] = useState<EvalRow[] | null>(null);
-  const [studentName, setStudentName] = useState<Record<string, string>>({});
-  const [educatorName, setEducatorName] = useState<Record<string, string>>({});
-  const [oppName, setOppName] = useState<Record<string, string>>({});
+  const [sources, setSources] = useState<LetterSource[] | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [signerName, setSignerName] = useState("Dr. Jordan Seigler");
   const [signerTitle, setSignerTitle] = useState("EXPLR Program Lead · Cleveland State University");
@@ -52,86 +167,93 @@ function RecommendationsPage() {
   const [err, setErr] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
 
-  const generate = useServerFn(generateRecommendationLetters);
-
   useEffect(() => {
     (async () => {
-      const { data: ev, error } = await sb("internship_evaluations").select(
-        "internship_ref, student_id, evaluator_id, rubric, recommend, notes",
-      );
+      const { data: ex, error } = await sb("experiences")
+        .select(
+          "id, student_id, title, organization, role_title, duties, reflection, hours, verified_hours, supervisor_name, start_date, end_date, verified_at",
+        )
+        .eq("status", "verified")
+        .order("verified_at", { ascending: false });
       if (error) {
         setErr(error.message);
-        setEvals([]);
+        setSources([]);
         return;
       }
-      const rows = (ev ?? []) as EvalRow[];
-      setEvals(rows);
+      const experiences = (ex ?? []) as ExperienceRow[];
+      if (experiences.length === 0) {
+        setSources([]);
+        return;
+      }
+      const expIds = experiences.map((e) => e.id);
+      const sids = [...new Set(experiences.map((e) => e.student_id))];
 
-      const sids = [...new Set(rows.map((r) => r.student_id))];
-      const eids = [...new Set(rows.map((r) => r.evaluator_id))];
-      const oppIds = [
-        ...new Set(
-          rows
-            .map((r) => r.internship_ref)
-            .filter(isOppSlug)
-            .map(oppIdFromSlug),
-        ),
-      ];
-
-      const [studs, edus, opps] = await Promise.all([
-        sids.length
-          ? supabase.from("students").select("id, first_name, last_name").in("id", sids)
-          : Promise.resolve({ data: [] as any[] }),
-        eids.length
-          ? supabase.from("educators").select("id, full_name").in("id", eids)
-          : Promise.resolve({ data: [] as any[] }),
-        oppIds.length
-          ? sb("opportunities").select("id, name").in("id", oppIds)
-          : Promise.resolve({ data: [] as any[] }),
+      const [ratingsRes, studsRes] = await Promise.all([
+        sb("experience_ratings")
+          .select(
+            "id, experience_id, competency, omj_skill, rating_final, setting, rater_name, comment",
+          )
+          .in("experience_id", expIds)
+          .order("rated_at", { ascending: true }),
+        supabase.from("students").select("id, first_name").in("id", sids),
       ]);
 
-      const sn: Record<string, string> = {};
-      for (const s of (studs.data ?? []) as Array<{
-        id: string;
-        first_name: string | null;
-        last_name: string | null;
-      }>) {
-        sn[s.id] = [s.first_name, s.last_name].filter(Boolean).join(" ") || "Student";
+      const ratingsByExp = new Map<string, RatingRow[]>();
+      for (const r of (ratingsRes.data ?? []) as RatingRow[]) {
+        const arr = ratingsByExp.get(r.experience_id) ?? [];
+        arr.push(r);
+        ratingsByExp.set(r.experience_id, arr);
       }
-      setStudentName(sn);
+      const firstName: Record<string, string> = {};
+      for (const s of (studsRes.data ?? []) as Array<{ id: string; first_name: string | null }>) {
+        firstName[s.id] = clean(s.first_name) || "the student";
+      }
 
-      const en: Record<string, string> = {};
-      for (const e of (edus.data ?? []) as Array<{ id: string; full_name: string | null }>) {
-        en[e.id] = e.full_name ?? "Supervisor";
-      }
-      setEducatorName(en);
-
-      const on: Record<string, string> = {};
-      for (const o of (opps.data ?? []) as Array<{ id: string; name: string | null }>) {
-        on[o.id] = o.name ?? "Internship";
-      }
-      setOppName(on);
+      const out: LetterSource[] = experiences.map((e) => {
+        const ratings = ratingsByExp.get(e.id) ?? [];
+        const proficient = [
+          ...new Set(
+            ratings
+              .filter((r) => r.rating_final >= PROFICIENT)
+              .map((r) => clean(r.omj_skill) || clean(r.competency))
+              .filter(Boolean),
+          ),
+        ];
+        const withComment = ratings.find((r) => clean(r.comment));
+        const supervisorName =
+          clean(e.supervisor_name) || clean(ratings[0]?.rater_name) || "Their supervisor";
+        return {
+          experience: e,
+          ratings,
+          firstName: firstName[e.student_id] ?? "the student",
+          supervisorName,
+          proficientSkills: proficient,
+          comment: withComment
+            ? {
+                text: clean(withComment.comment),
+                by: clean(withComment.rater_name) || supervisorName,
+              }
+            : null,
+        };
+      });
+      setSources(out);
     })();
   }, []);
 
-  const nameFor = (ref: string) =>
-    isOppSlug(ref) ? (oppName[oppIdFromSlug(ref)] ?? "Internship") : (CATALOG_NAME[ref] ?? ref);
-
+  /** Sections keyed by organization; each row inside is one verified experience. */
   const grouped = useMemo(() => {
-    const m = new Map<string, EvalRow[]>();
-    for (const e of evals ?? []) {
-      const arr = m.get(e.internship_ref) ?? [];
-      arr.push(e);
-      m.set(e.internship_ref, arr);
+    const m = new Map<string, LetterSource[]>();
+    for (const s of sources ?? []) {
+      const key = clean(s.experience.organization) || clean(s.experience.title) || "Other";
+      const arr = m.get(key) ?? [];
+      arr.push(s);
+      m.set(key, arr);
     }
     for (const arr of m.values()) {
-      arr.sort((a, b) =>
-        (studentName[a.student_id] ?? "").localeCompare(studentName[b.student_id] ?? ""),
-      );
+      arr.sort((a, b) => a.firstName.localeCompare(b.firstName));
     }
-    return [...m.entries()].sort((a, b) => nameFor(a[0]).localeCompare(nameFor(b[0])));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [evals, studentName, oppName]);
+    return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+  }, [sources]);
 
   function toggle(k: string) {
     setSelected((prev) => {
@@ -142,13 +264,12 @@ function RecommendationsPage() {
     });
   }
 
-  function toggleAllInGroup(rows: EvalRow[], on: boolean) {
+  function toggleAllInGroup(rows: LetterSource[], on: boolean) {
     setSelected((prev) => {
       const n = new Set(prev);
       for (const r of rows) {
-        const k = keyFor(r);
-        if (on) n.add(k);
-        else n.delete(k);
+        if (on) n.add(r.experience.id);
+        else n.delete(r.experience.id);
       }
       return n;
     });
@@ -178,7 +299,7 @@ function RecommendationsPage() {
       y += 16;
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
-      doc.text("EXPLR High School Internship Program", marginX, y);
+      doc.text("EXPLR Pathways · Work-Based Learning", marginX, y);
       y += 12;
       doc.setDrawColor(180);
       doc.line(marginX, y, pageW - marginX, y);
@@ -206,18 +327,7 @@ function RecommendationsPage() {
         y += 10;
       };
 
-      if (letter.error) {
-        doc.setTextColor(180, 0, 0);
-        writeParagraph(
-          `Letter could not be generated for ${letter.studentName} (${letter.internshipName}): ${letter.error}`,
-        );
-        doc.setTextColor(0);
-      } else {
-        writeParagraph(
-          `I am pleased to recommend ${letter.studentName} based on their work in the ${letter.internshipName} internship at Cleveland State University this summer.`,
-        );
-        for (const p of letter.bodyParagraphs) writeParagraph(p);
-      }
+      for (const p of letter.bodyParagraphs) writeParagraph(p);
 
       // Signature block
       if (y > pageH - marginY - 90) {
@@ -240,44 +350,32 @@ function RecommendationsPage() {
       doc.setFontSize(9);
       doc.setTextColor(120);
       y += 6;
-      doc.text(`Supervisor of record: ${letter.evaluatorName}`, marginX, y);
+      doc.text(
+        `Supervisor of record: ${letter.supervisorName} · ${letter.internshipName}`,
+        marginX,
+        y,
+      );
       doc.setTextColor(0);
     });
 
     return doc;
   }
 
-  async function onGenerate() {
+  function onGenerate() {
     setErr(null);
     setStatus(null);
-    const items: LetterInput[] = [];
-    for (const e of evals ?? []) {
-      const k = keyFor(e);
-      if (selected.has(k)) {
-        items.push({
-          internshipRef: e.internship_ref,
-          studentId: e.student_id,
-          evaluatorId: e.evaluator_id,
-        });
-      }
-    }
-    if (items.length === 0) {
-      setErr("Select at least one intern.");
+    const picked = (sources ?? []).filter((s) => selected.has(s.experience.id));
+    if (picked.length === 0) {
+      setErr("Select at least one verified experience.");
       return;
     }
     setBusy(true);
-    setStatus(`Drafting ${items.length} letter${items.length === 1 ? "" : "s"}…`);
     try {
-      const { letters } = await generate({ data: { items } });
+      const letters = picked.map(draftLetter);
       const doc = buildPdf(letters);
       const stamp = new Date().toISOString().slice(0, 10);
       doc.save(`explr-recommendations-${stamp}.pdf`);
-      const failed = letters.filter((l) => l.error).length;
-      setStatus(
-        failed > 0
-          ? `Downloaded PDF. ${failed} letter${failed === 1 ? "" : "s"} failed — see the PDF for details.`
-          : `Downloaded PDF with ${letters.length} letter${letters.length === 1 ? "" : "s"}.`,
-      );
+      setStatus(`Downloaded PDF with ${letters.length} letter${letters.length === 1 ? "" : "s"}.`);
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Failed to generate letters");
       setStatus(null);
@@ -286,20 +384,24 @@ function RecommendationsPage() {
     }
   }
 
+  const total = sources?.length ?? 0;
+
   return (
     <main className="mx-auto max-w-4xl px-6 py-12">
-      <Link to="/instructor/admin" className="text-xs text-charcoal-500 hover:text-ink">
+      <Link to="/instructor/admin" className="text-xs text-ink-500 hover:text-ink-900">
         ← Admin
       </Link>
-      <p className="eyebrow mt-4">Interns</p>
+      <p className="eyebrow mt-4">Passport</p>
       <h1 className="display mt-2">Recommendation letters</h1>
       <p className="lead mt-2 max-w-2xl">
-        Select rated interns to draft personalized recommendation letters. Letters pull from each
-        supervisor&apos;s 1–5 ratings and notes, and are signed by the EXPLR / CSU program lead.
-        Output is a single downloadable PDF, one letter per page.
+        Select verified experiences to draft recommendation letters. Each letter cites the
+        organization, role and verified hours, names the OhioMeansJobs Readiness Seal skills the
+        supervisor rated Proficient or above, and quotes the supervisor&apos;s comment when they
+        left one. Letters are signed by the EXPLR / CSU program lead. Output is a single
+        downloadable PDF, one letter per page.
       </p>
 
-      <div className="mt-8 grid gap-4 border border-charcoal-100 bg-charcoal-50 p-5 sm:grid-cols-2">
+      <div className="mt-8 grid gap-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 sm:grid-cols-2">
         <div>
           <label className="label" htmlFor="signer">
             Signer name
@@ -325,13 +427,13 @@ function RecommendationsPage() {
       </div>
 
       {err && <p className="mt-4 text-sm text-red-600">{err}</p>}
-      {status && !err && <p className="mt-4 text-sm text-charcoal-500">{status}</p>}
+      {status && !err && <p className="mt-4 text-sm text-ink-500">{status}</p>}
 
       <div className="mt-6 flex items-center justify-between">
-        <p className="text-sm text-charcoal-500">
+        <p className="text-sm text-ink-500">
           {selected.size} selected
-          {evals
-            ? ` · ${evals.length} rated intern${evals.length === 1 ? "" : "s"} across all internships`
+          {sources
+            ? ` · ${total} verified experience${total === 1 ? "" : "s"} across all organizations`
             : ""}
         </p>
         <button
@@ -343,37 +445,33 @@ function RecommendationsPage() {
         </button>
       </div>
 
-      {evals === null ? (
-        <p className="mt-10 text-sm text-charcoal-400">Loading…</p>
-      ) : evals.length === 0 ? (
-        <div className="mt-10 border border-charcoal-100 bg-charcoal-50 px-6 py-10 text-center text-sm text-charcoal-500">
-          No supervisor ratings recorded yet.
+      {sources === null ? (
+        <p className="mt-10 text-sm text-ink-500">Loading…</p>
+      ) : sources.length === 0 ? (
+        <div className="mt-10 rounded-[var(--radius-card)] border border-line bg-paper-raised px-6 py-10 text-center text-sm text-ink-500">
+          No verified experiences yet. Letters draw on experiences a supervisor has verified.
         </div>
       ) : (
         <div className="mt-8 space-y-10">
-          {grouped.map(([ref, rows]) => {
-            const allSelected = rows.every((r) => selected.has(keyFor(r)));
+          {grouped.map(([org, rows]) => {
+            const allSelected = rows.every((r) => selected.has(r.experience.id));
             return (
-              <section key={ref}>
-                <div className="flex items-baseline justify-between border-b border-charcoal-100 pb-2">
-                  <h2 className="text-lg font-medium">{nameFor(ref)}</h2>
+              <section key={org}>
+                <div className="flex items-baseline justify-between border-b border-line pb-2">
+                  <h2 className="text-lg font-medium text-ink-900">{org}</h2>
                   <button
                     onClick={() => toggleAllInGroup(rows, !allSelected)}
-                    className="text-xs uppercase tracking-wider text-charcoal-500 hover:text-ink"
+                    className="text-xs uppercase tracking-wider text-ink-500 hover:text-ink-900"
                   >
                     {allSelected ? "Clear all" : "Select all"}
                   </button>
                 </div>
-                <ul className="mt-3 divide-y divide-charcoal-100">
+                <ul className="mt-3 divide-y divide-line">
                   {rows.map((r) => {
-                    const k = keyFor(r);
+                    const k = r.experience.id;
                     const on = selected.has(k);
-                    const rubric = r.rubric ?? {};
-                    const avgVals = Object.values(rubric);
-                    const avg =
-                      avgVals.length > 0
-                        ? (avgVals.reduce((a, b) => a + b, 0) / avgVals.length).toFixed(1)
-                        : "—";
+                    const hours = fmtHours(r.experience.verified_hours ?? r.experience.hours);
+                    const rated = r.ratings.length;
                     return (
                       <li key={k} className="flex items-start gap-3 py-3">
                         <input
@@ -385,26 +483,26 @@ function RecommendationsPage() {
                         />
                         <label htmlFor={k} className="flex-1 cursor-pointer">
                           <div className="flex flex-wrap items-baseline gap-2">
-                            <span className="font-medium">
-                              {studentName[r.student_id] ?? "Student"}
+                            <span className="font-medium text-ink-900">{r.firstName}</span>
+                            <span className="text-sm text-ink-700">
+                              {clean(r.experience.role_title) || clean(r.experience.title)}
                             </span>
-                            <span className="text-xs text-charcoal-400">
-                              avg {avg}/5 · rated by {educatorName[r.evaluator_id] ?? "Supervisor"}
+                            <span className="text-xs text-ink-500">
+                              {hours ? `${hours} verified hr${hours === "1" ? "" : "s"} · ` : ""}
+                              {rated
+                                ? `${r.proficientSkills.length} of ${rated} skill${rated === 1 ? "" : "s"} proficient`
+                                : "no skill ratings"}{" "}
+                              · verified by {r.supervisorName}
                             </span>
-                            {r.recommend === true && (
-                              <span className="rounded-sm bg-ink px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-white">
-                                Recommended
-                              </span>
-                            )}
-                            {r.recommend === false && (
-                              <span className="rounded-sm border border-charcoal-200 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-charcoal-500">
-                                No recommendation
-                              </span>
-                            )}
                           </div>
-                          {r.notes && (
-                            <p className="mt-1 line-clamp-2 text-xs text-charcoal-500">
-                              &ldquo;{r.notes}&rdquo;
+                          {r.proficientSkills.length > 0 && (
+                            <p className="mt-1 text-xs text-ink-700">
+                              {r.proficientSkills.join(" · ")}
+                            </p>
+                          )}
+                          {r.comment && (
+                            <p className="mt-1 line-clamp-2 text-xs text-ink-500">
+                              &ldquo;{r.comment.text}&rdquo;
                             </p>
                           )}
                         </label>

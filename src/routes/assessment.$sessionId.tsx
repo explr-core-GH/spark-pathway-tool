@@ -1,3 +1,4 @@
+import { PortalHeader } from "@/components/passport/PortalHeader";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,10 +43,19 @@ function AssessmentRunner() {
     (async () => {
       const { data, error } = await supabase
         .from("assessment_sessions")
-        .select("session_id, student_id, grade_at_session, item_sequence, current_index, items_answered, completed_at")
-        .eq("session_id", sessionId).maybeSingle();
-      if (error) { setError(error.message); return; }
-      if (!data) { setError("Session not found."); return; }
+        .select(
+          "session_id, student_id, grade_at_session, item_sequence, current_index, items_answered, completed_at",
+        )
+        .eq("session_id", sessionId)
+        .maybeSingle();
+      if (error) {
+        setError(error.message);
+        return;
+      }
+      if (!data) {
+        setError("Session not found.");
+        return;
+      }
       if (data.completed_at) {
         navigate({ to: "/assessment/$sessionId/results", params: { sessionId } });
         return;
@@ -54,9 +64,11 @@ function AssessmentRunner() {
       setShownAt(Date.now());
       // Photos are optional — ignore errors (table may be empty / absent).
       // Loosened to any: assessment_item_photos isn't in the generated type.
-      (supabase.from as unknown as (n: string) => {
-        select: (c: string) => Promise<{ data: Array<{ item_id: string; url: string }> | null }>;
-      })("assessment_item_photos")
+      (
+        supabase.from as unknown as (n: string) => {
+          select: (c: string) => Promise<{ data: Array<{ item_id: string; url: string }> | null }>;
+        }
+      )("assessment_item_photos")
         .select("item_id, url")
         .then(({ data: rows }) => {
           const m: Record<string, string> = {};
@@ -67,7 +79,7 @@ function AssessmentRunner() {
   }, [sessionId, navigate]);
 
   if (error) return <div className="mx-auto max-w-xl px-6 py-24 text-destructive">{error}</div>;
-  if (!session) return <div className="mx-auto max-w-xl px-6 py-24 text-charcoal-500">Loading…</div>;
+  if (!session) return <div className="mx-auto max-w-xl px-6 py-24 text-ink-500">Loading…</div>;
 
   const total = session.item_sequence.length;
   const idx = session.current_index;
@@ -101,15 +113,29 @@ function AssessmentRunner() {
       response_time_ms,
       is_practice: false,
     });
-    if (respErr) { setError(respErr.message); setSubmitting(false); return; }
-    const { error: advErr } = await supabase.rpc("advance_session", { p_session_id: session.session_id });
-    if (advErr) { setError(advErr.message); setSubmitting(false); return; }
+    if (respErr) {
+      setError(respErr.message);
+      setSubmitting(false);
+      return;
+    }
+    const { error: advErr } = await supabase.rpc("advance_session", {
+      p_session_id: session.session_id,
+    });
+    if (advErr) {
+      setError(advErr.message);
+      setSubmitting(false);
+      return;
+    }
 
     const nextIdx = idx + 1;
     if (nextIdx >= total) {
       await finalize();
     } else {
-      setSession({ ...session, current_index: nextIdx, items_answered: session.items_answered + 1 });
+      setSession({
+        ...session,
+        current_index: nextIdx,
+        items_answered: session.items_answered + 1,
+      });
       setShownAt(Date.now());
       setSubmitting(false);
     }
@@ -130,28 +156,41 @@ function AssessmentRunner() {
       };
     });
     const { scale_scores, holland_code, flag_uniform, flag_speeding } = scoreResponses(responses);
-    const { error: upErr } = await supabase.from("assessment_sessions").update({
-      completed_at: new Date().toISOString(),
-      scale_scores,
-      holland_code,
-      flag_uniform,
-      flag_speeding,
-    }).eq("session_id", sessionId);
-    if (upErr) { setError(upErr.message); setFinishing(false); return; }
+    const { error: upErr } = await supabase
+      .from("assessment_sessions")
+      .update({
+        completed_at: new Date().toISOString(),
+        scale_scores,
+        holland_code,
+        flag_uniform,
+        flag_speeding,
+      })
+      .eq("session_id", sessionId);
+    if (upErr) {
+      setError(upErr.message);
+      setFinishing(false);
+      return;
+    }
     navigate({ to: "/assessment/$sessionId/results", params: { sessionId } });
   }
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-charcoal-100">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-          <Link to="/" className="text-sm tracking-tight">EXPLR <span style={{ color: "var(--explr)" }}>Pathways</span></Link>
-          <div className="text-xs text-charcoal-500">{idx + 1} of {total}</div>
-        </div>
-        <div className="h-0.5 bg-charcoal-100">
-          <div className="h-full transition-[width] duration-300" style={{ width: `${pct}%`, background: "var(--color-explr-500)" }} />
-        </div>
-      </header>
+      <PortalHeader
+        right={
+          <span className="font-mono text-xs text-ink-500" aria-live="polite">
+            {idx + 1} of {total}
+          </span>
+        }
+        subbar={
+          <div className="h-1 bg-paper-sunken" aria-hidden>
+            <div
+              className="h-full bg-green transition-[width] duration-300"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        }
+      />
 
       <main className="mx-auto max-w-2xl px-6 py-16">
         {/* Context image. Shows the item's photo when set; otherwise a
@@ -162,7 +201,7 @@ function AssessmentRunner() {
             className="relative mb-8 flex h-64 w-full items-center justify-center overflow-hidden rounded-lg sm:h-80"
             style={{ background: scale.colorSoft }}
           >
-            {(item && (photos[item.id] ?? item.image)) ? (
+            {item && (photos[item.id] ?? item.image) ? (
               <img
                 src={item ? (photos[item.id] ?? item.image) : undefined}
                 alt=""
@@ -184,9 +223,13 @@ function AssessmentRunner() {
         )}
 
         {scale && (
-          <p className="eyebrow" style={{ color: scale.color }}>How much would you like to…</p>
+          <p className="eyebrow" style={{ color: scale.color }}>
+            How much would you like to…
+          </p>
         )}
-        <h1 id="prompt-text" className="mt-4 text-3xl font-light leading-tight md:text-4xl">{prompt}</h1>
+        <h1 id="prompt-text" className="mt-4 text-3xl font-light leading-tight md:text-4xl">
+          {prompt}
+        </h1>
 
         {/* Rating scale as a real radiogroup (WCAG 4.1.2 / 2.1.1): arrow
             keys move between options, Enter/Space selects. Labelled by the
@@ -206,7 +249,7 @@ function AssessmentRunner() {
             }
           }}
         >
-          {([1,2,3,4,5] as LikertValue[]).map((v) => (
+          {([1, 2, 3, 4, 5] as LikertValue[]).map((v) => (
             <button
               key={v}
               type="button"
@@ -215,7 +258,7 @@ function AssessmentRunner() {
               disabled={submitting || finishing}
               onClick={() => answer(v)}
               aria-label={LIKERT_LABELS[v]}
-              className="group flex flex-col items-center gap-2 border border-charcoal-100 px-1 py-4 transition-colors hover:border-ink hover:bg-charcoal-50 focus-visible:border-ink disabled:opacity-50"
+              className="group flex flex-col items-center gap-2 border border-line px-1 py-4 transition-colors hover:border-ink-900-900 hover:bg-paper-sunken focus-visible:border-ink-900 disabled:opacity-50"
             >
               <span
                 className="text-3xl leading-none transition-transform group-hover:scale-110 sm:text-4xl"
@@ -223,15 +266,25 @@ function AssessmentRunner() {
               >
                 {FACES[v]}
               </span>
-              <span className="text-center text-[11px] leading-tight text-charcoal-500">{LIKERT_LABELS[v]}</span>
+              <span className="text-center text-[11px] leading-tight text-ink-500">
+                {LIKERT_LABELS[v]}
+              </span>
             </button>
           ))}
         </div>
 
-        {finishing && <p className="mt-8 text-sm text-charcoal-500" role="status">Scoring your results…</p>}
-        {error && <p className="mt-8 text-sm text-destructive" role="alert">{error}</p>}
+        {finishing && (
+          <p className="mt-8 text-sm text-ink-500" role="status">
+            Scoring your results…
+          </p>
+        )}
+        {error && (
+          <p className="mt-8 text-sm text-destructive" role="alert">
+            {error}
+          </p>
+        )}
 
-        <p className="mt-16 text-xs text-charcoal-400">
+        <p className="mt-16 text-xs text-ink-500">
           You can close this tab and return later — your progress is saved.
         </p>
       </main>

@@ -402,6 +402,7 @@ h4 {
     width: 100%;
     background: var(--bg-elevated);
     border: 1px solid var(--border);
+    border-radius: var(--radius-control);
     padding: 0.625rem 0.875rem;
     font-size: 0.9375rem;
     color: var(--fg);
@@ -427,6 +428,7 @@ h4 {
     padding: 1.5rem;
     background: var(--bg-elevated);
     border: 1px solid var(--border);
+    border-radius: var(--radius-card);
     transition: border-color 0.15s;
   }
   .tile:hover {

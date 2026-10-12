@@ -51,7 +51,7 @@ function EducatorSignIn() {
         ← EXPLR
       </Link>
       <h1 className="text-3xl font-light">Sign in</h1>
-      <p className="mt-2 text-sm text-charcoal-500">Instructor account.</p>
+      <p className="mt-2 text-sm text-ink-500">Instructor account.</p>
       <form onSubmit={submit} className="mt-10 space-y-5">
         <div>
           <label className="label" htmlFor="edu-signin-email">
@@ -90,12 +90,12 @@ function EducatorSignIn() {
           {loading ? "Signing in…" : "Sign in"}
         </button>
       </form>
-      <p className="mt-6 text-sm text-charcoal-500">
+      <p className="mt-6 text-sm text-ink-500">
         No account?{" "}
         <Link to="/instructor/sign-up" className="ink-link">
           Request access
         </Link>
-        <span className="mx-2 text-charcoal-300">·</span>
+        <span className="mx-2 text-ink-500">·</span>
         <Link to="/forgot-password" className="ink-link">
           Forgot password?
         </Link>

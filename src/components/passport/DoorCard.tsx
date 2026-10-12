@@ -57,7 +57,7 @@ export function DoorCard({
               key={p.label}
               to={p.to}
               search={p.search}
-              className="inline-flex min-h-[44px] items-center rounded-[var(--radius-control)] border-[1.5px] border-line-strong bg-paper px-3.5 py-2.5 text-[15px] font-medium text-ink-900 hover:border-ink-900"
+              className="inline-flex min-h-[44px] items-center rounded-[var(--radius-control)] border-[1.5px] border-line-strong bg-paper px-3.5 py-2.5 text-[15px] font-medium text-ink-900 hover:border-ink-900-900-900"
             >
               {p.label}
             </Link>

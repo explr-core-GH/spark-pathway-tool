@@ -41,15 +41,15 @@ function LoginDisplay() {
       <p className="eyebrow">EXPLR Pathways</p>
       <h1 className="display mt-3 text-4xl md:text-6xl">Let&rsquo;s log in.</h1>
 
-      <p className="mt-8 text-lg text-charcoal-600">Type this into your web browser:</p>
+      <p className="mt-8 text-lg text-ink-700">Type this into your web browser:</p>
       <p className="mt-3">
-        <span className="inline-block whitespace-nowrap rounded-lg bg-charcoal-50 px-6 py-4 font-mono text-2xl font-semibold tracking-tight text-ink md:text-4xl">
+        <span className="inline-block whitespace-nowrap rounded-lg bg-paper-sunken px-6 py-4 font-mono text-2xl font-semibold tracking-tight text-ink md:text-4xl">
           {url || "…"}
         </span>
       </p>
 
       <div className="mt-12 grid items-center gap-10 text-left sm:grid-cols-[1fr_auto]">
-        <ol className="space-y-4 text-lg text-charcoal-700">
+        <ol className="space-y-4 text-lg text-ink-700">
           <Step n={1}>Go to the link above.</Step>
           <Step n={2}>
             Type your <strong>username</strong> from your card.
@@ -64,12 +64,12 @@ function LoginDisplay() {
         {qr && (
           <div className="mx-auto text-center">
             <img src={qr} alt={`QR code linking to ${url}`} className="h-44 w-44 md:h-56 md:w-56" />
-            <p className="mt-2 text-xs text-charcoal-500">Or scan with a phone camera</p>
+            <p className="mt-2 text-xs text-ink-500">Or scan with a phone camera</p>
           </div>
         )}
       </div>
 
-      <p className="mt-12 text-sm text-charcoal-400">
+      <p className="mt-12 text-sm text-ink-500">
         Stuck? On the sign-in page, tap &ldquo;Show&rdquo; next to the password box to check it.{" "}
         <Link to="/instructor/dashboard" className="ink-link">
           Back to dashboard
@@ -82,7 +82,7 @@ function LoginDisplay() {
 function Step({ n, children }: { n: number; children: React.ReactNode }) {
   return (
     <li className="flex items-start gap-3">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink text-sm font-semibold text-canvas">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink-900 text-sm font-semibold text-paper">
         {n}
       </span>
       <span className="pt-0.5">{children}</span>
