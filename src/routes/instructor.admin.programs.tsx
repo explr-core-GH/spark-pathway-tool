@@ -119,16 +119,16 @@ function ProgramsAdmin() {
   );
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
       <h1 className="display mt-2">Programs</h1>
-      <p className="lead mt-3">
+      <p className="lead mt-3 max-w-2xl">
         Create programs and assign instructors. Assignments scope what each instructor sees.
       </p>
 
       <form
         onSubmit={createProgram}
-        className="mt-10 grid gap-4 border border-line p-6 md:grid-cols-[2fr_1fr_1fr_auto] rounded-[var(--radius-card)]"
+        className="mt-10 grid gap-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 md:grid-cols-[2fr_1fr_1fr_auto]"
       >
         <div>
           <label className="label">Program name</label>
@@ -212,21 +212,29 @@ function ProgramsAdmin() {
       <div className="mt-12 grid gap-8 md:grid-cols-[1fr_1fr]">
         <div>
           <h2 className="eyebrow">Programs</h2>
-          <ul className="mt-4 divide-y divide-line border-y border-line">
+          <ul className="mt-4 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
             {programs.map((p) => {
               const count = assignments.filter((a) => a.program_id === p.id).length;
               return (
-                <li key={p.id} className="flex items-center gap-3 py-3">
-                  <button onClick={() => setSelected(p.id)} className="flex-1 text-left">
+                <li
+                  key={p.id}
+                  className={`flex items-center gap-3 px-4 py-3 first:rounded-t-[var(--radius-card)] last:rounded-b-[var(--radius-card)] ${
+                    selected === p.id ? "bg-mint-tint" : ""
+                  }`}
+                >
+                  <button
+                    onClick={() => setSelected(p.id)}
+                    aria-pressed={selected === p.id}
+                    className="min-h-[44px] flex-1 text-left"
+                  >
                     <p
-                      className="text-sm font-medium"
-                      style={{ color: selected === p.id ? "var(--ink)" : "inherit" }}
+                      className={`text-sm font-medium ${selected === p.id ? "text-green-deep" : "text-ink-900"}`}
                     >
                       {p.name}
                     </p>
                     <p className="text-xs text-ink-500">
                       {PROGRAM_META[p.program_type]?.label ?? p.program_type}
-                      {p.grade_band ? ` · ${p.grade_band}` : ""} · {count} educator
+                      {p.grade_band ? ` · ${p.grade_band}` : ""} · {count} instructor
                       {count === 1 ? "" : "s"}
                     </p>
                     {(p.school_name ||
@@ -248,7 +256,7 @@ function ProgramsAdmin() {
                   </button>
                   <button
                     onClick={() => deleteProgram(p.id)}
-                    className="text-xs text-red-600 hover:underline"
+                    className="inline-flex min-h-[44px] items-center text-xs text-red-700 hover:underline"
                   >
                     Delete
                   </button>
@@ -256,23 +264,24 @@ function ProgramsAdmin() {
               );
             })}
             {programs.length === 0 && (
-              <li className="py-6 text-sm text-ink-500">No programs yet.</li>
+              <li className="px-4 py-6 text-sm text-ink-500">No programs yet.</li>
             )}
           </ul>
         </div>
 
         <div>
           <h2 className="eyebrow">
-            {selectedProg ? `Educators · ${selectedProg.name}` : "Pick a program"}
+            {selectedProg ? `Instructors · ${selectedProg.name}` : "Pick a program"}
           </h2>
           {selectedProg ? (
-            <ul className="mt-4 divide-y divide-line border-y border-line">
+            <ul className="mt-4 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
               {educators.map((e) => {
                 const checked = assignedSet.has(e.id);
                 return (
-                  <li key={e.id} className="flex items-center gap-3 py-3">
+                  <li key={e.id} className="flex min-h-[44px] items-center gap-3 px-4 py-3">
                     <input
                       type="checkbox"
+                      className="h-4 w-4 accent-green"
                       checked={checked}
                       onChange={() => toggleEducator(selectedProg.id, e.id)}
                     />
@@ -284,7 +293,7 @@ function ProgramsAdmin() {
                 );
               })}
               {educators.length === 0 && (
-                <li className="py-6 text-sm text-ink-500">
+                <li className="px-4 py-6 text-sm text-ink-500">
                   No approved instructors yet. Invite some first.
                 </li>
               )}

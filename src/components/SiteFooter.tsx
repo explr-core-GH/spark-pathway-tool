@@ -8,6 +8,7 @@ const LINKS: Array<{ to: string; label: string }> = [
   { to: "/student-data", label: "Student data" },
   { to: "/instructor/sign-in", label: "Instructors" },
   { to: "/org/sign-in", label: "Partners" },
+  { to: "/demo", label: "Demo" },
 ];
 
 /** Site footer — the same footer as the home page, used on every layout. */

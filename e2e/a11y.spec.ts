@@ -27,10 +27,12 @@ const ROUTES: Array<{ path: string; name: string }> = [
   { path: "/start", name: "start (pathway chooser)" },
   { path: "/sign-in", name: "student sign-in" },
   { path: "/sign-up", name: "student sign-up" },
-  { path: "/instructor/sign-in", name: "educator sign-in" },
-  { path: "/instructor/sign-up", name: "educator sign-up" },
+  { path: "/instructor/sign-in", name: "instructor sign-in" },
+  { path: "/instructor/sign-up", name: "instructor sign-up" },
+  { path: "/org/sign-in", name: "partner sign-in" },
+  { path: "/demo", name: "demo" },
+  { path: "/opportunities", name: "opportunities" },
   { path: "/assessment", name: "assessment intro (signed-out)" },
-  { path: "/worksites", name: "worksites" },
 ];
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];

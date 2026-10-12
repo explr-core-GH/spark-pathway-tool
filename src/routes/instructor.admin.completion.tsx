@@ -190,10 +190,10 @@ function CompletionByRoster() {
   }, [filtered]);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-16">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
-      <h1 className="mt-3 text-4xl font-light">Completion by roster</h1>
-      <p className="mt-2 max-w-2xl text-sm text-ink-500">
+      <h1 className="display mt-2">Completion by roster</h1>
+      <p className="lead mt-3 max-w-2xl">
         Assessment and survey completion grouped by camp or internship roster. Click a row to see
         per-student results and timing.
       </p>
@@ -205,18 +205,18 @@ function CompletionByRoster() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <div className="flex gap-1 text-xs">
+        <div className="flex flex-wrap gap-2">
           {(["all", "camp", "internship"] as const).map((k) => (
             <button
               key={k}
               onClick={() => setKindFilter(k)}
-              className={`px-3 py-1.5 border ${kindFilter === k ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-500 hover:border-ink-900 hover:text-ink"}`}
+              className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${kindFilter === k ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
             >
               {k === "all" ? "All" : k === "camp" ? "Camps" : "Internships"}
             </button>
           ))}
         </div>
-        <span className="text-xs text-ink-500">
+        <span className="text-sm text-ink-500">
           {filtered.length} roster{filtered.length === 1 ? "" : "s"} · {totals.assessmentDone}/
           {totals.total} assessment · {totals.surveysDone}/{totals.total} survey
         </span>
@@ -225,11 +225,11 @@ function CompletionByRoster() {
       {loading ? (
         <p className="mt-8 text-sm text-ink-500">Loading…</p>
       ) : err ? (
-        <p className="mt-8 text-sm text-red-600">Error: {err}</p>
+        <p className="mt-8 text-sm text-red-700">Error: {err}</p>
       ) : filtered.length === 0 ? (
         <p className="mt-8 text-sm text-ink-500">No rosters with students yet.</p>
       ) : (
-        <div className="mt-6 divide-y divide-line border-y border-line">
+        <div className="mt-6 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
           {filtered.map((s) => {
             const isOpen = open === s.key;
             const aPct = s.total ? Math.round((s.assessmentDone / s.total) * 100) : 0;
@@ -238,10 +238,11 @@ function CompletionByRoster() {
               <div key={s.key}>
                 <button
                   onClick={() => setOpen(isOpen ? null : s.key)}
-                  className="grid w-full grid-cols-[1fr_120px_140px_140px_60px] items-baseline gap-4 py-4 text-left text-sm hover:bg-paper-sunken"
+                  aria-expanded={isOpen}
+                  className="flex w-full flex-wrap items-baseline gap-x-4 gap-y-1 px-4 py-4 text-left text-sm hover:bg-paper-sunken md:grid md:grid-cols-[1fr_120px_140px_140px_60px]"
                 >
-                  <span>
-                    <span className="text-[10px] uppercase tracking-wider text-ink-500 mr-2">
+                  <span className="w-full md:w-auto">
+                    <span className="mr-2 rounded-full bg-paper-sunken px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-700">
                       {s.kind === "camp" ? "Camp" : "Internship"}
                     </span>
                     <span className="font-medium">{s.title}</span>
@@ -262,7 +263,7 @@ function CompletionByRoster() {
                     </span>{" "}
                     <span className="text-xs text-ink-500">survey ({sPct}%)</span>
                   </span>
-                  <span className="text-right text-xs text-ink-500">
+                  <span className="text-xs font-medium text-green-deep md:text-right">
                     {isOpen ? "Hide" : "View"}
                   </span>
                 </button>

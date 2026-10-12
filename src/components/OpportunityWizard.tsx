@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { PortalHeader, type PortalLink } from "@/components/passport";
+import { Check, Plus, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   OPP_TYPES,
@@ -26,6 +28,12 @@ import {
   type WblDetail,
 } from "@/lib/wbl-gate";
 import type { Stage } from "@/lib/wbl-taxonomy";
+
+const PARTNER_LINKS: PortalLink[] = [
+  { label: "Overview", to: "/org" },
+  { label: "New opportunity", to: "/org/new" },
+  { label: "Applicants", to: "/org/applicants" },
+];
 
 const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
 
@@ -436,542 +444,585 @@ export function OpportunityWizard({
 
   // ── Path select ────────────────────────────────────────────────────────────
   if (hydrating) {
-    return <main className="mx-auto max-w-3xl px-6 py-16 text-sm text-ink-500">Loading…</main>;
+    return (
+      <div className="bg-paper text-ink-900">
+        <PortalHeader role="Partner" links={PARTNER_LINKS} signedIn />
+        <main className="mx-auto max-w-3xl px-4 py-16 text-sm text-ink-500 sm:px-6">Loading…</main>
+      </div>
+    );
   }
   if (!type) {
     return (
-      <main className="mx-auto max-w-3xl px-6 py-16">
-        <p className="eyebrow">New opportunity · step 1</p>
-        <h1 className="mt-2 text-3xl font-light">What kind of opportunity is this?</h1>
-        <p className="mt-2 text-sm text-ink-500">
-          This sets the grade range and which questions come next.
-        </p>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {OPP_TYPES.map((t) => (
+      <div className="bg-paper text-ink-900">
+        <PortalHeader role="Partner" links={PARTNER_LINKS} signedIn />
+        <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+          <p className="eyebrow text-green">New opportunity · step 1</p>
+          <h1 className="display mt-1">What kind of opportunity is this?</h1>
+          <p className="lead mt-3">This sets the grade range and which questions come next.</p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            {OPP_TYPES.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => pickType(t.key)}
+                className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 text-left shadow-card transition-colors hover:border-emerald"
+              >
+                <p className="font-display text-lg font-semibold">{t.label}</p>
+                <p className="mt-1 text-sm text-ink-700">{t.blurb}</p>
+              </button>
+            ))}
+          </div>
+          <p className="mt-8 text-sm">
             <button
-              key={t.key}
-              onClick={() => pickType(t.key)}
-              className="border border-line bg-paper-raised p-5 text-left transition-colors hover:border-ink-900 rounded-[var(--radius-card)]"
+              onClick={() => navigate({ to: "/org" })}
+              className="inline-flex min-h-[44px] items-center font-medium text-green-deep hover:underline"
             >
-              <p className="text-base font-medium">{t.label}</p>
-              <p className="mt-1 text-sm text-ink-500">{t.blurb}</p>
+              ← Back to your opportunities
             </button>
-          ))}
-        </div>
-        <p className="mt-8 text-sm">
-          <button onClick={() => navigate({ to: "/org" })} className="text-ink-500 hover:text-ink">
-            ← Back to your opportunities
-          </button>
-        </p>
-      </main>
+          </p>
+        </main>
+      </div>
     );
   }
 
   // Don't render any step until this type's field config has loaded — otherwise
   // the step list is momentarily empty and flashes the wrong slide.
   if (configFor !== type) {
-    return <main className="mx-auto max-w-3xl px-6 py-16 text-sm text-ink-500">Loading…</main>;
+    return (
+      <div className="bg-paper text-ink-900">
+        <PortalHeader role="Partner" links={PARTNER_LINKS} signedIn />
+        <main className="mx-auto max-w-3xl px-4 py-16 text-sm text-ink-500 sm:px-6">Loading…</main>
+      </div>
+    );
   }
 
   const current = steps[step];
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
-      <style>{`@keyframes oppSlide{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}.opp-slide{animation:oppSlide .26s ease}`}</style>
+    <div className="bg-paper text-ink-900">
+      <PortalHeader role="Partner" links={PARTNER_LINKS} signedIn />
+      <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+        <style>{`@keyframes oppSlide{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}.opp-slide{animation:oppSlide .26s ease}`}</style>
 
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="eyebrow">{meta!.label}</p>
-          <h1 className="mt-1 text-2xl font-light">{form.name || "New opportunity"}</h1>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="eyebrow text-green">{meta!.label}</p>
+            <h1 className="mt-1 font-display text-3xl font-bold leading-tight">
+              {form.name || "New opportunity"}
+            </h1>
+          </div>
+          {!opportunityId && (
+            <button
+              onClick={() => setType(null)}
+              className="inline-flex min-h-[44px] items-center text-sm text-ink-500 hover:text-ink-900"
+            >
+              Change type
+            </button>
+          )}
         </div>
-        {!opportunityId && (
-          <button onClick={() => setType(null)} className="text-xs text-ink-500 hover:text-ink">
-            Change type
-          </button>
-        )}
-      </div>
 
-      {/* Step rail */}
-      <div className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px]">
-        {steps.map((s, i) => (
-          <span key={s.id} className="flex items-center gap-2">
-            <span
-              className={
-                i === step ? "font-medium text-ink" : i < step ? "text-green-deep" : "text-ink-500"
-              }
-            >
-              {i + 1}. {s.title}
-            </span>
-            {i < steps.length - 1 && <span className="text-ink-500">·</span>}
-          </span>
-        ))}
-      </div>
-
-      <div key={step} className="opp-slide mt-8 min-h-[260px]">
-        {current.id === "basics" && (
-          <Section title="The basics">
-            {enabled("name") && (
-              <Field label={nameLabel()} help={helpOf("name")} required={cfg.get("name")?.required}>
-                <input
-                  className="field"
-                  value={form.name}
-                  onChange={(e) => set("name", e.target.value)}
-                />
-              </Field>
-            )}
-            {enabled("description") && (
-              <Field
-                label={labelOf("description", "Description")}
-                help={helpOf("description")}
-                required={cfg.get("description")?.required}
+        {/* Step rail */}
+        <ol className="mt-6 flex flex-wrap items-center gap-2">
+          {steps.map((s, i) => (
+            <li key={s.id} className="flex items-center gap-2">
+              <span
+                aria-current={i === step ? "step" : undefined}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] ${
+                  i === step
+                    ? "bg-ink-900 text-paper"
+                    : i < step
+                      ? "bg-mint-tint text-green-deep"
+                      : "bg-paper-sunken text-ink-500"
+                }`}
               >
-                <textarea
-                  className="field"
-                  rows={5}
-                  value={form.description}
-                  onChange={(e) => set("description", e.target.value)}
-                />
-              </Field>
-            )}
-          </Section>
-        )}
+                {i < step ? <Check className="h-3 w-3" aria-hidden /> : `${i + 1}.`} {s.title}
+              </span>
+            </li>
+          ))}
+        </ol>
 
-        {current.id === "when" && (
-          <Section title="When">
-            {enabled("dates") && (
-              <Field
-                label={labelOf("dates", "Dates")}
-                help={helpOf("dates")}
-                required={cfg.get("dates")?.required}
-              >
-                <div className="flex flex-wrap items-center gap-3">
+        <div
+          key={step}
+          className="opp-slide mt-8 min-h-[260px] rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card sm:p-6"
+        >
+          {current.id === "basics" && (
+            <Section title="The basics">
+              {enabled("name") && (
+                <Field
+                  label={nameLabel()}
+                  help={helpOf("name")}
+                  required={cfg.get("name")?.required}
+                >
                   <input
-                    type="date"
-                    className="field w-44"
-                    value={form.start_date}
-                    onChange={(e) => set("start_date", e.target.value)}
+                    className="field"
+                    value={form.name}
+                    onChange={(e) => set("name", e.target.value)}
                   />
-                  {!meta!.oneTime && (
-                    <>
-                      <span className="text-sm text-ink-500">to</span>
-                      <input
-                        type="date"
-                        className="field w-44"
-                        value={form.end_date}
-                        onChange={(e) => set("end_date", e.target.value)}
-                      />
-                    </>
-                  )}
-                </div>
-              </Field>
-            )}
-            {enabled("schedule") && (
-              <Field label={labelOf("schedule", "Days & times")} help={helpOf("schedule")}>
-                <WeekdayPicker days={form.days} onChange={(v) => set("days", v)} />
-                <div className="mt-3 flex flex-wrap items-end gap-4">
-                  <label className="text-xs text-ink-500">
-                    Start time
-                    <input
-                      type="time"
-                      className="field mt-1 w-36"
-                      value={form.start_time}
-                      onChange={(e) => set("start_time", e.target.value)}
-                    />
-                  </label>
-                  <label className="text-xs text-ink-500">
-                    End time
-                    <input
-                      type="time"
-                      className="field mt-1 w-36"
-                      value={form.end_time}
-                      onChange={(e) => set("end_time", e.target.value)}
-                    />
-                  </label>
-                </div>
-                {composeSchedule(form.days, form.start_time, form.end_time) && (
-                  <p className="mt-2 text-xs text-ink-500">
-                    {composeSchedule(form.days, form.start_time, form.end_time)}
-                  </p>
-                )}
-              </Field>
-            )}
-          </Section>
-        )}
-
-        {current.id === "where" && (
-          <Section title="Where & registration">
-            {enabled("location") && (
-              <Field
-                label={labelOf("location", "Location")}
-                help={
-                  helpOf("location") ??
-                  "Start typing, then pick an address — it drops a map pin students will see."
-                }
-                required={cfg.get("location")?.required}
-              >
-                <AddressAutocomplete
-                  value={form.location}
-                  onPick={(addr, lat, lng) => {
-                    set("location", addr);
-                    set("lat", lat);
-                    set("lng", lng);
-                  }}
-                />
-                {form.lat != null && form.lng != null && (
-                  <p className="mt-1 text-xs text-emerald-700">✓ Pinned on the map</p>
-                )}
-              </Field>
-            )}
-            <Field
-              label={labelOf("registration", "How students register")}
-              help={helpOf("registration")}
-            >
-              {meta!.registrationLocked ? (
-                <p className="text-sm text-ink-500">
-                  Internships are completed entirely in-system — students apply and are placed
-                  through EXPLR.
-                </p>
-              ) : (
-                <div>
-                  <div className="inline-flex border border-line-strong">
-                    {(["internal", "external"] as const).map((m) => (
-                      <button
-                        key={m}
-                        type="button"
-                        onClick={() => set("registration_mode", m)}
-                        className="px-3 py-1.5 text-xs"
-                        style={{
-                          background: form.registration_mode === m ? "var(--ink)" : "white",
-                          color: form.registration_mode === m ? "white" : "var(--color-ink-500)",
-                        }}
-                      >
-                        {m === "internal" ? "Register in EXPLR" : "Register on our own site"}
-                      </button>
-                    ))}
-                  </div>
-                  {form.registration_mode === "external" && (
-                    <input
-                      className="field mt-3"
-                      value={form.external_url}
-                      onChange={(e) => set("external_url", e.target.value)}
-                      placeholder="https://your-registration-link"
-                    />
-                  )}
-                </div>
+                </Field>
               )}
-            </Field>
-          </Section>
-        )}
+              {enabled("description") && (
+                <Field
+                  label={labelOf("description", "Description")}
+                  help={helpOf("description")}
+                  required={cfg.get("description")?.required}
+                >
+                  <textarea
+                    className="field"
+                    rows={5}
+                    value={form.description}
+                    onChange={(e) => set("description", e.target.value)}
+                  />
+                </Field>
+              )}
+            </Section>
+          )}
 
-        {current.id === "who" && (
-          <Section title="Who & cost">
-            {enabled("grades") && (
-              <Field label={labelOf("grades", "Grade range")} help={helpOf("grades")}>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min={0}
-                    max={12}
-                    className="field w-24"
-                    value={form.grade_min}
-                    onChange={(e) => set("grade_min", e.target.value)}
-                    placeholder="min"
-                  />
-                  <span className="text-sm text-ink-500">to</span>
-                  <input
-                    type="number"
-                    min={0}
-                    max={12}
-                    className="field w-24"
-                    value={form.grade_max}
-                    onChange={(e) => set("grade_max", e.target.value)}
-                    placeholder="max"
-                  />
-                </div>
-              </Field>
-            )}
-            {enabled("capacity") && (
-              <Field label={labelOf("capacity", "Students accepted")} help={helpOf("capacity")}>
-                <input
-                  type="number"
-                  min={0}
-                  className="field w-32"
-                  value={form.capacity}
-                  onChange={(e) => set("capacity", e.target.value)}
-                />
-              </Field>
-            )}
-            {enabled("cost") && (
-              <Field label={labelOf("cost", "Cost")} help={helpOf("cost")}>
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={form.is_free}
-                    onChange={(e) => set("is_free", e.target.checked)}
-                  />
-                  This opportunity is free
-                </label>
-                {!form.is_free && (
-                  <div className="mt-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-ink-500">$</span>
+          {current.id === "when" && (
+            <Section title="When">
+              {enabled("dates") && (
+                <Field
+                  label={labelOf("dates", "Dates")}
+                  help={helpOf("dates")}
+                  required={cfg.get("dates")?.required}
+                >
+                  <div className="flex flex-wrap items-center gap-3">
+                    <input
+                      type="date"
+                      className="field w-44"
+                      value={form.start_date}
+                      onChange={(e) => set("start_date", e.target.value)}
+                    />
+                    {!meta!.oneTime && (
+                      <>
+                        <span className="text-sm text-ink-500">to</span>
+                        <input
+                          type="date"
+                          className="field w-44"
+                          value={form.end_date}
+                          onChange={(e) => set("end_date", e.target.value)}
+                        />
+                      </>
+                    )}
+                  </div>
+                </Field>
+              )}
+              {enabled("schedule") && (
+                <Field label={labelOf("schedule", "Days & times")} help={helpOf("schedule")}>
+                  <WeekdayPicker days={form.days} onChange={(v) => set("days", v)} />
+                  <div className="mt-3 flex flex-wrap items-end gap-4">
+                    <label className="text-xs text-ink-500">
+                      Start time
                       <input
-                        type="number"
-                        min={0}
-                        step="0.01"
-                        className="field w-32"
-                        value={form.cost}
-                        onChange={(e) => set("cost", e.target.value)}
-                        placeholder="0.00"
+                        type="time"
+                        className="field mt-1 w-36"
+                        value={form.start_time}
+                        onChange={(e) => set("start_time", e.target.value)}
                       />
+                    </label>
+                    <label className="text-xs text-ink-500">
+                      End time
+                      <input
+                        type="time"
+                        className="field mt-1 w-36"
+                        value={form.end_time}
+                        onChange={(e) => set("end_time", e.target.value)}
+                      />
+                    </label>
+                  </div>
+                  {composeSchedule(form.days, form.start_time, form.end_time) && (
+                    <p className="mt-2 text-xs text-ink-500">
+                      {composeSchedule(form.days, form.start_time, form.end_time)}
+                    </p>
+                  )}
+                </Field>
+              )}
+            </Section>
+          )}
+
+          {current.id === "where" && (
+            <Section title="Where & registration">
+              {enabled("location") && (
+                <Field
+                  label={labelOf("location", "Location")}
+                  help={
+                    helpOf("location") ??
+                    "Start typing, then pick an address — it drops a map pin students will see."
+                  }
+                  required={cfg.get("location")?.required}
+                >
+                  <AddressAutocomplete
+                    value={form.location}
+                    onPick={(addr, lat, lng) => {
+                      set("location", addr);
+                      set("lat", lat);
+                      set("lng", lng);
+                    }}
+                  />
+                  {form.lat != null && form.lng != null && (
+                    <p className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-green-deep">
+                      <Check className="h-3.5 w-3.5" aria-hidden /> Pinned on the map
+                    </p>
+                  )}
+                </Field>
+              )}
+              <Field
+                label={labelOf("registration", "How students register")}
+                help={helpOf("registration")}
+              >
+                {meta!.registrationLocked ? (
+                  <p className="text-sm text-ink-500">
+                    Internships are completed entirely in-system — students apply and are placed
+                    through EXPLR.
+                  </p>
+                ) : (
+                  <div>
+                    <div className="inline-flex flex-wrap gap-2">
+                      {(["internal", "external"] as const).map((m) => (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => set("registration_mode", m)}
+                          aria-pressed={form.registration_mode === m}
+                          className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${
+                            form.registration_mode === m
+                              ? "border-ink-900 bg-ink-900 text-paper"
+                              : "border-line-strong bg-paper-raised text-ink-700 hover:border-ink-900"
+                          }`}
+                        >
+                          {m === "internal" ? "Register in EXPLR" : "Register on our own site"}
+                        </button>
+                      ))}
                     </div>
-                    {(type === "camp" || type === "workshop") && (
-                      <p className="mt-3 border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-                        Heads up: camps &amp; workshops with a cost attached may not be accepted
-                        into the portal. EXPLR focuses on opportunity and access for all students
-                        regardless of income.
-                      </p>
+                    {form.registration_mode === "external" && (
+                      <input
+                        className="field mt-3"
+                        value={form.external_url}
+                        onChange={(e) => set("external_url", e.target.value)}
+                        placeholder="https://your-registration-link"
+                      />
                     )}
                   </div>
                 )}
               </Field>
-            )}
-          </Section>
-        )}
+            </Section>
+          )}
 
-        {current.id === "interests" && (
-          <Section title="Activities — auto-codes a RIASEC interest profile">
-            <p className="text-sm leading-relaxed text-ink-700">{RIASEC_INTRO}</p>
-            <div className="mt-6 space-y-4">
-              {RIASEC_ACTIVITIES.map((a) => (
-                <div key={a.key} className="border border-line p-4 rounded-[var(--radius-card)]">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <p className="text-sm font-medium">
-                      {a.label}
-                      <span className="ml-2 text-xs font-normal text-ink-500">
-                        {a.holland} · {a.letter}
-                      </span>
-                    </p>
-                    <span className="tabular-nums text-sm text-ink-700">
-                      {form.weights[a.key] ?? 0}%
-                    </span>
+          {current.id === "who" && (
+            <Section title="Who & cost">
+              {enabled("grades") && (
+                <Field label={labelOf("grades", "Grade range")} help={helpOf("grades")}>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min={0}
+                      max={12}
+                      className="field w-24"
+                      value={form.grade_min}
+                      onChange={(e) => set("grade_min", e.target.value)}
+                      placeholder="min"
+                    />
+                    <span className="text-sm text-ink-500">to</span>
+                    <input
+                      type="number"
+                      min={0}
+                      max={12}
+                      className="field w-24"
+                      value={form.grade_max}
+                      onChange={(e) => set("grade_max", e.target.value)}
+                      placeholder="max"
+                    />
                   </div>
-                  <p className="mt-1 text-xs text-ink-500">{a.blurb}</p>
-                  <p className="mt-0.5 text-xs text-ink-500">e.g. {a.examples}</p>
+                </Field>
+              )}
+              {enabled("capacity") && (
+                <Field label={labelOf("capacity", "Students accepted")} help={helpOf("capacity")}>
                   <input
-                    type="range"
+                    type="number"
                     min={0}
-                    max={100}
-                    step={5}
-                    value={form.weights[a.key] ?? 0}
-                    onChange={(e) =>
-                      set("weights", { ...form.weights, [a.key]: Number(e.target.value) })
-                    }
-                    className="mt-3 w-full"
+                    className="field w-32"
+                    value={form.capacity}
+                    onChange={(e) => set("capacity", e.target.value)}
                   />
-                </div>
-              ))}
-            </div>
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4 text-sm">
-              <span className={weightTotal === 100 ? "text-ink-500" : "text-amber-700"}>
-                Total {weightTotal}%
-                {weightTotal !== 100 ? " — aim for about 100% (we normalize either way)" : ""}
-              </span>
-              <span>
-                This opportunity&apos;s interest code:{" "}
-                <span className="font-mono font-medium tracking-wider">{code || "—"}</span>
-              </span>
-            </div>
-            <p className="mt-3 text-xs text-ink-500">
-              The code is the top one to three activity types by time. A student whose interest
-              assessment shares those letters sees this as a match. Leave any slider at 0 if it
-              doesn&apos;t apply.
-            </p>
-          </Section>
-        )}
-
-        {current.id === "worksite" && (
-          <Section title="Requirements & forms">
-            <p className="-mt-2 text-sm text-ink-500">
-              All optional — check what applies and leave the rest blank if there&apos;s nothing
-              extra to require.
-            </p>
-            <Field
-              label="Requirements"
-              help="Dress code, lunch, transportation, field trips — check whatever students or families should know."
-            >
-              <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                {REQUIREMENT_PRESETS.map((r) => (
-                  <label key={r} className="flex items-center gap-2 text-sm">
+                </Field>
+              )}
+              {enabled("cost") && (
+                <Field label={labelOf("cost", "Cost")} help={helpOf("cost")}>
+                  <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
-                      checked={form.requirements.includes(r)}
-                      onChange={(e) =>
-                        set(
-                          "requirements",
-                          e.target.checked
-                            ? [...form.requirements, r]
-                            : form.requirements.filter((x) => x !== r),
-                        )
-                      }
+                      checked={form.is_free}
+                      onChange={(e) => set("is_free", e.target.checked)}
                     />
-                    {r}
+                    This opportunity is free
                   </label>
+                  {!form.is_free && (
+                    <div className="mt-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-ink-500">$</span>
+                        <input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          className="field w-32"
+                          value={form.cost}
+                          onChange={(e) => set("cost", e.target.value)}
+                          placeholder="0.00"
+                        />
+                      </div>
+                      {(type === "camp" || type === "workshop") && (
+                        <p className="mt-3 rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-xs text-ink-900">
+                          Heads up: camps &amp; workshops with a cost attached may not be accepted
+                          into the portal. EXPLR focuses on opportunity and access for all students
+                          regardless of income.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </Field>
+              )}
+            </Section>
+          )}
+
+          {current.id === "interests" && (
+            <Section title="Activities — auto-codes a RIASEC interest profile">
+              <p className="text-sm leading-relaxed text-ink-700">{RIASEC_INTRO}</p>
+              <div className="mt-6 space-y-4">
+                {RIASEC_ACTIVITIES.map((a) => (
+                  <div
+                    key={a.key}
+                    className="rounded-[var(--radius-card)] border border-line bg-paper p-4"
+                  >
+                    <div className="flex items-baseline justify-between gap-3">
+                      <p className="text-sm font-medium">
+                        {a.label}
+                        <span className="ml-2 text-xs font-normal text-ink-500">
+                          {a.holland} · {a.letter}
+                        </span>
+                      </p>
+                      <span className="tabular-nums text-sm text-ink-700">
+                        {form.weights[a.key] ?? 0}%
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-ink-500">{a.blurb}</p>
+                    <p className="mt-0.5 text-xs text-ink-500">e.g. {a.examples}</p>
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      step={5}
+                      value={form.weights[a.key] ?? 0}
+                      onChange={(e) =>
+                        set("weights", { ...form.weights, [a.key]: Number(e.target.value) })
+                      }
+                      className="mt-3 w-full"
+                    />
+                  </div>
                 ))}
               </div>
-              <div className="mt-3">
-                <label className="label">Certifications included (optional)</label>
-                <input
-                  className="field mt-1"
-                  placeholder="e.g. OSHA 10, Forklift, First Aid — leave blank if none"
-                  value={(form.requirements.find((r) => r.startsWith(CERT_PREFIX)) ?? "").slice(
-                    CERT_PREFIX.length,
-                  )}
-                  onChange={(e) => {
-                    const others = form.requirements.filter((r) => !r.startsWith(CERT_PREFIX));
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4 text-sm">
+                <span className={weightTotal === 100 ? "text-green-deep" : "text-gold-deep"}>
+                  Total {weightTotal}%
+                  {weightTotal !== 100 ? " — aim for about 100% (we normalize either way)" : ""}
+                </span>
+                <span>
+                  This opportunity&apos;s interest code:{" "}
+                  <span className="font-mono font-medium tracking-wider">{code || "—"}</span>
+                </span>
+              </div>
+              <p className="mt-3 text-xs text-ink-500">
+                The code is the top one to three activity types by time. A student whose interest
+                assessment shares those letters sees this as a match. Leave any slider at 0 if it
+                doesn&apos;t apply.
+              </p>
+            </Section>
+          )}
+
+          {current.id === "worksite" && (
+            <Section title="Requirements & forms">
+              <p className="-mt-2 text-sm text-ink-500">
+                All optional — check what applies and leave the rest blank if there&apos;s nothing
+                extra to require.
+              </p>
+              <Field
+                label="Requirements"
+                help="Dress code, lunch, transportation, field trips — check whatever students or families should know."
+              >
+                <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                  {REQUIREMENT_PRESETS.map((r) => (
+                    <label key={r} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={form.requirements.includes(r)}
+                        onChange={(e) =>
+                          set(
+                            "requirements",
+                            e.target.checked
+                              ? [...form.requirements, r]
+                              : form.requirements.filter((x) => x !== r),
+                          )
+                        }
+                      />
+                      {r}
+                    </label>
+                  ))}
+                </div>
+                <div className="mt-3">
+                  <label className="label">Certifications included (optional)</label>
+                  <input
+                    className="field mt-1"
+                    placeholder="e.g. OSHA 10, Forklift, First Aid — leave blank if none"
+                    value={(form.requirements.find((r) => r.startsWith(CERT_PREFIX)) ?? "").slice(
+                      CERT_PREFIX.length,
+                    )}
+                    onChange={(e) => {
+                      const others = form.requirements.filter((r) => !r.startsWith(CERT_PREFIX));
+                      set(
+                        "requirements",
+                        e.target.value.trim() ? [...others, CERT_PREFIX + e.target.value] : others,
+                      );
+                    }}
+                  />
+                </div>
+                <CustomReqAdder
+                  requirements={form.requirements}
+                  onAdd={(v) => set("requirements", [...form.requirements, v])}
+                  onRemove={(v) =>
                     set(
                       "requirements",
-                      e.target.value.trim() ? [...others, CERT_PREFIX + e.target.value] : others,
-                    );
-                  }}
-                />
-              </div>
-              <CustomReqAdder
-                requirements={form.requirements}
-                onAdd={(v) => set("requirements", [...form.requirements, v])}
-                onRemove={(v) =>
-                  set(
-                    "requirements",
-                    form.requirements.filter((x) => x !== v),
-                  )
-                }
-              />
-            </Field>
-
-            <Field
-              label="Links to complete"
-              help="Links students open / complete (waivers, surveys, registration forms). Leave empty if there are none."
-            >
-              <LinksEditor
-                links={form.application_links}
-                onChange={(v) => set("application_links", v)}
-              />
-            </Field>
-
-            <Field
-              label="Forms / paperwork"
-              help="Upload blank forms students download, fill out, and/or sign. Leave empty if there are none."
-            >
-              <FormsEditor forms={forms} onAdd={addForm} onDelete={deleteForm} />
-            </Field>
-          </Section>
-        )}
-
-        {current.id === "wbl" && type && (
-          <WblStep
-            type={type}
-            stage={form.stage}
-            experienceType={form.experience_type}
-            wbl={form.wbl}
-            competencies={form.target_competencies}
-            gradeMin={form.grade_min ? Number(form.grade_min) : null}
-            onStage={(v) => set("stage", v)}
-            onExperienceType={(v) => set("experience_type", v)}
-            onWbl={(v) => set("wbl", v)}
-            onCompetencies={(v) => set("target_competencies", v)}
-          />
-        )}
-        {current.id === "media" && (
-          <Section title="Photo & logo">
-            {enabled("image") && (
-              <Field label={labelOf("image", "Photo")} help={helpOf("image")}>
-                <Uploader current={form.image_url} onFile={onImage} />
-              </Field>
-            )}
-            <Field label="Organization logo" help="Shown on every opportunity you post.">
-              <Uploader current={orgLogo} onFile={onLogo} rounded />
-            </Field>
-          </Section>
-        )}
-
-        {current.id === "custom" && (
-          <Section title="More details">
-            {customFields.map((f) => (
-              <Field key={f.id} label={f.label} help={f.help_text} required={f.required}>
-                <CustomInput
-                  field={f}
-                  value={form.custom[f.field_key]}
-                  onChange={(v) => set("custom", { ...form.custom, [f.field_key]: v })}
+                      form.requirements.filter((x) => x !== v),
+                    )
+                  }
                 />
               </Field>
-            ))}
-          </Section>
-        )}
 
-        {current.id === "review" && (
-          <Section title="Review & submit">
-            <ul className="divide-y divide-line border-y border-line text-sm">
-              <Row label="Type" value={meta!.label} />
-              <Row label="Name" value={form.name || "—"} />
-              <Row
-                label="Dates"
-                value={[form.start_date, form.end_date].filter(Boolean).join(" – ") || "—"}
-              />
-              <Row label="Location" value={form.location || "—"} />
-              <Row
-                label="Grades"
-                value={[form.grade_min, form.grade_max].filter(Boolean).join("–") || "—"}
-              />
-              <Row label="Capacity" value={form.capacity || "—"} />
-              <Row label="Cost" value={form.is_free ? "Free" : `$${form.cost || "0"}`} />
-              <Row
-                label="Registration"
-                value={
-                  meta!.registrationLocked
-                    ? "In-system"
-                    : form.registration_mode === "external"
-                      ? "External link"
-                      : "In EXPLR"
-                }
-              />
-              <Row label="Interest code" value={code || "—"} />
-            </ul>
-            <p className="mt-4 text-xs text-ink-500">
-              When you submit, an EXPLR admin reviews this before it goes live.
-            </p>
-          </Section>
-        )}
-      </div>
+              <Field
+                label="Links to complete"
+                help="Links students open / complete (waivers, surveys, registration forms). Leave empty if there are none."
+              >
+                <LinksEditor
+                  links={form.application_links}
+                  onChange={(v) => set("application_links", v)}
+                />
+              </Field>
 
-      {err && <p className="mt-4 text-sm text-red-600">{err}</p>}
+              <Field
+                label="Forms / paperwork"
+                help="Upload blank forms students download, fill out, and/or sign. Leave empty if there are none."
+              >
+                <FormsEditor forms={forms} onAdd={addForm} onDelete={deleteForm} />
+              </Field>
+            </Section>
+          )}
 
-      <div className="mt-8 flex items-center justify-between border-t border-line pt-5">
-        <button onClick={back} disabled={step === 0} className="btn-ghost disabled:opacity-40">
-          ← Back
-        </button>
-        <div className="flex gap-3">
-          <button onClick={() => persist("draft")} disabled={busy} className="btn-ghost text-sm">
-            Save draft
-          </button>
-          {current.id === "review" ? (
-            <button onClick={() => persist("submitted")} disabled={busy} className="btn-ink">
-              {busy ? "Submitting…" : "Submit for review"}
-            </button>
-          ) : (
-            <button onClick={next} className="btn-ink">
-              Next →
-            </button>
+          {current.id === "wbl" && type && (
+            <WblStep
+              type={type}
+              stage={form.stage}
+              experienceType={form.experience_type}
+              wbl={form.wbl}
+              competencies={form.target_competencies}
+              gradeMin={form.grade_min ? Number(form.grade_min) : null}
+              onStage={(v) => set("stage", v)}
+              onExperienceType={(v) => set("experience_type", v)}
+              onWbl={(v) => set("wbl", v)}
+              onCompetencies={(v) => set("target_competencies", v)}
+            />
+          )}
+          {current.id === "media" && (
+            <Section title="Photo & logo">
+              {enabled("image") && (
+                <Field label={labelOf("image", "Photo")} help={helpOf("image")}>
+                  <Uploader current={form.image_url} onFile={onImage} />
+                </Field>
+              )}
+              <Field label="Organization logo" help="Shown on every opportunity you post.">
+                <Uploader current={orgLogo} onFile={onLogo} rounded />
+              </Field>
+            </Section>
+          )}
+
+          {current.id === "custom" && (
+            <Section title="More details">
+              {customFields.map((f) => (
+                <Field key={f.id} label={f.label} help={f.help_text} required={f.required}>
+                  <CustomInput
+                    field={f}
+                    value={form.custom[f.field_key]}
+                    onChange={(v) => set("custom", { ...form.custom, [f.field_key]: v })}
+                  />
+                </Field>
+              ))}
+            </Section>
+          )}
+
+          {current.id === "review" && (
+            <Section title="Review & submit">
+              <ul className="divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper px-4 text-sm">
+                <Row label="Type" value={meta!.label} />
+                <Row label="Name" value={form.name || "—"} />
+                <Row
+                  label="Dates"
+                  value={[form.start_date, form.end_date].filter(Boolean).join(" – ") || "—"}
+                />
+                <Row label="Location" value={form.location || "—"} />
+                <Row
+                  label="Grades"
+                  value={[form.grade_min, form.grade_max].filter(Boolean).join("–") || "—"}
+                />
+                <Row label="Capacity" value={form.capacity || "—"} />
+                <Row label="Cost" value={form.is_free ? "Free" : `$${form.cost || "0"}`} />
+                <Row
+                  label="Registration"
+                  value={
+                    meta!.registrationLocked
+                      ? "In-system"
+                      : form.registration_mode === "external"
+                        ? "External link"
+                        : "In EXPLR"
+                  }
+                />
+                <Row label="Interest code" value={code || "—"} />
+              </ul>
+              <p className="mt-4 text-xs text-ink-500">
+                When you submit, an EXPLR admin reviews this before it goes live.
+              </p>
+            </Section>
           )}
         </div>
-      </div>
-    </main>
+
+        {err && (
+          <p role="alert" className="mt-4 text-sm text-red-700">
+            {err}
+          </p>
+        )}
+
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
+          <button onClick={back} disabled={step === 0} className="btn-ghost disabled:opacity-40">
+            ← Back
+          </button>
+          <div className="flex flex-wrap gap-3">
+            <button onClick={() => persist("draft")} disabled={busy} className="btn-ghost">
+              Save draft
+            </button>
+            {current.id === "review" ? (
+              <button onClick={() => persist("submitted")} disabled={busy} className="btn-ink">
+                {busy ? "Submitting…" : "Submit for review"}
+              </button>
+            ) : (
+              <button onClick={next} className="btn-ink">
+                Next →
+              </button>
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
   );
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h2 className="text-lg font-medium">{title}</h2>
+      <h2 className="font-display text-2xl font-bold">{title}</h2>
       <div className="mt-5 space-y-5">{children}</div>
     </div>
   );
@@ -992,7 +1043,7 @@ function Field({
     <div>
       <label className="label">
         {label}
-        {required && <span className="ml-1 text-red-500">*</span>}
+        {required && <span className="ml-1 text-red-700">*</span>}
       </label>
       {help && <p className="mb-1 text-xs text-ink-500">{help}</p>}
       <div className="mt-1">{children}</div>
@@ -1002,8 +1053,8 @@ function Field({
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <li className="flex items-baseline justify-between py-2">
-      <span className="text-ink-500">{label}</span>
+    <li className="flex flex-wrap items-baseline justify-between gap-2 py-2">
+      <span className="text-ink-700">{label}</span>
       <span className="font-medium">{value}</span>
     </li>
   );
@@ -1024,10 +1075,11 @@ function Uploader({
         <img
           src={current}
           alt=""
-          className={`h-16 w-16 object-cover ${rounded ? "rounded-full" : "rounded"}`}
+          className={`h-16 w-16 border border-line object-cover ${rounded ? "rounded-full" : "rounded-[var(--radius-control)]"}`}
         />
       )}
-      <label className="cursor-pointer border border-dashed border-line-strong bg-paper-raised px-4 py-2 text-xs text-ink-700 hover:border-ink-900">
+      <label className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-[var(--radius-control)] border border-dashed border-line-strong bg-paper-raised px-4 text-sm text-ink-700 hover:border-ink-900">
+        <Upload className="h-4 w-4 text-ink-500" aria-hidden />
         {current ? "Replace" : "Upload"}
         <input
           type="file"
@@ -1147,16 +1199,16 @@ function CustomReqAdder({
           {custom.map((r) => (
             <span
               key={r}
-              className="inline-flex items-center gap-2 border border-line-strong bg-paper-raised px-2.5 py-1 text-xs"
+              className="inline-flex items-center gap-1.5 rounded-full border border-line-strong bg-paper-raised py-1 pl-3 pr-1.5 text-xs"
             >
               {r}
               <button
                 type="button"
                 onClick={() => onRemove(r)}
-                className="text-ink-500 hover:text-red-600"
+                className="grid h-6 w-6 place-items-center rounded-full text-ink-500 hover:bg-paper-sunken hover:text-red-700"
                 aria-label="Remove"
               >
-                ✕
+                <X className="h-3.5 w-3.5" aria-hidden />
               </button>
             </span>
           ))}
@@ -1190,19 +1242,19 @@ function LinksEditor({ links, onChange }: { links: AppLink[]; onChange: (v: AppL
           <button
             type="button"
             onClick={() => onChange(links.filter((_, j) => j !== i))}
-            className="px-2 text-ink-500 hover:text-ink"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-ink-900"
             aria-label="Remove"
           >
-            ×
+            <X className="h-4 w-4" aria-hidden />
           </button>
         </div>
       ))}
       <button
         type="button"
         onClick={() => onChange([...links, { label: "", url: "" }])}
-        className="text-sm text-ink-500 hover:text-ink"
+        className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-medium text-green-deep hover:underline"
       >
-        + Add link
+        <Plus className="h-4 w-4" aria-hidden /> Add link
       </button>
     </div>
   );
@@ -1222,9 +1274,9 @@ function FormsEditor({
   return (
     <div>
       {forms.length > 0 && (
-        <ul className="mb-3 divide-y divide-line border-y border-line">
+        <ul className="mb-3 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper px-3">
           {forms.map((f) => (
-            <li key={f.id} className="flex items-center gap-3 py-2 text-sm">
+            <li key={f.id} className="flex flex-wrap items-center gap-3 py-2 text-sm">
               <span className="flex-1">
                 {f.name}
                 {f.requires_signature && (
@@ -1236,7 +1288,7 @@ function FormsEditor({
                   href={f.file_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-xs text-green-deep hover:underline"
+                  className="inline-flex min-h-[44px] items-center text-sm font-medium text-green-deep hover:underline"
                 >
                   View
                 </a>
@@ -1244,7 +1296,7 @@ function FormsEditor({
               <button
                 type="button"
                 onClick={() => onDelete(f.id)}
-                className="text-xs text-red-600 hover:underline"
+                className="inline-flex min-h-[44px] items-center text-sm text-red-700 hover:underline"
               >
                 Delete
               </button>
@@ -1259,11 +1311,17 @@ function FormsEditor({
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <label className="flex items-center gap-1.5 text-xs text-ink-700">
-          <input type="checkbox" checked={sig} onChange={(e) => setSig(e.target.checked)} />
+        <label className="flex min-h-[44px] items-center gap-2 text-sm text-ink-700">
+          <input
+            type="checkbox"
+            className="h-5 w-5 accent-green-deep"
+            checked={sig}
+            onChange={(e) => setSig(e.target.checked)}
+          />
           Needs signature
         </label>
-        <label className="cursor-pointer border border-dashed border-line-strong bg-paper-raised px-3 py-1.5 text-xs hover:border-ink-900">
+        <label className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-[var(--radius-control)] border border-dashed border-line-strong bg-paper-raised px-3 text-sm hover:border-ink-900">
+          <Upload className="h-4 w-4 text-ink-500" aria-hidden />
           Upload form
           <input
             type="file"
@@ -1286,20 +1344,20 @@ function FormsEditor({
 
 function WeekdayPicker({ days, onChange }: { days: string[]; onChange: (v: string[]) => void }) {
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className="flex flex-wrap gap-2">
       {WEEKDAYS.map((d) => {
         const on = days.includes(d);
         return (
           <button
             key={d}
             type="button"
+            aria-pressed={on}
             onClick={() => onChange(on ? days.filter((x) => x !== d) : [...days, d])}
-            className="border px-3 py-1.5 text-xs"
-            style={
+            className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${
               on
-                ? { background: "var(--ink)", color: "white", borderColor: "var(--ink)" }
-                : { borderColor: "var(--color-line-strong)" }
-            }
+                ? "border-ink-900 bg-ink-900 text-paper"
+                : "border-line-strong bg-paper-raised text-ink-700 hover:border-ink-900"
+            }`}
           >
             {d}
           </button>
@@ -1353,12 +1411,12 @@ function AddressAutocomplete({
         }}
       />
       {open && results.length > 0 && (
-        <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-auto border border-line-strong bg-paper-raised text-sm shadow-sm">
+        <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-[var(--radius-control)] border border-line-strong bg-paper-raised text-sm shadow-card">
           {results.map((r, i) => (
             <li key={i}>
               <button
                 type="button"
-                className="block w-full px-3 py-2 text-left hover:bg-paper-sunken"
+                className="block min-h-[44px] w-full px-3 py-2 text-left hover:bg-mint-tint"
                 onClick={() => {
                   onPick(r.display_name, Number(r.lat), Number(r.lon));
                   setQ(r.display_name);

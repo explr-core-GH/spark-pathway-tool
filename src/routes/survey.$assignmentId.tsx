@@ -3,6 +3,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
+import { SiteFooter } from "@/components/SiteFooter";
+import { PortalHeader, type PortalLink } from "@/components/passport";
+import { Check, Star } from "lucide-react";
 import {
   getSurveyScreens,
   getOpenEndedPrompts,
@@ -18,6 +21,23 @@ import { OpenEndedQuestion } from "@/components/survey/OpenEndedQuestion";
 import { DemographicsScreen, type DemographicValues } from "@/components/survey/DemographicsScreen";
 import { EMPTY_ITEM_STATE, type SurveyItemState } from "@/components/survey/types";
 
+const STUDENT_LINKS: PortalLink[] = [
+  { label: "My passport", to: "/student" },
+  { label: "Opportunities", to: "/opportunities" },
+  { label: "Families", to: "/student/pathway", search: { tab: "families" } },
+];
+
+/** Page frame shared by every state of the survey (loading, gates, runner). */
+function Frame({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-paper text-ink-900">
+      <PortalHeader role="Student" links={STUDENT_LINKS} signedIn />
+      {children}
+      <SiteFooter className="mt-16" />
+    </div>
+  );
+}
+
 // Untyped table access — survey_* tables aren't in the generated Database
 // type until it regenerates after this migration applies. Call inline so
 // `this` stays bound to the supabase client (a detached
@@ -32,12 +52,14 @@ export const Route = createFileRoute("/survey/$assignmentId")({
     </RoleGuard>
   ),
   notFoundComponent: () => (
-    <main className="mx-auto max-w-md px-6 py-24 text-center text-sm text-ink-500">
-      Survey not found.{" "}
-      <Link to="/student" className="ink-link">
-        Back to dashboard
-      </Link>
-    </main>
+    <Frame>
+      <main className="mx-auto max-w-md px-6 py-24 text-center text-ink-700">
+        Survey not found.{" "}
+        <Link to="/student" className="ink-link">
+          Back to my passport
+        </Link>
+      </main>
+    </Frame>
   ),
 });
 
@@ -440,58 +462,77 @@ function SurveyRunner() {
 
   // ── Render gates ────────────────────────────────────────────────────────
   if (authLoading || loading) {
-    return <main className="mx-auto max-w-2xl px-6 py-24 text-sm text-ink-500">Loading…</main>;
+    return (
+      <Frame>
+        <main className="mx-auto max-w-2xl px-6 py-24 text-sm text-ink-500">Loading…</main>
+      </Frame>
+    );
   }
   if (loadError === "notfound") throw notFound();
   if (loadError) {
     return (
-      <main className="mx-auto max-w-md px-6 py-24 text-center">
-        <p className="eyebrow text-destructive">Error</p>
-        <h1 className="mt-3 text-2xl font-light">Couldn&apos;t start the survey</h1>
-        <p className="mt-3 text-sm text-ink-500">{loadError}</p>
-        <Link to="/student" className="btn-ink mt-6 inline-block">
-          Back to dashboard
-        </Link>
-      </main>
+      <Frame>
+        <main className="mx-auto max-w-md px-6 py-24 text-center">
+          <p className="eyebrow text-red-700">Error</p>
+          <h1 className="mt-3 font-display text-2xl font-bold">Couldn&apos;t start the survey</h1>
+          <p className="mt-3 text-sm text-ink-700">{loadError}</p>
+          <Link to="/student" className="btn-ink mt-6">
+            Back to my passport
+          </Link>
+        </main>
+      </Frame>
     );
   }
   if (gateBlocked) {
     return (
-      <main className="mx-auto max-w-md px-6 py-24 text-center">
-        <p className="eyebrow">Not yet</p>
-        <h1 className="mt-3 text-2xl font-light">Finish the start-of-program survey first</h1>
-        <p className="mt-3 text-sm text-ink-500">
-          This is the end-of-program survey. You&apos;ll be able to take it once you&apos;ve
-          completed the matching start-of-program one.
-        </p>
-        <Link to="/student" className="btn-ink mt-6 inline-block">
-          Back to dashboard
-        </Link>
-      </main>
+      <Frame>
+        <main className="mx-auto max-w-md px-6 py-24 text-center">
+          <p className="eyebrow">Not yet</p>
+          <h1 className="mt-3 font-display text-2xl font-bold">
+            Finish the start-of-program survey first
+          </h1>
+          <p className="mt-3 text-sm text-ink-700">
+            This is the end-of-program survey. You&apos;ll be able to take it once you&apos;ve
+            completed the matching start-of-program one.
+          </p>
+          <Link to="/student" className="btn-ink mt-6">
+            Back to my passport
+          </Link>
+        </main>
+      </Frame>
     );
   }
   if (alreadyDone || justFinished) {
     return (
-      <main className="mx-auto max-w-md px-6 py-24 text-center">
-        <p className="text-4xl" aria-hidden>
-          ✓
-        </p>
-        <h1 className="mt-4 text-2xl font-light">
-          {justFinished ? "All done — thank you!" : "You already finished this survey"}
-        </h1>
-        <p className="mt-3 text-sm text-ink-500">
-          {justFinished
-            ? "Your responses are saved. There's nothing else to do."
-            : "Your responses for this survey have already been recorded."}
-        </p>
-        <Link to="/student" className="btn-ink mt-6 inline-block">
-          Back to dashboard
-        </Link>
-      </main>
+      <Frame>
+        <main className="mx-auto max-w-md px-6 py-24 text-center">
+          <span
+            className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-mint-soft bg-mint-tint text-green-deep"
+            aria-hidden
+          >
+            <Check className="h-8 w-8" strokeWidth={2.5} />
+          </span>
+          <h1 className="mt-4 font-display text-2xl font-bold">
+            {justFinished ? "All done — thank you!" : "You already finished this survey"}
+          </h1>
+          <p className="mt-3 text-sm text-ink-700">
+            {justFinished
+              ? "Your responses are saved. There's nothing else to do."
+              : "Your responses for this survey have already been recorded."}
+          </p>
+          <Link to="/student" className="btn-ink mt-6">
+            Back to my passport
+          </Link>
+        </main>
+      </Frame>
     );
   }
   if (!assignment || steps.length === 0) {
-    return <main className="mx-auto max-w-2xl px-6 py-24 text-sm text-ink-500">Loading…</main>;
+    return (
+      <Frame>
+        <main className="mx-auto max-w-2xl px-6 py-24 text-sm text-ink-500">Loading…</main>
+      </Frame>
+    );
   }
 
   const step = steps[stepIndex];
@@ -499,226 +540,229 @@ function SurveyRunner() {
   const openPrompts = getOpenEndedPrompts(assignment.survey_type, assignment.administration);
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-12">
-      <p className="eyebrow">{SURVEY_TYPE_LABEL[assignment.survey_type]}</p>
-      <h1 className="mt-1 text-lg font-medium text-ink">{assignment.title}</h1>
+    <Frame>
+      <main className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+        <p className="eyebrow text-green">{SURVEY_TYPE_LABEL[assignment.survey_type]}</p>
+        <h1 className="mt-1 font-display text-2xl font-bold">{assignment.title}</h1>
 
-      <div className="mt-5">
-        <ProgressIndicator current={stepIndex + 1} total={steps.length} />
-      </div>
+        <div className="mt-5">
+          <ProgressIndicator current={stepIndex + 1} total={steps.length} />
+        </div>
 
-      <div className="mt-8">
-        {step.kind === "demographics" && (
-          <DemographicsScreen
-            fields={getDemographicFields(assignment.survey_type)}
-            values={demographics}
-            onChange={(id, value) => setDemographics((prev) => ({ ...prev, [id]: value }))}
-          />
-        )}
+        <div className="mt-8 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card sm:p-6">
+          {step.kind === "demographics" && (
+            <DemographicsScreen
+              fields={getDemographicFields(assignment.survey_type)}
+              values={demographics}
+              onChange={(id, value) => setDemographics((prev) => ({ ...prev, [id]: value }))}
+            />
+          )}
 
-        {step.kind === "construct" && (
-          <ConstructScreen
-            screen={step.def}
-            retrospective={retrospective}
-            responses={itemState}
-            onSet={setItem}
-          />
-        )}
+          {step.kind === "construct" && (
+            <ConstructScreen
+              screen={step.def}
+              retrospective={retrospective}
+              responses={itemState}
+              onSet={setItem}
+            />
+          )}
 
-        {step.kind === "skills" && (
-          <div>
-            <p className="eyebrow">Skills</p>
-            <h2 className="mt-1 text-2xl font-light">What skills did you work on?</h2>
-            <p className="mt-3 text-sm text-ink-500">
-              Check everything you practiced or learned during your internship — hands-on and people
-              skills both count.
-            </p>
-            <div className="mt-6 grid gap-8 sm:grid-cols-2">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-ink-500">
-                  Technical / STEM skills
-                </p>
-                <div className="mt-2 space-y-2">
-                  {SKILLS_HARD_OPTIONS.map((o) => (
-                    <label key={o} className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={skillsHard.has(o)}
-                        onChange={(e) => {
-                          const next = new Set(skillsHard);
-                          if (e.target.checked) next.add(o);
-                          else next.delete(o);
-                          updateSkills(next, skillsSoft, skillsOther);
-                        }}
-                      />
-                      {o}
-                    </label>
-                  ))}
+          {step.kind === "skills" && (
+            <div>
+              <p className="eyebrow">Skills</p>
+              <h2 className="mt-1 font-display text-2xl font-bold">What skills did you work on?</h2>
+              <p className="mt-3 text-sm text-ink-700">
+                Check everything you practiced or learned during your internship — hands-on and
+                people skills both count.
+              </p>
+              <div className="mt-6 grid gap-8 sm:grid-cols-2">
+                <div>
+                  <p className="eyebrow">Technical / STEM skills</p>
+                  <div className="mt-2 space-y-2">
+                    {SKILLS_HARD_OPTIONS.map((o) => (
+                      <label key={o} className="flex min-h-[44px] items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          className="h-5 w-5 shrink-0 accent-green-deep"
+                          checked={skillsHard.has(o)}
+                          onChange={(e) => {
+                            const next = new Set(skillsHard);
+                            if (e.target.checked) next.add(o);
+                            else next.delete(o);
+                            updateSkills(next, skillsSoft, skillsOther);
+                          }}
+                        />
+                        {o}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="eyebrow">Soft skills</p>
+                  <div className="mt-2 space-y-2">
+                    {SKILLS_SOFT_OPTIONS.map((o) => (
+                      <label key={o} className="flex min-h-[44px] items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          className="h-5 w-5 shrink-0 accent-green-deep"
+                          checked={skillsSoft.has(o)}
+                          onChange={(e) => {
+                            const next = new Set(skillsSoft);
+                            if (e.target.checked) next.add(o);
+                            else next.delete(o);
+                            updateSkills(skillsHard, next, skillsOther);
+                          }}
+                        />
+                        {o}
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-ink-500">
-                  Soft skills
-                </p>
-                <div className="mt-2 space-y-2">
-                  {SKILLS_SOFT_OPTIONS.map((o) => (
-                    <label key={o} className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={skillsSoft.has(o)}
-                        onChange={(e) => {
-                          const next = new Set(skillsSoft);
-                          if (e.target.checked) next.add(o);
-                          else next.delete(o);
-                          updateSkills(skillsHard, next, skillsOther);
-                        }}
-                      />
-                      {o}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="mt-6">
-              <label className="label" htmlFor="skills-other">
-                Other skills? <span className="text-ink-500">(optional)</span>
-              </label>
-              <input
-                id="skills-other"
-                className="field mt-1"
-                value={skillsOther}
-                onChange={(e) => updateSkills(skillsHard, skillsSoft, e.target.value)}
-              />
-            </div>
-          </div>
-        )}
-
-        {step.kind === "mentor" && (
-          <div>
-            <p className="eyebrow">Your mentor</p>
-            <h2 className="mt-1 text-2xl font-light">How was your mentor?</h2>
-            <p className="mt-3 text-sm text-ink-500">
-              Rate your internship mentor and tell us briefly why. This helps EXPLR support great
-              mentors.
-            </p>
-            <div
-              className="mt-6 flex items-center gap-2"
-              role="radiogroup"
-              aria-label="Mentor rating out of 5 stars"
-            >
-              {[1, 2, 3, 4, 5].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  role="radio"
-                  aria-checked={mentorStars === n}
-                  aria-label={`${n} star${n === 1 ? "" : "s"}`}
-                  onClick={() => updateMentor(n, mentorWhy)}
-                  className="text-4xl leading-none transition-transform hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                  style={{
-                    color:
-                      mentorStars != null && n <= mentorStars
-                        ? "var(--color-green)"
-                        : "var(--color-line-strong)",
-                  }}
-                >
-                  ★
-                </button>
-              ))}
-              {mentorStars != null && (
-                <span className="ml-2 text-sm text-ink-500 tabular-nums">{mentorStars} / 5</span>
-              )}
-            </div>
-            <div className="mt-6">
-              <label className="label" htmlFor="mentor-why">
-                Briefly, why? <span className="text-ink-500">(optional)</span>
-              </label>
-              <textarea
-                id="mentor-why"
-                className="field mt-1"
-                rows={3}
-                maxLength={1000}
-                value={mentorWhy}
-                onChange={(e) => updateMentor(mentorStars, e.target.value)}
-                placeholder="What did they do well? What could be better?"
-              />
-            </div>
-          </div>
-        )}
-
-        {step.kind === "next_steps" && (
-          <div>
-            <p className="eyebrow">Next steps</p>
-            <h2 className="mt-1 text-2xl font-light">What would you like to do next?</h2>
-            <p className="mt-3 text-sm text-ink-500">
-              Check anything you&apos;d be interested in — EXPLR will help connect you.
-            </p>
-            <div className="mt-5 space-y-2">
-              {NEXT_STEPS_OPTIONS.map((o) => (
-                <label key={o} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={nextStepsSel.has(o)}
-                    onChange={(e) => {
-                      const next = new Set(nextStepsSel);
-                      if (e.target.checked) next.add(o);
-                      else next.delete(o);
-                      updateNextSteps(next, nextStepsOther);
-                    }}
-                  />
-                  {o}
-                </label>
-              ))}
-              <div className="pt-3">
-                <label className="label" htmlFor="ns-other">
-                  Something else? <span className="text-ink-500">(optional)</span>
+              <div className="mt-6">
+                <label className="label" htmlFor="skills-other">
+                  Other skills? <span className="text-ink-500">(optional)</span>
                 </label>
                 <input
-                  id="ns-other"
+                  id="skills-other"
                   className="field mt-1"
-                  value={nextStepsOther}
-                  onChange={(e) => updateNextSteps(nextStepsSel, e.target.value)}
+                  value={skillsOther}
+                  onChange={(e) => updateSkills(skillsHard, skillsSoft, e.target.value)}
                 />
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {step.kind === "open" && (
-          <div>
-            <p className="eyebrow">Reflection</p>
-            <h2 className="mt-1 text-2xl font-light">A few last questions</h2>
-            <p className="mt-3 text-sm text-ink-500">
-              These are optional — answer any you&apos;d like.
-            </p>
-            <div className="mt-4">
-              {openPrompts.map((prompt, i) => (
-                <OpenEndedQuestion
-                  key={prompt}
-                  number={i + 1}
-                  prompt={prompt}
-                  value={openResponses[prompt] ?? ""}
-                  onChange={(v) => setOpenResponses((prev) => ({ ...prev, [prompt]: v }))}
+          {step.kind === "mentor" && (
+            <div>
+              <p className="eyebrow">Your mentor</p>
+              <h2 className="mt-1 font-display text-2xl font-bold">How was your mentor?</h2>
+              <p className="mt-3 text-sm text-ink-700">
+                Rate your internship mentor and tell us briefly why. This helps EXPLR support great
+                mentors.
+              </p>
+              <div
+                className="mt-6 flex items-center gap-2"
+                role="radiogroup"
+                aria-label="Mentor rating out of 5 stars"
+              >
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    role="radio"
+                    aria-checked={mentorStars === n}
+                    aria-label={`${n} star${n === 1 ? "" : "s"}`}
+                    onClick={() => updateMentor(n, mentorWhy)}
+                    className={`grid h-11 w-11 place-items-center rounded-full transition-transform hover:scale-110 ${
+                      mentorStars != null && n <= mentorStars ? "text-gold" : "text-line-strong"
+                    }`}
+                  >
+                    <Star
+                      className="h-8 w-8"
+                      fill={mentorStars != null && n <= mentorStars ? "currentColor" : "none"}
+                      aria-hidden
+                    />
+                  </button>
+                ))}
+                {mentorStars != null && (
+                  <span className="ml-2 text-sm tabular-nums text-ink-700">{mentorStars} / 5</span>
+                )}
+              </div>
+              <div className="mt-6">
+                <label className="label" htmlFor="mentor-why">
+                  Briefly, why? <span className="text-ink-500">(optional)</span>
+                </label>
+                <textarea
+                  id="mentor-why"
+                  className="field mt-1"
+                  rows={3}
+                  maxLength={1000}
+                  value={mentorWhy}
+                  onChange={(e) => updateMentor(mentorStars, e.target.value)}
+                  placeholder="What did they do well? What could be better?"
                 />
-              ))}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
 
-      <div className="mt-10 flex items-center justify-between border-t border-line pt-6">
-        <button
-          type="button"
-          onClick={back}
-          disabled={stepIndex === 0 || saving}
-          className="btn-ghost disabled:opacity-40"
-        >
-          ← Back
-        </button>
-        <button type="button" onClick={advance} disabled={saving} className="btn-ink">
-          {saving ? "Saving…" : isLast ? "Finish" : "Next →"}
-        </button>
-      </div>
-    </main>
+          {step.kind === "next_steps" && (
+            <div>
+              <p className="eyebrow">Next steps</p>
+              <h2 className="mt-1 font-display text-2xl font-bold">
+                What would you like to do next?
+              </h2>
+              <p className="mt-3 text-sm text-ink-700">
+                Check anything you&apos;d be interested in — EXPLR will help connect you.
+              </p>
+              <div className="mt-5 space-y-2">
+                {NEXT_STEPS_OPTIONS.map((o) => (
+                  <label key={o} className="flex min-h-[44px] items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      className="h-5 w-5 shrink-0 accent-green-deep"
+                      checked={nextStepsSel.has(o)}
+                      onChange={(e) => {
+                        const next = new Set(nextStepsSel);
+                        if (e.target.checked) next.add(o);
+                        else next.delete(o);
+                        updateNextSteps(next, nextStepsOther);
+                      }}
+                    />
+                    {o}
+                  </label>
+                ))}
+                <div className="pt-3">
+                  <label className="label" htmlFor="ns-other">
+                    Something else? <span className="text-ink-500">(optional)</span>
+                  </label>
+                  <input
+                    id="ns-other"
+                    className="field mt-1"
+                    value={nextStepsOther}
+                    onChange={(e) => updateNextSteps(nextStepsSel, e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step.kind === "open" && (
+            <div>
+              <p className="eyebrow">Reflection</p>
+              <h2 className="mt-1 font-display text-2xl font-bold">A few last questions</h2>
+              <p className="mt-3 text-sm text-ink-700">
+                These are optional — answer any you&apos;d like.
+              </p>
+              <div className="mt-4">
+                {openPrompts.map((prompt, i) => (
+                  <OpenEndedQuestion
+                    key={prompt}
+                    number={i + 1}
+                    prompt={prompt}
+                    value={openResponses[prompt] ?? ""}
+                    onChange={(v) => setOpenResponses((prev) => ({ ...prev, [prompt]: v }))}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6">
+          <button
+            type="button"
+            onClick={back}
+            disabled={stepIndex === 0 || saving}
+            className="btn-ghost disabled:opacity-40"
+          >
+            ← Back
+          </button>
+          <button type="button" onClick={advance} disabled={saving} className="btn-ink">
+            {saving ? "Saving…" : isLast ? "Finish" : "Next →"}
+          </button>
+        </div>
+      </main>
+    </Frame>
   );
 }

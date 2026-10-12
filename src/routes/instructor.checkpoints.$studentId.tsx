@@ -188,12 +188,15 @@ function Review() {
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
-      <Link to="/instructor/checkpoints" className="text-xs text-ink-500 hover:text-ink-900">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
+      <Link
+        to="/instructor/checkpoints"
+        className="inline-flex min-h-[44px] items-center text-sm text-ink-500 hover:text-ink-900"
+      >
         ← All checkpoints
       </Link>
       {pError && (
-        <p role="alert" className="mt-4 text-sm text-destructive">
+        <p role="alert" className="mt-4 text-sm text-red-700">
           {pError}
         </p>
       )}
@@ -203,7 +206,7 @@ function Review() {
           <p className="eyebrow mt-4 text-green">
             {sy} · grade {p.grade ?? "?"}
           </p>
-          <h1 className="mt-1 font-display text-4xl font-bold">{p.firstName}</h1>
+          <h1 className="display mt-1">{p.firstName}</h1>
           <p className="mt-2 text-sm text-ink-700">
             {p.hollandCode ? `Holland code ${p.hollandCode} · ` : ""}
             {Math.round(p.verifiedHours)} verified hours · {p.exposure.length} exposure items ·{" "}
@@ -223,7 +226,7 @@ function Review() {
               return (
                 <article
                   key={cp.id}
-                  className="flex flex-col gap-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5"
+                  className="flex flex-col gap-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card"
                 >
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <div>
@@ -258,12 +261,12 @@ function Review() {
                           <p className="font-medium">{t.label}</p>
                           <p className="text-ink-700">{note}</p>
                           {payload?.text && (
-                            <p className="mt-1 whitespace-pre-wrap rounded bg-paper p-2 text-ink-900">
+                            <p className="mt-1 whitespace-pre-wrap rounded-[var(--radius-control)] bg-paper-sunken p-2 text-ink-900">
                               {payload.text}
                             </p>
                           )}
                           {t.kind === "goal" && goal && (
-                            <p className="mt-1 rounded bg-paper p-2 text-ink-900">
+                            <p className="mt-1 rounded-[var(--radius-control)] bg-paper-sunken p-2 text-ink-900">
                               <strong>{goal.primary_goal}</strong>
                               {goal.cluster ? ` · ${goal.cluster}` : ""}
                               {goal.post_hs_plan
@@ -346,11 +349,11 @@ function Review() {
             {p.experiences.length === 0 ? (
               <p className="mt-2 text-sm text-ink-700">None logged yet.</p>
             ) : (
-              <ul className="mt-3 divide-y divide-line text-sm">
+              <ul className="mt-3 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised text-sm">
                 {p.experiences.map((e) => (
                   <li
                     key={e.id}
-                    className="flex flex-wrap items-center justify-between gap-3 py-2.5"
+                    className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
                   >
                     <span>
                       <strong>{e.title}</strong>

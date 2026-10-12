@@ -131,24 +131,27 @@ function ExploreCards() {
   const printable = cards.filter((c) => c.secret && c.token);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <div className="print:hidden">
-        <Link to="/instructor/dashboard" className="eyebrow inline-block">
+        <Link
+          to="/instructor/dashboard"
+          className="inline-flex min-h-[44px] items-center text-sm text-ink-500 hover:text-ink-900"
+        >
           ← Dashboard
         </Link>
-        <p className="eyebrow mt-6 text-green">Picture sign-in · grades 4-8</p>
-        <h1 className="mt-2 font-display text-4xl font-bold">{name || "Loading…"}</h1>
-        <p className="mt-2 max-w-2xl text-sm text-ink-700">
+        <p className="eyebrow mt-4 text-green">Picture sign-in · grades 4-8</p>
+        <h1 className="display mt-2">{name || "Loading…"}</h1>
+        <p className="lead mt-3 max-w-2xl">
           Students in this group sign in by tapping their picture and three secret shapes, or by
           scanning their passport card. Put the class code on the board, or open{" "}
-          <span className="font-mono">
+          <span className="break-all font-mono text-[0.9em]">
             {origin}/explore/{code}
           </span>{" "}
           on each laptop.
         </p>
 
         {error && (
-          <p role="alert" className="mt-4 text-sm text-destructive">
+          <p role="alert" className="mt-4 text-sm text-red-700">
             {error}
           </p>
         )}
@@ -156,7 +159,9 @@ function ExploreCards() {
         <div className="mt-8 grid gap-6 md:grid-cols-[1fr_1fr]">
           <section className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 shadow-card">
             <p className="eyebrow text-green">Class code · for the board</p>
-            <p className="mt-2 font-display text-5xl font-extrabold tracking-wide">{code || "…"}</p>
+            <p className="mt-2 break-all font-display text-5xl font-extrabold tracking-wide">
+              {code || "…"}
+            </p>
             {codeQr && (
               <img
                 src={codeQr}

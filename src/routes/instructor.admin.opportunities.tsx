@@ -72,10 +72,10 @@ function OpportunitiesReview() {
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
       <h1 className="display mt-2">Opportunity review</h1>
-      <p className="lead mt-2 max-w-2xl">
+      <p className="lead mt-3 max-w-2xl">
         Camps, workshops, internships, and ongoing opportunities submitted by partner organizations.
         Approve to make them live, or send back with a note.
       </p>
@@ -92,12 +92,7 @@ function OpportunitiesReview() {
           <button
             key={f.id}
             onClick={() => setFilter(f.id)}
-            className="rounded-full px-3 py-1.5 text-xs font-medium"
-            style={{
-              background: filter === f.id ? "var(--ink)" : "transparent",
-              color: filter === f.id ? "white" : "var(--color-ink-700)",
-              border: `1px solid ${filter === f.id ? "var(--ink)" : "var(--color-line-strong)"}`,
-            }}
+            className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${filter === f.id ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
           >
             {f.label}
           </button>
@@ -109,7 +104,7 @@ function OpportunitiesReview() {
       ) : visible.length === 0 ? (
         <p className="mt-8 text-sm text-ink-500">Nothing here.</p>
       ) : (
-        <div className="mt-6 divide-y divide-line border-y border-line">
+        <div className="mt-6 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
           {visible.map((o) => {
             const isOpen = open === o.id;
             const paid = !o.is_free && (o.cost_cents ?? 0) > 0;
@@ -121,7 +116,8 @@ function OpportunitiesReview() {
                     setOpen(isOpen ? null : o.id);
                     setNotes(o.review_notes ?? "");
                   }}
-                  className="flex w-full items-center gap-4 py-4 text-left hover:bg-paper-sunken"
+                  aria-expanded={isOpen}
+                  className="flex w-full flex-wrap items-center gap-x-4 gap-y-2 px-4 py-4 text-left hover:bg-paper-sunken"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">
@@ -136,12 +132,14 @@ function OpportunitiesReview() {
                     </p>
                   </div>
                   {flag && (
-                    <span className="shrink-0 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] text-amber-700">
+                    <span className="shrink-0 rounded-full bg-gold-tint px-2.5 py-0.5 text-[11px] font-medium text-gold-deep">
                       paid {dollars(o.cost_cents)}
                     </span>
                   )}
                   <GateBadge o={o} />
-                  <span className="shrink-0 text-xs text-ink-500">{STATUS_LABEL[o.status]}</span>
+                  <span className="shrink-0 rounded-full bg-paper-sunken px-2.5 py-0.5 text-xs font-medium text-ink-700">
+                    {STATUS_LABEL[o.status]}
+                  </span>
                 </button>
 
                 {isOpen && (
@@ -149,7 +147,11 @@ function OpportunitiesReview() {
                     <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
                       <div className="space-y-3 text-sm">
                         {o.image_url && (
-                          <img src={o.image_url} alt="" className="max-h-48 rounded object-cover" />
+                          <img
+                            src={o.image_url}
+                            alt=""
+                            className="max-h-48 rounded-[var(--radius-control)] object-cover"
+                          />
                         )}
                         <p className="whitespace-pre-wrap text-ink-700">{o.description || "—"}</p>
                         <dl className="grid grid-cols-2 gap-2 text-xs">
@@ -216,7 +218,7 @@ function OpportunitiesReview() {
 function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="uppercase tracking-wider text-ink-500">{label}</dt>
+      <dt className="font-mono text-[10px] uppercase tracking-[0.08em] text-ink-500">{label}</dt>
       <dd className="mt-0.5 text-ink-700">{value}</dd>
     </div>
   );

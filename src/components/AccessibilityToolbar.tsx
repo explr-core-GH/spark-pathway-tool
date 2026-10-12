@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
+import { Accessibility, X } from "lucide-react";
 import { useAccessibility } from "./AccessibilityProvider";
 
 /**
- * Floating accessibility widget bottom-right. Collapsed: a small robot
- * icon button. Expanded: a tight panel with five segmented controls
- * (mode / contrast / spacing / motion / read aloud), a 'Read page'
- * action when read-aloud is on, and a reset link.
+ * Floating accessibility widget bottom-right. Collapsed: a round ink
+ * button with the accessibility glyph. Expanded: a passport card with
+ * five segmented controls (mode / contrast / spacing / motion / read
+ * aloud), a 'Read page' action when read-aloud is on, and a reset link.
  *
  * Read-aloud uses the browser's window.speechSynthesis. When the user
  * toggles it off mid-speech the active utterance is cancelled.
@@ -15,6 +16,11 @@ import { useAccessibility } from "./AccessibilityProvider";
  */
 
 const SUPPORTS_SPEECH = typeof window !== "undefined" && "speechSynthesis" in window;
+
+const SEG_ON =
+  "inline-flex min-h-[40px] items-center rounded-[calc(var(--radius-control)-3px)] bg-ink-900 px-3 text-xs font-semibold text-paper";
+const SEG_OFF =
+  "inline-flex min-h-[40px] items-center rounded-[calc(var(--radius-control)-3px)] px-3 text-xs font-medium text-ink-500 hover:text-ink-900";
 
 export function AccessibilityToolbar() {
   const { state, set, reset } = useAccessibility();
@@ -99,17 +105,17 @@ export function AccessibilityToolbar() {
         <div
           role="dialog"
           aria-label="Accessibility settings"
-          className="mb-3 w-72 border border-line-strong bg-paper-raised p-4 shadow-lg"
+          className="mb-3 w-[min(18rem,calc(100vw-2rem))] rounded-[var(--radius-card)] border border-line bg-paper-raised p-4 text-ink-900 shadow-lift"
         >
-          <div className="flex items-baseline justify-between">
+          <div className="flex items-center justify-between">
             <p className="eyebrow">Accessibility</p>
             <button
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Close"
-              className="text-xs text-ink-500 hover:text-ink"
+              className="-mr-2 grid h-11 w-11 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-mint-tint hover:text-ink-900"
             >
-              ✕
+              <X className="h-4 w-4" strokeWidth={2.2} aria-hidden />
             </button>
           </div>
 
@@ -197,7 +203,7 @@ export function AccessibilityToolbar() {
                   {/* Rate */}
                   <div>
                     <p className="label">Rate</p>
-                    <div className="mt-1 inline-flex border border-line-strong">
+                    <div className="mt-1 inline-flex flex-wrap rounded-[var(--radius-control)] border border-line-strong bg-paper p-0.5">
                       {[
                         { v: 0.75, label: "Slow" },
                         { v: 1, label: "Normal" },
@@ -211,14 +217,7 @@ export function AccessibilityToolbar() {
                             type="button"
                             aria-pressed={on}
                             onClick={() => set("readAloudRate", opt.v)}
-                            className={
-                              on
-                                ? "px-2.5 py-1.5 text-xs font-semibold"
-                                : "px-2.5 py-1.5 text-xs font-medium text-ink-500 hover:text-ink"
-                            }
-                            style={
-                              on ? { background: "var(--ink)", color: "var(--bg)" } : undefined
-                            }
+                            className={on ? SEG_ON : SEG_OFF}
                           >
                             {opt.label}
                           </button>
@@ -228,22 +227,17 @@ export function AccessibilityToolbar() {
                   </div>
 
                   {/* Read + Stop */}
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={speak}
                       disabled={speaking}
-                      className="px-3 py-1.5 text-xs font-semibold disabled:opacity-50"
-                      style={{ background: "var(--ink)", color: "var(--bg)" }}
+                      className="btn-ink px-3.5 text-xs disabled:opacity-50"
                     >
                       {speaking ? "Reading…" : "Read this page"}
                     </button>
                     {speaking && (
-                      <button
-                        type="button"
-                        onClick={stop}
-                        className="px-3 py-1.5 text-xs font-semibold border border-line-strong text-ink-700 hover:border-ink-900"
-                      >
+                      <button type="button" onClick={stop} className="btn-ghost px-3.5 text-xs">
                         Stop
                       </button>
                     )}
@@ -253,8 +247,12 @@ export function AccessibilityToolbar() {
             </div>
           )}
 
-          <div className="mt-4 flex items-center justify-between text-xs">
-            <button type="button" onClick={reset} className="text-ink-500 underline hover:text-ink">
+          <div className="mt-4 flex items-center justify-between gap-3 text-xs">
+            <button
+              type="button"
+              onClick={reset}
+              className="ink-link inline-flex min-h-[44px] items-center text-ink-700"
+            >
               Reset to defaults
             </button>
             <span className="text-ink-500">Saved to this browser</span>
@@ -267,30 +265,9 @@ export function AccessibilityToolbar() {
         onClick={() => setOpen((o) => !o)}
         aria-label="Accessibility settings"
         aria-expanded={open}
-        className="flex h-11 w-11 items-center justify-center rounded-full shadow-lg ring-1 ring-line-strong hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-explr-500"
-        style={{ background: "var(--ink)", color: "var(--bg)" }}
+        className="grid h-12 w-12 place-items-center rounded-full bg-ink-900 text-paper shadow-lift ring-1 ring-line-strong hover:bg-green-deep"
       >
-        {/* Friendly robot — antenna with tip dot, rounded head, two eyes,
-            small mouth grille. Drawn in currentColor so it inherits the
-            bg-contrast color from the button's style attribute. */}
-        <svg
-          viewBox="0 0 24 24"
-          aria-hidden
-          className="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.8}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M12 3.5v2" />
-          <circle cx="12" cy="2.5" r="1.1" fill="currentColor" stroke="none" />
-          <rect x="5" y="6" width="14" height="11" rx="2.5" />
-          <circle cx="9" cy="11" r="1.2" fill="currentColor" stroke="none" />
-          <circle cx="15" cy="11" r="1.2" fill="currentColor" stroke="none" />
-          <path d="M9.5 14h5" />
-          <path d="M3 12h2M19 12h2" />
-        </svg>
+        <Accessibility className="h-6 w-6" strokeWidth={2} aria-hidden />
       </button>
     </div>
   );
@@ -310,7 +287,7 @@ function Toggle<T extends string>({
   return (
     <div className="mt-4">
       <p className="label">{label}</p>
-      <div className="mt-1 inline-flex border border-line-strong">
+      <div className="mt-1 inline-flex rounded-[var(--radius-control)] border border-line-strong bg-paper p-0.5">
         {options.map((opt) => {
           const on = opt.value === value;
           return (
@@ -319,12 +296,7 @@ function Toggle<T extends string>({
               type="button"
               aria-pressed={on}
               onClick={() => onChange(opt.value)}
-              className={
-                on
-                  ? "px-3 py-1.5 text-xs font-semibold"
-                  : "px-3 py-1.5 text-xs font-medium text-ink-500 hover:text-ink"
-              }
-              style={on ? { background: "var(--ink)", color: "var(--bg)" } : undefined}
+              className={on ? SEG_ON : SEG_OFF}
             >
               {opt.label}
             </button>

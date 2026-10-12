@@ -19,18 +19,20 @@ function AssessmentsAdmin() {
   const [tab, setTab] = useState<Tab>("surveys");
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
       <h1 className="display mt-2">Assessments &amp; surveys</h1>
 
       {/* Tabs */}
-      <div className="mt-6 flex flex-wrap gap-1 border-b border-line">
+      <div className="mt-6 flex flex-wrap gap-2">
         {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`border-b-2 px-4 py-2 text-sm transition-colors ${
-              tab === t.id ? "border-ink-900 text-ink-900" : "border-transparent text-ink-500"
+            className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${
+              tab === t.id
+                ? "border-ink-900 bg-ink-900 text-paper"
+                : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"
             }`}
           >
             {t.label}

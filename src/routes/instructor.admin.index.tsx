@@ -43,22 +43,25 @@ function AdminHome() {
   const active = educators.filter((e) => e.approved);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-16">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
-      <h1 className="mt-3 text-4xl font-light">Operations</h1>
+      <h1 className="mt-2 font-display text-3xl font-bold">Operations</h1>
+      <p className="lead mt-3 max-w-2xl">
+        Approve new instructors, send invites, and jump into matching from one place.
+      </p>
 
-      <section className="mt-16">
-        <h2 className="text-xs uppercase tracking-wider text-ink-500 mb-4">
-          Pending approval · {pending.length}
-        </h2>
+      <section className="mt-12">
+        <h2 className="eyebrow mb-3">Pending approval · {pending.length}</h2>
         {pending.length === 0 ? (
-          <p className="py-3 text-sm text-ink-500">No pending instructors.</p>
+          <p className="rounded-[var(--radius-card)] border border-line bg-paper-raised px-5 py-4 text-sm text-ink-500">
+            No pending instructors.
+          </p>
         ) : (
-          <div className="divide-y divide-line border-y border-line">
+          <div className="divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
             {pending.map((e) => (
               <div
                 key={e.id}
-                className="grid grid-cols-[1fr_1fr_auto] items-center gap-4 py-3 text-sm"
+                className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3 text-sm sm:grid sm:grid-cols-[1fr_1fr_auto]"
               >
                 <span className="font-medium">{e.full_name}</span>
                 <span className="text-ink-500">{e.email}</span>
@@ -71,11 +74,9 @@ function AdminHome() {
         )}
       </section>
 
-      <section className="mt-16">
-        <h2 className="text-xs uppercase tracking-wider text-ink-500 mb-4">
-          Invite educators &amp; admins
-        </h2>
-        <p className="text-sm text-ink-500">
+      <section className="mt-12">
+        <h2 className="eyebrow mb-3">Invite instructors &amp; admins</h2>
+        <p className="text-sm text-ink-700">
           Create and manage invite links on the dedicated{" "}
           <Link to="/instructor/admin/invites" className="ink-link">
             Invites page
@@ -88,22 +89,22 @@ function AdminHome() {
         </p>
       </section>
 
-      <section className="mt-16">
-        <h2 className="text-xs uppercase tracking-wider text-ink-500 mb-4">
-          Active educators · {active.length}
-        </h2>
-        <div className="divide-y divide-line border-y border-line">
+      <section className="mt-12">
+        <h2 className="eyebrow mb-3">Active instructors · {active.length}</h2>
+        <div className="divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
           {active.map((e) => (
             <Link
               key={e.id}
               to="/instructor/admin/educators/$id"
               params={{ id: e.id }}
-              className="grid grid-cols-[1fr_1fr_120px_80px] items-baseline gap-4 py-3 text-sm hover:bg-paper-sunken"
+              className="flex min-h-[44px] flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3 text-sm first:rounded-t-[var(--radius-card)] last:rounded-b-[var(--radius-card)] hover:bg-paper-sunken sm:grid sm:grid-cols-[1fr_1fr_120px_auto]"
             >
               <span className="font-medium">{e.full_name}</span>
               <span className="text-ink-500">{e.email}</span>
               <span className="text-xs text-ink-500">{e.role}</span>
-              <span className="text-xs">✓ approved</span>
+              <span className="rounded-full bg-mint-tint px-2.5 py-0.5 text-xs font-medium text-green-deep">
+                Approved
+              </span>
             </Link>
           ))}
         </div>

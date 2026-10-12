@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Stamp, Wordmark } from "@/components/passport";
+import { ShieldCheck } from "lucide-react";
+import { Stamp } from "@/components/passport";
+import { PortalHeader } from "@/components/passport/PortalHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { COMPETENCIES, RATING_LEVELS } from "@/lib/competencies";
 import { EXPERIENCE_TYPE_BY_KEY } from "@/lib/wbl-taxonomy";
 import {
@@ -133,24 +136,20 @@ function StampPage() {
   const dateRange = ex ? [ex.start_date, ex.end_date].filter(Boolean).join(" to ") : "";
 
   return (
-    <div className="min-h-screen bg-paper text-ink-900">
-      <header className="border-b border-line">
-        <div className="mx-auto flex max-w-[900px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Wordmark />
-          <span className="eyebrow">Supervisor verification</span>
-        </div>
-      </header>
-      <main className="mx-auto max-w-[900px] px-4 py-10 sm:px-6">
+    <div className="flex min-h-screen flex-col bg-paper text-ink-900">
+      <PortalHeader role="Supervisor" links={[{ label: "About", to: "/about" }]} />
+      <main className="mx-auto w-full max-w-[900px] flex-1 px-4 py-10 sm:px-6 lg:px-8">
         {error && (
-          <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-6">
-            <h1 className="font-display text-2xl font-bold">This link didn't work.</h1>
+          <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 shadow-card">
+            <p className="eyebrow">Supervisor verification</p>
+            <h1 className="mt-2 font-display text-2xl font-bold">This link didn't work.</h1>
             <p className="mt-2 text-ink-700">{error}</p>
           </div>
         )}
         {!error && !view && <p className="text-ink-500">Loading…</p>}
 
         {done === "stamped" && (
-          <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-8 text-center">
+          <div className="flex flex-col items-center rounded-[var(--radius-card)] border border-line bg-paper-raised p-8 text-center shadow-card">
             <Stamp label="Verified · thank you" />
             <h1 className="mt-4 font-display text-3xl font-bold">Stamped.</h1>
             <p className="mx-auto mt-2 max-w-md text-ink-700">
@@ -167,7 +166,7 @@ function StampPage() {
           </div>
         )}
         {done === "declined" && (
-          <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-8 text-center">
+          <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-8 text-center shadow-card">
             <h1 className="font-display text-3xl font-bold">Thanks for letting us know.</h1>
             <p className="mx-auto mt-2 max-w-md text-ink-700">
               The student will see that this wasn't verified and why.
@@ -177,15 +176,23 @@ function StampPage() {
 
         {view && ex && !done && (
           <>
-            <p className="eyebrow text-green">About three minutes · no account needed</p>
-            <h1 className="display mt-1">Did {view.studentFirstName} do this?</h1>
+            <p className="eyebrow text-green">Supervisor verification</p>
+            <div className="mt-3 flex items-center gap-3">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] border border-mint-soft bg-mint-tint text-green-deep">
+                <ShieldCheck className="h-6 w-6" strokeWidth={2} aria-hidden />
+              </span>
+              <span className="font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-green">
+                About three minutes · no account needed
+              </span>
+            </div>
+            <h1 className="display mt-4">Did {view.studentFirstName} do this?</h1>
             <p className="mt-3 max-w-xl text-ink-700">
               {view.studentFirstName} listed you as the supervisor who saw this work. Confirm what
               happened and rate the skills you watched. Your answers become a stamp on their EXPLR
               Pathways passport that they can't edit.
             </p>
 
-            <section className="mt-8 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6">
+            <section className="mt-8 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 shadow-card">
               <p className="eyebrow">
                 {EXPERIENCE_TYPE_BY_KEY[ex.experience_type]?.label ?? ex.experience_type}
               </p>
@@ -241,10 +248,10 @@ function StampPage() {
                     </select>
                   </div>
                 </div>
-                <label className="flex items-start gap-2 text-ink-700">
+                <label className="flex min-h-[44px] items-start gap-3 text-ink-700">
                   <input
                     type="checkbox"
-                    className="mt-1"
+                    className="mt-1 h-5 w-5 shrink-0 accent-[var(--color-green)]"
                     checked={dutiesOk}
                     onChange={(e) => setDutiesOk(e.target.checked)}
                   />
@@ -273,12 +280,12 @@ function StampPage() {
                             return (
                               <li
                                 key={skill}
-                                className="rounded-[var(--radius-control)] border border-line bg-paper-raised p-3"
+                                className="rounded-[var(--radius-control)] border border-line bg-paper-raised p-3 sm:p-4"
                               >
                                 <div className="flex flex-wrap items-center justify-between gap-3">
                                   <span className="font-medium">{skill}</span>
                                   <div
-                                    className="flex flex-wrap gap-1.5"
+                                    className="flex flex-wrap gap-2"
                                     role="radiogroup"
                                     aria-label={`${skill} rating`}
                                   >
@@ -286,7 +293,7 @@ function StampPage() {
                                       type="button"
                                       onClick={() => setRating(skill, null)}
                                       aria-pressed={!r}
-                                      className={`rounded-full border px-3 py-1 text-xs ${!r ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700"}`}
+                                      className={`inline-flex min-h-[44px] items-center rounded-full border px-3.5 text-sm font-medium ${!r ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong bg-paper text-ink-700 hover:border-ink-900"}`}
                                     >
                                       Didn't see
                                     </button>
@@ -296,7 +303,7 @@ function StampPage() {
                                         type="button"
                                         onClick={() => setRating(skill, i + 1)}
                                         aria-pressed={r?.final === i + 1}
-                                        className={`rounded-full border px-3 py-1 text-xs ${r?.final === i + 1 ? "border-emerald bg-mint-tint text-green-deep" : "border-line-strong text-ink-700"}`}
+                                        className={`inline-flex min-h-[44px] items-center rounded-full border px-3.5 text-sm font-medium ${r?.final === i + 1 ? "border-emerald bg-mint-tint text-green-deep" : "border-line-strong bg-paper text-ink-700 hover:border-ink-900"}`}
                                       >
                                         {i + 1} {lvl}
                                       </button>
@@ -367,10 +374,10 @@ function StampPage() {
                     />
                   </div>
                 </div>
-                <label className="flex items-start gap-2 text-sm text-ink-700">
+                <label className="flex min-h-[44px] items-start gap-3 text-sm text-ink-700">
                   <input
                     type="checkbox"
-                    className="mt-1"
+                    className="mt-1 h-5 w-5 shrink-0 accent-[var(--color-green)]"
                     checked={terms}
                     onChange={(e) => setTerms(e.target.checked)}
                   />
@@ -381,7 +388,10 @@ function StampPage() {
                   </span>
                 </label>
                 {formError && (
-                  <p role="alert" className="text-sm text-destructive">
+                  <p
+                    role="alert"
+                    className="rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-sm text-ink-900"
+                  >
                     {formError}
                   </p>
                 )}
@@ -392,7 +402,7 @@ function StampPage() {
                   <button
                     type="button"
                     onClick={() => setDeclining(true)}
-                    className="text-sm text-ink-500 hover:text-ink-900"
+                    className="inline-flex min-h-[44px] items-center text-sm text-ink-500 underline decoration-line-strong underline-offset-4 hover:text-ink-900"
                   >
                     I didn't supervise this, or it isn't accurate
                   </button>
@@ -401,7 +411,7 @@ function StampPage() {
             ) : (
               <form
                 onSubmit={decline}
-                className="mt-6 flex flex-col gap-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6"
+                className="mt-6 flex flex-col gap-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 shadow-card"
               >
                 <h2 className="font-display text-xl font-semibold">Decline to verify</h2>
                 <label className="label" htmlFor="st-reason">
@@ -417,7 +427,10 @@ function StampPage() {
                   onChange={(e) => setReason(e.target.value)}
                 />
                 {formError && (
-                  <p role="alert" className="text-sm text-destructive">
+                  <p
+                    role="alert"
+                    className="rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-sm text-ink-900"
+                  >
                     {formError}
                   </p>
                 )}
@@ -434,6 +447,7 @@ function StampPage() {
           </>
         )}
       </main>
+      <SiteFooter className="mt-10" />
     </div>
   );
 }

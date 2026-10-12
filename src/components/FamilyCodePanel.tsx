@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { KeyRound } from "lucide-react";
 import {
   createFamilyCode,
   listFamilyCodes,
@@ -58,9 +59,16 @@ export function FamilyCodePanel() {
   const active = rows.filter((r) => !r.revokedAt && new Date(r.expiresAt) > new Date());
 
   return (
-    <section className="mt-6 rounded-[var(--radius-card)] border border-line bg-mint-tint/60 p-5">
-      <p className="eyebrow text-green-deep">Share with a grown-up</p>
-      <h2 className="mt-1 font-display text-xl font-semibold">Family code</h2>
+    <section className="mt-6 rounded-[var(--radius-card)] border border-mint-soft bg-mint-tint/60 p-5">
+      <div className="flex items-start gap-4">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-paper-raised text-green-deep">
+          <KeyRound className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+        </span>
+        <div>
+          <p className="eyebrow text-green-deep">Share with a grown-up</p>
+          <h2 className="mt-1 font-display text-xl font-semibold">Family code</h2>
+        </div>
+      </div>
       <p className="mt-1 text-sm text-ink-700">
         Make a code and give it to a parent or caregiver. They enter it at{" "}
         <span className="font-mono">explrpathways.org/family</span> to see your results, no account
@@ -93,7 +101,7 @@ export function FamilyCodePanel() {
         </button>
       </form>
       {error && (
-        <p role="alert" className="mt-3 text-sm text-destructive">
+        <p role="alert" className="mt-3 text-sm text-red-700">
           {error}
         </p>
       )}
@@ -117,7 +125,7 @@ export function FamilyCodePanel() {
                 type="button"
                 disabled={busy}
                 onClick={() => revoke(r.id)}
-                className="ink-link"
+                className="ink-link inline-flex min-h-[44px] items-center"
               >
                 Turn off
               </button>

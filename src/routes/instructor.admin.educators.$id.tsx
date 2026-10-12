@@ -44,17 +44,25 @@ function ManageEducator() {
   }
 
   if (!ed)
-    return <main className="mx-auto max-w-2xl px-6 py-24 text-sm text-ink-500">Loading…</main>;
+    return (
+      <main className="mx-auto max-w-[1312px] px-4 py-24 text-sm text-ink-500 sm:px-6 lg:px-8">
+        Loading…
+      </main>
+    );
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16">
-      <Link to="/instructor/admin" className="ink-link text-sm">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
+      <Link
+        to="/instructor/admin"
+        className="inline-flex min-h-[44px] items-center text-sm text-ink-500 hover:text-ink-900"
+      >
         ← Admin
       </Link>
-      <h1 className="mt-4 text-3xl font-light">{ed.full_name}</h1>
+      <p className="eyebrow mt-4">Instructor</p>
+      <h1 className="mt-2 font-display text-3xl font-bold">{ed.full_name}</h1>
       <p className="mt-1 text-sm text-ink-500">{ed.email}</p>
 
-      <section className="mt-10 grid gap-6 sm:grid-cols-2">
+      <section className="mt-10 grid max-w-3xl gap-6 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 sm:grid-cols-2">
         {/* Role is always 'educator' here — admins live in public.admins,
             not in this table. The field is shown read-only so the admin
             doesn't expect to be able to promote from here. To make
@@ -62,12 +70,12 @@ function ManageEducator() {
             /educator/admin/invites. */}
         <div>
           <label className="label">Role</label>
-          <input className="field bg-paper-sunken text-ink-500" value="educator" readOnly />
+          <input className="field bg-paper-sunken text-ink-500" value="instructor" readOnly />
         </div>
         <div>
           <label className="label">Approved</label>
           <button onClick={() => update({ approved: !ed.approved })} className="btn-ghost">
-            {ed.approved ? "✓ approved · revoke" : "approve"}
+            {ed.approved ? "Approved · revoke" : "Approve"}
           </button>
         </div>
         <div className="sm:col-span-2">
@@ -81,15 +89,15 @@ function ManageEducator() {
         </div>
       </section>
 
-      <section className="mt-12">
-        <h2 className="text-xs uppercase tracking-wider text-ink-500 mb-3">School</h2>
+      <section className="mt-10 max-w-3xl">
+        <h2 className="eyebrow mb-3">School</h2>
         <EducatorSchoolEditor
           educatorId={ed.id}
           initialIrn={ed.school_irn}
           initialName={ed.school_name}
         />
       </section>
-      {status && <p className="mt-6 text-xs text-ink-500">{status}</p>}
+      {status && <p className="mt-6 text-sm text-ink-700">{status}</p>}
     </main>
   );
 }

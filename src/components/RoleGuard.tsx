@@ -1,5 +1,8 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
+import { Clock, GraduationCap, Lock, ShieldCheck, UserCheck, type LucideIcon } from "lucide-react";
 import { useEducator } from "@/lib/auth";
+import { PortalHeader } from "@/components/passport/PortalHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 
 type Role = "student" | "educator" | "admin";
 
@@ -23,14 +26,19 @@ export function RoleGuard({ requires, children }: Props) {
   const { user, educator, isAdmin, loading } = useEducator();
 
   if (loading) {
-    return <main className="mx-auto max-w-md px-6 py-24 text-sm text-ink-500">Loading…</main>;
+    return (
+      <Frame>
+        <p className="py-14 text-center text-sm text-ink-500">Loading…</p>
+      </Frame>
+    );
   }
 
   // Not signed in at all
   if (!user) {
     return (
       <Mismatch
-        eyebrow="Sign in required"
+        icon={Lock}
+        eyebrow={requires === "student" ? "Students" : "Instructors"}
         title={requires === "student" ? "Sign in to take the assessment" : "Sign in required"}
         body={
           requires === "student"
@@ -52,15 +60,16 @@ export function RoleGuard({ requires, children }: Props) {
   }
 
   const isEducator = !!educator;
-  // An educator is approved once an admin sets approved=true. Program-type
+  // An instructor is approved once an admin sets approved=true. Program-type
   // tagging (STEM / FTC / etc.) was removed — we no longer require it.
   const isApprovedEducator = !!educator && educator.approved;
 
-  // Student-only pages — admins allowed (view-as-student); plain educators not.
+  // Student-only pages — admins allowed (view-as-student); plain instructors not.
   if (requires === "student" && isEducator && !isAdmin) {
     return (
       <Mismatch
-        eyebrow="Instructor account"
+        icon={UserCheck}
+        eyebrow="Instructors"
         title="This area is for students"
         body="Your account is registered as an instructor. Head to your instructor dashboard for rosters, checkpoints, and experiences to review."
         primary={{ to: "/instructor/dashboard", label: "Go to instructor dashboard" }}
@@ -69,12 +78,13 @@ export function RoleGuard({ requires, children }: Props) {
     );
   }
 
-  // Educator pages — admins are allowed through for preview; otherwise
+  // Instructor pages — admins are allowed through for preview; otherwise
   // require an approved educator row.
   if (requires === "educator" && !isEducator && !isAdmin) {
     return (
       <Mismatch
-        eyebrow="Student account"
+        icon={GraduationCap}
+        eyebrow="Students"
         title="This area is for instructors"
         body="Your account isn't registered as an instructor. Request instructor access, or head back to your student experience."
         primary={{ to: "/assessment", label: "Back to assessment" }}
@@ -85,6 +95,7 @@ export function RoleGuard({ requires, children }: Props) {
   if (requires === "educator" && !isAdmin && !isApprovedEducator) {
     return (
       <Mismatch
+        icon={Clock}
         eyebrow="Pending approval"
         title="Awaiting admin approval"
         body={`Thanks, ${educator!.full_name.split(" ")[0]}. An EXPLR admin will review your request and assign your program type.`}
@@ -97,7 +108,8 @@ export function RoleGuard({ requires, children }: Props) {
   if (requires === "admin" && !isAdmin) {
     return (
       <Mismatch
-        eyebrow="Admin only"
+        icon={ShieldCheck}
+        eyebrow="Admin"
         title="You don't have admin access"
         body="This area is reserved for EXPLR admins."
         primary={
@@ -112,15 +124,40 @@ export function RoleGuard({ requires, children }: Props) {
   return <>{children}</>;
 }
 
+/**
+ * Pages under /instructor already sit inside the instructor layout (header +
+ * footer), so the guard only adds the passport chrome everywhere else
+ * (student, assessment, survey routes have no layout route of their own).
+ */
+function Frame({ children }: { children: React.ReactNode }) {
+  const { pathname } = useLocation();
+  const inLayout = pathname.startsWith("/instructor");
+  const main = (
+    <main className="mx-auto w-full max-w-[1312px] flex-1 px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+      {children}
+    </main>
+  );
+  if (inLayout) return main;
+  return (
+    <div className="flex min-h-screen flex-col bg-paper text-ink-900">
+      <PortalHeader links={[{ label: "Home", to: "/" }]} />
+      {main}
+      <SiteFooter className="mt-10" />
+    </div>
+  );
+}
+
 type LinkOpt = { to: string; label: string };
 
 function Mismatch({
+  icon: Icon,
   eyebrow,
   title,
   body,
   primary,
   secondary,
 }: {
+  icon: LucideIcon;
   eyebrow: string;
   title: string;
   body: string;
@@ -128,20 +165,25 @@ function Mismatch({
   secondary?: LinkOpt;
 }) {
   return (
-    <main className="mx-auto max-w-md px-6 py-24 text-center">
-      <p className="eyebrow">{eyebrow}</p>
-      <h1 className="mt-3 text-2xl font-light">{title}</h1>
-      <p className="mt-4 text-sm text-ink-500">{body}</p>
-      <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <Link to={primary.to as never} className="btn-ink">
-          {primary.label}
-        </Link>
-        {secondary && (
-          <Link to={secondary.to as never} className="btn-ghost">
-            {secondary.label}
+    <Frame>
+      <div className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-8 text-center shadow-card">
+        <span className="grid h-12 w-12 place-items-center rounded-[14px] border border-mint-soft bg-mint-tint text-green-deep">
+          <Icon className="h-6 w-6" strokeWidth={2} aria-hidden />
+        </span>
+        <p className="eyebrow">{eyebrow}</p>
+        <h1 className="font-display text-3xl font-bold tracking-tight">{title}</h1>
+        <p className="text-sm text-ink-700">{body}</p>
+        <div className="mt-2 flex flex-wrap justify-center gap-3">
+          <Link to={primary.to as never} className="btn-ink">
+            {primary.label}
           </Link>
-        )}
+          {secondary && (
+            <Link to={secondary.to as never} className="btn-ghost">
+              {secondary.label}
+            </Link>
+          )}
+        </div>
       </div>
-    </main>
+    </Frame>
   );
 }

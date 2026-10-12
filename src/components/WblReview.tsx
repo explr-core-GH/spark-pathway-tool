@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import type { Opportunity } from "@/lib/opportunities";
@@ -12,14 +13,14 @@ const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(
 export function GateBadge({ o }: { o: Opportunity }) {
   if (o.gate_status === "pass") {
     return (
-      <span className="rounded-full border border-green bg-mint-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-green-deep">
+      <span className="inline-flex items-center rounded-full bg-mint-tint px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-green-deep">
         EXPLR-endorsed
       </span>
     );
   }
   if (o.gate_status === "fail") {
     return (
-      <span className="rounded-full border border-line-strong bg-paper-sunken px-2 py-0.5 text-[10px] uppercase tracking-wider text-ink-500">
+      <span className="inline-flex items-center rounded-full bg-paper-sunken px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-700">
         Exposure · not EXPLR-endorsed
       </span>
     );
@@ -62,8 +63,13 @@ export function WblPublicSection({ o }: { o: Opportunity }) {
   const skills = o.target_competencies ?? [];
   if (rows.length === 0 && skills.length === 0 && !w.work.positionDescription) return null;
   return (
-    <section className="mt-6">
-      <p className="text-xs uppercase tracking-wider text-ink-500">What you need to know</p>
+    <section className="mt-6 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card">
+      <div className="flex items-center gap-3">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
+          <Info className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+        </span>
+        <h2 className="font-display text-xl font-semibold">What you need to know</h2>
+      </div>
       {w.work.positionDescription && (
         <p className="mt-2 whitespace-pre-wrap text-sm text-ink-700">
           {w.work.positionDescription}
@@ -80,7 +86,7 @@ export function WblPublicSection({ o }: { o: Opportunity }) {
         <dl className="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
           {rows.map(([k, v]) => (
             <div key={k}>
-              <dt className="text-xs uppercase tracking-wider text-ink-500">{k}</dt>
+              <dt className="label mb-0">{k}</dt>
               <dd className="mt-0.5 text-ink-700">{v}</dd>
             </div>
           ))}
@@ -88,9 +94,7 @@ export function WblPublicSection({ o }: { o: Opportunity }) {
       )}
       {skills.length > 0 && (
         <p className="mt-3 text-sm text-ink-700">
-          <span className="text-xs uppercase tracking-wider text-ink-500">
-            Skills you'll practice ·{" "}
-          </span>
+          <span className="eyebrow">Skills you'll practice · </span>
           {skills.join(", ")}
         </p>
       )}
@@ -125,13 +129,11 @@ export function GatePanel({ o, onDone }: { o: Opportunity; onDone: () => void })
   }
 
   return (
-    <div className="mt-4 rounded border border-line-strong bg-paper-raised p-4 text-sm">
-      <p className="text-xs font-semibold uppercase tracking-wider text-ink-500">
-        EXPLR gate · currently {o.gate_status ?? "pending"}
-      </p>
+    <div className="mt-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-4 text-sm shadow-card">
+      <p className="eyebrow">EXPLR gate · currently {o.gate_status ?? "pending"}</p>
       <dl className="mt-2 grid grid-cols-2 gap-2 text-xs text-ink-700">
         <div>
-          <dt className="uppercase tracking-wider text-ink-500">Stage · type</dt>
+          <dt className="label mb-0">Stage · type</dt>
           <dd>
             {o.stage ? STAGES[o.stage].label : "—"}
             {o.experience_type
@@ -240,7 +242,7 @@ export function GatePanel({ o, onDone }: { o: Opportunity; onDone: () => void })
         </label>
       </div>
       {!verdict.pass && (
-        <ul className="mt-2 list-disc pl-5 text-xs text-amber-800">
+        <ul className="mt-2 list-disc rounded-[var(--radius-control)] bg-gold-tint py-2 pl-8 pr-3 text-xs text-ink-900">
           {verdict.why.map((w2) => (
             <li key={w2}>{w2}</li>
           ))}
@@ -251,16 +253,11 @@ export function GatePanel({ o, onDone }: { o: Opportunity; onDone: () => void })
           type="button"
           disabled={busy || !verdict.pass}
           onClick={() => save("pass")}
-          className="btn-ink text-xs disabled:opacity-50"
+          className="btn-ink disabled:opacity-50"
         >
           Pass gate · EXPLR-endorsed
         </button>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => save("fail")}
-          className="btn-ghost text-xs"
-        >
+        <button type="button" disabled={busy} onClick={() => save("fail")} className="btn-ghost">
           Fail gate · list as exposure
         </button>
         {o.gate_status !== "pending" && (
@@ -268,7 +265,7 @@ export function GatePanel({ o, onDone }: { o: Opportunity; onDone: () => void })
             type="button"
             disabled={busy}
             onClick={() => save("pending")}
-            className="text-xs text-ink-500 hover:text-ink"
+            className="inline-flex min-h-[44px] items-center text-sm text-ink-500 hover:text-ink-900"
           >
             Reset to pending
           </button>

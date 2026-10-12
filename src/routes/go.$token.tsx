@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Wordmark } from "@/components/passport";
+import { CircleAlert, QrCode } from "lucide-react";
+import { PortalHeader } from "@/components/passport/PortalHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { redeemExploreToken } from "@/lib/explore-logins.functions";
 import { finishExploreSignIn, friendlyError } from "@/lib/explore-session";
 
@@ -29,25 +31,44 @@ function Go() {
   }, [token, navigate]);
 
   return (
-    <main
-      className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-6 px-6 text-center"
-      data-density="explore"
-    >
-      <Wordmark />
-      {error ? (
-        <>
-          <h1 className="font-display text-3xl font-bold">That card didn't work.</h1>
-          <p className="text-ink-700">{error}</p>
-          <Link to="/explore" className="btn-ink">
-            Use my class code
-          </Link>
-        </>
-      ) : (
-        <>
-          <h1 className="font-display text-3xl font-bold">Opening your passport…</h1>
-          <p className="text-ink-700">One second.</p>
-        </>
-      )}
-    </main>
+    <div className="flex min-h-screen flex-col bg-paper text-ink-900" data-density="explore">
+      <PortalHeader
+        role="Student"
+        links={[
+          { label: "Home", to: "/" },
+          { label: "Class code", to: "/explore", secondary: true },
+        ]}
+      />
+      <main className="mx-auto flex w-full max-w-[1312px] flex-1 items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
+        <div
+          className="flex w-full max-w-md flex-col items-center gap-4 rounded-[var(--radius-card)] border-2 border-line bg-paper-raised p-8 text-center shadow-card"
+          aria-live="polite"
+        >
+          <span className="grid h-16 w-16 place-items-center rounded-[18px] border border-mint-soft bg-mint-tint text-green-deep">
+            {error ? (
+              <CircleAlert className="h-8 w-8" strokeWidth={2} aria-hidden />
+            ) : (
+              <QrCode className="h-8 w-8" strokeWidth={2} aria-hidden />
+            )}
+          </span>
+          <p className="eyebrow text-green">Students · grades 4-8</p>
+          {error ? (
+            <>
+              <h1 className="font-display text-3xl font-bold">That card didn&apos;t work.</h1>
+              <p className="text-ink-700">{error}</p>
+              <Link to="/explore" className="btn-ink justify-center">
+                Use my class code
+              </Link>
+            </>
+          ) : (
+            <>
+              <h1 className="font-display text-3xl font-bold">Opening your passport…</h1>
+              <p className="text-ink-700">One second.</p>
+            </>
+          )}
+        </div>
+      </main>
+      <SiteFooter className="mt-10" />
+    </div>
   );
 }

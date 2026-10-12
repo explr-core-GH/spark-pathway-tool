@@ -115,22 +115,20 @@ function AccountsAdmin() {
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
       <h1 className="display mt-2">Instructor accounts</h1>
-      <p className="lead mt-2">
-        Create an instructor/instructor account by hand, connect it to internships, and send them
-        their login — or reset any account&apos;s password below.
+      <p className="lead mt-3 max-w-2xl">
+        Create an instructor account by hand, connect it to internships, and send them their login —
+        or reset any account&apos;s password below.
       </p>
 
       {/* ── Create ── */}
       <form
         onSubmit={create}
-        className="mt-8 space-y-5 border border-line p-6 rounded-[var(--radius-card)]"
+        className="mt-8 max-w-2xl space-y-5 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6"
       >
-        <h2 className="eyebrow" style={{ margin: 0 }}>
-          Add an instructor
-        </h2>
+        <h2 className="font-display text-2xl font-bold">Add an instructor</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label" htmlFor="ca-name">
@@ -185,9 +183,9 @@ function AccountsAdmin() {
           <label className="label">
             Connect to internships <span className="text-ink-500">(optional)</span>
           </label>
-          <div className="mt-1 max-h-40 space-y-1 overflow-y-auto border border-line-strong bg-paper-raised p-2">
+          <div className="mt-1 max-h-40 space-y-1 overflow-y-auto rounded-[var(--radius-control)] border border-line bg-paper-sunken p-2">
             {options.map((o) => (
-              <label key={o.ref} className="flex items-center gap-2 px-1 py-0.5 text-sm">
+              <label key={o.ref} className="flex min-h-[36px] items-center gap-2 px-1 text-sm">
                 <input
                   type="checkbox"
                   checked={cSlugs.includes(o.ref)}
@@ -201,14 +199,14 @@ function AccountsAdmin() {
               </label>
             ))}
           </div>
-          <p className="mt-1 text-[11px] text-ink-500">
+          <p className="mt-1 text-xs text-ink-500">
             They&apos;ll see these rosters on &ldquo;Rate your interns.&rdquo; You can also connect
             later from each internship&apos;s Educators tab.
           </p>
         </div>
 
         {cErr && (
-          <p className="text-sm text-red-600" role="alert">
+          <p className="text-sm text-red-700" role="alert">
             {cErr}
           </p>
         )}
@@ -221,7 +219,7 @@ function AccountsAdmin() {
         </button>
 
         {createdCreds && (
-          <div className="border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+          <div className="rounded-[var(--radius-control)] border border-mint-soft bg-mint-tint px-4 py-3 text-sm text-green-deep">
             <p className="font-medium">Account created — hand them these credentials:</p>
             <p className="mt-1 font-mono text-xs">
               {createdCreds.email} · {createdCreds.password}
@@ -232,7 +230,7 @@ function AccountsAdmin() {
             >
               Email login details
             </a>
-            <span className="ml-2 text-xs text-emerald-800">
+            <span className="ml-2 text-xs text-green-deep">
               Opens your email app with everything prefilled.
             </span>
           </div>
@@ -242,12 +240,10 @@ function AccountsAdmin() {
       {/* ── Reset ── */}
       <form
         onSubmit={reset}
-        className="mt-8 space-y-5 border border-line p-6 rounded-[var(--radius-card)]"
+        className="mt-8 max-w-2xl space-y-5 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6"
       >
-        <h2 className="eyebrow" style={{ margin: 0 }}>
-          Reset a password
-        </h2>
-        <p className="text-sm text-ink-500">
+        <h2 className="font-display text-2xl font-bold">Reset a password</h2>
+        <p className="text-sm text-ink-700">
           Works for any account — student, instructor, organization, or admin. Camp usernames (e.g.{" "}
           <span className="font-mono">maya42</span>) work too, and the printable sheet stays in
           sync.
@@ -294,7 +290,7 @@ function AccountsAdmin() {
         </div>
 
         {msg && (
-          <div className="border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+          <div className="rounded-[var(--radius-control)] border border-mint-soft bg-mint-tint px-3 py-2 text-sm text-green-deep">
             {msg}
             {resetCreds &&
               resetCreds.email.includes("@") &&
@@ -309,7 +305,7 @@ function AccountsAdmin() {
           </div>
         )}
         {err && (
-          <p className="text-sm text-red-600" role="alert">
+          <p className="text-sm text-red-700" role="alert">
             {err}
           </p>
         )}
@@ -323,7 +319,7 @@ function AccountsAdmin() {
         </button>
       </form>
 
-      <p className="mt-4 text-xs text-ink-500">
+      <p className="mt-4 max-w-2xl text-sm text-ink-500">
         Users with a real email can also self-reset from the &ldquo;Forgot password&rdquo; link on
         any sign-in page.
       </p>

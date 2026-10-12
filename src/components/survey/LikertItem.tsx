@@ -31,7 +31,7 @@ export function LikertItem({
     <div className="border-b border-line py-5 last:border-b-0">
       <div className="flex gap-3">
         <span className="select-none text-sm font-semibold text-ink-500">{number}.</span>
-        <p className="flex-1 text-sm leading-relaxed text-ink">{text}</p>
+        <p className="flex-1 text-sm leading-relaxed text-ink-900">{text}</p>
       </div>
       <div className={skipped ? "mt-3 opacity-40" : "mt-3"}>
         <RatingButtons
@@ -46,7 +46,11 @@ export function LikertItem({
         {skipped ? (
           <span className="text-ink-500">Skipped</span>
         ) : (
-          <button type="button" onClick={onSkip} className="text-ink-500 underline hover:text-ink">
+          <button
+            type="button"
+            onClick={onSkip}
+            className="ink-link inline-flex min-h-[44px] items-center text-ink-500 hover:text-ink-900"
+          >
             Skip this question
           </button>
         )}

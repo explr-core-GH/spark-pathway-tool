@@ -2,6 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
+import { SiteFooter } from "@/components/SiteFooter";
+import { PortalHeader, SiteHeader, type PortalLink } from "@/components/passport";
+import { Check, ExternalLink, Sparkles } from "lucide-react";
 import {
   OPP_TYPES,
   oppTypeMeta,
@@ -13,6 +16,24 @@ import {
   type OppType,
   type Opportunity,
 } from "@/lib/opportunities";
+
+const STUDENT_LINKS: PortalLink[] = [
+  { label: "My passport", to: "/student" },
+  { label: "Opportunities", to: "/opportunities" },
+  { label: "Families", to: "/student/pathway", search: { tab: "families" } },
+];
+
+/** Public visitors get the site header; signed-in students get the passport portal header. */
+function BrowseHeader({ signedIn, isStudent }: { signedIn: boolean; isStudent: boolean }) {
+  if (!signedIn) return <SiteHeader />;
+  return (
+    <PortalHeader
+      role={isStudent ? "Student" : undefined}
+      links={isStudent ? STUDENT_LINKS : []}
+      signedIn
+    />
+  );
+}
 
 export const Route = createFileRoute("/opportunities")({
   head: () => ({ meta: [{ title: "Explore opportunities — EXPLR" }] }),
@@ -139,81 +160,96 @@ function Browse() {
     internshipState !== "staff";
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
-      <Link to="/" className="eyebrow inline-block">
-        ← EXPLR
-      </Link>
-      <h1 className="mt-3 text-4xl font-light">Explore opportunities</h1>
-      <p className="mt-2 max-w-2xl text-sm text-ink-500">
-        Camps, workshops, internships, and clubs from EXPLR partner organizations.
-        {holland ? ` Your interest code is ${holland} — matches are highlighted.` : ""}
-      </p>
-
-      <div className="mt-8 flex flex-wrap items-center gap-2">
-        {(
-          [
-            { key: "all", label: "All" },
-            ...OPP_TYPES.map((t) => ({ key: t.key, label: t.label })),
-          ] as Array<{ key: Filter; label: string }>
-        ).map((f) => (
-          <button
-            key={f.key}
-            onClick={() => setFilter(f.key)}
-            className="rounded-full px-3 py-1.5 text-xs font-medium"
-            style={{
-              background: filter === f.key ? "var(--ink)" : "transparent",
-              color: filter === f.key ? "white" : "var(--color-ink-700)",
-              border: `1px solid ${filter === f.key ? "var(--ink)" : "var(--color-line-strong)"}`,
-            }}
-          >
-            {f.label}
-          </button>
-        ))}
-        {holland && (
-          <label className="ml-2 flex items-center gap-1.5 text-xs text-ink-700">
-            <input
-              type="checkbox"
-              checked={matchOnly}
-              onChange={(e) => setMatchOnly(e.target.checked)}
-            />
-            Match my interests
-          </label>
-        )}
-      </div>
-
-      {showInternshipGate && (
-        <InternshipGate
-          state={internshipState}
-          dob={dob}
-          setDob={setDob}
-          saveDob={saveDob}
-          savingDob={savingDob}
-        />
-      )}
-
-      {opps === null ? (
-        <p className="mt-10 text-sm text-ink-500">Loading…</p>
-      ) : cards.length === 0 ? (
-        <p className="mt-10 text-sm text-ink-500">
-          {filter === "internship" && internshipState === "ok"
-            ? "No internships you're eligible for yet — check back as new ones are posted."
-            : "No opportunities here yet."}
-        </p>
-      ) : (
-        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {cards.map((o) => (
-            <OppCard
-              key={o.id}
-              o={o}
-              match={hollandMatch(holland, o.riasec_code)}
-              registered={regs.has(o.id)}
-              canRegister={isStudent}
-              onRegister={() => register(o)}
-            />
-          ))}
+    <div className="min-h-screen bg-paper text-ink-900">
+      <BrowseHeader signedIn={!!user} isStudent={isStudent} />
+      <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <div className="max-w-2xl">
+            <p className="eyebrow text-green">Opportunities</p>
+            <h1 className="display mt-1">Explore opportunities.</h1>
+            <p className="lead mt-3">
+              Camps, workshops, internships, and clubs from EXPLR partner organizations.
+              {holland ? ` Your interest code is ${holland} — matches are highlighted.` : ""}
+            </p>
+          </div>
+          <img
+            src="/passport/organizations.webp"
+            alt=""
+            width={220}
+            height={130}
+            className="hidden h-[130px] w-auto object-contain md:block"
+            loading="lazy"
+          />
         </div>
-      )}
-    </main>
+
+        <div className="mt-8 flex flex-wrap items-center gap-2">
+          {(
+            [
+              { key: "all", label: "All" },
+              ...OPP_TYPES.map((t) => ({ key: t.key, label: t.label })),
+            ] as Array<{ key: Filter; label: string }>
+          ).map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setFilter(f.key)}
+              aria-pressed={filter === f.key}
+              className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${
+                filter === f.key
+                  ? "border-ink-900 bg-ink-900 text-paper"
+                  : "border-line-strong bg-paper-raised text-ink-700 hover:border-ink-900"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+          {holland && (
+            <label className="ml-2 flex min-h-[44px] items-center gap-2 text-sm text-ink-700">
+              <input
+                type="checkbox"
+                className="h-5 w-5 accent-green-deep"
+                checked={matchOnly}
+                onChange={(e) => setMatchOnly(e.target.checked)}
+              />
+              Match my interests
+            </label>
+          )}
+        </div>
+
+        {showInternshipGate && (
+          <InternshipGate
+            state={internshipState}
+            dob={dob}
+            setDob={setDob}
+            saveDob={saveDob}
+            savingDob={savingDob}
+          />
+        )}
+
+        {opps === null ? (
+          <p className="mt-10 text-sm text-ink-500">Loading…</p>
+        ) : cards.length === 0 ? (
+          <p className="mt-10 rounded-[var(--radius-card)] border border-dashed border-line-strong bg-paper-raised px-6 py-10 text-center text-sm text-ink-700">
+            {filter === "internship" && internshipState === "ok"
+              ? "No internships you're eligible for yet — check back as new ones are posted."
+              : "No opportunities here yet."}
+          </p>
+        ) : (
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {cards.map((o) => (
+              <OppCard
+                key={o.id}
+                o={o}
+                match={hollandMatch(holland, o.riasec_code)}
+                registered={regs.has(o.id)}
+                canRegister={isStudent}
+                onRegister={() => register(o)}
+              />
+            ))}
+          </div>
+        )}
+      </main>
+      <SiteFooter className="mt-16" />
+    </div>
   );
 }
 
@@ -231,7 +267,7 @@ function InternshipGate({
   savingDob: boolean;
 }) {
   return (
-    <div className="mt-8 border border-line-strong bg-paper-sunken p-5">
+    <div className="mt-8 rounded-[var(--radius-card)] bg-gold-tint p-5">
       {state === "signin" && (
         <p className="text-sm text-ink-700">
           Internships are for signed-in students.{" "}
@@ -249,7 +285,7 @@ function InternshipGate({
       )}
       {state === "dob" && (
         <div>
-          <p className="text-sm font-medium">One quick check before internships</p>
+          <p className="font-display text-lg font-semibold">One quick check before internships</p>
           <p className="mt-1 text-sm text-ink-700">
             Students must turn <span className="font-medium">14 by June 1</span> of the
             internship&apos;s year. Enter your date of birth to see the internships you qualify for.
@@ -264,7 +300,7 @@ function InternshipGate({
             <button
               onClick={saveDob}
               disabled={!dob || savingDob}
-              className="btn-ink text-sm disabled:opacity-40"
+              className="btn-ink disabled:opacity-40"
             >
               {savingDob ? "Saving…" : "Save & view internships"}
             </button>
@@ -291,33 +327,40 @@ function OppCard({
   const meta = oppTypeMeta(o.type);
   const grades = [o.grade_min, o.grade_max].filter((x) => x != null).join("–");
   return (
-    <div className="flex flex-col border border-line bg-paper-raised">
+    <div className="flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-line bg-paper-raised shadow-card transition-colors hover:border-emerald">
       {o.image_url ? (
         <img src={o.image_url} alt="" className="h-36 w-full object-cover" />
       ) : (
-        <div className="flex h-36 w-full items-center justify-center bg-paper-sunken text-xs uppercase tracking-wider text-ink-500">
-          {meta.label}
+        <div className="flex h-36 w-full items-center justify-center bg-mint-tint/50">
+          <img
+            src="/passport/organizations.webp"
+            alt=""
+            width={200}
+            height={110}
+            className="h-[110px] w-auto object-contain"
+            loading="lazy"
+          />
         </div>
       )}
       <div className="flex flex-1 flex-col p-4">
-        <div className="flex items-center gap-2">
-          <span className="rounded-full bg-paper-sunken px-2 py-0.5 text-[10px] uppercase tracking-wider text-ink-500">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full bg-paper-sunken px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-700">
             {meta.label}
           </span>
           {match > 0 && (
-            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
-              Matches {o.riasec_code}
+            <span className="inline-flex items-center gap-1 rounded-full bg-mint-tint px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-green-deep">
+              <Sparkles className="h-3 w-3" aria-hidden /> Matches {o.riasec_code}
             </span>
           )}
         </div>
         <Link
           to="/opportunity/$id"
           params={{ id: o.id }}
-          className="mt-2 block text-sm font-medium leading-snug hover:underline"
+          className="mt-3 block font-display text-lg font-semibold leading-snug hover:underline"
         >
           {o.name || "Opportunity"}
         </Link>
-        <div className="mt-1 flex items-center gap-1.5 text-xs text-ink-500">
+        <div className="mt-1 flex items-center gap-1.5 text-sm text-ink-700">
           {o.org_logo_url && (
             <img src={o.org_logo_url} alt="" className="h-4 w-4 rounded object-cover" />
           )}
@@ -327,7 +370,7 @@ function OppCard({
           {[o.start_date, o.location].filter(Boolean).join(" · ") || "—"}
           {grades ? ` · grades ${grades}` : ""}
         </p>
-        <p className="mt-1 text-xs font-medium text-ink-700">
+        <p className="mt-1 text-sm font-medium text-ink-900">
           {o.is_free ? "Free" : dollars(o.cost_cents)}
         </p>
 
@@ -337,12 +380,12 @@ function OppCard({
               <Link
                 to="/student/apply"
                 search={{ opportunity: o.id }}
-                className="btn-ink w-full justify-center text-sm"
+                className="btn-ink w-full justify-center"
               >
                 Apply
               </Link>
             ) : (
-              <Link to="/sign-in" className="btn-ghost w-full justify-center text-sm">
+              <Link to="/sign-in" className="btn-ghost w-full justify-center">
                 Sign in to apply
               </Link>
             )
@@ -351,20 +394,20 @@ function OppCard({
               href={o.external_url}
               target="_blank"
               rel="noreferrer"
-              className="btn-ink w-full justify-center text-sm"
+              className="btn-ink w-full justify-center"
             >
-              Register on their site ↗
+              Register on their site <ExternalLink className="h-4 w-4" aria-hidden />
             </a>
           ) : registered ? (
-            <span className="block w-full border border-emerald-200 bg-emerald-50 py-2 text-center text-sm text-emerald-700">
-              ✓ Registered
+            <span className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-[var(--radius-control)] bg-mint-tint px-4 text-sm font-semibold text-green-deep">
+              <Check className="h-4 w-4" aria-hidden /> Registered
             </span>
           ) : canRegister ? (
-            <button onClick={onRegister} className="btn-ink w-full justify-center text-sm">
+            <button onClick={onRegister} className="btn-ink w-full justify-center">
               Register
             </button>
           ) : (
-            <Link to="/sign-in" className="btn-ghost w-full justify-center text-sm">
+            <Link to="/sign-in" className="btn-ghost w-full justify-center">
               Sign in to register
             </Link>
           )}

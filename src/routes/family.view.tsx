@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Check, Circle } from "lucide-react";
 import { SiteHeader } from "@/components/passport";
 import { SiteFooter } from "@/components/SiteFooter";
 import { FamilyResults, type FamilyResultsData } from "@/components/FamilyPortal";
@@ -17,6 +18,24 @@ export const Route = createFileRoute("/family/view")({
     typeof s.t === "string" ? { t: s.t } : {},
   component: View,
 });
+
+/** One sign-off on the family view: a mint check when done, a hollow dot when not. */
+function AckMark({ label, on }: { label: string; on: boolean }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span
+        className={`grid h-5 w-5 place-items-center rounded-full ${
+          on ? "bg-green text-paper-raised" : "border border-line-strong text-ink-500"
+        }`}
+        aria-hidden
+      >
+        {on ? <Check className="h-3 w-3" strokeWidth={3} /> : <Circle className="h-1.5 w-1.5" />}
+      </span>
+      {label}
+      <span className="sr-only">{on ? " signed" : " not yet signed"}</span>
+    </span>
+  );
+}
 
 function View() {
   const { t } = Route.useSearch();
@@ -99,7 +118,7 @@ function View() {
           <>
             <p className="eyebrow text-green">Family view · grade {view.grade ?? "?"}</p>
             <h1 className="display mt-2">{view.firstName}'s passport</h1>
-            <p className="mt-3 text-sm text-ink-500">
+            <p className="mt-3 text-sm text-ink-700">
               This link works until {new Date(view.expiresAt).toLocaleDateString()}. Your student
               can turn it off at any time from their dashboard.
             </p>
@@ -115,10 +134,11 @@ function View() {
                     </li>
                   ))}
                 </ul>
-                <p className="mt-3 text-sm text-ink-700">
-                  Sign-offs: student {view.plan.studentAckAt ? "✓" : "·"} · family{" "}
-                  {view.plan.guardianAckAt ? "✓" : "·"} · advisor{" "}
-                  {view.plan.advisorAckAt ? "✓" : "·"}
+                <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-700">
+                  <span>Sign-offs:</span>
+                  <AckMark label="student" on={!!view.plan.studentAckAt} />
+                  <AckMark label="family" on={!!view.plan.guardianAckAt} />
+                  <AckMark label="advisor" on={!!view.plan.advisorAckAt} />
                 </p>
                 {!view.plan.guardianAckAt ? (
                   <form onSubmit={signPlan} className="mt-3 flex flex-wrap items-end gap-2">
@@ -135,7 +155,7 @@ function View() {
                         onChange={(e) => setAckName(e.target.value)}
                       />
                     </div>
-                    <button type="submit" disabled={ackBusy} className="btn-ink text-sm">
+                    <button type="submit" disabled={ackBusy} className="btn-ink">
                       {ackBusy ? "Signing…" : "I reviewed this plan with my student"}
                     </button>
                   </form>

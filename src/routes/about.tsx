@@ -104,7 +104,7 @@ function AboutPage() {
             </div>
             <img
               src="/passport/grades-9-12.webp"
-              alt="Three stepping-stone tickets leading to an open doorway beside a portfolio folder"
+              alt="Three stepping-stone tickets leading to an open entrance beside a portfolio folder"
               width={520}
               height={520}
               className="mx-auto w-full max-w-[520px]"

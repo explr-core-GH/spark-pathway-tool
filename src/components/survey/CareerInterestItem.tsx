@@ -43,7 +43,7 @@ export function CareerInterestItem({
       <div className="flex gap-3">
         <span className="select-none text-sm font-semibold text-ink-500">{number}.</span>
         <div className="flex-1">
-          <p className="text-sm font-semibold text-ink">{careerName}</p>
+          <p className="font-display text-base font-semibold text-ink-900">{careerName}</p>
           <p className="mt-1 text-sm leading-relaxed text-ink-700">
             {careerName} {description}
           </p>
@@ -53,9 +53,7 @@ export function CareerInterestItem({
         {retrospective ? (
           <>
             <div>
-              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-ink-500">
-                Before camp
-              </p>
+              <p className="eyebrow mb-1">Before camp</p>
               <RatingButtons
                 points={points}
                 value={valueThen}
@@ -65,9 +63,7 @@ export function CareerInterestItem({
               />
             </div>
             <div>
-              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-ink-500">
-                Right now
-              </p>
+              <p className="eyebrow mb-1">Right now</p>
               <RatingButtons
                 points={points}
                 value={valueNow}
@@ -91,7 +87,11 @@ export function CareerInterestItem({
         {skipped ? (
           <span className="text-ink-500">Skipped</span>
         ) : (
-          <button type="button" onClick={onSkip} className="text-ink-500 underline hover:text-ink">
+          <button
+            type="button"
+            onClick={onSkip}
+            className="ink-link inline-flex min-h-[44px] items-center text-ink-500 hover:text-ink-900"
+          >
             Skip this question
           </button>
         )}

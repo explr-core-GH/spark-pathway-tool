@@ -1,11 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
-import { Wordmark } from "@/components/passport";
+import { PortalHeader, type PortalLink } from "@/components/passport";
+import { SiteFooter } from "@/components/SiteFooter";
 import { usePassport, SEAL_TOTAL } from "@/lib/passport";
 import { COMPETENCIES, RATING_LEVELS } from "@/lib/competencies";
 
 /** /student/skills — Readiness Seal progress, grouped under the NACE competencies. Verified ratings only. */
+const STUDENT_LINKS: PortalLink[] = [
+  { label: "My passport", to: "/student" },
+  { label: "Opportunities", to: "/opportunities" },
+  { label: "Families", to: "/student/pathway", search: { tab: "families" } },
+];
+
 export const Route = createFileRoute("/student_/skills")({
   head: () => ({ meta: [{ title: "Skills — EXPLR Pathways" }] }),
   component: () => (
@@ -22,15 +29,14 @@ function Skills() {
 
   return (
     <div className="min-h-screen bg-paper text-ink-900">
-      <header className="border-b border-line">
-        <div className="mx-auto flex max-w-[900px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Wordmark />
-          <Link to="/student" className="text-[15px] font-medium text-green-deep hover:underline">
-            ← My passport
-          </Link>
-        </div>
-      </header>
+      <PortalHeader role="Student" links={STUDENT_LINKS} signedIn />
       <main className="mx-auto max-w-[900px] px-4 py-10 sm:px-6">
+        <Link
+          to="/student"
+          className="inline-flex min-h-[44px] items-center text-sm font-medium text-green-deep hover:underline"
+        >
+          ← My passport
+        </Link>
         <p className="eyebrow text-green">Skills · OhioMeansJobs-Readiness Seal</p>
         <h1 className="display mt-1">What supervisors have seen.</h1>
         <p className="mt-4 max-w-xl text-ink-700">
@@ -92,6 +98,7 @@ function Skills() {
           ))}
         </div>
       </main>
+      <SiteFooter className="mt-16" />
     </div>
   );
 }

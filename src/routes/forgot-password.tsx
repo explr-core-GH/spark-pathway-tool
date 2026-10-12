@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { MailCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { AuthShell } from "@/components/passport/AuthShell";
 
 export const Route = createFileRoute("/forgot-password")({
   head: () => ({ meta: [{ title: "Reset your password — EXPLR" }] }),
@@ -29,65 +31,78 @@ function ForgotPassword() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
-      <Link to="/" className="eyebrow mb-12 inline-block">
-        ← EXPLR
-      </Link>
-      <h1 className="text-3xl font-light">Reset your password</h1>
+    <AuthShell
+      eyebrow="Account help"
+      title="Reset your password"
+      intro="Works for students, instructors, partners, and admins. Enter the email on your account and we'll send a link to set a new password."
+      illustration={{ src: "/passport/portfolio.webp" }}
+      links={[
+        { label: "Home", to: "/" },
+        { label: "Sign in", to: "/sign-in", secondary: true },
+      ]}
+      footer={
+        sent ? undefined : (
+          <>
+            <p>
+              Camp students sign in with a printed username and have no email. Ask your instructor
+              or an EXPLR admin to reset it for you.
+            </p>
+            <p className="mt-3">
+              Remembered it?{" "}
+              <Link to="/sign-in" className="ink-link">
+                Sign in
+              </Link>
+            </p>
+          </>
+        )
+      }
+    >
       {sent ? (
-        <div className="mt-4 text-sm text-ink-700">
+        <div className="flex flex-col gap-4 text-ink-700">
+          <span className="grid h-12 w-12 place-items-center rounded-[14px] border border-mint-soft bg-mint-tint text-green-deep">
+            <MailCheck className="h-6 w-6" strokeWidth={2} aria-hidden />
+          </span>
+          <h2 className="font-display text-2xl font-bold text-ink-900">Check your email</h2>
           <p>
-            If an account exists for <span className="font-medium">{email.trim()}</span>, we&apos;ve
-            sent a reset link. Open it on this device and you&apos;ll be able to set a new password.
+            If an account exists for{" "}
+            <span className="font-medium text-ink-900">{email.trim()}</span>, we&apos;ve sent a
+            reset link. Open it on this device and you&apos;ll be able to set a new password.
           </p>
-          <p className="mt-4">
+          <p>
             <Link to="/sign-in" className="ink-link">
               Back to sign in
             </Link>
           </p>
         </div>
       ) : (
-        <>
-          <p className="mt-2 text-sm text-ink-500">
-            Works for students, instructors, organizations, and admins. Enter the email on your
-            account and we&apos;ll send a link to set a new password.
-          </p>
-          <form onSubmit={submit} className="mt-10 space-y-5">
-            <div>
-              <label className="label" htmlFor="fp-email">
-                Email
-              </label>
-              <input
-                id="fp-email"
-                className="field"
-                type="email"
-                required
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            {error && (
-              <p className="text-sm text-destructive" role="alert">
-                {error}
-              </p>
-            )}
-            <button type="submit" disabled={loading} className="btn-ink w-full justify-center">
-              {loading ? "Sending…" : "Send reset link"}
-            </button>
-          </form>
-          <p className="mt-6 text-xs text-ink-500">
-            Camp students sign in with a printed username and have no email — ask your instructor or
-            an EXPLR admin to reset it for you.
-          </p>
-          <p className="mt-4 text-sm text-ink-500">
-            Remembered it?{" "}
-            <Link to="/sign-in" className="ink-link">
-              Sign in
-            </Link>
-          </p>
-        </>
+        <form onSubmit={submit} className="space-y-5">
+          <div>
+            <label className="label" htmlFor="fp-email">
+              Email
+            </label>
+            <input
+              id="fp-email"
+              className="field"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          {error && (
+            <p
+              className="rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-sm text-ink-900"
+              role="alert"
+            >
+              {error}
+            </p>
+          )}
+          <button type="submit" disabled={loading} className="btn-ink w-full justify-center">
+            {loading ? "Sending…" : "Send reset link"}
+          </button>
+        </form>
       )}
-    </main>
+    </AuthShell>
   );
 }

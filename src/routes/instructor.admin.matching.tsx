@@ -304,10 +304,10 @@ function Matching() {
   }, [targets, outcomes]);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
-      <h1 className="mt-2 text-3xl font-light">Internship matching</h1>
-      <p className="mt-2 max-w-2xl text-sm text-ink-500">
+      <h1 className="display mt-2">Internship matching</h1>
+      <p className="mt-3 max-w-2xl text-sm text-ink-700">
         Each requesting student is scored against each internship they picked. Hard requirements
         come first: grade, age at start, hazardous work under 16, every acknowledgment accepted,
         transportation, and days. Then a weighted score: interest fit{" "}
@@ -318,18 +318,20 @@ function Matching() {
         {Math.round(MATCH_WEIGHTS.experience * 100)}%, availability{" "}
         {Math.round(MATCH_WEIGHTS.availability * 100)}%.
       </p>
-      <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+      <div className="mt-6 flex flex-wrap items-center gap-2 text-sm">
         <button
           type="button"
           onClick={() => setView("listing")}
-          className={view === "listing" ? "btn-ink text-sm" : "btn-ghost text-sm"}
+          aria-pressed={view === "listing"}
+          className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${view === "listing" ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
         >
           By internship
         </button>
         <button
           type="button"
           onClick={() => setView("student")}
-          className={view === "student" ? "btn-ink text-sm" : "btn-ghost text-sm"}
+          aria-pressed={view === "student"}
+          className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${view === "student" ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
         >
           By student
         </button>
@@ -337,7 +339,7 @@ function Matching() {
           type="button"
           disabled={busy === "scores" || targets.length === 0}
           onClick={saveScores}
-          className="ml-auto btn-ghost text-sm"
+          className="btn-ghost text-sm sm:ml-auto"
         >
           {busy === "scores" ? "Saving…" : "Save scores to requests"}
         </button>
@@ -349,7 +351,7 @@ function Matching() {
       )}
 
       {view === "listing" && (
-        <div className="mt-6 divide-y divide-line border-y border-line">
+        <div className="mt-6 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
           {targets.map((t) => {
             const list = outcomes[t.ref] ?? [];
             const isOpen = open === t.ref;
@@ -358,20 +360,23 @@ function Matching() {
                 <button
                   type="button"
                   onClick={() => setOpen(isOpen ? null : t.ref)}
-                  className="flex w-full items-center gap-4 py-4 text-left hover:bg-paper-sunken"
+                  aria-expanded={isOpen}
+                  className="flex w-full items-center gap-4 px-4 py-4 text-left hover:bg-paper-sunken"
                 >
                   <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-medium">{t.name}</span>
+                    <span className="block font-display text-base font-semibold">{t.name}</span>
                     <span className="block text-xs text-ink-500">
                       {list.length} requesting · {list.filter((o) => o.eligible).length} eligible ·
                       grades {t.gradeMin ?? "?"}-{t.gradeMax ?? "?"}
                       {t.wbl.legal.minAge ? ` · age ${t.wbl.legal.minAge}+` : ""}
                     </span>
                   </span>
-                  <span className="text-xs text-ink-500">{isOpen ? "Hide" : "Show"}</span>
+                  <span className="text-xs font-medium text-green-deep">
+                    {isOpen ? "Hide" : "Show"}
+                  </span>
                 </button>
                 {isOpen && (
-                  <ol className="divide-y divide-line bg-paper-sunken px-4">
+                  <ol className="divide-y divide-line border-t border-line bg-paper-sunken px-4">
                     {list.map((o) => (
                       <li key={o.studentId} className="py-3">
                         <OutcomeRow
@@ -396,13 +401,16 @@ function Matching() {
       )}
 
       {view === "student" && (
-        <div className="mt-6 divide-y divide-line border-y border-line">
+        <div className="mt-6 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
           {Object.entries(byStudent).map(([sid, list]) => (
-            <div key={sid} className="py-4">
-              <p className="text-sm font-medium">{nameOf(sid)}</p>
+            <div key={sid} className="px-4 py-4">
+              <p className="font-display text-base font-semibold">{nameOf(sid)}</p>
               <ol className="mt-2 flex flex-col gap-2">
                 {list.map((o) => (
-                  <li key={o.ref} className="rounded border border-line bg-paper-raised px-3 py-2">
+                  <li
+                    key={o.ref}
+                    className="rounded-[var(--radius-control)] border border-line bg-paper-sunken px-3 py-2"
+                  >
                     <p className="text-xs text-ink-500">
                       {targets.find((t) => t.ref === o.ref)?.name}
                     </p>
@@ -449,15 +457,15 @@ function OutcomeRow({
           <span className={o.eligible ? "text-green-deep" : "text-ink-500"}>{pct}%</span>
           <span className="text-xs text-ink-500"> · {o.why}</span>
         </p>
-        <div className="mt-1 h-1.5 w-full max-w-xs overflow-hidden rounded bg-paper-sunken">
-          <div className="h-full bg-mint" style={{ width: `${pct}%` }} />
+        <div className="mt-1 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-paper-sunken">
+          <div className="h-full rounded-full bg-green" style={{ width: `${pct}%` }} />
         </div>
         {o.hardFails.length > 0 && (
           <ul className="mt-1 flex flex-wrap gap-1">
             {o.hardFails.map((f) => (
               <li
                 key={f}
-                className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] text-amber-800"
+                className="rounded-full bg-gold-tint px-2 py-0.5 text-[11px] font-medium text-gold-deep"
               >
                 {f}
               </li>

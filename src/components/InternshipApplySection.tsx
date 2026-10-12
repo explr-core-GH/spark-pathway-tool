@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Building2, Check, ExternalLink, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { AppLink, OpportunityForm, FormCompletion } from "@/lib/opportunities";
 
@@ -129,16 +130,21 @@ export function InternshipApplySection({
   }
 
   return (
-    <div className="border border-line p-5 rounded-[var(--radius-card)]">
-      <p className="font-medium">{name}</p>
+    <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card">
+      <div className="flex items-center gap-3">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
+          <Building2 className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+        </span>
+        <p className="font-display text-xl font-semibold">{name}</p>
+      </div>
 
       {requirements.length > 0 && (
         <div className="mt-3">
-          <p className="text-xs uppercase tracking-wider text-ink-500">Requirements</p>
+          <p className="eyebrow">Requirements</p>
           <ul className="mt-1.5 space-y-1 text-sm">
             {requirements.map((r) => (
               <li key={r} className="flex items-start gap-2">
-                <span className="text-ink-500">•</span>
+                <Check className="mt-1 h-4 w-4 shrink-0 text-green" aria-hidden />
                 {r}
               </li>
             ))}
@@ -148,22 +154,25 @@ export function InternshipApplySection({
 
       {proofs.length > 0 && (
         <div className="mt-4">
-          <p className="text-xs uppercase tracking-wider text-ink-500">
-            Complete these links, then upload a screenshot as proof
-          </p>
+          <p className="eyebrow">Complete these links, then upload a screenshot as proof</p>
           <ul className="mt-2 space-y-3">
             {proofs.map((p, i) => (
-              <li key={i} className="border border-line p-3 rounded-[var(--radius-card)]">
+              <li
+                key={i}
+                className="rounded-[var(--radius-control)] border border-line bg-paper p-3"
+              >
                 <a
                   href={p.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-sm text-green-deep hover:underline"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-medium text-green-deep hover:underline"
                 >
-                  {p.label || p.url} ↗
+                  {p.label || p.url}
+                  <ExternalLink className="h-3.5 w-3.5" aria-hidden />
                 </a>
                 <div className="mt-2 flex flex-wrap items-center gap-3">
-                  <label className="cursor-pointer border border-dashed border-line-strong bg-paper-raised px-3 py-1 text-xs hover:border-ink-900">
+                  <label className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-[var(--radius-control)] border border-dashed border-line-strong bg-paper-raised px-3 text-sm hover:border-ink-900">
+                    <Upload className="h-4 w-4 text-ink-500" aria-hidden />
                     {p.screenshot_url ? "Replace screenshot" : "Upload screenshot *"}
                     <input
                       type="file"
@@ -177,9 +186,13 @@ export function InternshipApplySection({
                     />
                   </label>
                   {p.screenshot_url ? (
-                    <span className="text-xs text-emerald-700">✓ uploaded</span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-mint-tint px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-green-deep">
+                      <Check className="h-3 w-3" aria-hidden /> Uploaded
+                    </span>
                   ) : (
-                    <span className="text-xs text-amber-700">required</span>
+                    <span className="inline-flex items-center rounded-full bg-gold-tint px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-gold-deep">
+                      Required
+                    </span>
                   )}
                 </div>
               </li>
@@ -190,7 +203,7 @@ export function InternshipApplySection({
 
       {forms.length > 0 && (
         <div className="mt-4">
-          <p className="text-xs uppercase tracking-wider text-ink-500">Forms</p>
+          <p className="eyebrow">Forms</p>
           <ul className="mt-2 space-y-3">
             {forms.map((f) => (
               <FormRow
@@ -221,20 +234,21 @@ function FormRow({
 }) {
   const [name, setName] = useState("");
   return (
-    <li className="border border-line p-3 rounded-[var(--radius-card)]">
+    <li className="rounded-[var(--radius-control)] border border-line bg-paper p-3">
       <div className="flex flex-wrap items-center gap-3">
-        <span className="flex-1 text-sm font-medium">{form.name}</span>
+        <span className="min-w-0 flex-1 text-sm font-medium">{form.name}</span>
         {form.file_url && (
           <a
             href={form.file_url}
             target="_blank"
             rel="noreferrer"
-            className="text-xs text-green-deep hover:underline"
+            className="inline-flex min-h-[44px] items-center text-sm font-medium text-green-deep hover:underline"
           >
             Download
           </a>
         )}
-        <label className="cursor-pointer border border-dashed border-line-strong bg-paper-raised px-3 py-1 text-xs hover:border-ink-900">
+        <label className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-[var(--radius-control)] border border-dashed border-line-strong bg-paper-raised px-3 text-sm hover:border-ink-900">
+          <Upload className="h-4 w-4 text-ink-500" aria-hidden />
           {completion?.completed_file_url ? "Replace upload" : "Upload completed"}
           <input
             type="file"
@@ -250,11 +264,13 @@ function FormRow({
       {form.requires_signature && (
         <div className="mt-2 flex flex-wrap items-center gap-2">
           {completion?.signed_name ? (
-            <span className="text-xs text-emerald-700">✓ Signed by {completion.signed_name}</span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-mint-tint px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-green-deep">
+              <Check className="h-3 w-3" aria-hidden /> Signed by {completion.signed_name}
+            </span>
           ) : (
             <>
               <input
-                className="field w-48 py-1 text-xs"
+                className="field w-56"
                 placeholder="Type your full name to sign"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -263,7 +279,7 @@ function FormRow({
                 type="button"
                 onClick={() => onSign(name)}
                 disabled={!name.trim()}
-                className="btn-ink text-xs disabled:opacity-40"
+                className="btn-ink disabled:opacity-40"
               >
                 Sign
               </button>
@@ -272,7 +288,9 @@ function FormRow({
         </div>
       )}
       {completion?.completed_file_url && (
-        <p className="mt-1 text-xs text-emerald-700">✓ Uploaded</p>
+        <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-green-deep">
+          <Check className="h-3.5 w-3.5" aria-hidden /> Uploaded
+        </p>
       )}
     </li>
   );

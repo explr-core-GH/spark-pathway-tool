@@ -20,7 +20,7 @@ export function OpenEndedQuestion({
     <div className="border-b border-line py-5 last:border-b-0">
       <div className="flex gap-3">
         <span className="select-none text-sm font-semibold text-ink-500">{number}.</span>
-        <label className="flex-1 text-sm leading-relaxed text-ink">
+        <label className="flex-1 text-sm leading-relaxed text-ink-900">
           {prompt}
           <span className="ml-1 text-xs text-ink-500">(optional)</span>
         </label>

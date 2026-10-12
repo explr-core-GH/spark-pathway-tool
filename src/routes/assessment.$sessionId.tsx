@@ -1,10 +1,18 @@
-import { PortalHeader } from "@/components/passport/PortalHeader";
+import { PortalHeader, type PortalLink } from "@/components/passport/PortalHeader";
+import { SiteFooter } from "@/components/SiteFooter";
+import { Annoyed, Frown, Laugh, Meh, Smile, type LucideIcon } from "lucide-react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ITEMS, LIKERT_LABELS, scoreResponses, type LikertValue } from "@/lib/assessment-items";
 import { RIASEC } from "@/lib/riasec";
 import { RoleGuard } from "@/components/RoleGuard";
+
+const STUDENT_LINKS: PortalLink[] = [
+  { label: "My passport", to: "/student" },
+  { label: "Opportunities", to: "/opportunities" },
+  { label: "Families", to: "/student/pathway", search: { tab: "families" } },
+];
 
 export const Route = createFileRoute("/assessment/$sessionId")({
   head: () => ({ meta: [{ title: "Assessment — EXPLR" }] }),
@@ -78,7 +86,7 @@ function AssessmentRunner() {
     })();
   }, [sessionId, navigate]);
 
-  if (error) return <div className="mx-auto max-w-xl px-6 py-24 text-destructive">{error}</div>;
+  if (error) return <div className="mx-auto max-w-xl px-6 py-24 text-red-700">{error}</div>;
   if (!session) return <div className="mx-auto max-w-xl px-6 py-24 text-ink-500">Loading…</div>;
 
   const total = session.item_sequence.length;
@@ -90,15 +98,15 @@ function AssessmentRunner() {
   const scale = item ? RIASEC[item.scale] : null;
   const pct = Math.round((idx / total) * 100);
 
-  // Emoji faces paired with each Likert value — easier for younger and
-  // diverse learners than bare numbers. Labels stay, so the meaning is
-  // never carried by the emoji alone (accessibility).
-  const FACES: Record<LikertValue, string> = {
-    1: "😣",
-    2: "🙁",
-    3: "😐",
-    4: "🙂",
-    5: "😄",
+  // Faces paired with each Likert value — easier for younger and diverse
+  // learners than bare numbers. Labels stay, so the meaning is never carried
+  // by the icon alone (accessibility).
+  const FACES: Record<LikertValue, LucideIcon> = {
+    1: Frown,
+    2: Annoyed,
+    3: Meh,
+    4: Smile,
+    5: Laugh,
   };
 
   async function answer(value: LikertValue) {
@@ -175,8 +183,14 @@ function AssessmentRunner() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div
+      className="min-h-screen bg-paper text-ink-900"
+      data-density={session.grade_at_session <= 8 ? "explore" : undefined}
+    >
       <PortalHeader
+        role="Student"
+        links={STUDENT_LINKS}
+        signedIn
         right={
           <span className="font-mono text-xs text-ink-500" aria-live="polite">
             {idx + 1} of {total}
@@ -192,13 +206,13 @@ function AssessmentRunner() {
         }
       />
 
-      <main className="mx-auto max-w-2xl px-6 py-16">
+      <main className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
         {/* Context image. Shows the item's photo when set; otherwise a
             dimension-colored band so the layout (and the slot for a photo)
             is consistent for every question. */}
         {scale && (
           <div
-            className="relative mb-8 flex h-64 w-full items-center justify-center overflow-hidden rounded-lg sm:h-80"
+            className="relative mb-8 flex h-64 w-full items-center justify-center overflow-hidden rounded-[var(--radius-card)] border border-line sm:h-80"
             style={{ background: scale.colorSoft }}
           >
             {item && (photos[item.id] ?? item.image) ? (
@@ -213,7 +227,7 @@ function AssessmentRunner() {
               />
             ) : (
               <span
-                className="text-center text-sm font-semibold uppercase tracking-wider"
+                className="text-center font-mono text-sm font-medium uppercase tracking-[0.08em]"
                 style={{ color: scale.color }}
               >
                 {scale.name}
@@ -227,7 +241,10 @@ function AssessmentRunner() {
             How much would you like to…
           </p>
         )}
-        <h1 id="prompt-text" className="mt-4 text-3xl font-light leading-tight md:text-4xl">
+        <h1
+          id="prompt-text"
+          className="mt-3 font-display text-3xl font-bold leading-tight md:text-4xl"
+        >
           {prompt}
         </h1>
 
@@ -249,28 +266,31 @@ function AssessmentRunner() {
             }
           }}
         >
-          {([1, 2, 3, 4, 5] as LikertValue[]).map((v) => (
-            <button
-              key={v}
-              type="button"
-              role="radio"
-              aria-checked={false}
-              disabled={submitting || finishing}
-              onClick={() => answer(v)}
-              aria-label={LIKERT_LABELS[v]}
-              className="group flex flex-col items-center gap-2 border border-line px-1 py-4 transition-colors hover:border-ink-900 hover:bg-paper-sunken focus-visible:border-ink-900 disabled:opacity-50"
-            >
-              <span
-                className="text-3xl leading-none transition-transform group-hover:scale-110 sm:text-4xl"
-                aria-hidden
+          {([1, 2, 3, 4, 5] as LikertValue[]).map((v) => {
+            const Face = FACES[v];
+            return (
+              <button
+                key={v}
+                type="button"
+                role="radio"
+                aria-checked={false}
+                disabled={submitting || finishing}
+                onClick={() => answer(v)}
+                aria-label={LIKERT_LABELS[v]}
+                className="group flex min-h-[44px] flex-col items-center gap-2 rounded-[var(--radius-card)] border border-line bg-paper-raised px-1 py-4 transition-colors hover:border-emerald hover:bg-mint-tint/50 focus-visible:border-emerald disabled:opacity-50"
               >
-                {FACES[v]}
-              </span>
-              <span className="text-center text-[11px] leading-tight text-ink-500">
-                {LIKERT_LABELS[v]}
-              </span>
-            </button>
-          ))}
+                <span
+                  className="grid h-12 w-12 place-items-center rounded-full border border-mint-soft bg-mint-tint text-green-deep transition-transform group-hover:scale-110 sm:h-14 sm:w-14"
+                  aria-hidden
+                >
+                  <Face className="h-7 w-7 sm:h-8 sm:w-8" strokeWidth={1.75} />
+                </span>
+                <span className="text-center text-[11px] font-medium leading-tight text-ink-700">
+                  {LIKERT_LABELS[v]}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {finishing && (
@@ -279,15 +299,16 @@ function AssessmentRunner() {
           </p>
         )}
         {error && (
-          <p className="mt-8 text-sm text-destructive" role="alert">
+          <p className="mt-8 text-sm text-red-700" role="alert">
             {error}
           </p>
         )}
 
-        <p className="mt-16 text-xs text-ink-500">
+        <p className="mt-16 text-sm text-ink-500">
           You can close this tab and return later — your progress is saved.
         </p>
       </main>
+      <SiteFooter className="mt-16" />
     </div>
   );
 }

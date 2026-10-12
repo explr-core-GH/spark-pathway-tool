@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { RIASEC, RIASEC_ORDER, type RIASECCode } from "@/lib/riasec";
 import { SurveyResultsPanel } from "@/components/SurveyResultsPanel";
@@ -94,7 +95,7 @@ export function FamilyResults({
 
   return (
     <div className="mt-6 pb-8">
-      <p className="text-sm text-ink-500">
+      <p className="text-sm text-ink-700">
         Your student&rsquo;s completed results, plus what each one means. Everything is a starting
         point for conversation — never a label or a verdict.
       </p>
@@ -112,12 +113,11 @@ export function FamilyResults({
             role="tab"
             aria-selected={current === t.id}
             onClick={() => setTab(t.id)}
-            className="border-b-2 px-3 py-2 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-            style={{
-              borderColor: current === t.id ? "var(--ink)" : "transparent",
-              color: current === t.id ? "var(--ink)" : "var(--color-ink-500)",
-              fontWeight: current === t.id ? 500 : 400,
-            }}
+            className={`-mb-px inline-flex min-h-[44px] items-center border-b-2 px-3 text-[15px] transition-colors ${
+              current === t.id
+                ? "border-ink-900 font-semibold text-ink-900"
+                : "border-transparent text-ink-500 hover:text-ink-900"
+            }`}
           >
             {t.label}
           </button>
@@ -136,10 +136,13 @@ export function FamilyResults({
 // ── Career explorer callout ──────────────────────────────────────────────
 function CareersCallout() {
   return (
-    <div className="mt-6 border border-line-strong bg-paper-sunken p-5">
-      <p className="eyebrow" style={{ color: "var(--color-green)" }}>
-        Search jobs by your Holland code
-      </p>
+    <div className="mt-6 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card">
+      <div className="flex items-center gap-3">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
+          <Search className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+        </span>
+        <p className="font-display text-lg font-semibold">Search jobs by your Holland code</p>
+      </div>
       <p className="mt-2 max-w-2xl text-sm text-ink-700">
         Your student&rsquo;s <strong>Holland code</strong> (their three interest letters) is the
         key. The EXPLR career-connected site is wired to real workforce data, so families can search
@@ -173,7 +176,7 @@ function CareersCallout() {
         href="https://explrpathways.netlify.app/"
         target="_blank"
         rel="noreferrer"
-        className="btn-ink mt-4 inline-block text-sm"
+        className="btn-ink mt-4"
       >
         Search jobs by code →
       </a>
@@ -196,14 +199,14 @@ function InterestPanel({ data }: { data: Riasec }) {
         {top.map((c) => (
           <span
             key={c}
-            className="flex h-11 w-11 items-center justify-center rounded-full text-lg font-bold text-white"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-lg font-bold text-paper-raised"
             style={{ background: RIASEC[c].color }}
             aria-hidden
           >
             {c}
           </span>
         ))}
-        <span className="text-3xl font-light tracking-wide">{top.join("")}</span>
+        <span className="font-display text-3xl font-bold tracking-wide">{top.join("")}</span>
       </div>
       <p className="mt-3 max-w-2xl text-sm text-ink-700">
         Your student leaned toward{" "}
@@ -232,9 +235,9 @@ function InterestPanel({ data }: { data: Riasec }) {
                 </span>
                 <span className="text-xs tabular-nums text-ink-500">{score.toFixed(1)} / 5</span>
               </div>
-              <div className="mt-1 h-1.5 bg-paper-sunken">
+              <div className="mt-1 h-2 overflow-hidden rounded-full bg-paper-sunken">
                 <div
-                  className="h-full"
+                  className="h-full rounded-full"
                   style={{ width: `${(score / 5) * 100}%`, background: d.color }}
                 />
               </div>
@@ -253,7 +256,7 @@ function StemPanel({ studentId }: { studentId: string }) {
     <div className="space-y-8">
       <section>
         <p className="eyebrow">STEM survey</p>
-        <h3 className="mt-2 text-lg font-medium">
+        <h3 className="mt-2 font-display text-xl font-semibold">
           Your student&rsquo;s STEM attitudes &amp; confidence
         </h3>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-700">
@@ -311,7 +314,7 @@ function AboutPanel({ grade: _grade }: { grade: number | null }) {
             return (
               <li key={c} className="flex gap-3">
                 <span
-                  className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                  className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-paper-raised"
                   style={{ background: d.color }}
                   aria-hidden
                 >

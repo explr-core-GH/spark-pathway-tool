@@ -124,18 +124,21 @@ export function GroupEducatorsPanel({ kind, id }: { kind: GroupKind; id: string 
       {assigned.length === 0 ? (
         <p className="mt-3 text-sm text-ink-500">No instructors connected yet.</p>
       ) : (
-        <ul className="mt-3 divide-y divide-line border-y border-line">
+        <ul className="mt-3 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
           {assigned.map((eid) => (
-            <li key={eid} className="flex items-center justify-between py-2.5 text-sm">
+            <li key={eid} className="flex items-center justify-between gap-3 px-4 py-2 text-sm">
               <span>{nameOf(eid)}</span>
-              <button onClick={() => remove(eid)} className="text-xs text-red-600 hover:underline">
+              <button
+                onClick={() => remove(eid)}
+                className="inline-flex min-h-[44px] items-center text-xs text-red-700 hover:underline"
+              >
                 Remove
               </button>
             </li>
           ))}
         </ul>
       )}
-      <div className="mt-4 flex items-center gap-2">
+      <div className="mt-4 flex flex-wrap items-center gap-2">
         <select className="field max-w-xs" value={pick} onChange={(e) => setPick(e.target.value)}>
           <option value="">— Add an instructor —</option>
           {available.map((e) => (

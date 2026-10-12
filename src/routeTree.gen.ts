@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ExplrRostersRouteImport } from './routes/explr-rosters'
 import { Route as FamilyRouteImport } from './routes/family'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
@@ -101,6 +102,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExplrRostersRoute = ExplrRostersRouteImport.update({
@@ -533,6 +539,7 @@ const InstructorAdminGroupsKindIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/demo': typeof DemoRoute
   '/explr-rosters': typeof ExplrRostersRoute
   '/family': typeof FamilyRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
@@ -618,6 +625,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/demo': typeof DemoRoute
   '/explr-rosters': typeof ExplrRostersRoute
   '/family': typeof FamilyRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
@@ -702,6 +710,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/demo': typeof DemoRoute
   '/explr-rosters': typeof ExplrRostersRoute
   '/family': typeof FamilyRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
@@ -789,6 +798,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/demo'
     | '/explr-rosters'
     | '/family'
     | '/forgot-password'
@@ -874,6 +884,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/demo'
     | '/explr-rosters'
     | '/family'
     | '/forgot-password'
@@ -957,6 +968,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/demo'
     | '/explr-rosters'
     | '/family'
     | '/forgot-password'
@@ -1043,6 +1055,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  DemoRoute: typeof DemoRoute
   ExplrRostersRoute: typeof ExplrRostersRoute
   FamilyRoute: typeof FamilyRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
@@ -1102,6 +1115,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/explr-rosters': {
@@ -1791,6 +1811,7 @@ const StudentExperiencesRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  DemoRoute: DemoRoute,
   ExplrRostersRoute: ExplrRostersRoute,
   FamilyRoute: FamilyRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,

@@ -58,13 +58,12 @@ function TermsPage() {
         share them outside it.
       </p>
 
-      <H2>5. Curriculum and materials</H2>
+      <H2>5. Program materials</H2>
       <p>
-        Curriculum, lesson resources, and robotics program materials provided to approved
-        instructors are owned by EXPLR, Cleveland State University, or their licensors. You may use
-        them with your own students and programs. You may not sell them, post them publicly, or
-        remove EXPLR attribution. Materials marked with an open license may be used under that
-        license.
+        Lesson resources and program materials provided to approved instructors are owned by EXPLR,
+        Cleveland State University, or their licensors. You may use them with your own students and
+        programs. You may not sell them, post them publicly, or remove EXPLR attribution. Materials
+        marked with an open license may be used under that license.
       </p>
 
       <H2>6. Student data</H2>

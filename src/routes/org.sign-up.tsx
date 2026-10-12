@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { AuthShell } from "@/components/passport/AuthShell";
 
 export const Route = createFileRoute("/org/sign-up")({
   head: () => ({ meta: [{ title: "Register as a partner — EXPLR" }] }),
@@ -70,16 +71,26 @@ function OrgSignUp() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
-      <Link to="/" className="eyebrow mb-12 inline-block">
-        ← EXPLR
-      </Link>
-      <h1 className="text-3xl font-light">Register as a partner</h1>
-      <p className="mt-2 text-sm text-ink-500">
-        For partners offering camps, workshops, internships, and clubs. Build an opportunity in a
-        few minutes; an EXPLR admin reviews it before it goes live.
-      </p>
-      <form onSubmit={submit} className="mt-10 space-y-5">
+    <AuthShell
+      eyebrow="Partners & organizations"
+      title="Register as a partner"
+      intro="For partners offering camps, workshops, internships, and clubs. Build an opportunity in a few minutes; an EXPLR admin reviews it before it goes live."
+      illustration={{ src: "/passport/organizations.webp" }}
+      role="Partner"
+      links={[
+        { label: "Home", to: "/" },
+        { label: "About", to: "/about", secondary: true },
+      ]}
+      footer={
+        <p>
+          Already registered?{" "}
+          <Link to="/org/sign-in" className="ink-link">
+            Sign in
+          </Link>
+        </p>
+      }
+    >
+      <form onSubmit={submit} className="space-y-5">
         <div>
           <label className="label" htmlFor="org-name">
             Organization name
@@ -144,9 +155,13 @@ function OrgSignUp() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          <p className="mt-1.5 text-xs text-ink-500">At least 8 characters.</p>
         </div>
         {error && (
-          <p className="text-sm text-destructive" role="alert">
+          <p
+            className="rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-sm text-ink-900"
+            role="alert"
+          >
             {error}
           </p>
         )}
@@ -154,12 +169,6 @@ function OrgSignUp() {
           {loading ? "Creating…" : "Create partner account"}
         </button>
       </form>
-      <p className="mt-6 text-sm text-ink-500">
-        Already registered?{" "}
-        <Link to="/org/sign-in" className="ink-link">
-          Sign in
-        </Link>
-      </p>
-    </main>
+    </AuthShell>
   );
 }

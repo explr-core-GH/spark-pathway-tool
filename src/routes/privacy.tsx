@@ -33,15 +33,14 @@ function PrivacyPage() {
         <strong>Students.</strong> Your first name, grade level, your answers to the assessment, and
         the Holland code we calculate from them. If you create an account, your email address. We do
         not ask for your last name, home address, phone number, or date of birth. If your instructor
-        assigns them, we also keep your answers to skills quizzes, STEM interest surveys (including
-        written answers and optional background questions such as grade, gender, and race or
-        ethnicity), and internship interest surveys. If you are in a camp or internship, we keep
-        which program you are in, the username and password your program gave you, and your program
-        progress. If you apply for an internship, we keep your application answers, the internships
-        you picked, and the decision. If you complete an internship, we keep your supervisor's
-        ratings, comments, whether they recommend you, and any recommendation letter we prepare for
-        you. While you are signed in, we record which page you are on and when you were last active
-        so your instructor can help you in real time.
+        assigns one, we also keep your answers to the STEM efficacy survey (including written
+        answers and optional background questions such as grade, gender, and race or ethnicity). If
+        you are in a camp or internship, we keep which program you are in, the username and password
+        your program gave you, and your program progress. If you apply for an internship, we keep
+        your application answers, the internships you picked, and the decision. If you complete an
+        internship, we keep your supervisor's ratings, comments, whether they recommend you, and any
+        recommendation letter we prepare for you. While you are signed in, we record which page you
+        are on and when you were last active so your instructor can help you in real time.
       </p>
       <p>
         <strong>Parents and guardians.</strong> When you register a child for an EXPLR camp, we

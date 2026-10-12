@@ -197,10 +197,10 @@ function ArchivePage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
       <h1 className="display mt-2">Archive export</h1>
-      <p className="lead mt-4 max-w-2xl">
+      <p className="lead mt-3 max-w-2xl">
         Download every table in the database as one Excel workbook, one sheet per table. Use it as a
         snapshot before legacy features are removed, or whenever you need all data and rosters in
         one file.
@@ -254,7 +254,7 @@ function ArchivePage() {
         className="mt-10 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6"
       >
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 id="archive-tables" className="text-lg font-semibold">
+          <h2 id="archive-tables" className="font-display text-2xl font-bold">
             Tables
           </h2>
           {tables && (
@@ -271,37 +271,39 @@ function ArchivePage() {
         ) : !tables ? (
           <p className="mt-4 text-sm text-ink-500">Counting rows…</p>
         ) : (
-          <table className="mt-4 w-full text-sm">
-            <thead>
-              <tr className="border-b border-line text-left text-ink-500">
-                <th scope="col" className="py-2 pr-4 font-medium">
-                  Table
-                </th>
-                <th scope="col" className="py-2 text-right font-medium">
-                  Rows
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {tables.map((t) => (
-                <tr key={t.table} className="border-b border-line/60 last:border-0">
-                  <td className="py-1.5 pr-4 font-mono text-xs text-ink-700">
-                    {t.table}
-                    {t.optional && <span className="ml-2 text-ink-500">(new)</span>}
-                  </td>
-                  <td className="py-1.5 text-right tabular-nums text-ink-700">
-                    {t.count === null ? (
-                      <span className="text-red-700" title={t.error}>
-                        unavailable
-                      </span>
-                    ) : (
-                      fmt(t.count)
-                    )}
-                  </td>
+          <div className="mt-4 overflow-x-auto rounded-[var(--radius-card)] border border-line">
+            <table className="w-full text-sm">
+              <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+                <tr>
+                  <th scope="col" className="px-4 py-3 font-medium">
+                    Table
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-right font-medium">
+                    Rows
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {tables.map((t) => (
+                  <tr key={t.table}>
+                    <td className="px-4 py-2 font-mono text-xs text-ink-700">
+                      {t.table}
+                      {t.optional && <span className="ml-2 text-ink-500">(new)</span>}
+                    </td>
+                    <td className="px-4 py-2 text-right tabular-nums text-ink-700">
+                      {t.count === null ? (
+                        <span className="text-red-700" title={t.error}>
+                          unavailable
+                        </span>
+                      ) : (
+                        fmt(t.count)
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
     </main>

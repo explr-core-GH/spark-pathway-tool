@@ -3,12 +3,19 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
-import { Wordmark } from "@/components/passport";
+import { PortalHeader, type PortalLink } from "@/components/passport";
+import { SiteFooter } from "@/components/SiteFooter";
 import { usePassport } from "@/lib/passport";
 import { ARTIFACT_TYPES } from "@/lib/wbl-taxonomy";
 import { COMPETENCIES } from "@/lib/competencies";
 
 /** /student/pieces — the gallery: things the student made. */
+const STUDENT_LINKS: PortalLink[] = [
+  { label: "My passport", to: "/student" },
+  { label: "Opportunities", to: "/opportunities" },
+  { label: "Families", to: "/student/pathway", search: { tab: "families" } },
+];
+
 export const Route = createFileRoute("/student_/pieces")({
   head: () => ({ meta: [{ title: "Things I made — EXPLR Pathways" }] }),
   component: () => (
@@ -86,15 +93,14 @@ function Pieces() {
       className="min-h-screen bg-paper text-ink-900"
       data-density={p?.band === "explore" ? "explore" : undefined}
     >
-      <header className="border-b border-line">
-        <div className="mx-auto flex max-w-[900px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Wordmark />
-          <Link to="/student" className="text-[15px] font-medium text-green-deep hover:underline">
-            ← My passport
-          </Link>
-        </div>
-      </header>
+      <PortalHeader role="Student" links={STUDENT_LINKS} signedIn />
       <main className="mx-auto max-w-[900px] px-4 py-10 sm:px-6">
+        <Link
+          to="/student"
+          className="inline-flex min-h-[44px] items-center text-sm font-medium text-green-deep hover:underline"
+        >
+          ← My passport
+        </Link>
         <p className="eyebrow text-green">My gallery</p>
         <h1 className="display mt-1">Things I made.</h1>
 
@@ -223,7 +229,7 @@ function Pieces() {
             </label>
           )}
           {error && (
-            <p role="alert" className="text-sm text-destructive sm:col-span-2">
+            <p role="alert" className="text-sm text-red-700 sm:col-span-2">
               {error}
             </p>
           )}
@@ -273,6 +279,7 @@ function Pieces() {
           ))}
         </ul>
       </main>
+      <SiteFooter className="mt-16" />
     </div>
   );
 }

@@ -387,13 +387,16 @@ function RecommendationsPage() {
   const total = sources?.length ?? 0;
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
-      <Link to="/instructor/admin" className="text-xs text-ink-500 hover:text-ink-900">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
+      <Link
+        to="/instructor/admin"
+        className="inline-flex min-h-[44px] items-center text-sm text-ink-500 hover:text-ink-900"
+      >
         ← Admin
       </Link>
-      <p className="eyebrow mt-4">Passport</p>
+      <p className="eyebrow mt-2">Passport</p>
       <h1 className="display mt-2">Recommendation letters</h1>
-      <p className="lead mt-2 max-w-2xl">
+      <p className="lead mt-3 max-w-2xl">
         Select verified experiences to draft recommendation letters. Each letter cites the
         organization, role and verified hours, names the OhioMeansJobs Readiness Seal skills the
         supervisor rated Proficient or above, and quotes the supervisor&apos;s comment when they
@@ -426,10 +429,10 @@ function RecommendationsPage() {
         </div>
       </div>
 
-      {err && <p className="mt-4 text-sm text-red-600">{err}</p>}
+      {err && <p className="mt-4 text-sm text-red-700">{err}</p>}
       {status && !err && <p className="mt-4 text-sm text-ink-500">{status}</p>}
 
-      <div className="mt-6 flex items-center justify-between">
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-ink-500">
           {selected.size} selected
           {sources
@@ -457,28 +460,28 @@ function RecommendationsPage() {
             const allSelected = rows.every((r) => selected.has(r.experience.id));
             return (
               <section key={org}>
-                <div className="flex items-baseline justify-between border-b border-line pb-2">
-                  <h2 className="text-lg font-medium text-ink-900">{org}</h2>
+                <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line pb-2">
+                  <h2 className="font-display text-xl font-bold text-ink-900">{org}</h2>
                   <button
                     onClick={() => toggleAllInGroup(rows, !allSelected)}
-                    className="text-xs uppercase tracking-wider text-ink-500 hover:text-ink-900"
+                    className="eyebrow inline-flex min-h-[44px] items-center hover:text-ink-900"
                   >
                     {allSelected ? "Clear all" : "Select all"}
                   </button>
                 </div>
-                <ul className="mt-3 divide-y divide-line">
+                <ul className="mt-3 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
                   {rows.map((r) => {
                     const k = r.experience.id;
                     const on = selected.has(k);
                     const hours = fmtHours(r.experience.verified_hours ?? r.experience.hours);
                     const rated = r.ratings.length;
                     return (
-                      <li key={k} className="flex items-start gap-3 py-3">
+                      <li key={k} className="flex items-start gap-3 px-4 py-3">
                         <input
                           type="checkbox"
                           checked={on}
                           onChange={() => toggle(k)}
-                          className="mt-1"
+                          className="mt-1 h-4 w-4 accent-green"
                           id={k}
                         />
                         <label htmlFor={k} className="flex-1 cursor-pointer">

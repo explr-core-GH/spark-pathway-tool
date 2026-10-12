@@ -85,16 +85,16 @@ function ReviewList() {
   };
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow text-green">Advising checkpoints · {sy}</p>
-      <h1 className="mt-2 font-display text-4xl font-bold">Checkpoints to review</h1>
-      <p className="mt-3 max-w-2xl text-sm text-ink-700">
+      <h1 className="display mt-2">Checkpoints to review</h1>
+      <p className="lead mt-3 max-w-2xl">
         Each checkpoint is the record of one advising conversation. Open a student, read what they
         entered, add notes, and mark it reviewed. The spring plan approval is the annual sign-off
         Ohio's Student Success Plan ends with.
       </p>
       {error && (
-        <p role="alert" className="mt-4 text-sm text-destructive">
+        <p role="alert" className="mt-4 text-sm text-red-700">
           {error}
         </p>
       )}
@@ -105,36 +105,38 @@ function ReviewList() {
         </p>
       )}
       {students.length > 0 && (
-        <table className="mt-8 w-full text-sm">
-          <thead>
-            <tr className="text-left">
-              <th className="label pb-2">Student</th>
-              <th className="label pb-2">Grade</th>
-              <th className="label pb-2">Fall</th>
-              <th className="label pb-2">Spring</th>
-              <th className="pb-2" />
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-line">
-            {students.map(([id, s]) => (
-              <tr key={id}>
-                <td className="py-3 font-medium">{s.name}</td>
-                <td className="py-3">{s.grade}</td>
-                <td className="py-3">{chip(s.fall)}</td>
-                <td className="py-3">{chip(s.spring)}</td>
-                <td className="py-3 text-right">
-                  <Link
-                    to="/instructor/checkpoints/$studentId"
-                    params={{ studentId: id }}
-                    className="ink-link"
-                  >
-                    Review
-                  </Link>
-                </td>
+        <div className="mt-8 overflow-x-auto rounded-[var(--radius-card)] border border-line">
+          <table className="w-full text-sm">
+            <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+              <tr>
+                <th className="px-4 py-3 font-medium">Student</th>
+                <th className="px-4 py-3 font-medium">Grade</th>
+                <th className="px-4 py-3 font-medium">Fall</th>
+                <th className="px-4 py-3 font-medium">Spring</th>
+                <th className="px-4 py-3" />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-line bg-paper-raised">
+              {students.map(([id, s]) => (
+                <tr key={id}>
+                  <td className="px-4 py-3 font-medium">{s.name}</td>
+                  <td className="px-4 py-3">{s.grade}</td>
+                  <td className="px-4 py-3">{chip(s.fall)}</td>
+                  <td className="px-4 py-3">{chip(s.spring)}</td>
+                  <td className="px-4 py-3 text-right">
+                    <Link
+                      to="/instructor/checkpoints/$studentId"
+                      params={{ studentId: id }}
+                      className="ink-link inline-flex min-h-[44px] items-center"
+                    >
+                      Review
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </main>
   );

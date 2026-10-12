@@ -13,17 +13,14 @@ export function ProgressIndicator({
   const pct = total > 0 ? Math.round((current / total) * 100) : 0;
   return (
     <div>
-      <div className="flex items-baseline justify-between text-xs text-ink-500">
+      <div className="flex items-baseline justify-between font-mono text-xs text-ink-500">
         <span>
           Step {current} of {total}
         </span>
         <span>{pct}%</span>
       </div>
-      <div className="mt-1 h-1.5 w-full bg-paper-sunken">
-        <div
-          className="h-full transition-all"
-          style={{ width: `${pct}%`, background: "var(--ink)" }}
-        />
+      <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-paper-sunken">
+        <div className="h-full rounded-full bg-green transition-all" style={{ width: `${pct}%` }} />
       </div>
     </div>
   );

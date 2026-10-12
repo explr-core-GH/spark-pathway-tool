@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { isOppSlug, oppIdFromSlug } from "@/lib/opportunities";
 
@@ -90,11 +91,11 @@ function statusStyle(status: string) {
   if (status === "approved")
     return {
       label: "Approved",
-      className: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+      className: "bg-mint-tint text-green-deep",
     };
   if (status === "rejected")
-    return { label: "Rejected", className: "bg-rose-50 text-rose-700 border border-rose-200" };
-  return { label: "Pending", className: "bg-amber-50 text-amber-700 border border-amber-200" };
+    return { label: "Rejected", className: "bg-paper-sunken text-ink-700" };
+  return { label: "Pending", className: "bg-gold-tint text-gold-deep" };
 }
 
 function ApplicationsPage() {
@@ -201,10 +202,10 @@ function ApplicationsPage() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
-      <h1 className="mt-2 text-4xl font-light">Internship applications</h1>
-      <p className="mt-2 text-sm text-ink-500">
+      <h1 className="display mt-2">Internship applications</h1>
+      <p className="lead mt-3 max-w-2xl">
         Review submissions, place students into internships, and keep notes for the team.
       </p>
 
@@ -223,12 +224,7 @@ function ApplicationsPage() {
             <button
               key={f.id}
               onClick={() => setFilter(f.id)}
-              className="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
-              style={{
-                background: active ? "var(--ink)" : "transparent",
-                color: active ? "white" : "var(--color-ink-700)",
-                border: `1px solid ${active ? "var(--ink)" : "var(--color-line-strong)"}`,
-              }}
+              className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${active ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
             >
               {f.label} <span className="ml-1 opacity-70">{f.count}</span>
             </button>
@@ -238,7 +234,7 @@ function ApplicationsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search student or internship…"
-          className="ml-auto w-64 rounded-full border border-line-strong bg-paper-raised px-4 py-1.5 text-sm placeholder:text-ink-500 focus:border-ink-900 focus:outline-none"
+          className="field w-full sm:ml-auto sm:w-64"
         />
       </div>
 
@@ -247,8 +243,8 @@ function ApplicationsPage() {
         {loading ? (
           <p className="text-sm text-ink-500">Loading…</p>
         ) : visible.length === 0 ? (
-          <div className="col-span-full rounded-lg border border-dashed border-line-strong bg-paper-raised p-10 text-center">
-            <p className="text-sm text-ink-500">
+          <div className="col-span-full rounded-[var(--radius-card)] border border-dashed border-line-strong bg-paper-raised p-10 text-center">
+            <p className="text-sm text-ink-700">
               {apps.length === 0
                 ? "No applications submitted yet."
                 : "No applications match this filter."}
@@ -264,14 +260,14 @@ function ApplicationsPage() {
               <button
                 key={a.id}
                 onClick={() => setSelected(a)}
-                className="group flex flex-col rounded-lg border border-line bg-paper-raised p-5 text-left transition-shadow hover:border-line-strong hover:shadow-md"
+                className="group flex flex-col rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 text-left shadow-card transition-colors hover:border-emerald focus-visible:border-emerald"
               >
                 <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-paper-sunken text-sm font-medium text-ink-700">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-mint-soft bg-mint-tint font-display text-sm font-bold text-green-deep">
                     {initials(s?.first_name)}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-base font-medium">
+                    <p className="truncate font-display text-lg font-semibold">
                       {s?.first_name ?? "Unknown student"}
                     </p>
                     <p className="text-xs text-ink-500">
@@ -329,7 +325,7 @@ function ApplicationsPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mt-6">
-      <h3 className="text-xs uppercase tracking-wider text-ink-500">{title}</h3>
+      <h3 className="eyebrow">{title}</h3>
       <div className="mt-3">{children}</div>
     </section>
   );
@@ -339,7 +335,7 @@ function Detail({ label, value }: { label: string; value?: React.ReactNode }) {
   if (!value) return null;
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-wider text-ink-500">{label}</p>
+      <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-ink-500">{label}</p>
       <p className="mt-0.5 text-sm text-ink-700">{value}</p>
     </div>
   );
@@ -403,20 +399,23 @@ function ApplicationDetail({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/40" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex justify-end bg-ink-900/40" onClick={onClose}>
       <aside
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="application-title"
         onClick={(e) => e.stopPropagation()}
-        className="h-full w-full max-w-2xl overflow-y-auto bg-paper-raised shadow-xl"
+        className="h-full w-full max-w-2xl overflow-y-auto bg-paper-raised shadow-lift"
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 border-b border-line bg-paper-raised/95 px-8 py-5 backdrop-blur">
+        <div className="sticky top-0 z-10 border-b border-line bg-paper-raised/95 px-4 py-4 backdrop-blur sm:px-8 sm:py-5">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-paper-sunken text-base font-medium text-ink-700">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-mint-soft bg-mint-tint font-display text-base font-bold text-green-deep">
                 {initials(student?.first_name)}
               </div>
               <div>
-                <h2 className="text-xl font-medium leading-tight">
+                <h2 id="application-title" className="font-display text-xl font-bold leading-tight">
                   {student?.first_name ?? "Unknown student"}
                 </h2>
                 <p className="text-xs text-ink-500">
@@ -439,15 +438,15 @@ function ApplicationDetail({
               <button
                 onClick={onClose}
                 aria-label="Close"
-                className="text-ink-500 hover:text-ink-700"
+                className="grid h-11 w-11 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-ink-900"
               >
-                ✕
+                <X className="h-5 w-5" aria-hidden />
               </button>
             </div>
           </div>
         </div>
 
-        <div className="px-8 pb-10">
+        <div className="px-4 pb-10 sm:px-8">
           {/* Selected internships */}
           <Section title="Internships applied for">
             <ul className="space-y-1.5">
@@ -456,7 +455,7 @@ function ApplicationDetail({
                 return (
                   <li
                     key={id}
-                    className="flex items-start gap-2 rounded-md border border-line bg-paper-sunken px-3 py-2 text-sm"
+                    className="flex items-start gap-2 rounded-[var(--radius-control)] border border-line bg-paper-sunken px-3 py-2 text-sm"
                   >
                     <span className="mt-0.5">{emojiFor(id)}</span>
                     <div className="flex-1">
@@ -488,7 +487,7 @@ function ApplicationDetail({
                     return (
                       <div key={letter} className="flex items-center gap-3 text-xs">
                         <span
-                          className="flex h-6 w-6 shrink-0 items-center justify-center rounded font-mono text-[11px] font-bold text-white"
+                          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] font-mono text-[11px] font-bold text-white"
                           style={{ background: `var(--color-riasec-${letter.toLowerCase()})` }}
                         >
                           {letter}
@@ -515,7 +514,7 @@ function ApplicationDetail({
           {/* Contact */}
           {(resume.fullName || resume.email || resume.phone) && (
             <Section title="Contact">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <Detail label="Full name" value={resume.fullName} />
                 <Detail label="Email" value={resume.email} />
                 <Detail label="Phone" value={resume.phone} />
@@ -532,7 +531,7 @@ function ApplicationDetail({
           {/* Why */}
           {resume.whyThisInternship?.trim() && (
             <Section title="Why this internship">
-              <p className="whitespace-pre-wrap rounded-md border border-line bg-paper-sunken p-3 text-sm leading-relaxed text-ink-700">
+              <p className="whitespace-pre-wrap rounded-[var(--radius-control)] border border-line bg-paper-sunken p-3 text-sm leading-relaxed text-ink-700">
                 {resume.whyThisInternship}
               </p>
             </Section>
@@ -541,7 +540,7 @@ function ApplicationDetail({
           {/* Education */}
           {(resume.schoolName || resume.gpa || resume.expectedGraduation || hasCoursework) && (
             <Section title="Education">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <Detail
                   label="School"
                   value={
@@ -553,7 +552,7 @@ function ApplicationDetail({
               </div>
               {hasCoursework && (
                 <div className="mt-3">
-                  <p className="mb-1.5 text-[11px] uppercase tracking-wider text-ink-500">
+                  <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-500">
                     Coursework
                   </p>
                   <Chips items={resume.coursework} />
@@ -565,7 +564,7 @@ function ApplicationDetail({
           {/* Project */}
           {(resume.projectTitle?.trim() || resume.projectDescription?.trim()) && (
             <Section title="Featured project">
-              <div className="rounded-md border border-line bg-paper-sunken p-3">
+              <div className="rounded-[var(--radius-control)] border border-line bg-paper-sunken p-3">
                 <p className="text-sm font-medium text-ink-700">
                   {resume.projectTitle || "Untitled"}
                 </p>
@@ -592,7 +591,7 @@ function ApplicationDetail({
                   if (filtered.length === 0) return null;
                   return (
                     <div key={label}>
-                      <p className="mb-1.5 text-[11px] uppercase tracking-wider text-ink-500">
+                      <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-500">
                         {label}
                       </p>
                       <Chips items={filtered} />
@@ -608,7 +607,10 @@ function ApplicationDetail({
             <Section title="Activities">
               <ul className="space-y-3">
                 {activities.map((a, i) => (
-                  <li key={i} className="rounded-md border border-line bg-paper-sunken p-3">
+                  <li
+                    key={i}
+                    className="rounded-[var(--radius-control)] border border-line bg-paper-sunken p-3"
+                  >
                     <p className="text-sm font-medium text-ink-700">{a.title || "—"}</p>
                     <p className="text-xs text-ink-500">
                       {[a.org, a.dates].filter(Boolean).join(" · ")}
@@ -634,7 +636,10 @@ function ApplicationDetail({
             <Section title="Work history">
               <ul className="space-y-3">
                 {work.map((a, i) => (
-                  <li key={i} className="rounded-md border border-line bg-paper-sunken p-3">
+                  <li
+                    key={i}
+                    className="rounded-[var(--radius-control)] border border-line bg-paper-sunken p-3"
+                  >
                     <p className="text-sm font-medium text-ink-700">{a.title || "—"}</p>
                     <p className="text-xs text-ink-500">
                       {[a.org, a.dates].filter(Boolean).join(" · ")}
@@ -651,7 +656,7 @@ function ApplicationDetail({
           {/* Staff notes */}
           <Section title="Staff notes">
             <textarea
-              className="h-24 w-full rounded-md border border-line-strong bg-paper-raised p-3 text-sm focus:border-ink-900 focus:outline-none"
+              className="field h-24"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               onBlur={() => onSaveNotes(notes)}
@@ -661,12 +666,12 @@ function ApplicationDetail({
 
           {/* Decision */}
           {app.status === "submitted" ? (
-            <div className="mt-8 rounded-lg border border-line bg-paper-sunken p-4">
-              <p className="text-xs uppercase tracking-wider text-ink-500">Decision</p>
+            <div className="mt-8 rounded-[var(--radius-card)] border border-line bg-paper-sunken p-4">
+              <p className="eyebrow">Decision</p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <label className="text-xs text-ink-500">Place into</label>
+                <label className="label mb-0">Place into</label>
                 <select
-                  className="rounded-md border border-line-strong bg-paper-raised px-2 py-1.5 text-sm"
+                  className="field w-auto"
                   value={placement}
                   onChange={(e) => setPlacement(e.target.value)}
                 >
@@ -676,16 +681,12 @@ function ApplicationDetail({
                     </option>
                   ))}
                 </select>
-                <div className="ml-auto flex gap-2">
-                  <button
-                    className="rounded-md border border-line-strong bg-paper-raised px-4 py-2 text-sm hover:bg-paper-sunken"
-                    onClick={onReject}
-                  >
+                <div className="flex gap-2 sm:ml-auto">
+                  <button className="btn-ghost text-sm" onClick={onReject}>
                     Reject
                   </button>
                   <button
-                    className="rounded-md px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-                    style={{ background: "var(--ink)" }}
+                    className="btn-ink text-sm disabled:opacity-50"
                     disabled={!placement}
                     onClick={() => onApprove(placement)}
                   >

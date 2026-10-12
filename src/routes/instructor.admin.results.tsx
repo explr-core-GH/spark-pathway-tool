@@ -449,12 +449,12 @@ function ResultsHub() {
   };
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="eyebrow">Admin</p>
           <h1 className="display mt-2">Results &amp; downloads</h1>
-          <p className="lead mt-2 max-w-2xl">
+          <p className="lead mt-3 max-w-2xl">
             Every survey and assessment result across all students — view them here, or download
             everything as one Excel workbook (a sheet per instrument).
           </p>
@@ -468,12 +468,12 @@ function ResultsHub() {
         </button>
       </div>
 
-      {err && <p className="mt-6 text-sm text-red-600">Couldn&apos;t load results: {err}</p>}
+      {err && <p className="mt-6 text-sm text-red-700">Couldn&apos;t load results: {err}</p>}
 
       {/* Filter — program type + specific group + date range.
           Applies to the tables AND the downloads. */}
-      <div className="print:hidden mt-8 flex flex-wrap items-end gap-3 border border-line bg-paper-sunken px-4 py-3 rounded-[var(--radius-card)]">
-        <label className="text-xs text-ink-500">
+      <div className="print:hidden mt-8 flex flex-wrap items-end gap-3 rounded-[var(--radius-card)] border border-line bg-paper-sunken px-4 py-4">
+        <label className="label mb-0">
           Program type
           <select
             className="field mt-1 w-44"
@@ -491,7 +491,7 @@ function ResultsHub() {
             ))}
           </select>
         </label>
-        <label className="text-xs text-ink-500">
+        <label className="label mb-0">
           Group
           <select
             className="field mt-1 max-w-xs"
@@ -518,7 +518,7 @@ function ResultsHub() {
             })}
           </select>
         </label>
-        <label className="text-xs text-ink-500">
+        <label className="label mb-0">
           From
           <input
             type="date"
@@ -527,7 +527,7 @@ function ResultsHub() {
             onChange={(e) => setDateFrom(e.target.value)}
           />
         </label>
-        <label className="text-xs text-ink-500">
+        <label className="label mb-0">
           To
           <input
             type="date"
@@ -549,35 +549,29 @@ function ResultsHub() {
             Clear — show everyone
           </button>
         )}
-        <span className="ml-auto self-center text-xs text-ink-500">
+        <span className="self-center text-xs text-ink-500 sm:ml-auto">
           {filterActive
             ? "Filter applies to tables and downloads."
             : "Showing the whole population."}
         </span>
       </div>
 
-      <div className="print:hidden mt-6 flex flex-wrap gap-1 border-b border-line">
+      <div className="print:hidden mt-6 flex flex-wrap items-center gap-2">
         {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className="border-b-2 px-4 py-2 text-sm"
-            style={{
-              borderColor: tab === t.id ? "var(--ink)" : "transparent",
-              color: tab === t.id ? "var(--ink)" : "var(--color-ink-500)",
-              fontWeight: tab === t.id ? 500 : 400,
-            }}
+            aria-pressed={tab === t.id}
+            className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${tab === t.id ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
           >
             {t.label}
-            {counts[t.id] != null && (
-              <span className="ml-1.5 text-xs text-ink-500">({counts[t.id]})</span>
-            )}
+            {counts[t.id] != null && <span className="ml-1.5 opacity-70">({counts[t.id]})</span>}
           </button>
         ))}
         {tab === "charts" ? (
           <button
             onClick={() => window.print()}
-            className="ml-auto self-center text-xs text-green-deep hover:underline"
+            className="inline-flex min-h-[44px] items-center text-xs font-medium text-green-deep hover:underline sm:ml-auto"
           >
             Print / save as PDF
           </button>
@@ -585,7 +579,7 @@ function ResultsHub() {
           <button
             onClick={exportTab}
             disabled={exporting}
-            className="ml-auto self-center text-xs text-green-deep hover:underline disabled:opacity-40"
+            className="inline-flex min-h-[44px] items-center text-xs font-medium text-green-deep hover:underline disabled:opacity-40 sm:ml-auto"
           >
             Export this tab
           </button>
@@ -596,10 +590,10 @@ function ResultsHub() {
           side-by-side comparison across groups is readable. */}
       {tab !== "charts" && (
         <div className="print:hidden mt-4 flex flex-wrap items-center gap-2 text-xs text-ink-500">
-          <span className="uppercase tracking-wider text-ink-500">Focus</span>
+          <span className="eyebrow">Focus</span>
           {tab === "riasec" && (
             <select
-              className="field w-56"
+              className="field w-full sm:w-56"
               value={riasecFocus}
               onChange={(e) => setRiasecFocus(e.target.value)}
             >
@@ -613,7 +607,7 @@ function ResultsHub() {
           )}
           {tab === "stem" && (
             <select
-              className="field w-72"
+              className="field w-full sm:w-72"
               value={stemFocus}
               onChange={(e) => setStemFocus(e.target.value)}
             >
@@ -627,7 +621,7 @@ function ResultsHub() {
           )}
           {tab === "stem" && (
             <select
-              className="field w-72"
+              className="field w-full sm:w-72"
               value={openFocus}
               onChange={(e) => setOpenFocus(e.target.value)}
             >
@@ -677,7 +671,7 @@ function ResultsHub() {
 
 function Th({ children }: { children: React.ReactNode }) {
   return (
-    <th className="px-3 py-2 text-left text-xs font-normal uppercase tracking-wider text-ink-500">
+    <th className="px-3 py-2.5 text-left font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-500">
       {children}
     </th>
   );
@@ -699,34 +693,36 @@ function RiasecTable({ rows, focus = "all" }: { rows: RiasecRow[] | null; focus?
   const letters = focus === "all" ? RIASEC_LETTERS : [focus];
   return (
     <>
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr className="border-b border-line bg-paper-sunken">
-            <Th>Student</Th>
-            <Th>Grade</Th>
-            <Th>Code</Th>
-            {letters.map((l) => (
-              <Th key={l}>{l}</Th>
-            ))}
-            <Th>Completed</Th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-line">
-          {rows.slice(0, DISPLAY_CAP).map((r, i) => (
-            <tr key={i}>
-              <td className="px-3 py-2 font-medium">{r.student}</td>
-              <td className="px-3 py-2 tabular-nums">{r.grade}</td>
-              <td className="px-3 py-2 font-mono font-semibold tracking-wide">{r.holland}</td>
+      <div className="overflow-x-auto rounded-[var(--radius-card)] border border-line">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-paper-sunken">
+              <Th>Student</Th>
+              <Th>Grade</Th>
+              <Th>Code</Th>
               {letters.map((l) => (
-                <td key={l} className="px-3 py-2 tabular-nums">
-                  {r.scores[l] ?? r.scores[l.toLowerCase()] ?? "—"}
-                </td>
+                <Th key={l}>{l}</Th>
               ))}
-              <td className="px-3 py-2 text-xs text-ink-500">{r.completed}</td>
+              <Th>Completed</Th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-line bg-paper-raised">
+            {rows.slice(0, DISPLAY_CAP).map((r, i) => (
+              <tr key={i}>
+                <td className="px-3 py-2 font-medium">{r.student}</td>
+                <td className="px-3 py-2 tabular-nums">{r.grade}</td>
+                <td className="px-3 py-2 font-mono font-semibold tracking-wide">{r.holland}</td>
+                {letters.map((l) => (
+                  <td key={l} className="px-3 py-2 tabular-nums">
+                    {r.scores[l] ?? r.scores[l.toLowerCase()] ?? "—"}
+                  </td>
+                ))}
+                <td className="px-3 py-2 text-xs text-ink-500">{r.completed}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <Capped total={rows.length} />
     </>
   );
@@ -737,41 +733,43 @@ function StemTable({ rows, focus = "all" }: { rows: StemRow[] | null; focus?: st
   const constructs = focus === "all" ? ALL_CONSTRUCTS : [focus as (typeof ALL_CONSTRUCTS)[number]];
   return (
     <>
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr className="border-b border-line bg-paper-sunken">
-            <Th>Student</Th>
-            <Th>Survey</Th>
-            <Th>Admin</Th>
-            {constructs.map((cid) => (
-              <Th key={cid}>{getConstruct(cid).name}</Th>
-            ))}
-            <Th>Completed</Th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-line">
-          {rows.slice(0, DISPLAY_CAP).map((r, i) => (
-            <tr key={i}>
-              <td className="px-3 py-2 font-medium">{r.student}</td>
-              <td className="px-3 py-2 text-xs">{r.survey}</td>
-              <td className="px-3 py-2 text-xs text-ink-500">{r.administration}</td>
-              {constructs.map((cid) => {
-                const s = r.scores[cid];
-                return (
-                  <td key={cid} className="px-3 py-2 tabular-nums text-xs">
-                    {!s || s.after == null
-                      ? "—"
-                      : s.before != null
-                        ? `${s.before.toFixed(1)}→${s.after.toFixed(1)}`
-                        : s.after.toFixed(1)}
-                  </td>
-                );
-              })}
-              <td className="px-3 py-2 text-xs text-ink-500">{r.completed}</td>
+      <div className="overflow-x-auto rounded-[var(--radius-card)] border border-line">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-paper-sunken">
+              <Th>Student</Th>
+              <Th>Survey</Th>
+              <Th>Admin</Th>
+              {constructs.map((cid) => (
+                <Th key={cid}>{getConstruct(cid).name}</Th>
+              ))}
+              <Th>Completed</Th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-line bg-paper-raised">
+            {rows.slice(0, DISPLAY_CAP).map((r, i) => (
+              <tr key={i}>
+                <td className="px-3 py-2 font-medium">{r.student}</td>
+                <td className="px-3 py-2 text-xs">{r.survey}</td>
+                <td className="px-3 py-2 text-xs text-ink-500">{r.administration}</td>
+                {constructs.map((cid) => {
+                  const s = r.scores[cid];
+                  return (
+                    <td key={cid} className="px-3 py-2 tabular-nums text-xs">
+                      {!s || s.after == null
+                        ? "—"
+                        : s.before != null
+                          ? `${s.before.toFixed(1)}→${s.after.toFixed(1)}`
+                          : s.after.toFixed(1)}
+                    </td>
+                  );
+                })}
+                <td className="px-3 py-2 text-xs text-ink-500">{r.completed}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <Capped total={rows.length} />
     </>
   );
@@ -782,15 +780,18 @@ function OpenResponsesList({ rows }: { rows: OpenRow[] | null }) {
   if (!rows || rows.length === 0) return null;
   return (
     <section className="mt-10">
-      <h3 className="text-sm font-semibold">Open responses ({rows.length})</h3>
-      <p className="mt-1 text-xs text-ink-500">
+      <h3 className="font-display text-xl font-bold">Open responses ({rows.length})</h3>
+      <p className="mt-1 text-sm text-ink-700">
         What students wrote in their own words — also in the Excel download as its own sheet.
       </p>
       <div className="mt-4 space-y-3">
         {rows.slice(0, DISPLAY_CAP).map((r, i) => (
-          <div key={i} className="border border-line p-3 rounded-[var(--radius-card)]">
+          <div
+            key={i}
+            className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-4"
+          >
             <p className="text-xs text-ink-500">
-              <span className="font-medium text-ink">{r.student}</span> · {r.survey} · {r.date}
+              <span className="font-medium text-ink-900">{r.student}</span> · {r.survey} · {r.date}
             </p>
             <p className="mt-1 text-xs text-ink-500">{r.prompt}</p>
             <p className="mt-1 whitespace-pre-wrap text-sm text-ink-700">{r.response}</p>
@@ -925,7 +926,7 @@ function ImpactCharts({
   return (
     <div className="max-w-4xl">
       <p className="text-sm text-ink-500">
-        <span className="font-medium text-ink">{scope}</span>
+        <span className="font-medium text-ink-900">{scope}</span>
         <span className="ml-2 text-xs text-ink-500">
           generated {new Date().toLocaleDateString()}
         </span>
@@ -945,8 +946,8 @@ function ImpactCharts({
 
       {/* STEM efficacy start → end */}
       <section className="mt-10">
-        <h3 className="text-sm font-semibold">STEM efficacy — start vs. end of program</h3>
-        <p className="mt-1 text-xs text-ink-500">
+        <h3 className="font-display text-xl font-bold">STEM efficacy — start vs. end of program</h3>
+        <p className="mt-1 text-sm text-ink-700">
           Average construct score before and after, from matched pre/post surveys and retrospective
           before/after items. Higher = more confidence and interest.
         </p>
@@ -965,8 +966,7 @@ function ImpactCharts({
                     <span className="text-xs text-ink-500">
                       {e.before!.toFixed(2)} → {e.after!.toFixed(2)} / {e.max}
                       <span
-                        className="ml-2 font-semibold"
-                        style={{ color: delta >= 0 ? "var(--color-green-deep)" : "#B85042" }}
+                        className={`ml-2 font-semibold ${delta >= 0 ? "text-green-deep" : "text-red-700"}`}
                       >
                         {delta >= 0 ? "+" : ""}
                         {delta.toFixed(2)}
@@ -976,27 +976,24 @@ function ImpactCharts({
                   </div>
                   <div className="mt-1.5 space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="w-10 shrink-0 text-[10px] uppercase tracking-wider text-ink-500">
+                      <span className="w-10 shrink-0 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-500">
                         start
                       </span>
-                      <div className="h-3 flex-1 bg-paper-sunken">
+                      <div className="h-3 flex-1 overflow-hidden rounded-full bg-paper-sunken">
                         <div
-                          className="h-3 bg-ink-500"
+                          className="h-3 rounded-full bg-ink-500"
                           style={{ width: `${Math.min(100, (e.before! / e.max) * 100)}%` }}
                         />
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="w-10 shrink-0 text-[10px] uppercase tracking-wider text-ink-500">
+                      <span className="w-10 shrink-0 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-500">
                         end
                       </span>
-                      <div className="h-3 flex-1 bg-paper-sunken">
+                      <div className="h-3 flex-1 overflow-hidden rounded-full bg-paper-sunken">
                         <div
-                          className="h-3"
-                          style={{
-                            width: `${Math.min(100, (e.after! / e.max) * 100)}%`,
-                            background: "var(--color-green)",
-                          }}
+                          className="h-3 rounded-full bg-green"
+                          style={{ width: `${Math.min(100, (e.after! / e.max) * 100)}%` }}
                         />
                       </div>
                     </div>
@@ -1010,21 +1007,18 @@ function ImpactCharts({
 
       {/* RIASEC distribution */}
       <section className="mt-10">
-        <h3 className="text-sm font-semibold">Interest profile of this group</h3>
-        <p className="mt-1 text-xs text-ink-500">
+        <h3 className="font-display text-xl font-bold">Interest profile of this group</h3>
+        <p className="mt-1 text-sm text-ink-700">
           Students by dominant Holland (RIASEC) interest type.
         </p>
         <div className="mt-4 space-y-2">
           {riasecDist.map((d) => (
             <div key={d.letter} className="flex items-center gap-3 text-sm">
               <span className="w-28 shrink-0 text-ink-700">{d.label}</span>
-              <div className="h-4 flex-1 bg-paper-sunken">
+              <div className="h-4 flex-1 overflow-hidden rounded-full bg-paper-sunken">
                 <div
-                  className="h-4"
-                  style={{
-                    width: `${(d.count / riasecMax) * 100}%`,
-                    background: "var(--color-green)",
-                  }}
+                  className="h-4 rounded-full bg-green"
+                  style={{ width: `${(d.count / riasecMax) * 100}%` }}
                 />
               </div>
               <span className="w-20 shrink-0 text-right text-xs tabular-nums text-ink-500">
@@ -1037,15 +1031,15 @@ function ImpactCharts({
 
       {/* STEM item-level response distribution — full choice breakdown */}
       <section className="mt-10">
-        <h3 className="text-sm font-semibold">STEM survey — response breakdown</h3>
-        <p className="mt-1 text-xs text-ink-500">
+        <h3 className="font-display text-xl font-bold">STEM survey — response breakdown</h3>
+        <p className="mt-1 text-sm text-ink-700">
           Every Likert response shown as a percentage of respondents per question. Switch focused
           construct on the &ldquo;STEM survey&rdquo; tab to change scope.
         </p>
         <StemItemDistribution rows={stemItems} focus="all" compact />
       </section>
 
-      <p className="mt-10 text-[11px] text-ink-500">
+      <p className="mt-10 text-xs text-ink-500">
         EXPLR Pathways · RIASEC interest assessment &amp; S-STEM survey · Use &ldquo;Print / save as
         PDF&rdquo; to share this page.
       </p>
@@ -1055,11 +1049,10 @@ function ImpactCharts({
 
 function Tile({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className="border border-line bg-paper-raised p-4 rounded-[var(--radius-card)]">
-      <p className="text-[10px] uppercase tracking-wider text-ink-500">{label}</p>
+    <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-4">
+      <p className="eyebrow">{label}</p>
       <p
-        className="mt-1 text-3xl font-light tabular-nums"
-        style={accent ? { color: "var(--color-green-deep)" } : undefined}
+        className={`mt-2 font-display text-3xl font-bold tabular-nums ${accent ? "text-green-deep" : "text-ink-900"}`}
       >
         {value}
       </p>
@@ -1196,9 +1189,11 @@ function StemItemDistribution({
 
   return (
     <section className={compact ? "mt-6" : "mt-10"}>
-      {!compact && <h3 className="text-sm font-semibold">Response breakdown per question</h3>}
       {!compact && (
-        <p className="mt-1 text-xs text-ink-500">
+        <h3 className="font-display text-xl font-bold">Response breakdown per question</h3>
+      )}
+      {!compact && (
+        <p className="mt-1 text-sm text-ink-700">
           For each Likert item, % of students picking each option. Retrospective surveys show a
           Before → After pair.
         </p>
@@ -1206,12 +1201,12 @@ function StemItemDistribution({
       <div className="mt-4 space-y-8">
         {[...byConstruct.entries()].map(([cname, items]) => (
           <div key={cname}>
-            <p className="text-xs font-semibold uppercase tracking-wider text-ink-500">{cname}</p>
+            <p className="eyebrow">{cname}</p>
             <div className="mt-2 flex flex-wrap gap-3 text-[10px] text-ink-500">
               {items[0].scale.points.map((p, i) => (
                 <span key={p.value} className="inline-flex items-center gap-1">
                   <span
-                    className="inline-block h-2 w-2"
+                    className="inline-block h-2 w-2 rounded-sm"
                     style={{ background: LIKERT_COLORS[i] ?? "#999" }}
                   />
                   {p.label}
@@ -1229,7 +1224,7 @@ function StemItemDistribution({
                   </div>
                   {d.then && (
                     <div className="mt-1.5 flex items-center gap-2">
-                      <span className="w-12 shrink-0 text-[10px] uppercase tracking-wider text-ink-500">
+                      <span className="w-12 shrink-0 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-500">
                         before
                       </span>
                       <StackedBar segments={d.then} />
@@ -1237,7 +1232,7 @@ function StemItemDistribution({
                   )}
                   <div className="mt-1 flex items-center gap-2">
                     {d.then && (
-                      <span className="w-12 shrink-0 text-[10px] uppercase tracking-wider text-ink-500">
+                      <span className="w-12 shrink-0 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-500">
                         after
                       </span>
                     )}
@@ -1259,7 +1254,7 @@ function StackedBar({
   segments: Array<{ value: number; label: string; count: number; pct: number }>;
 }) {
   return (
-    <div className="flex h-5 flex-1 overflow-hidden bg-paper-sunken text-[9px] font-medium text-white">
+    <div className="flex h-5 flex-1 overflow-hidden rounded-full bg-paper-sunken text-[9px] font-medium text-white">
       {segments.map((s, i) =>
         s.pct > 0 ? (
           <div

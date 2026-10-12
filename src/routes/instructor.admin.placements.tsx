@@ -145,10 +145,10 @@ function PlacementsPage() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
-      <h1 className="mt-2 text-4xl font-light">Internship placements</h1>
-      <p className="mt-2 text-sm text-ink-500">
+      <h1 className="display mt-2">Internship placements</h1>
+      <p className="lead mt-3 max-w-2xl">
         Students who've been approved and placed into an internship. Grouped by internship for
         roster planning.
       </p>
@@ -156,12 +156,7 @@ function PlacementsPage() {
       <div className="mt-8 flex flex-wrap items-center gap-2">
         <button
           onClick={() => setFilter("all")}
-          className="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
-          style={{
-            background: filter === "all" ? "var(--ink)" : "transparent",
-            color: filter === "all" ? "white" : "var(--color-ink-700)",
-            border: `1px solid ${filter === "all" ? "var(--ink)" : "var(--color-line-strong)"}`,
-          }}
+          className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${filter === "all" ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
         >
           All <span className="ml-1 opacity-70">{rows.length}</span>
         </button>
@@ -171,12 +166,7 @@ function PlacementsPage() {
             <button
               key={slug}
               onClick={() => setFilter(slug)}
-              className="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
-              style={{
-                background: active ? "var(--ink)" : "transparent",
-                color: active ? "white" : "var(--color-ink-700)",
-                border: `1px solid ${active ? "var(--ink)" : "var(--color-line-strong)"}`,
-              }}
+              className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${active ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
             >
               <span className="mr-1">{emojiFor(slug)}</span>
               {nameFor(slug)}
@@ -188,7 +178,7 @@ function PlacementsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search student…"
-          className="ml-auto w-56 rounded-full border border-line-strong bg-paper-raised px-4 py-1.5 text-sm placeholder:text-ink-500 focus:border-ink-900 focus:outline-none"
+          className="field w-full sm:ml-auto sm:w-56"
         />
       </div>
 
@@ -196,12 +186,12 @@ function PlacementsPage() {
         {loading ? (
           <p className="text-sm text-ink-500">Loading…</p>
         ) : visibleGroups.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-line-strong bg-paper-raised p-10 text-center">
-            <p className="text-sm text-ink-500">
+          <div className="rounded-[var(--radius-card)] border border-dashed border-line-strong bg-paper-raised p-10 text-center">
+            <p className="text-sm text-ink-700">
               {rows.length === 0 ? (
                 <>
                   No placements yet. Approve applications from the{" "}
-                  <Link to="/instructor/admin/applications" className="underline">
+                  <Link to="/instructor/admin/applications" className="ink-link">
                     applications queue
                   </Link>{" "}
                   to place students.
@@ -214,12 +204,12 @@ function PlacementsPage() {
         ) : (
           visibleGroups.map((group) => (
             <section key={group.slug}>
-              <div className="flex items-baseline justify-between border-b border-line pb-2">
-                <h2 className="text-lg font-medium">
+              <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line pb-2">
+                <h2 className="font-display text-xl font-bold">
                   <span className="mr-2">{emojiFor(group.slug)}</span>
                   {nameFor(group.slug)}
                 </h2>
-                <p className="text-xs uppercase tracking-wider text-ink-500">
+                <p className="eyebrow">
                   {group.items.length} {group.items.length === 1 ? "student" : "students"}
                 </p>
               </div>
@@ -228,9 +218,12 @@ function PlacementsPage() {
                 {group.items.map((p) => {
                   const s = students[p.student_id];
                   return (
-                    <div key={p.id} className="rounded-lg border border-line bg-paper-raised p-4">
+                    <div
+                      key={p.id}
+                      className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-4"
+                    >
                       <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-paper-sunken text-sm font-medium text-ink-700">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-mint-soft bg-mint-tint font-display text-sm font-bold text-green-deep">
                           {initials(s?.first_name)}
                         </div>
                         <div className="min-w-0 flex-1">
@@ -248,7 +241,7 @@ function PlacementsPage() {
                         </div>
                         <button
                           onClick={() => removePlacement(p)}
-                          className="text-xs text-rose-600 hover:underline"
+                          className="inline-flex min-h-[44px] items-center text-xs text-red-700 hover:underline"
                         >
                           Remove
                         </button>
@@ -260,7 +253,7 @@ function PlacementsPage() {
                             saveNotes(p, e.target.value);
                         }}
                         placeholder="Staff notes for this placement"
-                        className="mt-3 h-16 w-full rounded-md border border-line-strong bg-paper-raised p-2 text-xs focus:border-ink-900 focus:outline-none"
+                        className="field mt-3 h-16 text-xs"
                       />
                     </div>
                   );

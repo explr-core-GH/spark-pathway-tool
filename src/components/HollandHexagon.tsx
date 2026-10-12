@@ -84,10 +84,10 @@ export function HollandHexagon({ size = 360, active, onSelect }: Props) {
             <text
               textAnchor="middle"
               dominantBaseline="central"
-              fontFamily="Lexend, sans-serif"
+              fontFamily="var(--font-display)"
               fontSize={20}
-              fontWeight={500}
-              fill="white"
+              fontWeight={700}
+              fill="var(--color-paper-raised)"
             >
               {p.code}
             </text>

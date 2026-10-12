@@ -42,7 +42,9 @@ export function PortalHeader({
 }: Props) {
   const primary = links.filter((l) => !l.secondary);
   const secondary = links.filter((l) => l.secondary);
-  const showMenu = secondary.length > 0;
+  // Phones: the wordmark plus a sign-in button leaves no room for text links,
+  // so every link folds into the Menu disclosure below the sm breakpoint.
+  const showMenu = links.length > 0;
 
   return (
     <header className={`border-b border-line bg-paper ${className}`}>
@@ -65,8 +67,10 @@ export function PortalHeader({
               to={l.to as never}
               params={l.params as never}
               search={l.search as never}
-              className="inline-flex min-h-[44px] items-center hover:text-green-deep"
-              activeProps={{ className: "inline-flex min-h-[44px] items-center text-green-deep" }}
+              className="hidden min-h-[44px] items-center hover:text-green-deep sm:inline-flex"
+              activeProps={{
+                className: "hidden min-h-[44px] items-center text-green-deep sm:inline-flex",
+              }}
             >
               {l.label}
             </Link>
@@ -100,13 +104,16 @@ export function PortalHeader({
             </Link>
           )}
           {showMenu && (
-            <details className="relative md:hidden">
+            <details className={`relative ${secondary.length > 0 ? "md:hidden" : "sm:hidden"}`}>
               <summary className="inline-flex min-h-[44px] cursor-pointer list-none items-center gap-1 rounded-[var(--radius-control)] border border-line px-3 text-sm marker:hidden">
                 Menu
               </summary>
               <ul className="absolute right-0 z-20 mt-2 min-w-[12rem] rounded-[var(--radius-card)] border border-line bg-paper-raised p-2 shadow-lg">
-                {secondary.map((l) => (
-                  <li key={l.label}>
+                {[
+                  ...primary.map((l) => ({ ...l, phoneOnly: true as const })),
+                  ...secondary.map((l) => ({ ...l, phoneOnly: false as const })),
+                ].map((l) => (
+                  <li key={l.label} className={l.phoneOnly ? "sm:hidden" : undefined}>
                     <Link
                       to={l.to as never}
                       params={l.params as never}

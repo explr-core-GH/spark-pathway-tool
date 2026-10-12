@@ -119,21 +119,21 @@ function InvitesAdmin() {
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
       <h1 className="display mt-2">Invites</h1>
-      <p className="lead mt-3">
+      <p className="lead mt-3 max-w-2xl">
         Generate one-time invite links for new instructors and admins. Links expire in 14 days.
       </p>
 
       <form
         onSubmit={create}
-        className="mt-10 grid gap-4 border border-line p-6 md:grid-cols-[2fr_2fr_auto] rounded-[var(--radius-card)]"
+        className="mt-10 grid gap-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 md:grid-cols-[2fr_2fr_auto]"
       >
         {/* Role picker spans the full width on top */}
         <div className="md:col-span-3">
           <label className="label">Role</label>
-          <div className="mt-1 inline-flex border border-line-strong">
+          <div className="mt-1 flex flex-wrap gap-2">
             {(["educator", "admin"] as InviteRole[]).map((r) => {
               const on = r === role;
               return (
@@ -142,12 +142,7 @@ function InvitesAdmin() {
                   type="button"
                   aria-pressed={on}
                   onClick={() => setRole(r)}
-                  className={
-                    on
-                      ? "px-4 py-1.5 text-xs font-semibold"
-                      : "px-4 py-1.5 text-xs font-medium text-ink-500 hover:text-ink"
-                  }
-                  style={on ? { background: "var(--ink)", color: "var(--bg)" } : undefined}
+                  className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${on ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
                 >
                   {r === "educator" ? "Instructor" : "Admin"}
                 </button>
@@ -191,20 +186,20 @@ function InvitesAdmin() {
       </form>
 
       <h2 className="eyebrow mt-12">All invites</h2>
-      <ul className="mt-4 divide-y divide-line border-y border-line">
+      <ul className="mt-4 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
         {rows.map((r) => {
           const expired = new Date(r.expires_at) < new Date();
           const status = r.accepted_at ? "Accepted" : expired ? "Expired" : "Pending";
-          const statusColor = r.accepted_at
-            ? "var(--color-green-deep)"
+          const statusCls = r.accepted_at
+            ? "bg-mint-tint text-green-deep"
             : expired
-              ? "var(--color-ink-500)"
-              : "var(--ink)";
+              ? "bg-paper-sunken text-ink-500"
+              : "bg-gold-tint text-gold-deep";
           return (
-            <li key={r.id} className="py-3">
-              <div className="flex items-center gap-4">
+            <li key={r.id} className="px-4 py-3">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                 <span
-                  className="w-16 shrink-0 text-[10px] uppercase tracking-wider font-semibold text-ink-500"
+                  className="eyebrow w-16 shrink-0"
                   title={r.role === "admin" ? "Admin invite" : "Instructor invite"}
                 >
                   {r.role === "admin" ? "Admin" : "Instructor"}
@@ -218,23 +213,22 @@ function InvitesAdmin() {
                     {new Date(r.invited_at).toLocaleDateString()}
                   </p>
                 </div>
-                <span className="text-xs font-medium" style={{ color: statusColor }}>
+                <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusCls}`}>
                   {status}
                 </span>
                 {!r.accepted_at && !expired && (
                   <button
                     onClick={() => copy(r.id, r.token)}
-                    className="text-xs underline hover:text-ink"
-                    style={{
-                      color: copiedId === r.id ? "var(--color-green-deep)" : "var(--color-ink-500)",
-                    }}
+                    className={`inline-flex min-h-[44px] items-center text-xs underline ${
+                      copiedId === r.id ? "text-green-deep" : "text-ink-500 hover:text-ink-900"
+                    }`}
                   >
                     {copiedId === r.id ? "Copied!" : "Copy link"}
                   </button>
                 )}
                 <button
                   onClick={() => revoke(r.id)}
-                  className="text-xs text-red-600 hover:underline"
+                  className="inline-flex min-h-[44px] items-center text-xs text-red-700 hover:underline"
                 >
                   Revoke
                 </button>
@@ -252,7 +246,7 @@ function InvitesAdmin() {
             </li>
           );
         })}
-        {rows.length === 0 && <li className="py-6 text-sm text-ink-500">No invites yet.</li>}
+        {rows.length === 0 && <li className="px-4 py-6 text-sm text-ink-500">No invites yet.</li>}
       </ul>
     </main>
   );

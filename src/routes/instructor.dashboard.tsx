@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Briefcase, LayoutGrid, Tent } from "lucide-react";
 import { useEducator } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { EducatorGate } from "@/components/EducatorGate";
@@ -50,7 +51,11 @@ function Dashboard() {
   }, [educator]);
 
   if (loading)
-    return <main className="mx-auto max-w-6xl px-6 py-24 text-sm text-ink-500">Loading…</main>;
+    return (
+      <main className="mx-auto max-w-[1312px] px-4 py-24 text-sm text-ink-500 sm:px-6 lg:px-8">
+        Loading…
+      </main>
+    );
 
   // Admins land here via the educator nav for preview/support. They have no
   // educators row, so we show them a short pointer instead of trying to
@@ -59,8 +64,8 @@ function Dashboard() {
     return (
       <main className="mx-auto max-w-md px-6 py-24 text-center">
         <p className="eyebrow">Admin</p>
-        <h1 className="mt-3 text-2xl font-light">You&apos;re signed in as an admin.</h1>
-        <p className="mt-3 text-sm text-ink-500">
+        <h1 className="mt-2 font-display text-2xl font-bold">You&apos;re signed in as an admin.</h1>
+        <p className="mt-3 text-sm text-ink-700">
           Use the admin tools to manage sessions, partners, and instructors.
         </p>
         <Link to="/instructor/admin" className="btn-ink mt-6 inline-block">
@@ -71,9 +76,9 @@ function Dashboard() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-16">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Dashboard</p>
-      <h1 className="mt-3 text-4xl font-light">Welcome, {educator.full_name.split(" ")[0]}.</h1>
+      <h1 className="display mt-2">Welcome, {educator.full_name.split(" ")[0]}.</h1>
       <div className="mt-6 flex flex-wrap gap-3">
         <Link to="/instructor/checkpoints" className="btn-ink text-sm">
           Checkpoints to review
@@ -84,15 +89,20 @@ function Dashboard() {
       </div>
 
       {/* My programs — redesigned card with program-type accent stripe */}
-      <section className="mt-16">
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-xs uppercase tracking-wider text-ink-500">My programs</h2>
+      <section className="mt-14">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-[12px] border border-mint-soft bg-mint-tint text-green-deep">
+              <LayoutGrid className="h-5 w-5" strokeWidth={2} aria-hidden />
+            </span>
+            <h2 className="font-display text-2xl font-bold">My programs</h2>
+          </div>
           <Link to="/instructor/students" className="ink-link text-sm">
             View students →
           </Link>
         </div>
         {myPrograms.length === 0 ? (
-          <p className="mt-4 py-6 text-sm text-ink-500">
+          <p className="mt-4 rounded-[var(--radius-card)] border border-line bg-paper-raised px-5 py-6 text-sm text-ink-700">
             You haven&apos;t been added to any program cohorts yet. Ask an admin to assign you.
           </p>
         ) : (
@@ -101,16 +111,14 @@ function Dashboard() {
               return (
                 <article
                   key={p.id}
-                  className="border border-line bg-paper-raised p-5 transition-colors hover:border-ink-900 rounded-[var(--radius-card)]"
+                  className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card transition-colors hover:border-emerald"
                 >
-                  {p.grade_band && (
-                    <p className="text-[10px] uppercase tracking-wider text-ink-500">
-                      {p.grade_band}
-                    </p>
-                  )}
-                  <p className="mt-2 text-base font-medium leading-tight text-ink">{p.name}</p>
+                  {p.grade_band && <p className="eyebrow">{p.grade_band}</p>}
+                  <p className="mt-2 font-display text-lg font-semibold leading-tight text-ink-900">
+                    {p.name}
+                  </p>
                   {p.description && (
-                    <p className="mt-2 pl-1 text-xs leading-relaxed text-ink-500 line-clamp-3">
+                    <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-ink-700">
                       {p.description}
                     </p>
                   )}
@@ -124,17 +132,27 @@ function Dashboard() {
       {/* My camp sessions — replaces the old camp-slug curriculum tiles.
           Each card is one explr_camps row (a specific week/offering); its
           linked curricula + roster live on the session detail page. */}
-      <section className="mt-16">
-        <h2 className="text-xs uppercase tracking-wider text-ink-500">My camp sessions</h2>
+      <section className="mt-14">
+        <div className="flex items-center gap-3">
+          <span className="grid h-10 w-10 place-items-center rounded-[12px] border border-mint-soft bg-mint-tint text-green-deep">
+            <Tent className="h-5 w-5" strokeWidth={2} aria-hidden />
+          </span>
+          <h2 className="font-display text-2xl font-bold">My camp sessions</h2>
+        </div>
         <div className="mt-4">
           <MySessionsPanel educatorId={educator.id} />
         </div>
       </section>
 
       {/* Work-based learning */}
-      <section className="mt-16">
-        <h2 className="text-xs uppercase tracking-wider text-ink-500">Work-based learning</h2>
-        <p className="mt-4 max-w-2xl text-sm text-ink-500">
+      <section className="mt-14 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6">
+        <div className="flex items-center gap-3">
+          <span className="grid h-10 w-10 place-items-center rounded-[12px] border border-mint-soft bg-mint-tint text-green-deep">
+            <Briefcase className="h-5 w-5" strokeWidth={2} aria-hidden />
+          </span>
+          <h2 className="font-display text-2xl font-bold">Work-based learning</h2>
+        </div>
+        <p className="mt-4 max-w-2xl text-sm text-ink-700">
           Students you work with log experiences and ask you to verify them. Review checkpoints,
           stamp verified hours, and rate OhioMeansJobs readiness skills from one place.
         </p>

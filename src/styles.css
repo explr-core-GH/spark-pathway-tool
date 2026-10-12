@@ -35,6 +35,7 @@
   --color-mint-tint: #d9f6ec;
   --color-gold: #d9a531;
   --color-gold-deep: #8f6410;
+  --color-destructive: #b3261e; /* error text; 6.5:1 on paper */
   --color-gold-tint: #f6e8c3;
   --color-stamp-self: #7a827e;
 

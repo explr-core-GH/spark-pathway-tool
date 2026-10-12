@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ChevronDown, ExternalLink } from "lucide-react";
 import {
   loadClusters,
   loadOccupations,
@@ -56,11 +57,14 @@ export function CareerPathwaysDropdown({ internshipSlug }: Props) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between text-left text-xs font-medium uppercase tracking-wider text-ink-500 hover:text-ink-700"
+        className="eyebrow flex min-h-[44px] w-full items-center justify-between gap-2 text-left hover:text-ink-900"
         aria-expanded={open}
       >
         <span>Career pathways · {myOccs.length || "—"} occupations</span>
-        <span className="text-ink-500">{open ? "−" : "+"}</span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+          aria-hidden
+        />
       </button>
       {open && (
         <div className="mt-3 space-y-4">
@@ -74,20 +78,15 @@ export function CareerPathwaysDropdown({ internshipSlug }: Props) {
           ) : (
             Array.from(byCluster.entries()).map(([clusterId, list]) => (
               <div key={clusterId}>
-                <p
-                  className="text-[11px] font-medium uppercase tracking-wider"
-                  style={{ color: "var(--color-green)" }}
-                >
-                  {clustersById[clusterId]?.label ?? clusterId}
-                </p>
+                <p className="eyebrow text-green">{clustersById[clusterId]?.label ?? clusterId}</p>
                 <ul className="mt-2 space-y-2">
                   {list.map((o) => (
                     <li
                       key={o.id}
-                      className="rounded-md border border-line bg-paper-sunken p-3 text-xs"
+                      className="rounded-[var(--radius-control)] border border-line bg-paper-raised p-3 text-xs"
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <p className="text-sm font-medium text-ink-700">{o.title}</p>
+                        <p className="font-display text-sm font-semibold text-ink-900">{o.title}</p>
                         {o.soc_code && (
                           <span className="font-mono text-[10px] text-ink-500">
                             SOC {o.soc_code}
@@ -97,11 +96,11 @@ export function CareerPathwaysDropdown({ internshipSlug }: Props) {
                       {o.description && <p className="mt-1 text-ink-700">{o.description}</p>}
                       <dl className="mt-2 grid grid-cols-3 gap-2 text-[11px]">
                         <div>
-                          <dt className="uppercase tracking-wider text-ink-500">Median wage</dt>
+                          <dt className="label mb-0">Median wage</dt>
                           <dd className="font-medium text-ink-700">{formatWage(o.median_wage)}</dd>
                         </div>
                         <div>
-                          <dt className="uppercase tracking-wider text-ink-500">Growth</dt>
+                          <dt className="label mb-0">Growth</dt>
                           <dd
                             className="font-medium"
                             style={{
@@ -115,7 +114,7 @@ export function CareerPathwaysDropdown({ internshipSlug }: Props) {
                           </dd>
                         </div>
                         <div>
-                          <dt className="uppercase tracking-wider text-ink-500">Openings / yr</dt>
+                          <dt className="label mb-0">Openings / yr</dt>
                           <dd className="font-medium text-ink-700">
                             {o.annual_openings?.toLocaleString() ?? "—"}
                           </dd>
@@ -123,9 +122,7 @@ export function CareerPathwaysDropdown({ internshipSlug }: Props) {
                       </dl>
                       {o.education && (
                         <p className="mt-2 text-[11px] text-ink-500">
-                          <span className="uppercase tracking-wider text-ink-500">
-                            Typical entry:{" "}
-                          </span>
+                          <span className="label mb-0 inline">Typical entry: </span>
                           {o.education}
                         </p>
                       )}
@@ -141,9 +138,9 @@ export function CareerPathwaysDropdown({ internshipSlug }: Props) {
               href="https://iridescent-panda-3bd940.netlify.app/?tab=dashboard"
               target="_blank"
               rel="noreferrer"
-              className="underline hover:text-ink-700"
+              className="ink-link inline-flex items-center gap-1"
             >
-              EXPLR Workforce →
+              EXPLR Workforce <ExternalLink className="h-3 w-3" aria-hidden />
             </a>
           </p>
         </div>

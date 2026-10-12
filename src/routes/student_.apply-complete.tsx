@@ -3,9 +3,18 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
+import { SiteFooter } from "@/components/SiteFooter";
+import { PortalHeader, type PortalLink } from "@/components/passport";
+import { Building2 } from "lucide-react";
 import { ResumeForm, EMPTY_RESUME, type Resume } from "@/components/ResumeForm";
 import { InternshipApplySection, type Proof } from "@/components/InternshipApplySection";
 import { useInternshipRefs } from "@/lib/internship-refs";
+
+const STUDENT_LINKS: PortalLink[] = [
+  { label: "My passport", to: "/student" },
+  { label: "Opportunities", to: "/opportunities" },
+  { label: "Families", to: "/student/pathway", search: { tab: "families" } },
+];
 
 export const Route = createFileRoute("/student_/apply-complete")({
   head: () => ({ meta: [{ title: "Complete your application — EXPLR" }] }),
@@ -164,34 +173,33 @@ function CompletePage() {
   const orgSelections = selections.filter((s) => s.opportunity_id);
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-line">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
-          <Link to="/student" className="text-sm tracking-tight">
-            ← Back to dashboard
-          </Link>
-          <Link to="/sign-out" className="text-sm text-ink-500 hover:text-ink">
-            Sign out
-          </Link>
-        </div>
-      </header>
+    <div className="min-h-screen bg-paper text-ink-900">
+      <PortalHeader role="Student" links={STUDENT_LINKS} signedIn />
 
-      <main className="mx-auto max-w-4xl px-6 py-16">
-        <p className="eyebrow">Internships · step 2 of 2</p>
-        <h1 className="display mt-3">Complete your application</h1>
+      <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+        <Link
+          to="/student"
+          className="inline-flex min-h-[44px] items-center text-sm font-medium text-green-deep hover:underline"
+        >
+          ← My passport
+        </Link>
+        <p className="eyebrow text-green">Internships · step 2 of 2</p>
+        <h1 className="display mt-1">Complete your application.</h1>
 
         {done ? (
-          <div className="mt-8 border border-emerald-200 bg-emerald-50 p-6">
-            <p className="text-sm font-medium text-emerald-800">Application submitted.</p>
-            <p className="mt-1 text-sm text-emerald-800">
+          <div className="mt-8 rounded-[var(--radius-card)] border border-mint-soft bg-mint-tint p-6">
+            <p className="font-display text-xl font-semibold text-green-deep">
+              Application submitted.
+            </p>
+            <p className="mt-1 text-sm text-ink-700">
               EXPLR staff and the organization can now review it.
             </p>
-            <button onClick={() => navigate({ to: "/student" })} className="btn-ink mt-4 text-sm">
-              Back to dashboard
+            <button onClick={() => navigate({ to: "/student" })} className="btn-ink mt-4">
+              Back to my passport
             </button>
           </div>
         ) : selections.length === 0 ? (
-          <div className="mt-8 border border-line bg-paper-sunken p-6 text-sm text-ink-700 rounded-[var(--radius-card)]">
+          <div className="mt-8 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 text-sm text-ink-700 shadow-card">
             <p>You don&apos;t have any approved internships to complete yet.</p>
             <p className="mt-2">
               <Link to="/student/apply" className="ink-link">
@@ -202,9 +210,9 @@ function CompletePage() {
           </div>
         ) : (
           <form onSubmit={submit} className="mt-8">
-            <p className="text-sm text-ink-500">
+            <p className="text-sm text-ink-700">
               Approved internships:{" "}
-              <span className="font-medium text-ink">
+              <span className="font-medium text-ink-900">
                 {selections.map((s) => nameFor(s)).join(", ")}
               </span>
               . Fill your résumé once below; the per-organization steps follow.
@@ -215,8 +223,13 @@ function CompletePage() {
 
               {orgSelections.length > 0 && (
                 <section className="border-t border-line pt-10">
-                  <h2 className="text-xl font-light">Per-organization steps</h2>
-                  <p className="mt-2 max-w-2xl text-sm text-ink-500">
+                  <div className="flex items-center gap-3">
+                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
+                      <Building2 className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+                    </span>
+                    <h2 className="font-display text-2xl font-bold">Per-organization steps</h2>
+                  </div>
+                  <p className="mt-3 max-w-2xl text-sm text-ink-700">
                     Complete the links (with a screenshot as proof) and forms for each internship.
                   </p>
                   <div className="mt-6 space-y-6">
@@ -235,7 +248,11 @@ function CompletePage() {
               )}
             </div>
 
-            {error && <p className="mt-6 text-sm text-red-600">{error}</p>}
+            {error && (
+              <p role="alert" className="mt-6 text-sm text-red-700">
+                {error}
+              </p>
+            )}
 
             <div className="mt-8 flex items-center justify-end border-t border-line pt-8">
               <button type="submit" disabled={submitting} className="btn-ink disabled:opacity-50">
@@ -245,6 +262,7 @@ function CompletePage() {
           </form>
         )}
       </main>
+      <SiteFooter className="mt-16" />
     </div>
   );
 }

@@ -172,7 +172,7 @@ export function RosterDataPanel({ studentIds, names }: Props) {
     return <p className="text-sm text-ink-500">Loading results…</p>;
   }
   if (err) {
-    return <p className="text-sm text-red-600">Couldn&apos;t load results: {err}</p>;
+    return <p className="text-sm text-red-700">Couldn&apos;t load results: {err}</p>;
   }
   if (rows.length === 0) {
     return <p className="text-sm text-ink-500">No students in this roster yet.</p>;
@@ -194,20 +194,20 @@ export function RosterDataPanel({ studentIds, names }: Props) {
       </div>
 
       {/* Per-student table */}
-      <div className="mt-4 overflow-x-auto border border-line">
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="border-b border-line bg-paper-sunken text-left text-xs uppercase tracking-wider text-ink-500">
-              <th className="px-3 py-2 font-normal">Student</th>
-              <th className="px-3 py-2 font-normal">RIASEC</th>
-              <th className="px-3 py-2 font-normal">Assessment</th>
-              <th className="px-3 py-2 font-normal">Time</th>
-              <th className="px-3 py-2 font-normal">Surveys</th>
-              <th className="px-3 py-2 font-normal">Survey time</th>
-              <th className="px-3 py-2 font-normal">Results</th>
+      <div className="mt-4 overflow-x-auto rounded-[var(--radius-card)] border border-line">
+        <table className="w-full text-sm">
+          <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+            <tr>
+              <th className="px-3 py-2.5 font-medium">Student</th>
+              <th className="px-3 py-2.5 font-medium">RIASEC</th>
+              <th className="px-3 py-2.5 font-medium">Assessment</th>
+              <th className="px-3 py-2.5 font-medium">Time</th>
+              <th className="px-3 py-2.5 font-medium">Surveys</th>
+              <th className="px-3 py-2.5 font-medium">Survey time</th>
+              <th className="px-3 py-2.5 font-medium">Results</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody className="divide-y divide-line bg-paper-raised">
             {rows.map((r) => (
               <Fragment key={r.studentId}>
                 <tr>
@@ -221,15 +221,13 @@ export function RosterDataPanel({ studentIds, names }: Props) {
                   </td>
                   <td className="px-3 py-2">
                     <span
-                      className="text-xs"
-                      style={{
-                        color:
-                          r.assessmentStatus === "done"
-                            ? "var(--color-green-deep)"
-                            : r.assessmentStatus === "in progress"
-                              ? "var(--ink)"
-                              : "var(--color-ink-500)",
-                      }}
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        r.assessmentStatus === "done"
+                          ? "bg-mint-tint text-green-deep"
+                          : r.assessmentStatus === "in progress"
+                            ? "bg-gold-tint text-gold-deep"
+                            : "bg-paper-sunken text-ink-500"
+                      }`}
                     >
                       {r.assessmentStatus}
                     </span>
@@ -246,7 +244,8 @@ export function RosterDataPanel({ studentIds, names }: Props) {
                   <td className="px-3 py-2">
                     <button
                       onClick={() => setOpen(open === r.studentId ? null : r.studentId)}
-                      className="text-xs text-green-deep hover:underline"
+                      aria-expanded={open === r.studentId}
+                      className="inline-flex min-h-[36px] items-center text-xs font-medium text-green-deep hover:underline"
                     >
                       {open === r.studentId ? "Hide" : "View"}
                     </button>
@@ -265,7 +264,7 @@ export function RosterDataPanel({ studentIds, names }: Props) {
         </table>
       </div>
 
-      <p className="mt-2 text-[11px] text-ink-500">
+      <p className="mt-2 text-xs text-ink-500">
         Time is wall-clock from start to finish, and the clock stops at one hour — longer almost
         always means the tab was left open, not active work, so it&apos;s recorded as
         &ldquo;1h&rdquo;.
@@ -276,9 +275,9 @@ export function RosterDataPanel({ studentIds, names }: Props) {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border border-line bg-paper-raised p-3 rounded-[var(--radius-card)]">
-      <p className="text-[10px] uppercase tracking-wider text-ink-500">{label}</p>
-      <p className="mt-1 text-lg font-light tabular-nums text-ink">{value}</p>
+    <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-3">
+      <p className="eyebrow">{label}</p>
+      <p className="mt-1 font-display text-xl font-bold tabular-nums text-ink-900">{value}</p>
     </div>
   );
 }

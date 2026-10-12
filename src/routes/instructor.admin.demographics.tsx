@@ -195,7 +195,7 @@ function DemographicsAdmin() {
   const gifted = useMemo(() => aggregate(sources, buildings, "gifted"), [sources, buildings]);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
       <h1 className="display mt-2">Demographics</h1>
       <p className="lead mt-3 max-w-2xl">
@@ -206,7 +206,7 @@ function DemographicsAdmin() {
       {loading ? (
         <p className="mt-12 text-sm text-ink-500">Loading sources and building data…</p>
       ) : sources.length === 0 ? (
-        <div className="mt-12 border border-dashed border-line-strong p-8 text-sm text-ink-500">
+        <div className="mt-12 rounded-[var(--radius-card)] border border-dashed border-line-strong bg-paper-raised p-8 text-sm text-ink-700">
           No sources yet. Demographics aggregate from instructors who connect a school + student
           count on their profile, and from admin-managed programs that do the same. Add either to
           populate this dashboard.
@@ -221,18 +221,18 @@ function DemographicsAdmin() {
           </section>
 
           {/* Grade-level histogram */}
-          <section className="mt-12 border border-line p-6 rounded-[var(--radius-card)]">
-            <h2 className="eyebrow">Grade-level distribution</h2>
-            <p className="mt-1 text-xs text-ink-500">
+          <section className="mt-12 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6">
+            <h2 className="font-display text-2xl font-bold">Grade-level distribution</h2>
+            <p className="mt-1 text-sm text-ink-700">
               Student count distributed evenly across each source&apos;s reported grade levels.
             </p>
             <div className="mt-4 space-y-1">
               {gradeHistogram.map((row) => (
                 <div key={row.grade} className="flex items-center gap-3 text-xs">
                   <span className="w-6 shrink-0 text-ink-500">{row.label}</span>
-                  <div className="relative h-5 flex-1 bg-paper-sunken">
+                  <div className="relative h-5 flex-1 overflow-hidden rounded-full bg-paper-sunken">
                     <div
-                      className="absolute inset-y-0 left-0 bg-ink-900"
+                      className="absolute inset-y-0 left-0 rounded-full bg-green"
                       style={{ width: `${row.width}%` }}
                     />
                   </div>
@@ -265,13 +265,13 @@ function DemographicsAdmin() {
           {/* Source breakdown table */}
           <section className="mt-12">
             <h2 className="eyebrow">Sources contributing to this aggregate</h2>
-            <ul className="mt-4 divide-y divide-line border-y border-line">
+            <ul className="mt-4 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
               {sources.map((s, i) => (
                 <li
                   key={`${s.kind}-${i}`}
-                  className="flex flex-wrap items-center gap-3 py-3 text-sm"
+                  className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm"
                 >
-                  <span className="w-20 shrink-0 text-[10px] uppercase tracking-wider text-ink-500">
+                  <span className="w-20 shrink-0 rounded-full bg-paper-sunken px-2 py-0.5 text-center font-mono text-[10px] uppercase tracking-[0.08em] text-ink-700">
                     {s.kind}
                   </span>
                   <span className="flex-1 font-medium">{s.label}</span>
@@ -289,7 +289,7 @@ function DemographicsAdmin() {
             </ul>
           </section>
 
-          <p className="mt-10 text-xs text-ink-500">
+          <p className="mt-10 text-sm text-ink-500">
             Source: public school report-card data. A few small groups aren&apos;t reported in the
             underlying data, so they&apos;re excluded from these averages.
           </p>
@@ -301,9 +301,9 @@ function DemographicsAdmin() {
 
 function StatTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border border-line p-5 rounded-[var(--radius-card)]">
-      <p className="text-[10px] uppercase tracking-wider font-semibold text-ink-500">{label}</p>
-      <p className="mt-1 text-3xl font-light tabular-nums text-ink">{value}</p>
+    <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
+      <p className="eyebrow">{label}</p>
+      <p className="mt-2 font-display text-3xl font-bold tabular-nums text-ink-900">{value}</p>
     </div>
   );
 }
@@ -318,8 +318,8 @@ function DemoPanel({
   totalStudents: number;
 }) {
   return (
-    <div className="border border-line p-5 rounded-[var(--radius-card)]">
-      <h3 className="text-sm font-semibold text-ink">{title}</h3>
+    <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
+      <h3 className="font-display text-lg font-semibold text-ink-900">{title}</h3>
       {rows.length === 0 ? (
         <p className="mt-3 text-xs text-ink-500 italic">
           No data reported for this group in the source.
@@ -337,13 +337,10 @@ function DemoPanel({
                   </span>
                 </span>
               </div>
-              <div className="mt-1 h-1.5 bg-paper-sunken">
+              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-paper-sunken">
                 <div
-                  className="h-full"
-                  style={{
-                    width: `${Math.max(0, Math.min(100, r.pct))}%`,
-                    background: "var(--color-green)",
-                  }}
+                  className="h-full rounded-full bg-green"
+                  style={{ width: `${Math.max(0, Math.min(100, r.pct))}%` }}
                 />
               </div>
             </li>

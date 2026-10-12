@@ -64,9 +64,9 @@ function Stars({ value }: { value: number | null | undefined }) {
 
 function StatTile({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-md border border-line bg-paper-raised px-4 py-3">
-      <div className="text-[10px] uppercase tracking-wider text-ink-500">{label}</div>
-      <div className="mt-1 text-xl font-light text-ink-700">{value}</div>
+    <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised px-4 py-3">
+      <div className="eyebrow">{label}</div>
+      <div className="mt-1 font-display text-xl font-bold text-ink-900">{value}</div>
     </div>
   );
 }
@@ -74,8 +74,8 @@ function StatTile({ label, value }: { label: string; value: React.ReactNode }) {
 function DemoPanel({ title, rows }: { title: string; rows: DemoRow[] | undefined }) {
   const visible = (rows ?? []).filter((r) => r.pctOfTotal != null);
   return (
-    <div className="rounded-md border border-line bg-paper-raised p-4">
-      <div className="text-xs uppercase tracking-wider text-ink-500">{title}</div>
+    <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-4">
+      <div className="font-display text-base font-semibold text-ink-900">{title}</div>
       {visible.length === 0 ? (
         <p className="mt-3 text-xs text-ink-500">Suppressed (small population).</p>
       ) : (
@@ -89,9 +89,9 @@ function DemoPanel({ title, rows }: { title: string; rows: DemoRow[] | undefined
                   <span className="ml-2 text-ink-500">n={r.enrollment}</span>
                 </span>
               </div>
-              <div className="mt-1 h-1.5 w-full rounded bg-paper-sunken">
+              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-paper-sunken">
                 <div
-                  className="h-full rounded bg-mint"
+                  className="h-full rounded-full bg-green"
                   style={{ width: `${Math.min(100, r.pctOfTotal ?? 0)}%` }}
                 />
               </div>
@@ -120,7 +120,7 @@ export function SchoolDemographics({ irn }: Props) {
 
   if (missing) {
     return (
-      <div className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+      <div className="rounded-[var(--radius-control)] border border-gold bg-gold-tint px-4 py-3 text-sm text-ink-900">
         School details not found.
       </div>
     );
@@ -132,8 +132,8 @@ export function SchoolDemographics({ irn }: Props) {
   const r = data.ratings ?? {};
   return (
     <div className="space-y-6">
-      <header className="rounded-md border border-line bg-paper-raised p-5">
-        <h3 className="text-lg font-medium text-ink-700">{data.name}</h3>
+      <header className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
+        <h3 className="font-display text-xl font-bold text-ink-900">{data.name}</h3>
         <p className="mt-1 text-sm text-ink-500">
           {[data.districtName, data.city, data.zip].filter(Boolean).join(" · ")}
         </p>
@@ -172,7 +172,7 @@ export function SchoolDemographics({ irn }: Props) {
         <DemoPanel title="Gifted" rows={data.demographics?.gifted} />
       </div>
 
-      <p className="text-[10px] uppercase tracking-wider text-ink-500">
+      <p className="eyebrow">
         Source: Ohio Department of Education and Workforce · 2024–2025 Report Card
       </p>
     </div>

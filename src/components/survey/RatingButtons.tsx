@@ -24,7 +24,7 @@ export function RatingButtons({
   ariaLabel: string;
 }) {
   return (
-    <div role="radiogroup" aria-label={ariaLabel} className="flex gap-1.5">
+    <div role="radiogroup" aria-label={ariaLabel} className="flex gap-2">
       {points.map((p) => {
         const on = value === p.value;
         return (
@@ -36,16 +36,11 @@ export function RatingButtons({
             aria-label={`${p.value} — ${p.label}`}
             name={name}
             onClick={() => onChange(p.value)}
-            className={
+            className={`flex min-h-[48px] flex-1 flex-col items-center justify-center gap-0.5 rounded-[var(--radius-control)] border px-1 py-1.5 transition-colors ${
               on
-                ? "flex min-h-[48px] flex-1 flex-col items-center justify-center gap-0.5 border px-1 py-1.5"
-                : "flex min-h-[48px] flex-1 flex-col items-center justify-center gap-0.5 border border-line-strong px-1 py-1.5 hover:border-ink-900"
-            }
-            style={
-              on
-                ? { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" }
-                : undefined
-            }
+                ? "border-ink-900 bg-ink-900 text-paper"
+                : "border-line-strong bg-paper-raised hover:border-ink-900"
+            }`}
           >
             <span className="text-sm font-semibold leading-none">{p.value}</span>
             <span

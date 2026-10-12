@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { AuthShell } from "@/components/passport/AuthShell";
 
 export const Route = createFileRoute("/org/sign-in")({
   head: () => ({ meta: [{ title: "Partner sign in — EXPLR" }] }),
@@ -29,12 +30,30 @@ function OrgSignIn() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
-      <Link to="/" className="eyebrow mb-12 inline-block">
-        ← EXPLR
-      </Link>
-      <h1 className="text-3xl font-light">Partner sign in</h1>
-      <form onSubmit={submit} className="mt-10 space-y-5">
+    <AuthShell
+      eyebrow="Partners & organizations"
+      title="Partner sign in"
+      intro="Employers, nonprofits, and programs that offer camps, workshops, internships, and events. Sign in to manage your opportunities and see who registered."
+      illustration={{ src: "/passport/organizations.webp" }}
+      role="Partner"
+      links={[
+        { label: "Home", to: "/" },
+        { label: "About", to: "/about", secondary: true },
+      ]}
+      footer={
+        <p>
+          New partner?{" "}
+          <Link to="/org/sign-up" className="ink-link">
+            Register your organization or company
+          </Link>
+          <span className="mx-2 text-ink-500">·</span>
+          <Link to="/forgot-password" className="ink-link">
+            Forgot password?
+          </Link>
+        </p>
+      }
+    >
+      <form onSubmit={submit} className="space-y-5">
         <div>
           <label className="label" htmlFor="org-email">
             Email
@@ -66,14 +85,19 @@ function OrgSignIn() {
             <button
               type="button"
               onClick={() => setShow((s) => !s)}
-              className="absolute inset-y-0 right-2 my-auto text-xs text-ink-500 hover:text-ink"
+              aria-pressed={show}
+              aria-label={show ? "Hide passphrase" : "Show passphrase"}
+              className="absolute right-1 top-1/2 inline-flex min-h-[44px] -translate-y-1/2 items-center rounded-[var(--radius-control)] px-3 text-xs font-semibold text-ink-500 hover:text-ink-900"
             >
               {show ? "Hide" : "Show"}
             </button>
           </div>
         </div>
         {error && (
-          <p className="text-sm text-destructive" role="alert">
+          <p
+            className="rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-sm text-ink-900"
+            role="alert"
+          >
             {error}
           </p>
         )}
@@ -81,16 +105,6 @@ function OrgSignIn() {
           {loading ? "Signing in…" : "Sign in"}
         </button>
       </form>
-      <p className="mt-6 text-sm text-ink-500">
-        New partner?{" "}
-        <Link to="/org/sign-up" className="ink-link">
-          Register your organization or company
-        </Link>
-        <span className="mx-2 text-ink-500">·</span>
-        <Link to="/forgot-password" className="ink-link">
-          Forgot password?
-        </Link>
-      </p>
-    </main>
+    </AuthShell>
   );
 }

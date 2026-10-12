@@ -116,20 +116,22 @@ function StudentsRoster() {
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-6xl px-6 py-24 text-sm text-ink-500">Loading roster…</main>
+      <main className="mx-auto max-w-[1312px] px-4 py-24 text-sm text-ink-500 sm:px-6 lg:px-8">
+        Loading roster…
+      </main>
     );
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-16">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Cohort</p>
-      <h1 className="mt-3 text-4xl font-light">Students</h1>
-      <p className="mt-2 text-sm text-ink-500">
+      <h1 className="display mt-2">Students</h1>
+      <p className="lead mt-3 max-w-2xl">
         Aggregated view across all students whose data is visible to your instructor role.
       </p>
 
       {/* Stat tiles */}
-      <div className="mt-10 grid gap-px bg-paper-sunken sm:grid-cols-4">
+      <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         <StatTile label="Total" value={counts.total} />
         <StatTile label="Assessed" value={counts.assessed} />
         <StatTile label="Applied" value={counts.applied} />
@@ -137,7 +139,7 @@ function StudentsRoster() {
       </div>
 
       {/* Filters */}
-      <div className="mt-8 flex flex-wrap gap-2 text-xs">
+      <div className="mt-8 flex flex-wrap gap-2">
         {(
           [
             ["all", "All"],
@@ -150,7 +152,7 @@ function StudentsRoster() {
           <button
             key={k}
             onClick={() => setFilter(k)}
-            className={`px-3 py-1.5 border ${filter === k ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-500 hover:border-ink-900 hover:text-ink"}`}
+            className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${filter === k ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
           >
             {label}
           </button>
@@ -158,9 +160,9 @@ function StudentsRoster() {
       </div>
 
       {/* Roster table */}
-      <div className="mt-6 overflow-x-auto border border-line">
+      <div className="mt-6 overflow-x-auto rounded-[var(--radius-card)] border border-line">
         <table className="w-full text-sm">
-          <thead className="bg-paper-sunken text-left text-xs uppercase tracking-wider text-ink-500">
+          <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
             <tr>
               <th className="px-4 py-3 font-normal">Student</th>
               <th className="px-4 py-3 font-normal">Assessment</th>
@@ -181,15 +183,19 @@ function StudentsRoster() {
               const code = r.latestSession?.holland_code;
               const top = code ? (code[0] as RIASECCode) : null;
               return (
-                <tr key={r.student_id} className="hover:bg-paper-sunken">
+                <tr key={r.student_id} className="bg-paper-raised hover:bg-paper-sunken">
                   <td className="px-4 py-3 font-mono text-xs text-ink-500">
                     {r.student_id.slice(0, 8)}…
                   </td>
                   <td className="px-4 py-3">
                     {r.latestSession?.completed_at ? (
-                      <span className="text-ink">Complete</span>
+                      <span className="rounded-full bg-mint-tint px-2.5 py-0.5 text-xs font-medium text-green-deep">
+                        Complete
+                      </span>
                     ) : r.latestSession ? (
-                      <span className="text-ink-500">In progress</span>
+                      <span className="rounded-full bg-gold-tint px-2.5 py-0.5 text-xs font-medium text-gold-deep">
+                        In progress
+                      </span>
                     ) : (
                       <span className="text-ink-500">—</span>
                     )}
@@ -212,7 +218,7 @@ function StudentsRoster() {
                   </td>
                   <td className="px-4 py-3">
                     {r.placement ? (
-                      <span className="text-ink">
+                      <span className="text-ink-900">
                         {internshipName(r.placement.approved_internship_id)}
                       </span>
                     ) : (
@@ -226,7 +232,7 @@ function StudentsRoster() {
         </table>
       </div>
 
-      <p className="mt-6 text-xs text-ink-500">
+      <p className="mt-6 text-sm text-ink-700">
         Need finer-grain controls (per-program rosters, exports)?{" "}
         <Link to="/instructor/admin" className="ink-link">
           Admin tools →
@@ -238,9 +244,9 @@ function StudentsRoster() {
 
 function StatTile({ label, value }: { label: string; value: number }) {
   return (
-    <div className="bg-canvas p-5">
-      <div className="text-xs uppercase tracking-wider text-ink-500">{label}</div>
-      <div className="mt-2 text-3xl font-light">{value}</div>
+    <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
+      <div className="eyebrow">{label}</div>
+      <div className="mt-2 font-display text-3xl font-bold">{value}</div>
     </div>
   );
 }

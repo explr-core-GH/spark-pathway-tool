@@ -320,19 +320,28 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
         </button>
         <button
           onClick={() => setWalkIn(walkIn ? null : { name: "", age: "" })}
-          className="text-xs text-ink-500 underline hover:text-ink"
+          className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
         >
           + Walk-in
         </button>
         {logins.length > 0 && (
           <>
-            <button onClick={printCards} className="text-xs text-ink-500 underline hover:text-ink">
+            <button
+              onClick={printCards}
+              className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
+            >
               Print cards
             </button>
-            <button onClick={printSheet} className="text-xs text-ink-500 underline hover:text-ink">
+            <button
+              onClick={printSheet}
+              className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
+            >
               Roster sheet
             </button>
-            <button onClick={exportXlsx} className="text-xs text-ink-500 underline hover:text-ink">
+            <button
+              onClick={exportXlsx}
+              className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
+            >
               Export Excel
             </button>
           </>
@@ -340,7 +349,7 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
         {reportable > 0 && (
           <button
             onClick={() => printFamilyReports()}
-            className="text-xs text-green-deep hover:underline"
+            className="inline-flex min-h-[44px] items-center text-xs font-medium text-green-deep hover:underline"
           >
             Family reports ({reportable})
           </button>
@@ -348,16 +357,14 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
       </div>
 
       {status && (
-        <p className="mt-3 border border-line-strong bg-paper-sunken px-3 py-2 text-sm text-ink-700">
+        <p className="mt-3 rounded-[var(--radius-control)] border border-mint-soft bg-mint-tint px-3 py-2 text-sm text-green-deep">
           {status}
         </p>
       )}
 
       {walkIn && (
-        <div className="mt-3 border border-line bg-paper-sunken p-3 rounded-[var(--radius-card)]">
-          <p className="eyebrow" style={{ margin: 0 }}>
-            Add walk-in camper
-          </p>
+        <div className="mt-3 rounded-[var(--radius-card)] border border-line bg-paper-sunken p-4">
+          <p className="eyebrow">Add walk-in camper</p>
           <div className="mt-2 grid gap-3 sm:grid-cols-[1fr_120px_auto_auto]">
             <input
               autoFocus
@@ -392,12 +399,12 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
       {logins.length > 0 && (
         <>
           <div className="mt-4">
-            <label className="text-xs text-ink-500">
-              Sort:{" "}
+            <label className="flex items-center gap-2 text-xs text-ink-500">
+              Sort:
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortBy)}
-                className="border border-line-strong px-2 py-1 text-xs"
+                className="field w-auto py-1.5 text-xs"
               >
                 <option value="name">Name A–Z</option>
                 <option value="classroom">Classroom</option>
@@ -407,19 +414,19 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
             </label>
           </div>
 
-          <div className="mt-3 overflow-x-auto border border-line">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-line bg-paper-sunken text-left text-xs uppercase tracking-wider text-ink-500">
-                  <th className="px-3 py-2 font-normal">Student</th>
-                  <th className="px-3 py-2 font-normal">Classroom</th>
-                  <th className="px-3 py-2 font-normal">Status</th>
-                  <th className="px-3 py-2 font-normal">Username</th>
-                  <th className="px-3 py-2 font-normal">Password</th>
-                  <th className="px-3 py-2 font-normal">Family report</th>
+          <div className="mt-3 overflow-x-auto rounded-[var(--radius-card)] border border-line">
+            <table className="w-full text-sm">
+              <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+                <tr>
+                  <th className="px-3 py-2.5 font-medium">Student</th>
+                  <th className="px-3 py-2.5 font-medium">Classroom</th>
+                  <th className="px-3 py-2.5 font-medium">Status</th>
+                  <th className="px-3 py-2.5 font-medium">Username</th>
+                  <th className="px-3 py-2.5 font-medium">Password</th>
+                  <th className="px-3 py-2.5 font-medium">Family report</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line">
+              <tbody className="divide-y divide-line bg-paper-raised">
                 {sortLogins(logins).map((l) => {
                   const hasResult = !!l.student_id && !!holland[l.student_id];
                   const isEditing = editing?.id === l.id;
@@ -462,7 +469,7 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
                             <span>{l.child_name}</span>
                             <button
                               onClick={() => setEditing({ id: l.id, name: l.child_name, age: "" })}
-                              className="text-[11px] text-ink-500 underline hover:text-ink"
+                              className="text-[11px] text-ink-500 underline hover:text-ink-900"
                             >
                               edit
                             </button>
@@ -481,9 +488,13 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
                       </td>
                       <td className="px-3 py-2 text-xs">
                         {hasResult ? (
-                          <span style={{ color: "var(--color-green-deep)" }}>Finished</span>
+                          <span className="rounded-full bg-mint-tint px-2.5 py-0.5 font-medium text-green-deep">
+                            Finished
+                          </span>
                         ) : (
-                          <span className="text-ink-500">Not yet</span>
+                          <span className="rounded-full bg-paper-sunken px-2.5 py-0.5 text-ink-700">
+                            Not yet
+                          </span>
                         )}
                       </td>
                       <td className="px-3 py-2 font-mono text-xs">{l.username}</td>

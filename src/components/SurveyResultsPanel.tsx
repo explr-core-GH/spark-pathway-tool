@@ -169,9 +169,12 @@ export function SurveyResultsPanel({ studentId }: { studentId: string }) {
   return (
     <div className="mt-4 space-y-6">
       {cards.map((card) => (
-        <div key={card.key} className="border border-line p-5 rounded-[var(--radius-card)]">
-          <p className="font-medium">{card.title}</p>
-          <p className="mt-1 text-xs text-ink-500">
+        <div
+          key={card.key}
+          className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card"
+        >
+          <p className="font-display text-lg font-semibold">{card.title}</p>
+          <p className="mt-1 text-xs text-ink-700">
             {card.growth ? `${card.beforeLabel} → ${card.afterLabel}` : card.afterLabel} · higher
             means more confidence / interest
           </p>
@@ -184,8 +187,10 @@ export function SurveyResultsPanel({ studentId }: { studentId: string }) {
                     {card.growth && s.before != null ? (
                       <>
                         {s.before.toFixed(1)} →{" "}
-                        <span className="font-medium text-ink">{s.after?.toFixed(1) ?? "—"}</span> /{" "}
-                        {s.max}
+                        <span className="font-medium text-ink-900">
+                          {s.after?.toFixed(1) ?? "—"}
+                        </span>{" "}
+                        / {s.max}
                       </>
                     ) : (
                       <>
@@ -194,15 +199,15 @@ export function SurveyResultsPanel({ studentId }: { studentId: string }) {
                     )}
                   </span>
                 </div>
-                <div className="relative mt-1 h-1.5 bg-paper-sunken">
+                <div className="relative mt-1 h-2 overflow-hidden rounded-full bg-paper-sunken">
                   {card.growth && s.before != null && (
                     <div
-                      className="absolute left-0 top-0 h-1.5 bg-line-strong"
+                      className="absolute left-0 top-0 h-2 rounded-full bg-line-strong"
                       style={{ width: `${Math.min(100, (s.before / s.max) * 100)}%` }}
                     />
                   )}
                   <div
-                    className="absolute left-0 top-0 h-1.5"
+                    className="absolute left-0 top-0 h-2 rounded-full"
                     style={{
                       width: `${Math.min(100, ((s.after ?? 0) / s.max) * 100)}%`,
                       background: "var(--color-green)",

@@ -1,19 +1,24 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Building2, ChevronRight, GraduationCap, House, UserCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { DoorCard } from "@/components/passport/DoorCard";
+import { PortalHeader } from "@/components/passport/PortalHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 
 /**
  * /start — pathway chooser.
  *
  * The landing page's "Start" button comes here so a fresh visitor sees a
- * clear two-card pick (student vs educator) instead of being dropped
- * directly onto the assessment grade form. Signed-in users skip the pick
- * and get routed to their natural home so they don't have to re-decide.
+ * clear three-card pick (student, instructor, partner) plus the families
+ * link, instead of being dropped directly onto the assessment grade form.
+ * Signed-in users skip the pick and get routed to their natural home so
+ * they don't have to re-decide.
  *
  * Routing rules:
- *   - Not signed in → render the two-card picker.
- *   - Signed in as admin (row in public.admins) → /educator/admin.
- *   - Signed in as educator (row in public.educators) → /educator/dashboard.
+ *   - Not signed in → render the chooser.
+ *   - Signed in as admin (row in public.admins) → /instructor/admin.
+ *   - Signed in as instructor (row in public.educators) → /instructor/dashboard.
  *   - Signed in but no role yet (auth-only) → assume student → /assessment.
  */
 
@@ -73,9 +78,13 @@ function Start() {
 
   if (resolving) {
     return (
-      <main className="mx-auto max-w-2xl px-6 py-32 text-center text-sm text-ink-500">
-        Loading…
-      </main>
+      <div className="flex min-h-screen flex-col bg-paper text-ink-900">
+        <PortalHeader links={[{ label: "Home", to: "/" }]} />
+        <main className="mx-auto w-full max-w-[1312px] flex-1 px-4 py-24 text-center text-sm text-ink-500 sm:px-6 lg:px-8">
+          Loading…
+        </main>
+        <SiteFooter className="mt-10" />
+      </div>
     );
   }
 
@@ -84,58 +93,82 @@ function Start() {
   if (authed) return null;
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-20">
-      <Link to="/" className="eyebrow">
-        ← EXPLR
-      </Link>
-      <h1 className="display mt-10">Get started.</h1>
-      <p className="lead mt-4">Pick your pathway.</p>
+    <div className="flex min-h-screen flex-col bg-paper text-ink-900">
+      <PortalHeader
+        links={[
+          { label: "Home", to: "/" },
+          { label: "About", to: "/about", secondary: true },
+          { label: "Families", to: "/family", secondary: true },
+        ]}
+      />
+      <main className="mx-auto w-full max-w-[1312px] flex-1 px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+        <div className="flex flex-col gap-2.5">
+          <p className="eyebrow text-green">Pathways start here</p>
+          <h1 className="display">Who are you?</h1>
+          <p className="lead max-w-[600px] text-ink-700">
+            Three ways in, one passport. Pick the one that fits and we&apos;ll take you to the right
+            sign-in.
+          </p>
+        </div>
 
-      <div className="mt-12 grid gap-6 md:grid-cols-2">
-        {/* Student */}
-        <article className="border border-line p-8 rounded-[var(--radius-card)]">
-          <p className="eyebrow" style={{ color: "var(--color-green)" }}>
-            For students
-          </p>
-          <h2 className="mt-3 text-xl font-light text-ink-700">
-            A starting point you actually own.
-          </h2>
-          <p className="mt-3 text-sm text-ink-500">
-            Take the survey. See your Holland code. Use it to ask better questions about what comes
-            after high school.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link to="/sign-up" className="btn-ink">
-              Create student account
-            </Link>
-            <Link to="/sign-in" className="btn-ghost">
-              Sign in
-            </Link>
-          </div>
-        </article>
+        <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <DoorCard
+            eyebrow="Students"
+            icon={GraduationCap}
+            image="/passport/students.webp"
+            title="I'm a student"
+            body="Grades 4-8 sign in with a class code and pictures. Grades 9-12 use an email or roster username to open a passport of stamped experiences."
+            cta="Create a student account"
+            to="/sign-up"
+            pills={[
+              { label: "Grades 4-8", to: "/explore" },
+              { label: "Grades 9-12", to: "/sign-in", search: { band: "9-12" } },
+            ]}
+          />
+          <DoorCard
+            eyebrow="Instructors"
+            icon={UserCheck}
+            image="/passport/assessments.webp"
+            title="I'm an instructor"
+            body="Teachers, coaches, camp staff, and worksite supervisors. Rosters, checkpoints, experiences to stamp, and recommendation letters."
+            cta="Sign in as an instructor"
+            to="/instructor/sign-in"
+            pills={[{ label: "Request access", to: "/instructor/sign-up" }]}
+          />
+          <DoorCard
+            eyebrow="Partners & organizations"
+            icon={Building2}
+            image="/passport/organizations.webp"
+            title="I'm a partner or org"
+            body="Submit camps, workshops, internships, and events through a guided portal so students and families can decide."
+            cta="Open the partner portal"
+            to="/org/sign-in"
+            pills={[{ label: "Register your organization", to: "/org/sign-up" }]}
+          />
+        </div>
 
-        {/* Educator */}
-        <article className="border border-line p-8 rounded-[var(--radius-card)]">
-          <p className="eyebrow" style={{ color: "var(--color-green)" }}>
-            For instructors
-          </p>
-          <h2 className="mt-3 text-xl font-light text-ink-700">
-            Rosters and checkpoints in one place.
-          </h2>
-          <p className="mt-3 text-sm text-ink-500">
-            STEM, CS, robotics coaches, camp instructors, and internship supervisors — manage
-            assignments and student lists per program.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link to="/instructor/sign-up" className="btn-ink">
-              Request instructor access
-            </Link>
-            <Link to="/instructor/sign-in" className="btn-ghost">
-              Sign in
-            </Link>
-          </div>
-        </article>
-      </div>
-    </main>
+        <Link
+          to="/family"
+          className="mt-8 flex items-center gap-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card hover:border-emerald focus-visible:border-emerald"
+        >
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] border border-mint-soft bg-mint-tint text-green-deep">
+            <House className="h-6 w-6" strokeWidth={2} aria-hidden />
+          </span>
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-green">
+              Families
+            </span>
+            <span className="font-display text-xl font-semibold leading-tight">
+              Here for your student&apos;s passport?
+            </span>
+            <span className="text-sm text-ink-700">
+              No account needed. Enter the code your student made for you.
+            </span>
+          </span>
+          <ChevronRight className="h-5 w-5 shrink-0 text-ink-500" strokeWidth={2.2} aria-hidden />
+        </Link>
+      </main>
+      <SiteFooter className="mt-10" />
+    </div>
   );
 }

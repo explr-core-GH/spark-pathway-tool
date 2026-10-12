@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { BadgeCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { AuthShell } from "@/components/passport/AuthShell";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({ meta: [{ title: "Set a new password — EXPLR" }] }),
@@ -42,16 +44,24 @@ function ResetPassword() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
-      <Link to="/" className="eyebrow mb-12 inline-block">
-        ← EXPLR
-      </Link>
-      <h1 className="text-3xl font-light">Set a new password</h1>
-
+    <AuthShell
+      eyebrow="Account help"
+      title="Set a new password"
+      intro="Choose a new password for your EXPLR Pathways account. At least 8 characters."
+      illustration={{ src: "/passport/portfolio.webp" }}
+      links={[
+        { label: "Home", to: "/" },
+        { label: "Sign in", to: "/sign-in", secondary: true },
+      ]}
+    >
       {done ? (
-        <div className="mt-4 text-sm text-ink-700">
+        <div className="flex flex-col gap-4 text-ink-700">
+          <span className="grid h-12 w-12 place-items-center rounded-[14px] border border-mint-soft bg-mint-tint text-green-deep">
+            <BadgeCheck className="h-6 w-6" strokeWidth={2} aria-hidden />
+          </span>
+          <h2 className="font-display text-2xl font-bold text-ink-900">Password updated</h2>
           <p>Your password has been updated. Sign in with it now.</p>
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3">
             <Link to="/sign-in" className="btn-ink">
               Student sign in
             </Link>
@@ -59,14 +69,14 @@ function ResetPassword() {
               Instructor sign in
             </Link>
             <Link to="/org/sign-in" className="btn-ghost">
-              Organization sign in
+              Partner sign in
             </Link>
           </div>
         </div>
       ) : (
         <>
           {!ready && (
-            <p className="mt-2 text-sm text-amber-700">
+            <p className="mb-5 rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-sm text-ink-900">
               Open this page from the reset link in your email. If you got here another way, request
               a new link from{" "}
               <Link to="/forgot-password" className="ink-link">
@@ -75,7 +85,7 @@ function ResetPassword() {
               .
             </p>
           )}
-          <form onSubmit={submit} className="mt-8 space-y-5">
+          <form onSubmit={submit} className="space-y-5">
             <div>
               <label className="label" htmlFor="rp-password">
                 New password
@@ -94,15 +104,20 @@ function ResetPassword() {
                 <button
                   type="button"
                   onClick={() => setShow((s) => !s)}
-                  className="absolute inset-y-0 right-2 my-auto text-xs text-ink-500 hover:text-ink"
+                  aria-pressed={show}
+                  aria-label={show ? "Hide password" : "Show password"}
+                  className="absolute right-1 top-1/2 inline-flex min-h-[44px] -translate-y-1/2 items-center rounded-[var(--radius-control)] px-3 text-xs font-semibold text-ink-500 hover:text-ink-900"
                 >
                   {show ? "Hide" : "Show"}
                 </button>
               </div>
-              <p className="mt-1 text-[11px] text-ink-500">At least 8 characters.</p>
+              <p className="mt-1.5 text-xs text-ink-500">At least 8 characters.</p>
             </div>
             {error && (
-              <p className="text-sm text-destructive" role="alert">
+              <p
+                className="rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-sm text-ink-900"
+                role="alert"
+              >
                 {error}
               </p>
             )}
@@ -116,6 +131,6 @@ function ResetPassword() {
           </form>
         </>
       )}
-    </main>
+    </AuthShell>
   );
 }

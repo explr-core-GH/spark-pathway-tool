@@ -3,12 +3,19 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
-import { Stamp, Wordmark } from "@/components/passport";
+import { PortalHeader, Stamp, type PortalLink } from "@/components/passport";
+import { SiteFooter } from "@/components/SiteFooter";
 import { usePassport, type Experience } from "@/lib/passport";
 import { EXPERIENCE_TYPE_BY_KEY, STAGES, isExposure } from "@/lib/wbl-taxonomy";
 import { requestAttestation } from "@/lib/attestation.functions";
 
 /** /student/experiences — everything the student has added, with status and the stamp request flow. */
+const STUDENT_LINKS: PortalLink[] = [
+  { label: "My passport", to: "/student" },
+  { label: "Opportunities", to: "/opportunities" },
+  { label: "Families", to: "/student/pathway", search: { tab: "families" } },
+];
+
 export const Route = createFileRoute("/student_/experiences")({
   head: () => ({ meta: [{ title: "My experiences — EXPLR Pathways" }] }),
   component: () => (
@@ -37,15 +44,14 @@ function Experiences() {
       className="min-h-screen bg-paper text-ink-900"
       data-density={p?.band === "explore" ? "explore" : undefined}
     >
-      <header className="border-b border-line">
-        <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Wordmark />
-          <Link to="/student" className="text-[15px] font-medium text-green-deep hover:underline">
-            ← My passport
-          </Link>
-        </div>
-      </header>
+      <PortalHeader role="Student" links={STUDENT_LINKS} signedIn />
       <main className="mx-auto max-w-[1100px] px-4 py-10 sm:px-6">
+        <Link
+          to="/student"
+          className="inline-flex min-h-[44px] items-center text-sm font-medium text-green-deep hover:underline"
+        >
+          ← My passport
+        </Link>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="eyebrow text-green">Experience</p>
@@ -77,6 +83,7 @@ function Experiences() {
           </ul>
         )}
       </main>
+      <SiteFooter className="mt-16" />
     </div>
   );
 }
@@ -231,7 +238,7 @@ function ExperienceItem({
             </button>
           </div>
           {error && (
-            <p role="alert" className="text-sm text-destructive sm:col-span-3">
+            <p role="alert" className="text-sm text-red-700 sm:col-span-3">
               {error}
             </p>
           )}

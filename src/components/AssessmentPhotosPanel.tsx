@@ -148,13 +148,13 @@ export function AssessmentPhotosPanel() {
         Add a context photo to each assessment question. Students see it above the prompt; questions
         without a photo show a colored band.
       </p>
-      <p className="mt-2 text-xs text-ink-500">
+      <p className="mt-2 text-sm text-ink-500">
         {withPhoto} of {ITEMS.length} questions have a photo. Use clear, realistic,
         classroom-appropriate images (JPG, PNG, or WebP).
       </p>
 
       {/* Bulk import: pick many files named by question id at once. */}
-      <div className="mt-4 flex flex-wrap items-center gap-3 border border-line bg-paper-sunken p-3 rounded-[var(--radius-card)]">
+      <div className="mt-4 flex flex-wrap items-center gap-3 rounded-[var(--radius-card)] border border-line bg-paper-sunken p-4">
         <button
           onClick={() => bulkInput.current?.click()}
           disabled={!!bulk}
@@ -191,7 +191,7 @@ export function AssessmentPhotosPanel() {
               <div key={code}>
                 <div className="flex items-center gap-2">
                   <span className="h-3 w-3 rounded-full" style={{ background: dim.color }} />
-                  <h3 className="text-sm font-semibold">{dim.name}</h3>
+                  <h3 className="font-display text-xl font-bold">{dim.name}</h3>
                 </div>
                 <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {byScale[code].map((it) => {
@@ -199,10 +199,10 @@ export function AssessmentPhotosPanel() {
                     return (
                       <li
                         key={it.id}
-                        className="flex gap-3 border border-line p-3 rounded-[var(--radius-card)]"
+                        className="flex gap-3 rounded-[var(--radius-card)] border border-line bg-paper-raised p-3"
                       >
                         <div
-                          className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded"
+                          className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-control)]"
                           style={{ background: dim.colorSoft }}
                         >
                           {url ? (
@@ -218,12 +218,12 @@ export function AssessmentPhotosPanel() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-xs font-medium text-ink-500">{it.id}</p>
-                          <p className="text-xs leading-snug text-ink line-clamp-2">{it.hs}</p>
+                          <p className="line-clamp-2 text-xs leading-snug text-ink-900">{it.hs}</p>
                           <div className="mt-2 flex gap-2">
                             <button
                               onClick={() => inputs.current[it.id]?.click()}
                               disabled={busy === it.id}
-                              className="text-xs text-green-deep hover:underline disabled:opacity-50"
+                              className="inline-flex min-h-[36px] items-center text-xs font-medium text-green-deep hover:underline disabled:opacity-50"
                             >
                               {busy === it.id ? "Uploading…" : url ? "Replace" : "Upload"}
                             </button>
@@ -231,7 +231,7 @@ export function AssessmentPhotosPanel() {
                               <button
                                 onClick={() => remove(it.id)}
                                 disabled={busy === it.id}
-                                className="text-xs text-red-600 hover:underline disabled:opacity-50"
+                                className="inline-flex min-h-[36px] items-center text-xs text-red-700 hover:underline disabled:opacity-50"
                               >
                                 Remove
                               </button>

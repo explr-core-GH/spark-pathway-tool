@@ -133,7 +133,7 @@ export function SchoolSearch({
 
   if (picked && picked.irn) {
     return (
-      <div className="flex items-center justify-between rounded-md border border-green/40 bg-mint-tint px-3 py-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-[var(--radius-control)] border border-mint-soft bg-mint-tint px-3 py-2">
         <div className="text-sm text-ink-700">
           <span className="font-medium">{picked.name}</span>
           {picked.districtName && <span className="text-ink-500"> · {picked.districtName}</span>}
@@ -143,7 +143,7 @@ export function SchoolSearch({
         <button
           type="button"
           onClick={clear}
-          className="text-xs uppercase tracking-wider text-green-deep hover:text-green-deep"
+          className="inline-flex min-h-[36px] items-center font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-green-deep hover:underline"
         >
           Change
         </button>
@@ -196,7 +196,7 @@ export function SchoolSearch({
           role="listbox"
           aria-label={label}
           onKeyDown={onListKeyDown}
-          className="absolute z-20 max-h-96 w-full overflow-y-auto rounded-md border border-line bg-paper-raised shadow-lg"
+          className="absolute z-20 max-h-96 w-full overflow-y-auto rounded-[var(--radius-control)] border border-line bg-paper-raised shadow-card"
         >
           {results.map((s) => (
             <li key={s.irn} className="border-b border-line last:border-0">
@@ -206,9 +206,9 @@ export function SchoolSearch({
                 aria-selected={false}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => pick(s)}
-                className="block w-full px-3 py-2 text-left hover:bg-mint-tint focus-visible:bg-mint-tint focus-visible:outline focus-visible:outline-2"
+                className="block min-h-[44px] w-full px-3 py-2 text-left hover:bg-mint-tint focus-visible:bg-mint-tint focus-visible:outline focus-visible:outline-2"
               >
-                <div className="font-semibold text-ink-700">{s.name}</div>
+                <div className="font-semibold text-ink-900">{s.name}</div>
                 <div className="text-xs text-ink-500">
                   {[s.districtName, s.city, s.gradeSpan, s.buildingType]
                     .filter(Boolean)

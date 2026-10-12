@@ -312,8 +312,8 @@ export function SurveyAdminPanel() {
       </p>
 
       {/* Create */}
-      <section className="mt-10 border border-line p-6 rounded-[var(--radius-card)]">
-        <h2 className="eyebrow">New survey assignment</h2>
+      <section className="mt-10 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6">
+        <h2 className="font-display text-2xl font-bold">New survey assignment</h2>
         <form onSubmit={createAssignment} className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label">Survey</label>
@@ -328,7 +328,7 @@ export function SurveyAdminPanel() {
                 </option>
               ))}
             </select>
-            <p className="mt-1 text-[11px] text-ink-500">
+            <p className="mt-1 text-xs text-ink-500">
               {fSurveyType === "retrospective"
                 ? "Single sitting on the last day (then/now ratings)."
                 : fSurveyType === "internship_exit"
@@ -338,20 +338,17 @@ export function SurveyAdminPanel() {
           </div>
           <div>
             <label className="label">Attach to</label>
-            <div className="mt-1 inline-flex border border-line-strong">
+            <div className="mt-1 flex flex-wrap gap-2">
               {(["camp", "internship"] as const).map((u) => (
                 <button
                   key={u}
                   type="button"
+                  aria-pressed={fUnitType === u}
                   onClick={() => {
                     setFUnitType(u);
                     setFUnitRefs([]); // refs are unit-type specific
                   }}
-                  className="px-3 py-1.5 text-xs"
-                  style={{
-                    background: fUnitType === u ? "var(--ink)" : "white",
-                    color: fUnitType === u ? "white" : "var(--color-ink-500)",
-                  }}
+                  className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${fUnitType === u ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
                 >
                   {u === "camp" ? "Camp session" : "Internship"}
                 </button>
@@ -362,7 +359,7 @@ export function SurveyAdminPanel() {
             <label className="label">
               {fUnitType === "camp" ? "Camp sessions" : "Internships"} — pick one or more
             </label>
-            <div className="mt-1 max-h-48 space-y-1 overflow-y-auto border border-line-strong bg-paper-raised p-2">
+            <div className="mt-1 max-h-48 space-y-1 overflow-y-auto rounded-[var(--radius-control)] border border-line bg-paper-sunken p-2">
               {(fUnitType === "camp"
                 ? campSessions.map((s) => ({
                     ref: s.id,
@@ -370,9 +367,10 @@ export function SurveyAdminPanel() {
                   }))
                 : internships.map((i) => ({ ref: i.slug, label: i.name }))
               ).map(({ ref, label }) => (
-                <label key={ref} className="flex items-center gap-2 px-1 py-0.5 text-sm">
+                <label key={ref} className="flex min-h-[36px] items-center gap-2 px-1 text-sm">
                   <input
                     type="checkbox"
+                    className="h-4 w-4 accent-green"
                     checked={fUnitRefs.includes(ref)}
                     onChange={(e) =>
                       setFUnitRefs((prev) =>
@@ -384,12 +382,12 @@ export function SurveyAdminPanel() {
                 </label>
               ))}
               {fUnitType === "camp" && campSessions.length === 0 && (
-                <p className="px-1 py-2 text-[11px] text-ink-500">
+                <p className="px-1 py-2 text-xs text-ink-500">
                   No camp sessions synced yet — run an ExplrMore sync first.
                 </p>
               )}
             </div>
-            <p className="mt-1 text-[11px] text-ink-500">
+            <p className="mt-1 text-xs text-ink-500">
               {fUnitRefs.length} selected — one assignment per selection.
             </p>
           </div>
@@ -429,9 +427,9 @@ export function SurveyAdminPanel() {
         ) : assignments.length === 0 ? (
           <p className="mt-4 text-sm text-ink-500">No assignments yet.</p>
         ) : (
-          <ul className="mt-4 divide-y divide-line border-y border-line">
+          <ul className="mt-4 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
             {assignments.map((a) => (
-              <li key={a.id} className="flex items-center gap-4 py-3">
+              <li key={a.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{a.title}</p>
                   <p className="truncate text-xs text-ink-500">
@@ -440,10 +438,12 @@ export function SurveyAdminPanel() {
                     {a.unit_ref}
                   </p>
                 </div>
-                <span className="text-xs text-ink-500">{completedCount(a.id)} completed</span>
+                <span className="rounded-full bg-paper-sunken px-2.5 py-0.5 text-xs text-ink-700">
+                  {completedCount(a.id)} completed
+                </span>
                 <button
                   onClick={() => removeAssignment(a.id)}
-                  className="text-xs text-red-600 hover:underline"
+                  className="inline-flex min-h-[44px] items-center text-xs text-red-700 hover:underline"
                 >
                   Delete
                 </button>
@@ -579,20 +579,20 @@ function ResultsPanel({
         {rows.length === 0 ? (
           <p className="mt-2 text-xs text-ink-500">No matched pre/post pairs yet.</p>
         ) : (
-          <div className="mt-2 overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="border-y border-line text-left text-xs uppercase tracking-wider text-ink-500">
-                  <th className="py-2 pr-4 font-normal">Construct</th>
-                  <th className="py-2 pr-4 font-normal">Pre</th>
-                  <th className="py-2 pr-4 font-normal">Post</th>
-                  <th className="py-2 pr-4 font-normal">Change</th>
-                  <th className="py-2 pr-4 font-normal">n</th>
-                  <th className="py-2 pr-4 font-normal">Cohen&apos;s d</th>
-                  <th className="py-2 pr-4 font-normal">Significance</th>
+          <div className="mt-2 overflow-x-auto rounded-[var(--radius-card)] border border-line">
+            <table className="w-full text-sm">
+              <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+                <tr>
+                  <th className="px-3 py-2.5 font-medium">Construct</th>
+                  <th className="px-3 py-2.5 font-medium">Pre</th>
+                  <th className="px-3 py-2.5 font-medium">Post</th>
+                  <th className="px-3 py-2.5 font-medium">Change</th>
+                  <th className="px-3 py-2.5 font-medium">n</th>
+                  <th className="px-3 py-2.5 font-medium">Cohen&apos;s d</th>
+                  <th className="px-3 py-2.5 font-medium">Significance</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line">
+              <tbody className="divide-y divide-line bg-paper-raised">
                 {ALL_CONSTRUCTS.map((c) => {
                   const pre: number[] = [];
                   const post: number[] = [];
@@ -620,25 +620,19 @@ function ResultsPanel({
                   const testName = useWilcoxon ? "Wilcoxon" : "t-test";
                   return (
                     <tr key={c}>
-                      <td className="py-2 pr-4 font-medium">{getConstruct(c)?.name ?? c}</td>
-                      <td className="py-2 pr-4 text-ink-700">{meanPre.toFixed(2)}</td>
-                      <td className="py-2 pr-4 text-ink-700">{meanPost.toFixed(2)}</td>
+                      <td className="px-3 py-2 font-medium">{getConstruct(c)?.name ?? c}</td>
+                      <td className="px-3 py-2 text-ink-700">{meanPre.toFixed(2)}</td>
+                      <td className="px-3 py-2 text-ink-700">{meanPost.toFixed(2)}</td>
                       <td
-                        className="py-2 pr-4 font-medium"
-                        style={{
-                          color:
-                            meanChange > 0
-                              ? "var(--color-green-deep)"
-                              : meanChange < 0
-                                ? "var(--color-destructive, #b91c1c)"
-                                : undefined,
-                        }}
+                        className={`px-3 py-2 font-medium ${
+                          meanChange > 0 ? "text-green-deep" : meanChange < 0 ? "text-red-700" : ""
+                        }`}
                       >
                         {meanChange > 0 ? "+" : ""}
                         {meanChange.toFixed(2)}
                       </td>
-                      <td className="py-2 pr-4 text-ink-500">{nPairs}</td>
-                      <td className="py-2 pr-4 text-ink-700">
+                      <td className="px-3 py-2 text-ink-500">{nPairs}</td>
+                      <td className="px-3 py-2 text-ink-700">
                         {r ? (
                           <>
                             {r.cohensD.toFixed(2)}{" "}
@@ -648,7 +642,7 @@ function ResultsPanel({
                           "—"
                         )}
                       </td>
-                      <td className="py-2 pr-4 text-ink-700">
+                      <td className="px-3 py-2 text-ink-700">
                         {pVal != null ? (
                           <>
                             p = {pVal < 0.001 ? "<0.001" : pVal.toFixed(3)}{" "}
@@ -757,9 +751,9 @@ function ResultsPanel({
   };
 
   return (
-    <div className="mt-4 border border-line p-6 rounded-[var(--radius-card)]">
+    <div className="mt-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <h3 className="text-base font-medium">{group.title}</h3>
+        <h3 className="font-display text-xl font-bold">{group.title}</h3>
         <button onClick={exportCsv} className="ink-link text-xs">
           Export raw CSV
         </button>
@@ -771,17 +765,14 @@ function ResultsPanel({
       </p>
 
       {/* Disaggregation control */}
-      <div className="mt-4 inline-flex flex-wrap border border-line-strong">
+      <div className="mt-4 flex flex-wrap gap-2">
         {(["none", "grade", "holland", "year"] as Disaggregation[]).map((d) => (
           <button
             key={d}
             type="button"
+            aria-pressed={disagg === d}
             onClick={() => onSetDisagg(d)}
-            className="px-3 py-1.5 text-xs"
-            style={{
-              background: disagg === d ? "var(--ink)" : "white",
-              color: disagg === d ? "white" : "var(--color-ink-500)",
-            }}
+            className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${disagg === d ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
           >
             {DISAGG_LABELS[d]}
           </button>
@@ -794,7 +785,7 @@ function ResultsPanel({
         buckets.map((b) => constructTable(b.rows, b.label))
       )}
 
-      <p className="mt-5 text-[11px] text-ink-500">
+      <p className="mt-5 text-xs text-ink-500">
         Cohen&apos;s d: 0.2 small · 0.5 medium · 0.8 large. Significance uses the paired t-test at n
         ≥ 30 and the non-parametric Wilcoxon signed-rank test below that. The S-STEM is validated at
         the construct level — treat item-level numbers as diagnostic only.

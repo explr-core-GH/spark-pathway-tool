@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ScanLine } from "lucide-react";
 import { SiteHeader } from "@/components/passport";
+import { SiteFooter } from "@/components/SiteFooter";
 
 /**
  * /explore/scan — scan a passport card with the laptop camera. Uses the
@@ -79,16 +80,24 @@ function Scan() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-paper text-ink-900" data-density="explore">
+    <div className="flex min-h-screen flex-col bg-paper text-ink-900" data-density="explore">
       <SiteHeader />
-      <main className="mx-auto max-w-[900px] px-4 py-10 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-[900px] flex-1 px-4 py-10 sm:px-6 lg:px-8">
         <Link
           to="/explore"
           className="inline-flex min-h-[44px] items-center gap-2 text-ink-700 hover:text-green-deep"
         >
           <ArrowLeft className="h-5 w-5" aria-hidden /> Back
         </Link>
-        <p className="eyebrow mt-6 text-green">Scan your passport card</p>
+        <p className="eyebrow mt-6 text-green">Students · grades 4-8</p>
+        <div className="mt-3 flex items-center gap-3">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] border border-mint-soft bg-mint-tint text-green-deep">
+            <ScanLine className="h-6 w-6" strokeWidth={2} aria-hidden />
+          </span>
+          <p className="font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-green">
+            Scan your passport card
+          </p>
+        </div>
         <h1 className="display mt-2">Hold your card up.</h1>
         <div className="mt-8 overflow-hidden rounded-[var(--radius-card)] border-2 border-line bg-ink-900 shadow-card">
           <video
@@ -112,6 +121,7 @@ function Scan() {
           Use my class code instead
         </Link>
       </main>
+      <SiteFooter className="mt-10" />
     </div>
   );
 }

@@ -37,18 +37,18 @@ function LoginDisplay() {
   }, []);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-4xl flex-col justify-center px-6 py-12 text-center">
+    <main className="mx-auto flex min-h-screen max-w-[1312px] flex-col justify-center px-4 py-10 text-center sm:px-6 lg:px-8">
       <p className="eyebrow">EXPLR Pathways</p>
       <h1 className="display mt-3 text-4xl md:text-6xl">Let&rsquo;s log in.</h1>
 
       <p className="mt-8 text-lg text-ink-700">Type this into your web browser:</p>
       <p className="mt-3">
-        <span className="inline-block whitespace-nowrap rounded-lg bg-paper-sunken px-6 py-4 font-mono text-2xl font-semibold tracking-tight text-ink md:text-4xl">
+        <span className="inline-block max-w-full overflow-x-auto whitespace-nowrap rounded-[var(--radius-card)] border border-line bg-paper-raised px-4 py-4 font-mono text-xl font-semibold tracking-tight text-ink-900 shadow-card sm:px-6 sm:text-2xl md:text-4xl">
           {url || "…"}
         </span>
       </p>
 
-      <div className="mt-12 grid items-center gap-10 text-left sm:grid-cols-[1fr_auto]">
+      <div className="mx-auto mt-12 grid w-full max-w-4xl items-center gap-10 text-left sm:grid-cols-[1fr_auto]">
         <ol className="space-y-4 text-lg text-ink-700">
           <Step n={1}>Go to the link above.</Step>
           <Step n={2}>
@@ -62,7 +62,7 @@ function LoginDisplay() {
           </Step>
         </ol>
         {qr && (
-          <div className="mx-auto text-center">
+          <div className="mx-auto rounded-[var(--radius-card)] border border-line bg-paper-raised p-4 text-center shadow-card">
             <img src={qr} alt={`QR code linking to ${url}`} className="h-44 w-44 md:h-56 md:w-56" />
             <p className="mt-2 text-xs text-ink-500">Or scan with a phone camera</p>
           </div>

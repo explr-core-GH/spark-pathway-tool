@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { School, Tent } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   fetchGroups,
@@ -22,8 +23,8 @@ function GroupGrid() {
   const { kind } = useParams({ from: "/instructor/admin/groups/$kind/" });
   if (!isGroupKind(kind)) {
     return (
-      <main className="mx-auto max-w-6xl px-6 py-16">
-        <p className="text-sm text-red-600">Unknown group type “{kind}”.</p>
+      <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
+        <p className="text-sm text-red-700">Unknown group type “{kind}”.</p>
       </main>
     );
   }
@@ -67,12 +68,12 @@ function GroupGridInner({ kind }: { kind: GroupKind }) {
   }, [groups, query]);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="eyebrow">Admin</p>
           <h1 className="display mt-2">{meta.label}</h1>
-          <p className="lead mt-2 max-w-2xl">
+          <p className="lead mt-3 max-w-2xl">
             Pick a {meta.singular.toLowerCase()} to see its overall results, then dive into students
             one by one.
           </p>
@@ -104,8 +105,8 @@ function GroupGridInner({ kind }: { kind: GroupKind }) {
       ) : setupNeeded ? (
         <ClassesSetupNote />
       ) : filtered.length === 0 ? (
-        <div className="mt-10 border border-dashed border-line-strong bg-paper-sunken px-6 py-12 text-center">
-          <p className="text-sm text-ink-500">
+        <div className="mt-10 rounded-[var(--radius-card)] border border-dashed border-line-strong bg-paper-raised px-6 py-12 text-center">
+          <p className="text-sm text-ink-700">
             {kind === "classes"
               ? "No classes yet. Create one to start grouping students."
               : `No rostered ${meta.label.toLowerCase()} yet.`}
@@ -151,32 +152,44 @@ function GroupCard({
     <Link
       to="/instructor/admin/groups/$kind/$id"
       params={{ kind, id: group.id }}
-      className="block border border-line bg-paper-raised p-5 transition-colors hover:border-line-strong rounded-[var(--radius-card)]"
+      className="flex flex-col rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card transition-colors hover:border-emerald focus-visible:border-emerald"
     >
-      <p className="text-sm font-medium leading-snug">{group.name}</p>
-      <p className="mt-1 h-4 truncate text-xs text-ink-500">{group.meta}</p>
+      <div className="flex items-start gap-3">
+        <span className="grid h-10 w-10 place-items-center rounded-[12px] border border-mint-soft bg-mint-tint text-green-deep shrink-0">
+          {kind === "camps" ? (
+            <Tent className="h-5 w-5" strokeWidth={2} aria-hidden />
+          ) : (
+            <School className="h-5 w-5" strokeWidth={2} aria-hidden />
+          )}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="font-display text-lg font-semibold leading-tight text-ink-900">
+            {group.name}
+          </p>
+          <p className="mt-1 h-4 truncate text-xs text-ink-500">{group.meta}</p>
+        </div>
+      </div>
 
-      <div className="mt-4 flex items-baseline justify-between text-xs text-ink-500">
+      <div className="mt-5 flex items-baseline justify-between text-xs text-ink-500">
         <span>{total ? `${done} / ${total} assessed` : "No students yet"}</span>
         {total > 0 && <span className="tabular-nums">{pct}%</span>}
       </div>
-      <div className="mt-1.5 h-1.5 w-full bg-paper-sunken">
-        <div className="h-1.5" style={{ width: `${pct}%`, background: "var(--color-green)" }} />
+      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-paper-sunken">
+        <div className="h-1.5 rounded-full bg-green" style={{ width: `${pct}%` }} />
       </div>
 
-      <div className="mt-3 flex items-center gap-1 text-xs text-ink-500">
-        <span className="tabular-nums">{total}</span>
-        <span>student{total === 1 ? "" : "s"}</span>
-      </div>
+      <p className="mt-3 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-green">
+        {total} student{total === 1 ? "" : "s"}
+      </p>
     </Link>
   );
 }
 
 function ClassesSetupNote() {
   return (
-    <div className="mt-10 border border-amber-200 bg-amber-50 px-6 py-6 text-sm text-amber-900">
+    <div className="mt-10 rounded-[var(--radius-card)] border border-gold bg-gold-tint px-6 py-6 text-sm text-ink-900">
       <p className="font-medium">Classes need a quick database setup.</p>
-      <p className="mt-2 text-amber-800">
+      <p className="mt-2 text-ink-700">
         The <span className="font-mono">classes</span> and{" "}
         <span className="font-mono">class_students</span> tables aren&apos;t in the database yet.
         They ship in the migration <span className="font-mono text-xs">…_classes.sql</span> — once
@@ -222,9 +235,16 @@ function NewClassModal({ onClose, onSaved }: { onClose: () => void; onSaved: () 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-6">
-      <div className="w-full max-w-md border bg-paper-raised p-8">
-        <h2 className="text-xl font-medium">New class</h2>
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="new-class-title"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink-900/40 p-4 sm:p-6"
+    >
+      <div className="w-full max-w-md rounded-[var(--radius-card)] bg-paper-raised p-6 shadow-lift sm:p-8">
+        <h2 id="new-class-title" className="font-display text-2xl font-bold">
+          New class
+        </h2>
         <div className="mt-6 grid gap-4">
           <div>
             <label className="label">Class name</label>

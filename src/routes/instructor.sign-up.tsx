@@ -9,6 +9,11 @@ export const Route = createFileRoute("/instructor/sign-up")({
   component: EducatorSignUp,
 });
 
+/**
+ * Renders inside the /instructor layout (instructor.tsx), which already
+ * provides the PortalHeader and SiteFooter, so this page only lays out the
+ * AuthShell-style two-column body: intro + illustration beside the card.
+ */
 function EducatorSignUp() {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
@@ -83,121 +88,136 @@ function EducatorSignUp() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
-      <Link to="/" className="eyebrow mb-12 inline-block">
-        ← EXPLR
-      </Link>
-      <h1 className="text-3xl font-light">Request instructor access</h1>
-      <p className="mt-2 text-sm text-ink-500">
-        For teachers, coaches, camp instructors, and internship supervisors. An EXPLR admin reviews
-        new accounts and assigns your program type. If you have an invite link, use that instead —
-        it activates instantly.
-      </p>
-      <form onSubmit={submit} className="mt-10 space-y-5">
-        <div>
-          <label className="label" htmlFor="edu-fullname">
-            Full name
-          </label>
-          <input
-            id="edu-fullname"
-            className="field"
-            required
-            autoComplete="name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="label" htmlFor="edu-org">
-            Organization
-          </label>
-          <input
-            id="edu-org"
-            className="field"
-            autoComplete="organization"
-            value={organization}
-            onChange={(e) => setOrganization(e.target.value)}
-            placeholder="School or program (optional)"
-          />
-        </div>
-        <div>
-          <label className="label" htmlFor="edu-email">
-            Email
-          </label>
-          <input
-            id="edu-email"
-            className="field"
-            type="email"
-            required
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="label" htmlFor="edu-password">
-            Passphrase
-          </label>
-          <input
-            id="edu-password"
-            className="field"
-            type="password"
-            required
-            minLength={8}
-            autoComplete="new-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <div>
-          <span className="label">
-            Your school <span className="text-ink-500">(optional)</span>
-          </span>
-          <SchoolSearch
-            initial={school}
-            onSelect={(s) => setSchool(s.irn ? s : null)}
-            placeholder="Search Ohio schools…"
-            label="Search for your school"
-          />
-        </div>
-        <div>
-          <label className="label" htmlFor="edu-studentcount">
-            Number of students you teach <span className="text-ink-500">(optional)</span>
-          </label>
-          <input
-            id="edu-studentcount"
-            type="number"
-            min={0}
-            className="field"
-            value={studentCount}
-            onChange={(e) => setStudentCount(e.target.value)}
-            placeholder="e.g. 28"
-          />
-          <p className="mt-1 text-xs text-ink-500">
-            Used to weight aggregate demographics for EXPLR&apos;s admin dashboard.
+    <main className="mx-auto w-full max-w-[1312px] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+      <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,560px)] lg:gap-16">
+        <section className="order-2 lg:order-1 lg:sticky lg:top-8">
+          <p className="eyebrow">Instructors</p>
+          <h1 className="display mt-3">Request instructor access</h1>
+          <p className="lead mt-4 max-w-xl">
+            For teachers, coaches, camp instructors, and internship supervisors. An EXPLR admin
+            reviews new accounts and assigns your program type. If you have an invite link, use that
+            instead; it activates instantly.
           </p>
-        </div>
-        <div>
-          <span className="label">
-            Grade levels you teach <span className="text-ink-500">(optional)</span>
-          </span>
-          <GradeLevelPicker value={gradeLevels} onChange={setGradeLevels} className="mt-1" />
-        </div>
-        {error && (
-          <p className="text-sm text-destructive" role="alert">
-            {error}
+          <img
+            src="/passport/assessments.webp"
+            alt=""
+            className="mt-8 hidden w-full max-w-md lg:block"
+            loading="lazy"
+          />
+        </section>
+        <section className="order-1 lg:order-2">
+          <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 shadow-[0_1px_0_rgba(25,32,31,0.04)] sm:p-8">
+            <form onSubmit={submit} className="space-y-5">
+              <div>
+                <label className="label" htmlFor="edu-fullname">
+                  Full name
+                </label>
+                <input
+                  id="edu-fullname"
+                  className="field"
+                  required
+                  autoComplete="name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="label" htmlFor="edu-org">
+                  Organization
+                </label>
+                <input
+                  id="edu-org"
+                  className="field"
+                  autoComplete="organization"
+                  value={organization}
+                  onChange={(e) => setOrganization(e.target.value)}
+                  placeholder="School or program (optional)"
+                />
+              </div>
+              <div>
+                <label className="label" htmlFor="edu-email">
+                  Email
+                </label>
+                <input
+                  id="edu-email"
+                  className="field"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="label" htmlFor="edu-password">
+                  Passphrase
+                </label>
+                <input
+                  id="edu-password"
+                  className="field"
+                  type="password"
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              <div>
+                <span className="label">
+                  Your school <span className="text-ink-500">(optional)</span>
+                </span>
+                <SchoolSearch
+                  initial={school}
+                  onSelect={(s) => setSchool(s.irn ? s : null)}
+                  placeholder="Search Ohio schools…"
+                  label="Search for your school"
+                />
+              </div>
+              <div>
+                <label className="label" htmlFor="edu-studentcount">
+                  Number of students you teach <span className="text-ink-500">(optional)</span>
+                </label>
+                <input
+                  id="edu-studentcount"
+                  type="number"
+                  min={0}
+                  className="field"
+                  value={studentCount}
+                  onChange={(e) => setStudentCount(e.target.value)}
+                  placeholder="e.g. 28"
+                />
+                <p className="mt-1.5 text-xs text-ink-500">
+                  Used to weight aggregate demographics for EXPLR&apos;s admin dashboard.
+                </p>
+              </div>
+              <div>
+                <span className="label">
+                  Grade levels you teach <span className="text-ink-500">(optional)</span>
+                </span>
+                <GradeLevelPicker value={gradeLevels} onChange={setGradeLevels} className="mt-1" />
+              </div>
+              {error && (
+                <p
+                  className="rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-sm text-ink-900"
+                  role="alert"
+                >
+                  {error}
+                </p>
+              )}
+              <button type="submit" disabled={loading} className="btn-ink w-full justify-center">
+                {loading ? "Submitting…" : "Request access"}
+              </button>
+            </form>
+          </div>
+          <p className="mt-6 text-sm text-ink-500">
+            Have an account?{" "}
+            <Link to="/instructor/sign-in" className="ink-link">
+              Sign in
+            </Link>
           </p>
-        )}
-        <button type="submit" disabled={loading} className="btn-ink w-full justify-center">
-          {loading ? "Submitting…" : "Request access"}
-        </button>
-      </form>
-      <p className="mt-6 text-sm text-ink-500">
-        Have an account?{" "}
-        <Link to="/instructor/sign-in" className="ink-link">
-          Sign in
-        </Link>
-      </p>
+        </section>
+      </div>
     </main>
   );
 }

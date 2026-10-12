@@ -3,6 +3,9 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
+import { SiteFooter } from "@/components/SiteFooter";
+import { PortalHeader, type PortalLink } from "@/components/passport";
+import { ArrowDown, ArrowUp, ListOrdered, ShieldCheck, X } from "lucide-react";
 import { HollandLetter, buildWhyFits, type ScaleScores } from "@/lib/holland-fit";
 import {
   oppSlug,
@@ -14,6 +17,12 @@ import {
 import { fetchInternshipCatalog } from "@/lib/internship-refs";
 import type { RIASECCode } from "@/lib/riasec";
 import { acknowledgmentsFor, targetFromOpportunity } from "@/lib/matching/placement";
+
+const STUDENT_LINKS: PortalLink[] = [
+  { label: "My passport", to: "/student" },
+  { label: "Opportunities", to: "/opportunities" },
+  { label: "Families", to: "/student/pathway", search: { tab: "families" } },
+];
 
 export const Route = createFileRoute("/student_/apply")({
   validateSearch: (s: Record<string, unknown>): { opportunity?: string } => ({
@@ -231,40 +240,39 @@ function SelectPage() {
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-line">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
-          <Link to="/student" className="text-sm tracking-tight">
-            ← My passport
-          </Link>
-          <Link to="/sign-out" className="text-sm text-ink-500 hover:text-ink">
-            Sign out
-          </Link>
-        </div>
-      </header>
+    <div className="min-h-screen bg-paper text-ink-900">
+      <PortalHeader role="Student" links={STUDENT_LINKS} signedIn />
 
-      <main className="mx-auto max-w-4xl px-6 py-16">
-        <p className="eyebrow">Internships · step 1 of 2</p>
-        <h1 className="display mt-3">Choose &amp; rank internships</h1>
-        <p className="mt-4 max-w-2xl text-ink-500">
-          Pick at least <span className="font-medium text-ink">{MIN_CHOICES}</span> internships
+      <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+        <Link
+          to="/student"
+          className="inline-flex min-h-[44px] items-center text-sm font-medium text-green-deep hover:underline"
+        >
+          ← My passport
+        </Link>
+        <p className="eyebrow text-green">Internships · step 1 of 2</p>
+        <h1 className="display mt-1">Choose &amp; rank internships.</h1>
+        <p className="lead mt-4 max-w-2xl">
+          Pick at least <span className="font-medium text-ink-900">{MIN_CHOICES}</span> internships
           you&apos;re interested in and put them in order of preference. An EXPLR admin reviews your
           picks and approves which ones you can apply to — then you complete the application.
         </p>
 
         {Object.keys(existing).length > 0 && (
-          <div className="mt-8 border border-line bg-paper-sunken p-4 rounded-[var(--radius-card)]">
-            <p className="text-xs uppercase tracking-wider text-ink-500">Your requests so far</p>
-            <ul className="mt-2 space-y-1 text-sm">
+          <div className="mt-8 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card">
+            <p className="eyebrow">Your requests so far</p>
+            <ul className="mt-3 divide-y divide-line text-sm">
               {Object.entries(existing).map(([ref, status]) => (
-                <li key={ref} className="flex items-center justify-between">
-                  <span>{nameByRef(ref)}</span>
-                  <span className="text-xs text-ink-500">{STATUS_LABEL[status] ?? status}</span>
+                <li key={ref} className="flex items-center justify-between gap-3 py-2">
+                  <span className="font-medium">{nameByRef(ref)}</span>
+                  <span className="inline-flex items-center rounded-full bg-paper-sunken px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-700">
+                    {STATUS_LABEL[status] ?? status}
+                  </span>
                 </li>
               ))}
             </ul>
             {Object.values(existing).some((s) => s === "approved") && (
-              <Link to="/student/apply-complete" className="btn-ink mt-3 inline-flex text-sm">
+              <Link to="/student/apply-complete" className="btn-ink mt-4">
                 Complete approved applications →
               </Link>
             )}
@@ -272,16 +280,17 @@ function SelectPage() {
         )}
 
         {!hasProfile && !done && (
-          <div className="mt-8 border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-            <p className="font-medium">One thing first: your internship profile.</p>
-            <p className="mt-1">
+          <div className="mt-8 rounded-[var(--radius-card)] bg-gold-tint p-5 text-sm text-ink-900">
+            <p className="eyebrow text-gold-deep">One thing first</p>
+            <p className="mt-1 font-display text-lg font-semibold">Your internship profile.</p>
+            <p className="mt-1 text-ink-700">
               Coursework, what you like, where you're headed, when you're free, and how you'd get
               there. It's what EXPLR uses to match you, and you fill it in once.
             </p>
             <Link
               to="/student/profile"
               search={{ next: "/student/apply" }}
-              className="btn-ink mt-3 inline-flex text-sm"
+              className="btn-ink mt-4"
             >
               Fill in my profile
             </Link>
@@ -289,83 +298,94 @@ function SelectPage() {
         )}
 
         {done ? (
-          <div className="mt-10 border border-emerald-200 bg-emerald-50 p-6">
-            <p className="text-sm font-medium text-emerald-800">Requests submitted.</p>
-            <p className="mt-1 text-sm text-emerald-800">
+          <div className="mt-10 rounded-[var(--radius-card)] border border-mint-soft bg-mint-tint p-6">
+            <p className="font-display text-xl font-semibold text-green-deep">
+              Requests submitted.
+            </p>
+            <p className="mt-1 text-sm text-ink-700">
               An admin will review them. You&apos;ll be able to complete the application for each
               one that&apos;s approved.
             </p>
-            <button onClick={() => navigate({ to: "/student" })} className="btn-ink mt-4 text-sm">
-              Back to dashboard
+            <button onClick={() => navigate({ to: "/student" })} className="btn-ink mt-4">
+              Back to my passport
             </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="mt-10">
             {/* Ranked choices */}
-            <section className="border border-line p-5 rounded-[var(--radius-card)]">
-              <div className="flex items-baseline justify-between">
-                <p className="eyebrow" style={{ margin: 0 }}>
-                  Your ranked choices
-                </p>
+            <section className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
+                    <ListOrdered className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+                  </span>
+                  <h2 className="font-display text-xl font-semibold">Your ranked choices</h2>
+                </div>
                 <span
-                  className={`text-xs ${selected.length >= MIN_CHOICES ? "text-green-deep" : "text-amber-700"}`}
+                  className={`inline-flex items-center rounded-full px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] ${
+                    selected.length >= MIN_CHOICES
+                      ? "bg-mint-tint text-green-deep"
+                      : "bg-gold-tint text-gold-deep"
+                  }`}
                 >
                   {selected.length} of {MIN_CHOICES}+ chosen
                 </span>
               </div>
               {selected.length === 0 ? (
-                <p className="mt-3 text-sm text-ink-500">
+                <p className="mt-3 text-sm text-ink-700">
                   Check internships below to add them here, then order them #1 (top) and down.
                 </p>
               ) : (
-                <ol className="mt-3 space-y-1.5">
+                <ol className="mt-4 space-y-2">
                   {selected.map((ref, idx) => (
                     <li
                       key={ref}
-                      className="flex items-center gap-3 border border-line px-3 py-2 text-sm rounded-[var(--radius-card)]"
+                      className="flex flex-wrap items-center gap-2 rounded-[var(--radius-control)] border border-line bg-paper px-3 py-2 text-sm sm:gap-3"
                     >
-                      <span className="w-6 shrink-0 text-center font-medium tabular-nums">
+                      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink-900 font-mono text-xs font-medium text-paper tabular-nums">
                         {idx + 1}
                       </span>
-                      <span className="flex-1">{nameByRef(ref)}</span>
+                      <span className="min-w-0 flex-1 font-medium">{nameByRef(ref)}</span>
                       {existing[ref] && (
-                        <span className="text-xs text-ink-500">
+                        <span className="inline-flex items-center rounded-full bg-paper-sunken px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-700">
                           {STATUS_LABEL[existing[ref]] ?? existing[ref]}
                         </span>
                       )}
-                      <button
-                        type="button"
-                        onClick={() => move(ref, -1)}
-                        disabled={idx === 0}
-                        className="px-1 text-ink-500 hover:text-ink disabled:opacity-30"
-                        aria-label="Move up"
-                      >
-                        ▲
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => move(ref, 1)}
-                        disabled={idx === selected.length - 1}
-                        className="px-1 text-ink-500 hover:text-ink disabled:opacity-30"
-                        aria-label="Move down"
-                      >
-                        ▼
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toggle(ref)}
-                        className="px-1 text-ink-500 hover:text-red-600"
-                        aria-label="Remove"
-                      >
-                        ✕
-                      </button>
+                      <span className="flex items-center">
+                        <button
+                          type="button"
+                          onClick={() => move(ref, -1)}
+                          disabled={idx === 0}
+                          className="grid h-11 w-11 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-ink-900 disabled:opacity-30"
+                          aria-label="Move up"
+                        >
+                          <ArrowUp className="h-4 w-4" aria-hidden />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => move(ref, 1)}
+                          disabled={idx === selected.length - 1}
+                          className="grid h-11 w-11 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-ink-900 disabled:opacity-30"
+                          aria-label="Move down"
+                        >
+                          <ArrowDown className="h-4 w-4" aria-hidden />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => toggle(ref)}
+                          className="grid h-11 w-11 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-red-700"
+                          aria-label="Remove"
+                        >
+                          <X className="h-4 w-4" aria-hidden />
+                        </button>
+                      </span>
                     </li>
                   ))}
                 </ol>
               )}
             </section>
 
-            <p className="mt-8 text-sm text-ink-500">
+            <p className="mt-8 text-sm text-ink-700">
               {hollandCode ? (
                 <>
                   Listed by fit with your Holland code{" "}
@@ -378,7 +398,7 @@ function SelectPage() {
             </p>
             <ul className="mt-4 grid gap-3">
               {ranked.length === 0 && (
-                <li className="border border-line bg-paper-raised p-4 text-sm text-ink-500 rounded-[var(--radius-card)]">
+                <li className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-4 text-sm text-ink-700">
                   No partner internships are open right now. Check back soon.
                 </li>
               )}
@@ -389,13 +409,13 @@ function SelectPage() {
                 return (
                   <li key={i.slug}>
                     <label
-                      className={`flex cursor-pointer items-start gap-4 border p-4 transition-colors ${checked ? "border-ink-900 bg-paper-sunken" : "border-line hover:border-line-strong"}`}
+                      className={`flex cursor-pointer items-start gap-4 rounded-[var(--radius-card)] border bg-paper-raised p-4 transition-colors ${checked ? "border-emerald bg-mint-tint/40" : "border-line hover:border-emerald"}`}
                     >
                       <input
                         type="checkbox"
                         checked={checked}
                         onChange={() => toggle(i.slug)}
-                        className="mt-1"
+                        className="mt-1 h-5 w-5 shrink-0 accent-green-deep"
                       />
                       <span className="flex-1">
                         <span className="flex items-baseline justify-between gap-3">
@@ -408,12 +428,12 @@ function SelectPage() {
                             ) : null}
                           </span>
                           {status && (
-                            <span className="text-xs uppercase tracking-wider text-ink-500">
+                            <span className="inline-flex shrink-0 items-center rounded-full bg-paper-sunken px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-700">
                               {STATUS_LABEL[status] ?? status}
                             </span>
                           )}
                         </span>
-                        <span className="mt-1 block text-sm text-ink-500">{i.deliverables}</span>
+                        <span className="mt-1 block text-sm text-ink-700">{i.deliverables}</span>
                         <span className="mt-1 block text-xs text-ink-500">
                           Holland fit:{" "}
                           {i.riasec.map((c: RIASECCode, idx2: number) => (
@@ -424,10 +444,7 @@ function SelectPage() {
                           ))}
                         </span>
                         {why && (
-                          <span
-                            className="mt-2 block text-sm italic"
-                            style={{ color: "var(--color-green)" }}
-                          >
+                          <span className="mt-2 block text-sm text-green">
                             Why this fits you: {why}
                           </span>
                         )}
@@ -439,11 +456,16 @@ function SelectPage() {
             </ul>
 
             {selected.some((ref) => requiredAcks(ref).length > 0) && (
-              <section className="mt-8 border border-line p-5 rounded-[var(--radius-card)]">
-                <p className="eyebrow" style={{ margin: 0 }}>
-                  Before you request: the fine print
-                </p>
-                <p className="mt-2 text-sm text-ink-500">
+              <section className="mt-8 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card">
+                <div className="flex items-center gap-3">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
+                    <ShieldCheck className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+                  </span>
+                  <h2 className="font-display text-xl font-semibold">
+                    Before you request: the fine print
+                  </h2>
+                </div>
+                <p className="mt-3 text-sm text-ink-700">
                   These listings have special requirements. Check each one to confirm it works for
                   you. We won't place you somewhere that doesn't.
                 </p>
@@ -455,10 +477,10 @@ function SelectPage() {
                       <ul className="mt-1 space-y-1">
                         {requiredAcks(ref).map((a) => (
                           <li key={a}>
-                            <label className="flex items-start gap-2 text-sm text-ink-700">
+                            <label className="flex min-h-[44px] items-start gap-2 py-2 text-sm text-ink-700">
                               <input
                                 type="checkbox"
-                                className="mt-1"
+                                className="mt-1 h-5 w-5 shrink-0 accent-green-deep"
                                 checked={(acks[ref] ?? []).includes(a)}
                                 onChange={() => toggleAck(ref, a)}
                               />
@@ -472,10 +494,14 @@ function SelectPage() {
               </section>
             )}
 
-            {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+            {error && (
+              <p role="alert" className="mt-4 text-sm text-red-700">
+                {error}
+              </p>
+            )}
 
-            <div className="mt-8 flex items-center justify-between border-t border-line pt-8">
-              <p className="text-sm text-ink-500">
+            <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-8">
+              <p className="text-sm text-ink-700">
                 {selected.length} selected · need {MIN_CHOICES}+
               </p>
               <button
@@ -489,6 +515,7 @@ function SelectPage() {
           </form>
         )}
       </main>
+      <SiteFooter className="mt-16" />
     </div>
   );
 }

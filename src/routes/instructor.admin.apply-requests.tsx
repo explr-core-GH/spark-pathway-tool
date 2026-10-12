@@ -117,10 +117,10 @@ function ApplyRequests() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
       <h1 className="display mt-2">Requests to apply</h1>
-      <p className="lead mt-2 max-w-2xl">
+      <p className="lead mt-3 max-w-2xl">
         Students who selected internships and are waiting to be cleared to apply. Approve all, or
         uncheck any a student isn&apos;t qualified for (e.g. age) before approving — unchecked ones
         are declined.
@@ -129,15 +129,20 @@ function ApplyRequests() {
       {loading ? (
         <p className="mt-8 text-sm text-ink-500">Loading…</p>
       ) : byStudent.length === 0 ? (
-        <p className="mt-8 text-sm text-ink-500">No pending requests.</p>
+        <p className="mt-8 rounded-[var(--radius-card)] border border-line bg-paper-raised px-5 py-6 text-sm text-ink-700">
+          No pending requests.
+        </p>
       ) : (
         <div className="mt-8 space-y-6">
           {byStudent.map(([studentId, rows]) => {
             const st = students[studentId];
             const approveSet = approve[studentId] ?? new Set();
             return (
-              <div key={studentId} className="border border-line p-5 rounded-[var(--radius-card)]">
-                <div className="flex items-baseline justify-between">
+              <div
+                key={studentId}
+                className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="font-medium">
                     {st?.first_name ?? "Student"}
                     <span className="ml-2 text-xs text-ink-500">
@@ -160,9 +165,10 @@ function ApplyRequests() {
                     .sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99))
                     .map((s) => (
                       <li key={s.id}>
-                        <label className="flex items-center gap-2 text-sm">
+                        <label className="flex min-h-[44px] items-center gap-2 text-sm">
                           <input
                             type="checkbox"
+                            className="h-4 w-4 accent-green"
                             checked={approveSet.has(s.internship_ref)}
                             onChange={() => toggle(studentId, s.internship_ref)}
                           />

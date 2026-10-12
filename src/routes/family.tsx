@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { House } from "lucide-react";
 import { SiteHeader } from "@/components/passport";
 import { SiteFooter } from "@/components/SiteFooter";
 import { redeemFamilyCode } from "@/lib/family.functions";
@@ -55,10 +56,10 @@ function Family() {
       <main className="mx-auto max-w-[1312px] px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
           <div className="flex flex-col gap-6">
-            <p className="eyebrow text-green">For families</p>
+            <p className="eyebrow text-green">Families</p>
             <h1 className="display">Your student's passport, in your hands.</h1>
             <p className="lead max-w-[600px] text-ink-700">
-              See completed interest results, internship matches, and what your student has
+              See completed interest results, verified experiences, and what your student has
               explored. You don't need an account, just the code your student made for you.
             </p>
 
@@ -66,12 +67,17 @@ function Family() {
               onSubmit={submit}
               className="flex flex-col gap-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 shadow-card"
             >
-              <label htmlFor="family-code" className="font-display text-xl font-semibold">
-                Enter your family code
-              </label>
+              <div className="flex items-center gap-3">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
+                  <House className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+                </span>
+                <label htmlFor="family-code" className="font-display text-xl font-semibold">
+                  Enter your family code
+                </label>
+              </div>
               <input
                 id="family-code"
-                className="w-full rounded-[var(--radius-control)] border-2 border-line-strong bg-paper px-4 py-3 font-mono text-xl uppercase tracking-[0.1em] focus:border-emerald focus:outline-none"
+                className="min-h-[52px] w-full rounded-[var(--radius-control)] border-2 border-line-strong bg-paper px-4 py-3 font-mono text-xl uppercase tracking-[0.1em] text-ink-900 focus:border-emerald focus:outline-none"
                 placeholder="EXPLR-7K4P2M"
                 autoCapitalize="characters"
                 autoCorrect="off"
@@ -81,7 +87,10 @@ function Family() {
                 required
               />
               {error && (
-                <p role="alert" className="text-sm text-destructive">
+                <p
+                  role="alert"
+                  className="rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-sm text-ink-900"
+                >
                   {error}
                 </p>
               )}

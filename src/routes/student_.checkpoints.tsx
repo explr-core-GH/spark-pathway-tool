@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Check, Circle } from "lucide-react";
+import { Check, Circle, FileDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
-import { Wordmark } from "@/components/passport";
+import { PortalHeader, type PortalLink } from "@/components/passport";
+import { SiteFooter } from "@/components/SiteFooter";
 import { usePassport, type Passport } from "@/lib/passport";
+import { downloadStudentSuccessPlanPdf } from "@/lib/exports";
 import { CAREER_CLUSTERS } from "@/lib/wbl-taxonomy";
 import {
   CHECKLIST,
@@ -25,6 +27,12 @@ import {
  * checkpoints. Tasks are evaluated from the passport and the short forms
  * here; a checkpoint is complete when every required task is done.
  */
+const STUDENT_LINKS: PortalLink[] = [
+  { label: "My passport", to: "/student" },
+  { label: "Opportunities", to: "/opportunities" },
+  { label: "Families", to: "/student/pathway", search: { tab: "families" } },
+];
+
 export const Route = createFileRoute("/student_/checkpoints")({
   head: () => ({ meta: [{ title: "Checkpoints — EXPLR Pathways" }] }),
   component: () => (
@@ -238,15 +246,14 @@ function Checkpoints() {
       className="min-h-screen bg-paper text-ink-900"
       data-density={explore ? "explore" : undefined}
     >
-      <header className="border-b border-line">
-        <div className="mx-auto flex max-w-[1000px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Wordmark />
-          <Link to="/student" className="text-[15px] font-medium text-green-deep hover:underline">
-            ← My passport
-          </Link>
-        </div>
-      </header>
+      <PortalHeader role="Student" links={STUDENT_LINKS} signedIn />
       <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
+        <Link
+          to="/student"
+          className="inline-flex min-h-[44px] items-center text-sm font-medium text-green-deep hover:underline"
+        >
+          ← My passport
+        </Link>
         <p className="eyebrow text-green">Checkpoints · {sy}</p>
         <h1 className="display mt-1">
           {explore ? "Little goals on your path." : "Your plan, twice a year."}
@@ -257,8 +264,54 @@ function Checkpoints() {
             : "Two check-ins each school year, lined up with Ohio's Student Success Plan. Fall collects your assessments and sets a goal; spring records what you explored, your reflections, and next year's courses."}
         </p>
 
+        {ready && p && !explore && (
+          <button
+            type="button"
+            onClick={() =>
+              downloadStudentSuccessPlanPdf(p, {
+                schoolYear: sy,
+                goals: goals.map((g) => ({
+                  grade: cps.find((c) => c.id === g.checkpoint_id)?.grade ?? p.grade,
+                  primary_goal: g.primary_goal,
+                  secondary_goal: g.secondary_goal,
+                  cluster: g.cluster,
+                  post_hs_plan: g.post_hs_plan,
+                  changed_since_last: g.changed_since_last,
+                  why: g.why,
+                })),
+                checkpoints: cps.map((cp) => ({
+                  term: cp.term,
+                  grade: cp.grade,
+                  status: cp.status,
+                  submitted_at: cp.submitted_at,
+                  advisor_notes: cp.advisor_notes,
+                  tasks: (TEMPLATES[cp.grade]?.[cp.term] ?? []).map((t) => {
+                    const row = tasks.find(
+                      (x) => x.checkpoint_id === cp.id && x.task_key === t.key,
+                    );
+                    return {
+                      key: t.key,
+                      label: t.label,
+                      status: row?.status ?? "todo",
+                      payload: row?.payload ?? null,
+                    };
+                  }),
+                })),
+                checklist: checks,
+                checklistText: CHECKLIST.map((c) => ({ no: c.no, text: c.text })),
+                approval,
+                postHsLabels: Object.fromEntries(POST_HS_PLANS.map((o) => [o.key, o.label])),
+              })
+            }
+            className="btn-ghost mt-6 text-sm"
+          >
+            <FileDown className="h-4 w-4" aria-hidden />
+            Download Student Success Plan (PDF)
+          </button>
+        )}
+
         {error && (
-          <p role="alert" className="mt-6 text-sm text-destructive">
+          <p role="alert" className="mt-6 text-sm text-red-700">
             {error}
           </p>
         )}
@@ -289,6 +342,7 @@ function Checkpoints() {
           </div>
         )}
       </main>
+      <SiteFooter className="mt-16" />
     </div>
   );
 }
@@ -358,7 +412,7 @@ function CheckpointCard({
             <div className="flex items-start gap-3">
               <span
                 className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full ${
-                  done ? "bg-green text-white" : "border border-line-strong text-ink-500"
+                  done ? "bg-green text-paper-raised" : "border border-line-strong text-ink-500"
                 }`}
                 aria-hidden
               >
@@ -692,13 +746,32 @@ function ChecklistTask({
   );
 }
 
+/** One sign-off in the plan approval row: a mint check when done, a hollow dot when not. */
+function AckMark({ label, on }: { label: string; on: boolean }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span
+        className={`grid h-5 w-5 place-items-center rounded-full ${
+          on ? "bg-green text-paper-raised" : "border border-line-strong text-ink-500"
+        }`}
+        aria-hidden
+      >
+        {on ? <Check className="h-3 w-3" strokeWidth={3} /> : <Circle className="h-1.5 w-1.5" />}
+      </span>
+      {label}
+      <span className="sr-only">{on ? " signed" : " not yet signed"}</span>
+    </span>
+  );
+}
+
 function ApprovalTask({ ctx, onAck }: { ctx: RuleContext; onAck: () => Promise<void> }) {
   const a = ctx.approval;
   return (
     <div className="mt-2 text-sm text-ink-700">
-      <p>
-        Student {a?.student_ack_at ? "✓" : "·"} · Parent/guardian {a?.guardian_ack_at ? "✓" : "·"} ·
-        Advisor {a?.advisor_ack_at ? "✓" : "·"}
+      <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <AckMark label="Student" on={!!a?.student_ack_at} />
+        <AckMark label="Parent/guardian" on={!!a?.guardian_ack_at} />
+        <AckMark label="Advisor" on={!!a?.advisor_ack_at} />
       </p>
       {!a?.student_ack_at && (
         <button type="button" onClick={onAck} className="btn-ghost mt-2 text-sm">

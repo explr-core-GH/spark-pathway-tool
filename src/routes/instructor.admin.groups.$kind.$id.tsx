@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { RosterDataPanel } from "@/components/RosterDataPanel";
 import { CampLoginsPanel } from "@/components/CampLoginsPanel";
@@ -39,8 +40,8 @@ function GroupWorkspace() {
   const { kind, id } = useParams({ from: "/instructor/admin/groups/$kind/$id" });
   if (!isGroupKind(kind)) {
     return (
-      <main className="mx-auto max-w-6xl px-6 py-16">
-        <p className="text-sm text-red-600">Unknown group type “{kind}”.</p>
+      <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
+        <p className="text-sm text-red-700">Unknown group type “{kind}”.</p>
       </main>
     );
   }
@@ -65,14 +66,14 @@ function Inner({ kind, id }: { kind: GroupKind; id: string }) {
 
   if (group === undefined) {
     return (
-      <main className="mx-auto max-w-6xl px-6 py-16">
+      <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
         <p className="text-sm text-ink-500">Loading…</p>
       </main>
     );
   }
   if (group === null) {
     return (
-      <main className="mx-auto max-w-6xl px-6 py-16">
+      <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
         <p className="text-sm text-ink-500">
           That {meta.singular.toLowerCase()} wasn&apos;t found.{" "}
           <Link to="/instructor/admin/groups/$kind" params={{ kind }} className="ink-link">
@@ -86,16 +87,17 @@ function Inner({ kind, id }: { kind: GroupKind; id: string }) {
   const tabs = tabsFor(kind);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <Link
         to="/instructor/admin/groups/$kind"
         params={{ kind }}
-        className="text-xs text-ink-500 hover:text-ink"
+        className="inline-flex min-h-[44px] items-center text-sm text-ink-500 hover:text-ink-900"
       >
         ← {meta.label}
       </Link>
-      <h1 className="mt-2 text-3xl font-light">{group.name}</h1>
-      {group.meta && <p className="mt-1 text-sm text-ink-500">{group.meta}</p>}
+      <p className="eyebrow mt-2">{meta.singular}</p>
+      <h1 className="display mt-2">{group.name}</h1>
+      {group.meta && <p className="lead mt-2">{group.meta}</p>}
       {(kind === "classes" || kind === "camps") && (
         <Link
           to="/instructor/explore-cards/$kind/$id"
@@ -106,13 +108,13 @@ function Inner({ kind, id }: { kind: GroupKind; id: string }) {
         </Link>
       )}
 
-      <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-b border-line pb-2 text-sm">
+      <div className="mt-6 flex flex-wrap gap-2">
         {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={tab === t.id ? "font-medium text-ink" : "text-ink-500 hover:text-ink"}
-            style={tab === t.id ? { boxShadow: "inset 0 -2px 0 0 var(--color-green)" } : undefined}
+            aria-pressed={tab === t.id}
+            className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${tab === t.id ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
           >
             {t.label}
           </button>
@@ -167,12 +169,10 @@ function Overview({
         <Metric label="Assessed" value={total ? `${Math.round((aDone / total) * 100)}%` : "—"} />
       </div>
 
-      <section className="mt-10">
-        <h2 className="text-xs uppercase tracking-wider text-ink-500">
-          Top interests in this group
-        </h2>
+      <section className="mt-10 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6">
+        <h2 className="font-display text-2xl font-bold">Top interests in this group</h2>
         {mix.length === 0 ? (
-          <p className="mt-3 text-sm text-ink-500">
+          <p className="mt-3 text-sm text-ink-700">
             No completed assessments yet, so there&apos;s no interest mix to show.
           </p>
         ) : (
@@ -180,13 +180,10 @@ function Overview({
             {mix.map((m) => (
               <li key={m.letter} className="flex items-center gap-3 text-sm">
                 <span className="w-28 shrink-0 text-ink-700">{m.label}</span>
-                <div className="relative h-2 flex-1 bg-paper-sunken">
+                <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-paper-sunken">
                   <div
-                    className="absolute inset-y-0 left-0"
-                    style={{
-                      width: `${Math.round((m.count / maxCount) * 100)}%`,
-                      background: "var(--color-green)",
-                    }}
+                    className="absolute inset-y-0 left-0 rounded-full bg-green"
+                    style={{ width: `${Math.round((m.count / maxCount) * 100)}%` }}
                   />
                 </div>
                 <span className="w-20 shrink-0 text-right text-xs text-ink-500 tabular-nums">
@@ -198,7 +195,10 @@ function Overview({
         )}
       </section>
 
-      <button onClick={onJump} className="mt-8 text-sm text-green-deep hover:underline">
+      <button
+        onClick={onJump}
+        className="mt-8 inline-flex min-h-[44px] items-center text-sm font-semibold text-green-deep hover:underline"
+      >
         Dive into students one by one →
       </button>
     </div>
@@ -244,9 +244,9 @@ function AssessmentsTab({
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border border-line bg-paper-raised p-4 rounded-[var(--radius-card)]">
-      <p className="text-[10px] uppercase tracking-wider text-ink-500">{label}</p>
-      <p className="mt-1 text-2xl font-light tabular-nums text-ink">{value}</p>
+    <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-4">
+      <p className="eyebrow">{label}</p>
+      <p className="mt-1 font-display text-2xl font-bold tabular-nums text-ink-900">{value}</p>
     </div>
   );
 }
@@ -319,8 +319,8 @@ function ClassRoster({
   }
 
   return (
-    <div className="mb-6 border border-line bg-paper-sunken p-4 rounded-[var(--radius-card)]">
-      <p className="text-xs font-semibold uppercase tracking-wider text-ink-500">Manage roster</p>
+    <div className="mb-6 rounded-[var(--radius-card)] border border-line bg-paper-sunken p-4">
+      <p className="eyebrow">Manage roster</p>
       <div className="relative mt-3 max-w-sm">
         <input
           className="field"
@@ -329,7 +329,7 @@ function ClassRoster({
           onChange={(e) => setQuery(e.target.value)}
         />
         {results.length > 0 && (
-          <ul className="absolute z-10 mt-1 w-full border border-line-strong bg-paper-raised shadow-sm">
+          <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-[var(--radius-control)] border border-line bg-paper-raised shadow-card">
             {results.map((s) => {
               const already = memberSet.has(s.id);
               return (
@@ -337,7 +337,7 @@ function ClassRoster({
                   <button
                     disabled={already || busy}
                     onClick={() => add(s.id)}
-                    className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-paper-sunken disabled:opacity-40"
+                    className="flex min-h-[44px] w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-paper-sunken disabled:opacity-40"
                   >
                     <span>{s.first_name ?? "Student"}</span>
                     <span className="text-xs text-ink-500">
@@ -395,16 +395,16 @@ function RemovableList({
       {memberIds.map((id) => (
         <span
           key={id}
-          className="inline-flex items-center gap-2 border border-line-strong bg-paper-raised px-2.5 py-1 text-xs"
+          className="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper-raised py-1 pl-3 pr-1.5 text-xs"
         >
           {names[id] ?? "…"}
           <button
             onClick={() => onRemove(id)}
             disabled={busy}
             aria-label="Remove"
-            className="text-ink-500 hover:text-red-600"
+            className="grid h-6 w-6 place-items-center rounded-full text-ink-500 hover:bg-paper-sunken hover:text-red-700"
           >
-            ✕
+            <X className="h-3.5 w-3.5" aria-hidden />
           </button>
         </span>
       ))}

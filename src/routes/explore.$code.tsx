@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CircleAlert, Smile } from "lucide-react";
 import { SiteHeader } from "@/components/passport";
+import { SiteFooter } from "@/components/SiteFooter";
 import { AvatarTile, SHAPE_LABELS, ShapeIcon } from "@/components/passport/ShapeIcon";
 import {
   exploreSignIn,
@@ -63,9 +64,9 @@ function PictureSignIn() {
   }
 
   return (
-    <div className="min-h-screen bg-paper text-ink-900" data-density="explore">
+    <div className="flex min-h-screen flex-col bg-paper text-ink-900" data-density="explore">
       <SiteHeader />
-      <main className="mx-auto max-w-[1100px] px-4 py-10 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-[1100px] flex-1 px-4 py-10 sm:px-6 lg:px-8">
         <Link
           to="/explore"
           className="inline-flex min-h-[44px] items-center gap-2 text-ink-700 hover:text-green-deep"
@@ -74,9 +75,15 @@ function PictureSignIn() {
         </Link>
 
         {error && (
-          <div className="mt-8 rounded-[var(--radius-card)] border-2 border-line bg-paper-raised p-7">
+          <div className="mt-8 flex flex-col gap-3 rounded-[var(--radius-card)] border-2 border-line bg-paper-raised p-7 shadow-card">
+            <span className="grid h-14 w-14 place-items-center rounded-[16px] border border-mint-soft bg-mint-tint text-green-deep">
+              <CircleAlert className="h-7 w-7" strokeWidth={2} aria-hidden />
+            </span>
             <p className="font-display text-2xl font-bold">Hmm, that code didn't work.</p>
-            <p className="mt-2 text-ink-700">{error}</p>
+            <p className="text-ink-700">{error}</p>
+            <Link to="/explore" className="btn-ink mt-2 self-start">
+              Try another code
+            </Link>
           </div>
         )}
 
@@ -84,9 +91,15 @@ function PictureSignIn() {
 
         {group && !picked && (
           <section className="mt-6">
-            <p className="eyebrow text-green">
-              2 · Tap your picture · {group.name} · {code}
-            </p>
+            <p className="eyebrow text-green">Students · grades 4-8</p>
+            <div className="mt-3 flex items-center gap-3">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] border border-mint-soft bg-mint-tint text-green-deep">
+                <Smile className="h-6 w-6" strokeWidth={2} aria-hidden />
+              </span>
+              <p className="font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-green">
+                2 · Tap your picture · {group.name} · {code}
+              </p>
+            </div>
             <h1 className="display mt-2">Which one is you?</h1>
             {group.students.length === 0 ? (
               <p className="mt-6 text-ink-700">
@@ -103,7 +116,7 @@ function PictureSignIn() {
                         setSeq([]);
                         setMsg(null);
                       }}
-                      className="flex w-full flex-col items-center gap-3 rounded-[var(--radius-card)] border-2 border-transparent p-4 hover:border-emerald focus-visible:border-emerald"
+                      className="flex w-full flex-col items-center gap-3 rounded-[var(--radius-card)] border-2 border-line bg-paper-raised p-4 shadow-card hover:border-emerald focus-visible:border-emerald"
                     >
                       <AvatarTile shape={s.avatarShape} color={s.avatarColor} size={112} />
                       <span className="text-xl font-semibold">{s.firstName}</span>
@@ -128,7 +141,10 @@ function PictureSignIn() {
                 selected
               />
               <div>
-                <p className="eyebrow text-green">3 · Tap your three secret shapes</p>
+                <p className="eyebrow text-green">Students · grades 4-8</p>
+                <p className="mt-1 font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-green">
+                  3 · Tap your three secret shapes
+                </p>
                 <h1 className="display mt-1">Hi, {picked.firstName}!</h1>
               </div>
               <button
@@ -192,6 +208,7 @@ function PictureSignIn() {
           </section>
         )}
       </main>
+      <SiteFooter className="mt-10" />
     </div>
   );
 }

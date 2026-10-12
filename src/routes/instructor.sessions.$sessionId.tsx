@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Users } from "lucide-react";
 import { EducatorGate } from "@/components/EducatorGate";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -103,23 +104,28 @@ function SessionDetail() {
   }, [sessionId]);
 
   if (!loaded) {
-    return <main className="mx-auto max-w-6xl px-6 py-16 text-sm text-ink-500">Loading…</main>;
+    return (
+      <main className="mx-auto max-w-[1312px] px-4 py-24 text-sm text-ink-500 sm:px-6 lg:px-8">
+        Loading…
+      </main>
+    );
   }
   if (!session) throw notFound();
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-16">
-      <Link to="/instructor/dashboard" className="ink-link text-sm">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
+      <Link
+        to="/instructor/dashboard"
+        className="inline-flex min-h-[44px] items-center text-sm text-ink-500 hover:text-ink-900"
+      >
         ← Dashboard
       </Link>
 
       {/* Header */}
-      <div className="mt-6">
-        <p className="text-xs uppercase tracking-wider text-ink-500">
-          {fmtRange(session.date, session.end_date)}
-        </p>
-        <h1 className="mt-2 text-4xl font-light">{session.title}</h1>
-        <div className="mt-2 flex flex-wrap gap-x-4 text-xs text-ink-500">
+      <div className="mt-4">
+        <p className="eyebrow text-green">{fmtRange(session.date, session.end_date)}</p>
+        <h1 className="display mt-2">{session.title}</h1>
+        <div className="mt-3 flex flex-wrap gap-x-4 text-sm text-ink-500">
           {session.location && <span>{session.location}</span>}
           {session.age_range && <span>· {session.age_range}</span>}
           {session.capacity != null && (
@@ -132,34 +138,37 @@ function SessionDetail() {
       </div>
 
       {/* Roster */}
-      <section className="mt-16">
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-xs uppercase tracking-wider text-ink-500">
+      <section className="mt-14">
+        <div className="flex items-center gap-3">
+          <span className="grid h-10 w-10 place-items-center rounded-[12px] border border-mint-soft bg-mint-tint text-green-deep">
+            <Users className="h-5 w-5" strokeWidth={2} aria-hidden />
+          </span>
+          <h2 className="font-display text-2xl font-bold">
             Roster · {registrations.length} student
             {registrations.length === 1 ? "" : "s"}
           </h2>
         </div>
         {registrations.length === 0 ? (
-          <p className="mt-4 py-6 text-sm text-ink-500">
+          <p className="mt-4 rounded-[var(--radius-card)] border border-line bg-paper-raised px-5 py-6 text-sm text-ink-700">
             No registrations synced for this session yet. Run an ExplrMore sync (Admin → Tools →
             Import from ExplrMore) or wait for the next scheduled sync.
           </p>
         ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="border-y border-line text-left text-xs uppercase tracking-wider text-ink-500">
-                  <th className="py-2 pr-4 font-normal">Student</th>
-                  <th className="py-2 pr-4 font-normal">Age</th>
-                  <th className="py-2 pr-4 font-normal">Status</th>
+          <div className="mt-4 overflow-x-auto rounded-[var(--radius-card)] border border-line">
+            <table className="w-full text-sm">
+              <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Student</th>
+                  <th className="px-4 py-3 font-medium">Age</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line">
+              <tbody className="divide-y divide-line bg-paper-raised">
                 {registrations.map((r) => (
                   <tr key={r.id}>
-                    <td className="py-2 pr-4 font-medium">{r.child_name}</td>
-                    <td className="py-2 pr-4 text-ink-500">{r.child_age ?? "—"}</td>
-                    <td className="py-2 pr-4 text-ink-500">{r.status ?? "—"}</td>
+                    <td className="px-4 py-3 font-medium">{r.child_name}</td>
+                    <td className="px-4 py-3 text-ink-500">{r.child_age ?? "—"}</td>
+                    <td className="px-4 py-3 text-ink-500">{r.status ?? "—"}</td>
                   </tr>
                 ))}
               </tbody>

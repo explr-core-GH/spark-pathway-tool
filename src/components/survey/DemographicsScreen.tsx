@@ -35,8 +35,8 @@ export function DemographicsScreen({
   return (
     <div>
       <p className="eyebrow">About you</p>
-      <h2 className="mt-1 text-2xl font-light">A few quick questions</h2>
-      <p className="mt-3 text-sm text-ink-500">
+      <h2 className="mt-1 font-display text-2xl font-bold">A few quick questions</h2>
+      <p className="mt-3 text-sm text-ink-700">
         This helps us understand who&apos;s in the program. Your answers are never shown next to
         your name.
       </p>
@@ -69,13 +69,13 @@ function renderField(
             <button
               key={opt}
               type="button"
+              aria-pressed={on}
               onClick={() => onChange(f.id, opt)}
-              className="border px-3 py-2 text-sm"
-              style={
+              className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${
                 on
-                  ? { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" }
-                  : { borderColor: "var(--color-line-strong)" }
-              }
+                  ? "border-ink-900 bg-ink-900 text-paper"
+                  : "border-line-strong bg-paper-raised text-ink-700 hover:border-ink-900"
+              }`}
             >
               {opt}
             </button>
@@ -95,15 +95,15 @@ function renderField(
             <button
               key={opt}
               type="button"
+              aria-pressed={on}
               onClick={() =>
                 onChange(f.id, on ? selected.filter((x) => x !== opt) : [...selected, opt])
               }
-              className="border px-3 py-2 text-sm"
-              style={
+              className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${
                 on
-                  ? { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" }
-                  : { borderColor: "var(--color-line-strong)" }
-              }
+                  ? "border-ink-900 bg-ink-900 text-paper"
+                  : "border-line-strong bg-paper-raised text-ink-700 hover:border-ink-900"
+              }`}
             >
               {opt}
             </button>

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { X } from "lucide-react";
 import { HollandHexagon } from "@/components/HollandHexagon";
 import { RIASEC, type RIASECCode } from "@/lib/riasec";
 import {
@@ -141,11 +142,15 @@ function ProgramRiasecPage() {
   }
 
   if (!hydrated) {
-    return <main className="mx-auto max-w-6xl px-6 py-16 text-sm text-ink-500">Loading…</main>;
+    return (
+      <main className="mx-auto max-w-[1312px] px-4 py-24 text-sm text-ink-500 sm:px-6 lg:px-8">
+        Loading…
+      </main>
+    );
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
       <h1 className="display mt-2">Program-RIASEC coder</h1>
       <p className="lead mt-3 max-w-2xl">
@@ -155,18 +160,15 @@ function ProgramRiasecPage() {
       </p>
 
       {/* Toolbar */}
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
-        <div className="flex gap-1">
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
           {(["programs", "compare", "reference"] as Tab[]).map((t) => (
             <button
               key={t}
               type="button"
               onClick={() => setTab(t)}
-              className="border-b-2 px-4 py-2 text-sm"
-              style={{
-                borderColor: tab === t ? "var(--ink)" : "transparent",
-                color: tab === t ? "var(--ink)" : "var(--color-ink-500)",
-              }}
+              aria-pressed={tab === t}
+              className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${tab === t ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
             >
               {t === "programs" ? "Programs" : t === "compare" ? "Compare" : "Reference"}
             </button>
@@ -198,19 +200,21 @@ function ProgramRiasecPage() {
             <button onClick={addProgram} className="btn-mint w-full justify-center">
               + New program
             </button>
-            <ul className="mt-4 divide-y divide-line border-y border-line">
+            <ul className="mt-4 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
               {programs.length === 0 && (
-                <li className="py-4 text-sm text-ink-500">No programs yet.</li>
+                <li className="px-4 py-4 text-sm text-ink-500">No programs yet.</li>
               )}
               {programs.map((p) => (
                 <li key={p.id}>
                   <button
                     onClick={() => setSelectedId(p.id)}
-                    className="block w-full py-3 text-left"
+                    aria-pressed={selectedId === p.id}
+                    className={`block min-h-[44px] w-full px-4 py-3 text-left first:rounded-t-[var(--radius-card)] last:rounded-b-[var(--radius-card)] ${
+                      selectedId === p.id ? "bg-mint-tint" : "hover:bg-paper-sunken"
+                    }`}
                   >
                     <p
-                      className="truncate text-sm font-medium"
-                      style={{ color: selectedId === p.id ? "var(--ink)" : "inherit" }}
+                      className={`truncate text-sm font-medium ${selectedId === p.id ? "text-green-deep" : "text-ink-900"}`}
                     >
                       {p.name || "Untitled"}
                     </p>
@@ -229,8 +233,8 @@ function ProgramRiasecPage() {
               onDelete={() => deleteProgram(selected.id)}
             />
           ) : (
-            <div className="border border-dashed border-line-strong p-10 text-center">
-              <p className="text-sm text-ink-500">No program selected.</p>
+            <div className="rounded-[var(--radius-card)] border border-dashed border-line-strong bg-paper-raised p-10 text-center">
+              <p className="text-sm text-ink-700">No program selected.</p>
               <button onClick={addProgram} className="btn-ink mt-4">
                 + New program
               </button>
@@ -296,7 +300,7 @@ function ProgramEditor({
   return (
     <div className="space-y-10">
       {/* Identity + metadata */}
-      <section className="border border-line p-6 rounded-[var(--radius-card)]">
+      <section className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-6">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Program name">
             <input
@@ -354,9 +358,10 @@ function ProgramEditor({
             onChange={(v) => set("culminatingEvent", v as Program["culminatingEvent"])}
             options={CULMINATING_EVENTS}
           />
-          <label className="flex items-end gap-2 pb-2 text-sm">
+          <label className="flex min-h-[44px] items-end gap-2 pb-2 text-sm">
             <input
               type="checkbox"
+              className="h-4 w-4 accent-green"
               checked={program.branchingPaths}
               onChange={(e) => set("branchingPaths", e.target.checked)}
             />
@@ -375,8 +380,10 @@ function ProgramEditor({
 
       {/* Computed Holland profile + hexagon */}
       <section className="grid gap-6 md:grid-cols-2">
-        <div className="border border-line p-5 rounded-[var(--radius-card)]">
-          <h3 className="text-sm font-semibold text-ink">Computed Holland profile</h3>
+        <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
+          <h3 className="font-display text-lg font-semibold text-ink-900">
+            Computed Holland profile
+          </h3>
           {program.activities.length === 0 ? (
             <p className="mt-3 text-xs text-ink-500">Add activities below to compute a profile.</p>
           ) : (
@@ -396,9 +403,9 @@ function ProgramEditor({
                       </span>
                       <span className="tabular-nums text-ink-500">{pct.toFixed(1)}%</span>
                     </div>
-                    <div className="mt-1 h-1.5 bg-paper-sunken">
+                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-paper-sunken">
                       <div
-                        className="h-full"
+                        className="h-full rounded-full"
                         style={{
                           background: d.color,
                           width: `${Math.max(0, Math.min(100, pct))}%`,
@@ -411,15 +418,15 @@ function ProgramEditor({
             </ul>
           )}
         </div>
-        <div className="flex items-center justify-center border border-line p-5 rounded-[var(--radius-card)]">
+        <div className="flex items-center justify-center rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
           <HollandHexagon size={300} active={top} />
         </div>
       </section>
 
       {/* Activities */}
-      <section className="border border-line p-6 rounded-[var(--radius-card)]">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-ink">Activities</h3>
+      <section className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="font-display text-lg font-semibold text-ink-900">Activities</h3>
           <button onClick={addActivity} className="btn-mint">
             + Add activity
           </button>
@@ -430,23 +437,23 @@ function ProgramEditor({
             across the six dimensions.
           </p>
         ) : (
-          <div className="mt-4 overflow-x-auto">
+          <div className="mt-4 overflow-x-auto rounded-[var(--radius-control)] border border-line">
             <table className="w-full min-w-[720px] text-sm">
-              <thead className="text-left text-xs uppercase tracking-wider text-ink-500">
+              <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
                 <tr>
-                  <th className="py-2 pr-3 font-semibold">Activity</th>
-                  <th className="px-2 py-2 font-semibold">Time %</th>
+                  <th className="py-2 pl-3 pr-3 font-medium">Activity</th>
+                  <th className="px-2 py-2 font-medium">Time %</th>
                   {RIASEC_LETTERS.map((l) => (
                     <th
                       key={l}
                       title={RIASEC[l].name}
-                      className="px-1 py-2 text-center font-semibold"
+                      className="px-1 py-2 text-center font-medium"
                     >
                       {l}
                     </th>
                   ))}
-                  <th className="px-2 py-2 text-center font-semibold">Sum</th>
-                  <th className="pl-2" aria-label="Actions" />
+                  <th className="px-2 py-2 text-center font-medium">Sum</th>
+                  <th className="pl-2 pr-3" aria-label="Actions" />
                 </tr>
               </thead>
               <tbody>
@@ -454,7 +461,7 @@ function ProgramEditor({
                   const sum = activitySum(a);
                   return (
                     <tr key={a.id} className="border-t border-line align-top">
-                      <td className="py-2 pr-3">
+                      <td className="py-2 pl-3 pr-3">
                         <input
                           className="field h-8"
                           value={a.name}
@@ -504,13 +511,13 @@ function ProgramEditor({
                         </td>
                       ))}
                       <td className="px-2 py-2 text-center tabular-nums text-ink-500">{sum}</td>
-                      <td className="pl-2 text-right">
+                      <td className="pl-2 pr-2 text-right">
                         <button
                           onClick={() => removeActivity(a.id)}
                           aria-label={`Delete ${a.name || a.id}`}
-                          className="px-2 py-1 text-ink-500 hover:text-destructive"
+                          className="grid h-8 w-8 place-items-center rounded-[6px] text-ink-500 hover:bg-paper-sunken hover:text-red-700"
                         >
-                          ✕
+                          <X className="h-4 w-4" aria-hidden />
                         </button>
                       </td>
                     </tr>
@@ -519,9 +526,7 @@ function ProgramEditor({
               </tbody>
               <tfoot>
                 <tr className="border-t border-line-strong">
-                  <td className="py-2 pr-3 text-xs font-semibold uppercase tracking-wider text-ink-500">
-                    Total time
-                  </td>
+                  <td className="eyebrow py-2 pl-3 pr-3">Total time</td>
                   <td className="px-2 py-2 text-xs tabular-nums text-ink-700">{totalTime}%</td>
                   <td colSpan={8} />
                 </tr>
@@ -532,9 +537,9 @@ function ProgramEditor({
       </section>
 
       {/* Skills */}
-      <section className="border border-line p-6 rounded-[var(--radius-card)]">
-        <h3 className="text-sm font-semibold text-ink">Top 5 skills built</h3>
-        <p className="mt-1 text-xs text-ink-500">From the O*NET cross-functional skill list.</p>
+      <section className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-6">
+        <h3 className="font-display text-lg font-semibold text-ink-900">Top 5 skills built</h3>
+        <p className="mt-1 text-sm text-ink-700">From the O*NET cross-functional skill list.</p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {program.topSkills.map((s, idx) => (
             <Select
@@ -556,8 +561,8 @@ function ProgramEditor({
       </section>
 
       {/* Career clusters */}
-      <section className="border border-line p-6 rounded-[var(--radius-card)]">
-        <h3 className="text-sm font-semibold text-ink">Career clusters</h3>
+      <section className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-6">
+        <h3 className="font-display text-lg font-semibold text-ink-900">Career clusters</h3>
         <div className="mt-3">
           <Select
             label="Primary career cluster"
@@ -575,15 +580,15 @@ function ProgramEditor({
                 <label
                   className={
                     on
-                      ? "flex cursor-pointer items-start gap-2 border border-green bg-mint-tint px-2.5 py-2 text-sm"
-                      : "flex cursor-pointer items-start gap-2 border border-line-strong px-2.5 py-2 text-sm hover:border-ink-900"
+                      ? "flex min-h-[44px] cursor-pointer items-start gap-2 rounded-[var(--radius-control)] border border-green bg-mint-tint px-2.5 py-2 text-sm"
+                      : "flex min-h-[44px] cursor-pointer items-start gap-2 rounded-[var(--radius-control)] border border-line-strong px-2.5 py-2 text-sm hover:border-ink-900"
                   }
                 >
                   <input
                     type="checkbox"
                     checked={on}
                     onChange={() => toggleSecondaryCluster(c)}
-                    className="mt-0.5"
+                    className="mt-0.5 h-4 w-4 accent-green"
                   />
                   <span className="text-ink-700">{c}</span>
                 </label>
@@ -594,9 +599,9 @@ function ProgramEditor({
       </section>
 
       {/* Danger */}
-      <section className="border-2 border-dashed border-red-200 bg-red-50 p-5">
-        <h3 className="text-sm font-semibold text-red-900">Danger zone</h3>
-        <p className="mt-1 text-sm text-red-800">
+      <section className="rounded-[var(--radius-card)] border-2 border-dashed border-red-700/40 bg-paper-raised p-5">
+        <h3 className="font-display text-lg font-semibold text-red-700">Danger zone</h3>
+        <p className="mt-1 text-sm text-ink-700">
           Permanently delete this program from local storage. Export the JSON first if you might
           need it back.
         </p>
@@ -604,7 +609,7 @@ function ProgramEditor({
           onClick={() => {
             if (confirm(`Delete program "${program.name}"?`)) onDelete();
           }}
-          className="mt-3 bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800"
+          className="mt-3 inline-flex min-h-[44px] items-center rounded-[var(--radius-control)] bg-red-700 px-5 py-3 text-sm font-semibold text-white hover:bg-red-800"
         >
           Delete program
         </button>
@@ -627,15 +632,20 @@ function CompareTab({ programs }: { programs: Program[] }) {
         const code = sorted.slice(0, 3).join("");
         const top = sorted[0] && profile[sorted[0]] > 0 ? sorted[0] : null;
         return (
-          <article key={p.id} className="border border-line p-5 rounded-[var(--radius-card)]">
+          <article
+            key={p.id}
+            className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card"
+          >
             <header className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">{p.name || "Untitled"}</p>
+                <p className="truncate font-display text-lg font-semibold">
+                  {p.name || "Untitled"}
+                </p>
                 <p className="mt-0.5 text-xs text-ink-500">
                   {p.ageBand || "—"} · {p.formatType || "—"} · {p.duration || "—"}
                 </p>
               </div>
-              <span className="bg-ink-900 px-2 py-1 text-xs font-semibold tabular-nums text-white">
+              <span className="rounded-full bg-ink-900 px-2.5 py-1 font-mono text-xs font-semibold tabular-nums text-paper">
                 {code || "—"}
               </span>
             </header>
@@ -668,8 +678,8 @@ function CompareTab({ programs }: { programs: Program[] }) {
 function ReferenceTab() {
   return (
     <div className="mt-8 space-y-8">
-      <section className="border border-line p-5 rounded-[var(--radius-card)]">
-        <h3 className="text-sm font-semibold text-ink">How the score works</h3>
+      <section className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
+        <h3 className="font-display text-lg font-semibold text-ink-900">How the score works</h3>
         <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-sm text-ink-700">
           <li>Break the program into activities — 3 to 12 is typical.</li>
           <li>
@@ -684,13 +694,16 @@ function ReferenceTab() {
           <li>Use the Holland hexagon for the top dimension at a glance.</li>
         </ol>
       </section>
-      <section className="border border-line p-5 rounded-[var(--radius-card)]">
-        <h3 className="text-sm font-semibold text-ink">The six dimensions</h3>
+      <section className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
+        <h3 className="font-display text-lg font-semibold text-ink-900">The six dimensions</h3>
         <ul className="mt-3 grid gap-3 sm:grid-cols-2">
           {RIASEC_LETTERS.map((l) => {
             const d = RIASEC[l];
             return (
-              <li key={l} className="border border-line p-3 rounded-[var(--radius-card)]">
+              <li
+                key={l}
+                className="rounded-[var(--radius-control)] border border-line bg-paper p-3"
+              >
                 <div className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full" style={{ background: d.color }} />
                   <span className="text-sm font-semibold">
@@ -704,8 +717,8 @@ function ReferenceTab() {
           })}
         </ul>
       </section>
-      <section className="border border-line p-5 rounded-[var(--radius-card)]">
-        <h3 className="text-sm font-semibold text-ink">Tips</h3>
+      <section className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
+        <h3 className="font-display text-lg font-semibold text-ink-900">Tips</h3>
         <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-ink-700">
           <li>Rate the activity, not what you wish students did. Be honest.</li>
           <li>

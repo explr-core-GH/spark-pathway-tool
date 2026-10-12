@@ -446,14 +446,14 @@ function CampLoginsAdmin() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
       <h1 className="display mt-2">Camp logins</h1>
       <p className="lead mt-3 max-w-2xl">
         Camp students have no email, so EXPLR generates an account per ExplrMore registration — a
         username and a simple password you print and hand out. Generating accounts also links each
-        student to the camp, so assessments you assign to the camp&apos;s educator reach them. Once
-        a student finishes their assessment, print a family 1-pager with their login and RIASEC
+        student to the camp, so assessments you assign to the camp&apos;s instructor reach them.
+        Once a student finishes their assessment, print a family 1-pager with their login and RIASEC
         profile to send home.
       </p>
 
@@ -462,25 +462,25 @@ function CampLoginsAdmin() {
           href="/instructor/login-display"
           target="_blank"
           rel="noreferrer"
-          className="text-sm text-green-deep hover:underline"
+          className="inline-flex min-h-[44px] items-center text-sm font-semibold text-green-deep hover:underline"
         >
           Open the &ldquo;How to log in&rdquo; display page for students &rarr;
         </a>
       </p>
 
       {status && (
-        <p className="mt-4 border border-line-strong bg-paper-sunken px-4 py-2 text-sm text-ink-700">
+        <p className="mt-4 rounded-[var(--radius-control)] border border-mint-soft bg-mint-tint px-4 py-2 text-sm text-green-deep">
           {status}
         </p>
       )}
 
       {/* Bulk action across every camp. */}
       {!loading && logins.length > 0 && (
-        <div className="mt-6">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           <button onClick={printAllFamilyReports} className="btn-ink text-xs">
             Print all family reports
           </button>
-          <span className="ml-3 text-xs text-ink-500">
+          <span className="text-xs text-ink-500">
             One job, every student across all camps who has finished their assessment.
           </span>
         </div>
@@ -494,16 +494,16 @@ function CampLoginsAdmin() {
             No camp sessions synced yet. Run an ExplrMore sync first.
           </p>
         ) : (
-          <ul className="divide-y divide-line border-y border-line">
+          <ul className="divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
             {sessions.map((s) => {
               const regN = regCounts[s.id] ?? 0;
               const logN = loginCounts[s.id] ?? 0;
               const pending = regN - logN;
               return (
-                <li key={s.id} className="py-4">
-                  <div className="flex items-center gap-4">
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{s.title}</p>
+                <li key={s.id} className="px-4 py-4">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                    <div className="min-w-0 flex-1 basis-full sm:basis-auto">
+                      <p className="truncate font-display text-base font-semibold">{s.title}</p>
                       <p className="truncate text-xs text-ink-500">
                         {s.date ? new Date(s.date).toLocaleDateString() : "Date TBD"} · {regN}{" "}
                         registered · {logN} login
@@ -514,7 +514,7 @@ function CampLoginsAdmin() {
                     {logN > 0 && (
                       <button
                         onClick={() => printCards(s.id, s.title)}
-                        className="text-xs text-ink-500 hover:text-ink underline"
+                        className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
                       >
                         Print cards
                       </button>
@@ -522,7 +522,7 @@ function CampLoginsAdmin() {
                     {logN > 0 && (
                       <button
                         onClick={() => printSheet(s.id, s.title)}
-                        className="text-xs text-ink-500 hover:text-ink underline"
+                        className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
                       >
                         Roster sheet
                       </button>
@@ -530,7 +530,7 @@ function CampLoginsAdmin() {
                     {reportableCount(s.id) > 0 && (
                       <button
                         onClick={() => printFamilyReports(s.id, s.title)}
-                        className="text-xs text-green-deep hover:underline"
+                        className="inline-flex min-h-[44px] items-center text-xs font-medium text-green-deep hover:underline"
                       >
                         Family reports ({reportableCount(s.id)})
                       </button>
@@ -538,7 +538,8 @@ function CampLoginsAdmin() {
                     {logN > 0 && (
                       <button
                         onClick={() => setExpanded(expanded === s.id ? null : s.id)}
-                        className="text-xs text-ink-500 hover:text-ink underline"
+                        aria-expanded={expanded === s.id}
+                        className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
                       >
                         {expanded === s.id ? "Hide" : "View"}
                       </button>
@@ -549,7 +550,7 @@ function CampLoginsAdmin() {
                           walkIn?.campId === s.id ? null : { campId: s.id, name: "", age: "" },
                         )
                       }
-                      className="text-xs text-ink-500 hover:text-ink underline"
+                      className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
                     >
                       + Walk-in
                     </button>
@@ -570,10 +571,8 @@ function CampLoginsAdmin() {
                       the ExplrMore roster. Name optional — defaults to
                       "Walk-in" and can be renamed in the table below. */}
                   {walkIn?.campId === s.id && (
-                    <div className="mt-3 border border-line bg-paper-sunken p-3 rounded-[var(--radius-card)]">
-                      <p className="eyebrow" style={{ margin: 0 }}>
-                        Add walk-in camper
-                      </p>
+                    <div className="mt-3 rounded-[var(--radius-card)] border border-line bg-paper-sunken p-4">
+                      <p className="eyebrow">Add walk-in camper</p>
                       <div className="mt-2 grid gap-3 sm:grid-cols-[1fr_120px_auto_auto]">
                         <input
                           autoFocus
@@ -602,7 +601,7 @@ function CampLoginsAdmin() {
                           Cancel
                         </button>
                       </div>
-                      <p className="mt-2 text-[11px] text-ink-500">
+                      <p className="mt-2 text-xs text-ink-500">
                         Leave the name blank to add a quick &ldquo;Walk-in&rdquo; row; you can
                         rename it once you know the camper&apos;s name.
                       </p>
@@ -612,14 +611,13 @@ function CampLoginsAdmin() {
                   {expanded === s.id && (
                     <div>
                       {/* Live monitor — lazy + polls only while open. */}
-                      <div className="mt-3 border border-line bg-paper-sunken p-4 rounded-[var(--radius-card)]">
+                      <div className="mt-3 rounded-[var(--radius-card)] border border-line bg-paper-sunken p-4">
                         <div className="flex items-center justify-between">
-                          <p className="eyebrow" style={{ margin: 0 }}>
-                            Live monitor
-                          </p>
+                          <p className="eyebrow">Live monitor</p>
                           <button
                             onClick={() => setMonitorOpen(monitorOpen === s.id ? null : s.id)}
-                            className="text-xs text-ink-500 hover:text-ink underline"
+                            aria-expanded={monitorOpen === s.id}
+                            className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
                           >
                             {monitorOpen === s.id ? "Hide" : "Show"}
                           </button>
@@ -643,14 +641,13 @@ function CampLoginsAdmin() {
 
                       {/* Results & timing — lazy: the panel (and its queries)
                         only mount when an admin opens this. */}
-                      <div className="mt-3 border border-line bg-paper-sunken p-4 rounded-[var(--radius-card)]">
+                      <div className="mt-3 rounded-[var(--radius-card)] border border-line bg-paper-sunken p-4">
                         <div className="flex items-center justify-between">
-                          <p className="eyebrow" style={{ margin: 0 }}>
-                            Results &amp; timing
-                          </p>
+                          <p className="eyebrow">Results &amp; timing</p>
                           <button
                             onClick={() => setDataOpen(dataOpen === s.id ? null : s.id)}
-                            className="text-xs text-ink-500 hover:text-ink underline"
+                            aria-expanded={dataOpen === s.id}
+                            className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
                           >
                             {dataOpen === s.id ? "Hide" : "Show"}
                           </button>
@@ -674,12 +671,12 @@ function CampLoginsAdmin() {
 
                       {/* Roster toolbar — sort, export to Excel, compare a list. */}
                       <div className="mt-3 flex flex-wrap items-center gap-3">
-                        <label className="text-xs text-ink-500">
-                          Sort:{" "}
+                        <label className="flex items-center gap-2 text-xs text-ink-500">
+                          Sort:
                           <select
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value as SortBy)}
-                            className="border border-line-strong px-2 py-1 text-xs"
+                            className="field w-auto py-1.5 text-xs"
                           >
                             <option value="name">Name A–Z</option>
                             <option value="classroom">Classroom</option>
@@ -689,11 +686,11 @@ function CampLoginsAdmin() {
                         </label>
                         <button
                           onClick={() => exportXlsx(s.id, s.title)}
-                          className="text-xs text-ink-500 underline hover:text-ink"
+                          className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
                         >
                           Export Excel
                         </button>
-                        <label className="cursor-pointer text-xs text-ink-500 underline hover:text-ink">
+                        <label className="inline-flex min-h-[44px] cursor-pointer items-center text-xs text-ink-500 underline hover:text-ink-900">
                           Compare against a list…
                           <input
                             type="file"
@@ -709,12 +706,12 @@ function CampLoginsAdmin() {
                       </div>
 
                       {compare?.campId === s.id && (
-                        <div className="mt-3 border border-line-strong bg-paper-sunken p-3 text-xs">
+                        <div className="mt-3 rounded-[var(--radius-control)] border border-gold bg-gold-tint p-3 text-xs">
                           <div className="flex items-center justify-between">
                             <p className="font-medium">Compared against your list</p>
                             <button
                               onClick={() => setCompare(null)}
-                              className="text-ink-500 hover:text-ink"
+                              className="inline-flex min-h-[36px] items-center text-ink-700 underline hover:text-ink-900"
                             >
                               Dismiss
                             </button>
@@ -740,19 +737,19 @@ function CampLoginsAdmin() {
                         </div>
                       )}
 
-                      <div className="mt-3 overflow-x-auto border border-line">
-                        <table className="w-full border-collapse text-sm">
-                          <thead>
-                            <tr className="border-b border-line bg-paper-sunken text-left text-xs uppercase tracking-wider text-ink-500">
-                              <th className="px-3 py-2 font-normal">Student</th>
-                              <th className="px-3 py-2 font-normal">Classroom</th>
-                              <th className="px-3 py-2 font-normal">Status</th>
-                              <th className="px-3 py-2 font-normal">Username</th>
-                              <th className="px-3 py-2 font-normal">Password</th>
-                              <th className="px-3 py-2 font-normal">Family report</th>
+                      <div className="mt-3 overflow-x-auto rounded-[var(--radius-card)] border border-line">
+                        <table className="w-full text-sm">
+                          <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+                            <tr>
+                              <th className="px-3 py-2.5 font-medium">Student</th>
+                              <th className="px-3 py-2.5 font-medium">Classroom</th>
+                              <th className="px-3 py-2.5 font-medium">Status</th>
+                              <th className="px-3 py-2.5 font-medium">Username</th>
+                              <th className="px-3 py-2.5 font-medium">Password</th>
+                              <th className="px-3 py-2.5 font-medium">Family report</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-line">
+                          <tbody className="divide-y divide-line bg-paper-raised">
                             {sortLogins(logins.filter((l) => l.explr_camp_id === s.id)).map((l) => {
                               const hasResult = !!l.student_id && !!holland[l.student_id];
                               const isEditing = editing?.id === l.id;
@@ -811,7 +808,7 @@ function CampLoginsAdmin() {
                                               age: "",
                                             })
                                           }
-                                          className="text-[11px] text-ink-500 hover:text-ink underline"
+                                          className="text-[11px] text-ink-500 underline hover:text-ink-900"
                                         >
                                           edit
                                         </button>
@@ -832,11 +829,13 @@ function CampLoginsAdmin() {
                                   </td>
                                   <td className="px-3 py-2 text-xs">
                                     {hasResult ? (
-                                      <span style={{ color: "var(--color-green-deep)" }}>
+                                      <span className="rounded-full bg-mint-tint px-2.5 py-0.5 font-medium text-green-deep">
                                         Finished
                                       </span>
                                     ) : (
-                                      <span className="text-ink-500">Not yet</span>
+                                      <span className="rounded-full bg-paper-sunken px-2.5 py-0.5 text-ink-700">
+                                        Not yet
+                                      </span>
                                     )}
                                   </td>
                                   <td className="px-3 py-2 font-mono text-xs">{l.username}</td>
@@ -870,7 +869,7 @@ function CampLoginsAdmin() {
         )}
       </section>
 
-      <p className="mt-8 text-xs text-ink-500">
+      <p className="mt-8 text-sm text-ink-500">
         Passwords are stored so you can re-print this sheet. Treat the sheet like a class roster —
         keep it secure and recycle it after camp.
       </p>

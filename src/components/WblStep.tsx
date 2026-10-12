@@ -111,7 +111,7 @@ export function WblStep(p: Props) {
                     on ? p.competencies.filter((x) => x !== s) : [...p.competencies, s],
                   )
                 }
-                className={`rounded-full border px-3 py-1.5 text-xs ${on ? "border-green bg-mint-tint text-green-deep" : "border-line-strong text-ink-700"}`}
+                className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${on ? "border-green bg-mint-tint text-green-deep" : "border-line-strong bg-paper-raised text-ink-700 hover:border-ink-900"}`}
               >
                 {s}
               </button>
@@ -121,7 +121,7 @@ export function WblStep(p: Props) {
       </fieldset>
 
       <section className="space-y-3">
-        <h3 className="text-sm font-semibold">Getting there and what to bring</h3>
+        <h3 className="font-display text-lg font-semibold">Getting there and what to bring</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
             id="wbl-transport"
@@ -176,7 +176,7 @@ export function WblStep(p: Props) {
       {deep && (
         <>
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold">The mentor</h3>
+            <h3 className="font-display text-lg font-semibold">The mentor</h3>
             <p className="text-xs text-ink-500">
               The one adult who supervises day to day. They'll get a single emailed link to confirm
               hours and rate skills; no account.
@@ -219,7 +219,7 @@ export function WblStep(p: Props) {
           </section>
 
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold">The work</h3>
+            <h3 className="font-display text-lg font-semibold">The work</h3>
             <Field
               id="wbl-pos"
               label="Position description"
@@ -244,7 +244,7 @@ export function WblStep(p: Props) {
           </section>
 
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold">What they'll learn</h3>
+            <h3 className="font-display text-lg font-semibold">What they'll learn</h3>
             <Field
               id="wbl-obj"
               label="Learning objectives, one per line"
@@ -272,7 +272,7 @@ export function WblStep(p: Props) {
           </section>
 
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold">Schedule and pay</h3>
+            <h3 className="font-display text-lg font-semibold">Schedule and pay</h3>
             <div className="grid gap-4 sm:grid-cols-3">
               <Field
                 id="wbl-hours"
@@ -379,7 +379,7 @@ export function WblStep(p: Props) {
           </section>
 
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold">Minor labor and safety</h3>
+            <h3 className="font-display text-lg font-semibold">Minor labor and safety</h3>
             <p className="text-xs text-ink-500">
               We run these checks at submission so nobody has to know the rules by heart.
             </p>
@@ -415,8 +415,8 @@ export function WblStep(p: Props) {
               checked={w.legal.liabilityInsurance}
               onChange={(v) => set("legal", { liabilityInsurance: v })}
             />
-            <details className="rounded border border-line bg-paper-raised p-3">
-              <summary className="cursor-pointer text-sm">
+            <details className="rounded-[var(--radius-control)] border border-line bg-paper p-3">
+              <summary className="min-h-[44px] cursor-pointer py-2 text-sm font-medium">
                 Does the work touch any federal Hazardous Occupations Order? (
                 {w.legal.hazardous.length} selected)
               </summary>
@@ -446,7 +446,7 @@ export function WblStep(p: Props) {
           </section>
 
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold">Your commitments</h3>
+            <h3 className="font-display text-lg font-semibold">Your commitments</h3>
             <Check
               label="The mentor will complete a baseline and final skill rating through the emailed link."
               checked={w.commitments.evaluation}
@@ -462,7 +462,7 @@ export function WblStep(p: Props) {
       )}
 
       {issues.length > 0 && (
-        <div className="rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+        <div className="rounded-[var(--radius-control)] bg-gold-tint p-4 text-sm text-ink-900">
           <p className="font-medium">Before this can be submitted:</p>
           <ul className="mt-1 list-disc pl-5">
             {issues.map((i) => (
@@ -533,10 +533,12 @@ function Check({
   small?: boolean;
 }) {
   return (
-    <label className={`flex items-start gap-2 ${small ? "text-xs" : "text-sm"} text-ink-700`}>
+    <label
+      className={`flex items-start gap-2 ${small ? "py-1 text-xs" : "min-h-[44px] py-2 text-sm"} text-ink-700`}
+    >
       <input
         type="checkbox"
-        className="mt-1"
+        className="mt-0.5 h-5 w-5 shrink-0 accent-green-deep"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />

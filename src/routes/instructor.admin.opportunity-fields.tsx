@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { OPP_TYPES, type FieldConfig, type OppType } from "@/lib/opportunities";
 
@@ -103,25 +104,21 @@ function WizardFields() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
       <h1 className="display mt-2">Wizard fields</h1>
-      <p className="lead mt-2 max-w-2xl">
+      <p className="lead mt-3 max-w-2xl">
         Control what the organization wizard asks for each opportunity type — toggle core steps
         on/off, rename them, mark them required, reorder, and add your own custom fields.
       </p>
 
-      <div className="mt-8 flex flex-wrap gap-1 border-b border-line">
+      <div className="mt-8 flex flex-wrap gap-2">
         {OPP_TYPES.map((t) => (
           <button
             key={t.key}
             onClick={() => setType(t.key)}
-            className="border-b-2 px-4 py-2 text-sm"
-            style={{
-              borderColor: type === t.key ? "var(--ink)" : "transparent",
-              color: type === t.key ? "var(--ink)" : "var(--color-ink-500)",
-              fontWeight: type === t.key ? 500 : 400,
-            }}
+            aria-pressed={type === t.key}
+            className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${type === t.key ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
           >
             {t.label}
           </button>
@@ -135,22 +132,25 @@ function WizardFields() {
           {[...fields]
             .sort((a, b) => a.sort_order - b.sort_order)
             .map((f) => (
-              <div key={f.id} className="border border-line p-4 rounded-[var(--radius-card)]">
+              <div
+                key={f.id}
+                className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-4"
+              >
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="flex flex-col">
                     <button
                       onClick={() => move(f, -1)}
-                      className="text-xs text-ink-500 hover:text-ink"
+                      className="grid h-6 w-8 place-items-center rounded-[6px] text-ink-500 hover:bg-paper-sunken hover:text-ink-900"
                       aria-label="Move up"
                     >
-                      ▲
+                      <ChevronUp className="h-4 w-4" aria-hidden />
                     </button>
                     <button
                       onClick={() => move(f, 1)}
-                      className="text-xs text-ink-500 hover:text-ink"
+                      className="grid h-6 w-8 place-items-center rounded-[6px] text-ink-500 hover:bg-paper-sunken hover:text-ink-900"
                       aria-label="Move down"
                     >
-                      ▼
+                      <ChevronDown className="h-4 w-4" aria-hidden />
                     </button>
                   </div>
                   <input
@@ -163,20 +163,22 @@ function WizardFields() {
                     }
                     onBlur={(e) => patch(f.id, { label: e.target.value })}
                   />
-                  <span className="text-[11px] uppercase tracking-wider text-ink-500">
+                  <span className="rounded-full bg-paper-sunken px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-700">
                     {f.is_core ? "core" : "custom"} · {f.field_type}
                   </span>
-                  <label className="flex items-center gap-1.5 text-xs text-ink-700">
+                  <label className="flex min-h-[44px] items-center gap-1.5 text-xs text-ink-700">
                     <input
                       type="checkbox"
+                      className="h-4 w-4 accent-green"
                       checked={f.enabled}
                       onChange={(e) => patch(f.id, { enabled: e.target.checked })}
                     />
                     Shown
                   </label>
-                  <label className="flex items-center gap-1.5 text-xs text-ink-700">
+                  <label className="flex min-h-[44px] items-center gap-1.5 text-xs text-ink-700">
                     <input
                       type="checkbox"
+                      className="h-4 w-4 accent-green"
                       checked={f.required}
                       onChange={(e) => patch(f.id, { required: e.target.checked })}
                     />
@@ -185,7 +187,7 @@ function WizardFields() {
                   {!f.is_core && (
                     <button
                       onClick={() => remove(f)}
-                      className="text-xs text-red-600 hover:underline"
+                      className="inline-flex min-h-[44px] items-center text-xs text-red-700 hover:underline"
                     >
                       Delete
                     </button>
@@ -208,10 +210,8 @@ function WizardFields() {
       )}
 
       {/* Add custom field */}
-      <section className="mt-10 border border-line bg-paper-sunken p-5 rounded-[var(--radius-card)]">
-        <h2 className="eyebrow" style={{ margin: 0 }}>
-          Add a custom field
-        </h2>
+      <section className="mt-10 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6">
+        <h2 className="font-display text-2xl font-bold">Add a custom field</h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_160px_auto]">
           <input
             className="field"

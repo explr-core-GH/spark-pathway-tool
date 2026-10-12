@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { RoleGuard } from "@/components/RoleGuard";
 
 export const Route = createFileRoute("/instructor/admin")({
@@ -160,8 +161,10 @@ const SECTIONS: Section[] = [
   },
 ];
 
-const linkBase = "block text-sm leading-tight text-ink-500 hover:text-ink";
-const linkActive = "block text-sm leading-tight text-ink font-semibold";
+const linkBase =
+  "flex min-h-[44px] items-center rounded-[var(--radius-control)] px-3 text-[15px] leading-tight text-ink-700 hover:bg-paper hover:text-ink-900 md:min-h-[40px] md:text-sm";
+const linkActive =
+  "flex min-h-[44px] items-center rounded-[var(--radius-control)] bg-mint-tint px-3 text-[15px] font-semibold leading-tight text-green-deep md:min-h-[40px] md:text-sm";
 
 function sectionMatches(section: Section, pathname: string): boolean {
   const all = [...(section.header ? [section.header] : []), ...section.items];
@@ -198,11 +201,12 @@ function AdminLayout() {
   return (
     <RoleGuard requires="admin">
       <div className="flex flex-col md:flex-row">
-        <aside className="print:hidden border-b border-line bg-paper-sunken md:w-56 md:shrink-0 md:border-b-0 md:border-r">
+        <aside className="print:hidden border-b border-line bg-paper-sunken md:w-64 md:shrink-0 md:border-b-0 md:border-r">
           <nav
             aria-label="Admin"
-            className="px-6 py-6 md:sticky md:top-0 md:max-h-screen md:overflow-y-auto"
+            className="px-3 py-4 sm:px-4 md:sticky md:top-0 md:max-h-screen md:overflow-y-auto md:py-6"
           >
+            <p className="eyebrow px-3 pb-2">Admin</p>
             <Link
               to="/instructor/admin"
               activeOptions={{ exact: true }}
@@ -212,7 +216,7 @@ function AdminLayout() {
               Overview
             </Link>
 
-            <div className="mt-6 space-y-4">
+            <div className="mt-4 space-y-2">
               {SECTIONS.map((section) => {
                 const isOpen = open.has(section.key);
                 return (
@@ -222,18 +226,20 @@ function AdminLayout() {
                       onClick={() => toggle(section.key)}
                       aria-expanded={isOpen}
                       aria-label={`${isOpen ? "Collapse" : "Expand"} ${section.label}`}
-                      className={`flex w-full items-center justify-between gap-2 py-1 text-left text-[11px] font-semibold uppercase tracking-wider hover:text-ink ${
-                        activeKey === section.key ? "text-ink" : "text-ink-500"
+                      className={`flex min-h-[44px] w-full items-center justify-between gap-2 rounded-[var(--radius-control)] px-3 text-left font-display text-[15px] font-bold tracking-tight hover:text-ink-900 md:min-h-[40px] ${
+                        activeKey === section.key ? "text-ink-900" : "text-ink-700"
                       }`}
                     >
                       <span>{section.label}</span>
-                      <span className="text-xs text-ink-500" aria-hidden="true">
-                        {isOpen ? "▾" : "▸"}
-                      </span>
+                      <ChevronDown
+                        className={`h-4 w-4 shrink-0 text-ink-500 transition-transform ${isOpen ? "" : "-rotate-90"}`}
+                        strokeWidth={2.2}
+                        aria-hidden
+                      />
                     </button>
 
                     {isOpen && (
-                      <ul className="mt-2 space-y-1.5 border-l border-line-strong pl-3">
+                      <ul className="mt-1 space-y-0.5 pl-2">
                         {section.header && (
                           <li>
                             <Link

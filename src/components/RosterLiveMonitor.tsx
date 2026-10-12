@@ -137,7 +137,7 @@ export function RosterLiveMonitor({ studentIds, names }: Props) {
     return <p className="text-sm text-ink-500">Loading…</p>;
   }
   if (err) {
-    return <p className="text-sm text-red-600">Couldn&apos;t load monitor: {err}</p>;
+    return <p className="text-sm text-red-700">Couldn&apos;t load monitor: {err}</p>;
   }
   if (rows.length === 0) {
     return <p className="text-sm text-ink-500">No students in this roster yet.</p>;
@@ -148,25 +148,22 @@ export function RosterLiveMonitor({ studentIds, names }: Props) {
   return (
     <div>
       <p className="text-xs text-ink-500">
-        <span
-          className="mr-1 inline-block h-2 w-2 rounded-full align-middle"
-          style={{ background: "var(--color-green)" }}
-        />
+        <span className="mr-1 inline-block h-2 w-2 rounded-full bg-green align-middle" />
         {onlineCount} online · refreshes every {POLL_MS / 1000}s
       </p>
       <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((r) => (
           <div
             key={r.studentId}
-            className="border border-line bg-paper-raised p-3 rounded-[var(--radius-card)]"
-            style={{ opacity: r.online ? 1 : 0.6 }}
+            className={`rounded-[var(--radius-card)] border border-line bg-paper-raised p-3 ${
+              r.online ? "" : "opacity-60"
+            }`}
           >
             <div className="flex items-center gap-2">
               <span
-                className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
-                style={{
-                  background: r.online ? "var(--color-green)" : "var(--color-line-strong)",
-                }}
+                className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${
+                  r.online ? "bg-green" : "bg-line-strong"
+                }`}
                 aria-hidden
               />
               <p className="min-w-0 flex-1 truncate text-sm font-medium">{r.name}</p>
@@ -174,7 +171,7 @@ export function RosterLiveMonitor({ studentIds, names }: Props) {
             <p className="mt-1.5 text-xs text-ink-700">
               {r.online ? (r.label ?? "Online") : `Offline · ${ago(r.lastSeen)}`}
             </p>
-            {r.question && <p className="mt-0.5 text-[11px] text-ink-500">{r.question}</p>}
+            {r.question && <p className="mt-0.5 text-xs text-ink-500">{r.question}</p>}
           </div>
         ))}
       </div>

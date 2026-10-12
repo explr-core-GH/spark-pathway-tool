@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { ChevronRight, Tent } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -144,11 +145,11 @@ export function MySessionsPanel({ educatorId }: { educatorId: string }) {
     return <p className="text-sm text-ink-500">Loading sessions…</p>;
   }
   if (err) {
-    return <p className="text-sm text-red-600">Failed to load sessions: {err}</p>;
+    return <p className="text-sm text-red-700">Failed to load sessions: {err}</p>;
   }
   if (sessions.length === 0) {
     return (
-      <p className="py-6 text-sm text-ink-500">
+      <p className="rounded-[var(--radius-card)] border border-line bg-paper-raised px-5 py-6 text-sm text-ink-700">
         You haven&apos;t been assigned to any camp sessions yet. An EXPLR admin can add you via{" "}
         <span className="text-ink-700">Admin → Catalog → Sessions</span>.
       </p>
@@ -162,19 +163,29 @@ export function MySessionsPanel({ educatorId }: { educatorId: string }) {
           key={s.id}
           to="/instructor/sessions/$sessionId"
           params={{ sessionId: s.id }}
-          className="group block border border-line bg-paper-raised p-5 transition-colors hover:border-ink-900 rounded-[var(--radius-card)]"
+          className="group flex flex-col rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card transition-colors hover:border-emerald focus-visible:border-emerald"
         >
-          <p className="text-[11px] uppercase tracking-wider text-ink-500">
-            {fmtRange(s.date, s.end_date)}
-          </p>
-          <h3 className="mt-2 text-base font-medium leading-snug text-ink">{s.title}</h3>
-          {s.location && <p className="mt-1 text-xs text-ink-500">{s.location}</p>}
-          <div className="mt-4 flex items-baseline justify-between text-xs text-ink-500">
+          <div className="flex items-start gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-[12px] border border-mint-soft bg-mint-tint text-green-deep shrink-0">
+              <Tent className="h-5 w-5" strokeWidth={2} aria-hidden />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="eyebrow text-green">{fmtRange(s.date, s.end_date)}</p>
+              <h3 className="mt-1 font-display text-lg font-semibold leading-tight text-ink-900">
+                {s.title}
+              </h3>
+              {s.location && <p className="mt-1 text-xs text-ink-500">{s.location}</p>}
+            </div>
+          </div>
+          <div className="mt-4 flex items-center justify-between text-xs text-ink-500">
             <span>
               {s.registrationCount} student{s.registrationCount === 1 ? "" : "s"}
               {s.capacity ? ` / ${s.capacity}` : ""}
             </span>
-            <span className="ink-link group-hover:opacity-100">View →</span>
+            <span className="inline-flex items-center gap-1 text-sm font-semibold text-green-deep group-hover:underline">
+              View
+              <ChevronRight className="h-4 w-4" strokeWidth={2.4} aria-hidden />
+            </span>
           </div>
         </Link>
       ))}

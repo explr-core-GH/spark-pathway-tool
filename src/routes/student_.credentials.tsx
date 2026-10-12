@@ -3,11 +3,18 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
-import { Seal, Wordmark } from "@/components/passport";
+import { PortalHeader, Seal, type PortalLink } from "@/components/passport";
+import { SiteFooter } from "@/components/SiteFooter";
 import { usePassport } from "@/lib/passport";
 import { CREDENTIAL_TYPES } from "@/lib/wbl-taxonomy";
 
 /** /student/credentials — seals, certificates, college credit, badges. */
+const STUDENT_LINKS: PortalLink[] = [
+  { label: "My passport", to: "/student" },
+  { label: "Opportunities", to: "/opportunities" },
+  { label: "Families", to: "/student/pathway", search: { tab: "families" } },
+];
+
 export const Route = createFileRoute("/student_/credentials")({
   head: () => ({ meta: [{ title: "Credits & credentials — EXPLR Pathways" }] }),
   component: () => (
@@ -68,15 +75,14 @@ function Credentials() {
 
   return (
     <div className="min-h-screen bg-paper text-ink-900">
-      <header className="border-b border-line">
-        <div className="mx-auto flex max-w-[900px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Wordmark />
-          <Link to="/student" className="text-[15px] font-medium text-green-deep hover:underline">
-            ← My passport
-          </Link>
-        </div>
-      </header>
+      <PortalHeader role="Student" links={STUDENT_LINKS} signedIn />
       <main className="mx-auto max-w-[900px] px-4 py-10 sm:px-6">
+        <Link
+          to="/student"
+          className="inline-flex min-h-[44px] items-center text-sm font-medium text-green-deep hover:underline"
+        >
+          ← My passport
+        </Link>
         <p className="eyebrow text-green">Credits & credentials</p>
         <h1 className="display mt-1">Seals and certificates.</h1>
 
@@ -170,7 +176,7 @@ function Credentials() {
             />
           </div>
           {error && (
-            <p role="alert" className="text-sm text-destructive sm:col-span-2">
+            <p role="alert" className="text-sm text-red-700 sm:col-span-2">
               {error}
             </p>
           )}
@@ -215,6 +221,7 @@ function Credentials() {
           ))}
         </ul>
       </main>
+      <SiteFooter className="mt-16" />
     </div>
   );
 }

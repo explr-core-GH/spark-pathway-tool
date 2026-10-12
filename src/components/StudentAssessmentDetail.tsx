@@ -53,7 +53,7 @@ export function StudentAssessmentDetail({ studentId }: { studentId: string }) {
   const riasecMax = riasec ? Math.max(1, ...RIASEC.map((r) => score(r.k))) : 1;
 
   return (
-    <div className="space-y-8 bg-paper-raised p-5">
+    <div className="space-y-8 bg-paper-raised p-4 sm:p-5">
       {/* RIASEC */}
       <Section title="RIASEC interest assessment">
         {riasec === undefined ? (
@@ -74,13 +74,10 @@ export function StudentAssessmentDetail({ studentId }: { studentId: string }) {
                 return (
                   <li key={r.k} className="flex items-center gap-3 text-sm">
                     <span className="w-28 shrink-0 text-ink-700">{r.label}</span>
-                    <div className="relative h-2 flex-1 bg-paper-sunken">
+                    <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-paper-sunken">
                       <div
-                        className="absolute inset-y-0 left-0"
-                        style={{
-                          width: `${Math.round((v / riasecMax) * 100)}%`,
-                          background: "var(--color-green)",
-                        }}
+                        className="absolute inset-y-0 left-0 rounded-full bg-green"
+                        style={{ width: `${Math.round((v / riasecMax) * 100)}%` }}
                       />
                     </div>
                     <span className="w-10 shrink-0 text-right tabular-nums text-ink-500">{v}</span>
@@ -103,7 +100,7 @@ export function StudentAssessmentDetail({ studentId }: { studentId: string }) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h4 className="text-xs font-semibold uppercase tracking-wider text-ink-500">{title}</h4>
+      <h4 className="eyebrow">{title}</h4>
       <div className="mt-2">{children}</div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { AuthShell } from "@/components/passport/AuthShell";
 
 export const Route = createFileRoute("/sign-up")({
   head: () => ({ meta: [{ title: "Sign up — EXPLR" }] }),
@@ -46,13 +47,26 @@ function SignUp() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
-      <Link to="/" className="eyebrow mb-12 inline-block">
-        ← EXPLR
-      </Link>
-      <h1 className="text-3xl font-light">Create your account</h1>
-      <p className="mt-2 text-sm text-ink-500">For students grades 5–12.</p>
-      <form onSubmit={submit} className="mt-10 space-y-5">
+    <AuthShell
+      eyebrow="Students"
+      title="Create your account"
+      intro="For students in grades 5-12. Start your passport, take the interest assessment, and add experiences as you go."
+      illustration={{ src: "/passport/students.webp" }}
+      role="Student"
+      links={[
+        { label: "Home", to: "/" },
+        { label: "Grades 4-8", to: "/explore", secondary: true },
+      ]}
+      footer={
+        <p>
+          Already have one?{" "}
+          <Link to="/sign-in" className="ink-link">
+            Sign in
+          </Link>
+        </p>
+      }
+    >
+      <form onSubmit={submit} className="space-y-5">
         <div className="grid grid-cols-[1fr_120px] gap-3">
           <div>
             <label className="label" htmlFor="su-first">
@@ -86,7 +100,7 @@ function SignUp() {
             </select>
           </div>
         </div>
-        <p id="su-grade-hint" className="-mt-2 text-[11px] text-ink-500">
+        <p id="su-grade-hint" className="-mt-2 text-xs text-ink-500">
           Pick the grade you&apos;re <strong>entering this fall</strong> (after summer break).
         </p>
         <div>
@@ -123,14 +137,18 @@ function SignUp() {
               onClick={() => setShowPw((v) => !v)}
               aria-pressed={showPw}
               aria-label={showPw ? "Hide password" : "Show password"}
-              className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 text-xs font-medium text-ink-500 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="absolute right-1 top-1/2 inline-flex min-h-[44px] -translate-y-1/2 items-center rounded-[var(--radius-control)] px-3 text-xs font-semibold text-ink-500 hover:text-ink-900"
             >
               {showPw ? "Hide" : "Show"}
             </button>
           </div>
+          <p className="mt-1.5 text-xs text-ink-500">At least 8 characters.</p>
         </div>
         {error && (
-          <p className="text-sm text-destructive" role="alert">
+          <p
+            className="rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-sm text-ink-900"
+            role="alert"
+          >
             {error}
           </p>
         )}
@@ -138,12 +156,6 @@ function SignUp() {
           {loading ? "Creating…" : "Create account"}
         </button>
       </form>
-      <p className="mt-6 text-sm text-ink-500">
-        Already have one?{" "}
-        <Link to="/sign-in" className="ink-link">
-          Sign in
-        </Link>
-      </p>
-    </main>
+    </AuthShell>
   );
 }

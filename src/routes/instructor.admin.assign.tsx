@@ -112,17 +112,17 @@ function AssignAdmin() {
   });
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
       <p className="eyebrow">Admin</p>
       <h1 className="display mt-2">Assign instructors</h1>
-      <p className="lead mt-3">
+      <p className="lead mt-3 max-w-2xl">
         Pick a camp session (week), then check off the instructors who should run it.
       </p>
 
       <div className="mt-8 grid gap-8 md:grid-cols-[1fr_1fr]">
         <div>
           <h2 className="eyebrow">Camp sessions</h2>
-          <ul className="mt-4 divide-y divide-line border-y border-line">
+          <ul className="mt-4 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
             {sessions.map((s) => {
               const count = countFor(s.id);
               const active = selected === s.id;
@@ -130,12 +130,14 @@ function AssignAdmin() {
                 <li key={s.id}>
                   <button
                     onClick={() => setSelected(s.id)}
-                    className="flex w-full items-center gap-3 py-3 text-left"
+                    aria-pressed={active}
+                    className={`flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-left first:rounded-t-[var(--radius-card)] last:rounded-b-[var(--radius-card)] ${
+                      active ? "bg-mint-tint" : "hover:bg-paper-sunken"
+                    }`}
                   >
                     <div className="min-w-0 flex-1">
                       <p
-                        className="truncate text-sm font-medium"
-                        style={{ color: active ? "var(--ink)" : "inherit" }}
+                        className={`truncate text-sm font-medium ${active ? "text-green-deep" : "text-ink-900"}`}
                       >
                         {s.title}
                       </p>
@@ -150,7 +152,7 @@ function AssignAdmin() {
               );
             })}
             {sessions.length === 0 && (
-              <li className="py-6 text-sm text-ink-500">
+              <li className="px-4 py-6 text-sm text-ink-500">
                 No camp sessions synced from ExplrMore yet. Run a sync from Admin → Library → Import
                 from ExplrMore.
               </li>
@@ -170,12 +172,17 @@ function AssignAdmin() {
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
               />
-              <ul className="mt-4 divide-y divide-line border-y border-line">
+              <ul className="mt-4 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
                 {filteredEducators.map((e) => {
                   const checked = assignedSet.has(e.id);
                   return (
-                    <li key={e.id} className="flex items-center gap-3 py-3">
-                      <input type="checkbox" checked={checked} onChange={() => toggle(e.id)} />
+                    <li key={e.id} className="flex min-h-[44px] items-center gap-3 px-4 py-3">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 accent-green"
+                        checked={checked}
+                        onChange={() => toggle(e.id)}
+                      />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">{e.full_name}</p>
                         <p className="truncate text-xs text-ink-500">{e.email}</p>
@@ -184,7 +191,7 @@ function AssignAdmin() {
                   );
                 })}
                 {filteredEducators.length === 0 && (
-                  <li className="py-6 text-sm text-ink-500">
+                  <li className="px-4 py-6 text-sm text-ink-500">
                     {educators.length === 0 ? "No approved instructors yet." : "No matches."}
                   </li>
                 )}

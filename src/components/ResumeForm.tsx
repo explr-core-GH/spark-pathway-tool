@@ -1,4 +1,5 @@
 import type React from "react";
+import { Plus, X } from "lucide-react";
 
 /**
  * ResumeForm — the student's digital résumé, shared by the internship apply
@@ -116,7 +117,7 @@ export function ResumeForm({
             onChange={(v) => u("expectedGraduation", v)}
           />
         </Grid2>
-        <p className="mt-6 text-xs uppercase tracking-wider text-ink-500">Relevant coursework</p>
+        <p className="label mt-6 mb-0">Relevant coursework</p>
         <RepeatingList
           items={resume.coursework}
           onChange={(v) => u("coursework", v)}
@@ -281,8 +282,8 @@ function Section({
 }) {
   return (
     <section className="border-t border-line pt-10">
-      <h2 className="text-xl font-light">{title}</h2>
-      {hint && <p className="mt-2 max-w-2xl text-sm text-ink-500">{hint}</p>}
+      <h2 className="font-display text-2xl font-bold">{title}</h2>
+      {hint && <p className="mt-2 max-w-2xl text-sm text-ink-700">{hint}</p>}
       <div className="mt-6">{children}</div>
     </section>
   );
@@ -305,13 +306,13 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="text-xs uppercase tracking-wider text-ink-500">{label}</span>
+      <span className="label mb-0">{label}</span>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         maxLength={500}
-        className="mt-1 w-full border border-line-strong bg-paper-raised px-3 py-2 text-sm focus:border-ink-900 focus:outline-none"
+        className="field mt-1"
       />
     </label>
   );
@@ -335,7 +336,7 @@ function TextArea({
       rows={rows}
       placeholder={placeholder}
       maxLength={4000}
-      className="w-full border border-line-strong bg-paper-raised px-3 py-2 text-sm focus:border-ink-900 focus:outline-none"
+      className="field"
     />
   );
 }
@@ -362,24 +363,24 @@ function RepeatingList({
             }}
             placeholder={placeholder}
             maxLength={300}
-            className="flex-1 border border-line-strong bg-paper-raised px-3 py-2 text-sm focus:border-ink-900 focus:outline-none"
+            className="field min-w-0 flex-1"
           />
           <button
             type="button"
             onClick={() => onChange(items.filter((_, i) => i !== idx))}
-            className="px-3 text-sm text-ink-500 hover:text-ink"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-ink-900"
             aria-label="Remove"
           >
-            ×
+            <X className="h-4 w-4" aria-hidden />
           </button>
         </div>
       ))}
       <button
         type="button"
         onClick={() => onChange([...items, ""])}
-        className="text-sm text-ink-500 hover:text-ink"
+        className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-medium text-green-deep hover:underline"
       >
-        + Add
+        <Plus className="h-4 w-4" aria-hidden /> Add
       </button>
     </div>
   );
@@ -399,13 +400,13 @@ function RepeatingBlocks<T>({
   return (
     <div className="space-y-6">
       {items.map((item, idx) => (
-        <div key={idx} className="border border-line p-4 rounded-[var(--radius-card)]">
+        <div key={idx} className="rounded-[var(--radius-card)] border border-line bg-paper p-4">
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-xs uppercase tracking-wider text-ink-500">#{idx + 1}</span>
+            <span className="eyebrow">#{idx + 1}</span>
             <button
               type="button"
               onClick={() => onChange(items.filter((_, i) => i !== idx))}
-              className="text-xs text-ink-500 hover:text-ink"
+              className="inline-flex min-h-[44px] items-center text-sm text-ink-500 hover:text-ink-900"
             >
               Remove
             </button>
@@ -420,9 +421,9 @@ function RepeatingBlocks<T>({
       <button
         type="button"
         onClick={() => onChange([...items, empty])}
-        className="text-sm text-ink-500 hover:text-ink"
+        className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-medium text-green-deep hover:underline"
       >
-        + Add
+        <Plus className="h-4 w-4" aria-hidden /> Add
       </button>
     </div>
   );
@@ -439,7 +440,7 @@ function SkillGroup({
 }) {
   return (
     <div className="mt-6 first:mt-0">
-      <p className="text-xs uppercase tracking-wider text-ink-500">{label}</p>
+      <p className="label mb-0">{label}</p>
       <div className="mt-2">
         <RepeatingList items={items} onChange={onChange} placeholder="Skill" />
       </div>

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Fragment, useEffect, useMemo, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { syncExplrMore, setExplrCampEducator } from "@/lib/explr-sync.functions";
 
@@ -155,15 +156,16 @@ function ImportExplrPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10">
-      <h1 className="text-2xl font-semibold text-ink">Import from ExplrMore</h1>
-      <p className="mt-2 text-sm text-ink-500">
+    <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
+      <p className="eyebrow">Admin</p>
+      <h1 className="display mt-2">Import from ExplrMore</h1>
+      <p className="lead mt-3 max-w-2xl">
         Pull camps and family registrations from the ExplrMore registration system, link each
         instance and assign EXPLR instructors. Instructors never touch ExplrMore. Parents and
         students never see this site.
       </p>
 
-      <div className="mt-6 flex items-center gap-4">
+      <div className="mt-6 flex flex-wrap items-center gap-4">
         <button
           type="button"
           onClick={runSync}
@@ -172,11 +174,11 @@ function ImportExplrPage() {
         >
           {syncing ? "Syncing…" : "Sync now"}
         </button>
-        {msg && <span className="text-sm text-emerald-700">{msg}</span>}
+        {msg && <span className="text-sm text-green-deep">{msg}</span>}
         {err && <span className="text-sm text-red-700">{err}</span>}
       </div>
 
-      <p className="mt-3 text-sm text-ink-500">
+      <p className="mt-3 text-sm text-ink-700">
         {lastSync === undefined
           ? "Checking last sync…"
           : lastSync === null
@@ -189,32 +191,32 @@ function ImportExplrPage() {
       </p>
 
       {debugInfo && (
-        <details className="mt-4 rounded border border-line-strong bg-paper-sunken p-3 text-xs">
-          <summary className="cursor-pointer font-medium text-ink">Roster sync errors</summary>
+        <details className="mt-4 rounded-[var(--radius-control)] border border-line bg-paper-sunken p-3 text-xs">
+          <summary className="cursor-pointer font-medium text-ink-900">Roster sync errors</summary>
           <pre className="mt-2 whitespace-pre-wrap break-words text-ink-700">{debugInfo}</pre>
         </details>
       )}
 
-      <p className="mt-4 text-xs text-ink-500">
+      <p className="mt-4 text-sm text-ink-500">
         A student missing from a roster? Open the camp&apos;s row — Roster health shows whether they
         came over from ExplrMore and whether their login has been generated yet.
       </p>
 
-      <div className="mt-8 overflow-x-auto">
+      <div className="mt-8 overflow-x-auto rounded-[var(--radius-card)] border border-line">
         <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-line text-left text-xs uppercase tracking-wider text-ink-500">
-              <th className="py-2 pr-3" />
-              <th className="py-2 pr-3">Camp</th>
-              <th className="py-2 pr-3">Date</th>
-              <th className="py-2 pr-3">Roster</th>
-              <th className="py-2 pr-3">Instructors</th>
+          <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+            <tr>
+              <th className="py-3 pl-4 pr-1 font-medium" />
+              <th className="px-3 py-3 font-medium">Camp</th>
+              <th className="px-3 py-3 font-medium">Date</th>
+              <th className="px-3 py-3 font-medium">Roster</th>
+              <th className="px-3 py-3 font-medium">Instructors</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-paper-raised">
             {camps.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-6 text-center text-ink-500">
+                <td colSpan={5} className="px-4 py-6 text-center text-ink-500">
                   No camps imported yet.
                 </td>
               </tr>
@@ -225,29 +227,33 @@ function ImportExplrPage() {
                 const assignedSet = assignedByCamp.get(c.id) ?? new Set<string>();
                 return (
                   <Fragment key={c.id}>
-                    <tr className="border-b border-line">
-                      <td className="py-3 pr-3 align-top">
+                    <tr className="border-t border-line">
+                      <td className="py-2 pl-3 pr-1 align-top">
                         <button
                           type="button"
                           onClick={() => setExpandedId(isOpen ? null : c.id)}
-                          className="text-ink-500 hover:text-ink"
+                          className="grid h-9 w-9 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-ink-900"
                           aria-label={isOpen ? "Collapse" : "Expand"}
+                          aria-expanded={isOpen}
                         >
-                          {isOpen ? "▾" : "▸"}
+                          <ChevronDown
+                            className={`h-4 w-4 transition-transform ${isOpen ? "" : "-rotate-90"}`}
+                            aria-hidden
+                          />
                         </button>
                       </td>
-                      <td className="py-3 pr-3 align-top">
-                        <div className="font-medium text-ink">{c.title}</div>
+                      <td className="px-3 py-3 align-top">
+                        <div className="font-medium text-ink-900">{c.title}</div>
                         <div className="text-xs text-ink-500">{c.location ?? "—"}</div>
                       </td>
-                      <td className="py-3 pr-3 align-top text-ink-700">
+                      <td className="px-3 py-3 align-top text-ink-700">
                         {c.date ?? "—"}
                         {c.end_date ? ` → ${c.end_date}` : ""}
                       </td>
-                      <td className="py-3 pr-3 align-top text-ink-700 tabular-nums">
+                      <td className="px-3 py-3 align-top text-ink-700 tabular-nums">
                         {rosterCount}
                       </td>
-                      <td className="py-3 pr-3 align-top text-ink-700">
+                      <td className="px-3 py-3 align-top text-ink-700">
                         {assignedSet.size === 0 ? (
                           <span className="text-ink-500">—</span>
                         ) : (
@@ -257,7 +263,7 @@ function ImportExplrPage() {
                               return (
                                 <span
                                   key={eid}
-                                  className="inline-block border border-line-strong bg-paper-raised px-1.5 py-0.5 text-[11px] text-ink"
+                                  className="inline-block rounded-full bg-mint-tint px-2 py-0.5 text-[11px] font-medium text-green-deep"
                                 >
                                   {e?.full_name ?? eid.slice(0, 6)}
                                 </span>
@@ -269,8 +275,8 @@ function ImportExplrPage() {
                     </tr>
 
                     {isOpen && (
-                      <tr className="border-b border-line bg-paper-sunken">
-                        <td className="py-5 pl-3 pr-3" colSpan={5}>
+                      <tr className="border-t border-line bg-paper-sunken">
+                        <td className="px-4 py-5" colSpan={5}>
                           {/* Roster health — ExplrMore registrations vs generated
                               logins, so a missing kid is diagnosable at a glance. */}
                           <section className="mb-6">
@@ -282,7 +288,7 @@ function ImportExplrPage() {
                             <section>
                               <p className="eyebrow">Assigned instructors</p>
                               <p className="mt-1 text-xs text-ink-500">
-                                Pick every EXPLR educator who&apos;s running this instance —
+                                Pick every EXPLR instructor who&apos;s running this instance —
                                 co-teaches, sub-instructors, all of them. They each get this camp on
                                 their dashboard.
                               </p>
@@ -291,17 +297,21 @@ function ImportExplrPage() {
                                   No approved instructors yet. Approve someone first.
                                 </p>
                               ) : (
-                                <ul className="mt-3 max-h-56 space-y-1 overflow-y-auto border border-line bg-paper-raised p-2">
+                                <ul className="mt-3 max-h-56 space-y-1 overflow-y-auto rounded-[var(--radius-control)] border border-line bg-paper-raised p-2">
                                   {educators.map((e) => {
                                     const on = assignedSet.has(e.id);
                                     return (
-                                      <li key={e.id} className="flex items-center gap-2 px-2 py-1">
+                                      <li
+                                        key={e.id}
+                                        className="flex min-h-[40px] items-center gap-2 px-2 py-1"
+                                      >
                                         <input
                                           type="checkbox"
+                                          className="h-4 w-4 accent-green"
                                           checked={on}
                                           onChange={() => toggleEducator(c.id, e.id, !on)}
                                         />
-                                        <span className="text-sm text-ink">{e.full_name}</span>
+                                        <span className="text-sm text-ink-900">{e.full_name}</span>
                                         <span className="text-xs text-ink-500">{e.email}</span>
                                       </li>
                                     );
@@ -320,7 +330,7 @@ function ImportExplrPage() {
           </tbody>
         </table>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -379,19 +389,19 @@ function RosterHealth({ campId }: { campId: string }) {
       </p>
 
       {needLogin.length > 0 && (
-        <div className="mt-2 border border-amber-200 bg-amber-50 px-3 py-2">
-          <p className="text-xs font-medium text-amber-900">
+        <div className="mt-2 rounded-[var(--radius-control)] border border-gold bg-gold-tint px-3 py-2">
+          <p className="text-xs font-medium text-ink-900">
             On the ExplrMore roster, no login yet ({needLogin.length}) — run &ldquo;Generate&rdquo;
             on the Camp logins page:
           </p>
-          <p className="mt-1 text-xs text-amber-800">
+          <p className="mt-1 text-xs text-ink-700">
             {needLogin.map((r) => r.child_name).join(", ")}
           </p>
         </div>
       )}
 
       {notOnRoster.length > 0 && (
-        <div className="mt-2 border border-line-strong bg-paper-sunken px-3 py-2">
+        <div className="mt-2 rounded-[var(--radius-control)] border border-line bg-paper-raised px-3 py-2">
           <p className="text-xs font-medium text-ink-700">
             Has a login here but isn&apos;t on the ExplrMore roster ({notOnRoster.length}) —
             walk-ins, or removed / moved to another session in ExplrMore:
@@ -402,7 +412,7 @@ function RosterHealth({ campId }: { campId: string }) {
         </div>
       )}
 
-      <p className="mt-2 text-[11px] text-ink-500">
+      <p className="mt-2 text-xs text-ink-500">
         Someone missing from both lists? They didn&apos;t come over from ExplrMore — run Sync now
         and check the roster sync errors above.
       </p>

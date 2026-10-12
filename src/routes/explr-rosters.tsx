@@ -79,9 +79,7 @@ function ExplrRostersPage() {
 
   const columns = useMemo(() => {
     const set = new Set<string>();
-    [...roster, ...waitlist].forEach((row) =>
-      Object.keys(row).forEach((k) => set.add(k)),
-    );
+    [...roster, ...waitlist].forEach((row) => Object.keys(row).forEach((k) => set.add(k)));
     // Prefer common columns first
     const preferred = [
       "child_name",
@@ -98,27 +96,28 @@ function ExplrRostersPage() {
   }, [roster, waitlist]);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-6 py-10">
+    <main className="mx-auto max-w-[1312px] space-y-8 px-4 py-10 sm:px-6 lg:px-8">
       <header>
-        <h1 className="text-2xl font-semibold">EXPLR Rosters</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Live view of rosters and waitlists from the EXPLR backend. Roster data
-          contains PII — admin-only.
+        <p className="eyebrow">Admin</p>
+        <h1 className="display mt-2">EXPLR Rosters</h1>
+        <p className="lead mt-3 max-w-2xl">
+          Live view of rosters and waitlists from the EXPLR backend. Roster data contains PII —
+          admin-only.
         </p>
       </header>
 
-      <section className="space-y-2">
-        <label className="block text-sm font-medium" htmlFor="camp-select">
+      <section className="max-w-xl space-y-2">
+        <label className="label" htmlFor="camp-select">
           Camp
         </label>
         {campsLoading ? (
-          <p className="text-sm text-muted-foreground">Loading camps…</p>
+          <p className="text-sm text-ink-500">Loading camps…</p>
         ) : campsErr ? (
-          <p className="text-sm text-destructive">Failed to load camps: {campsErr}</p>
+          <p className="text-sm text-red-700">Failed to load camps: {campsErr}</p>
         ) : (
           <select
             id="camp-select"
-            className="w-full max-w-xl rounded border border-input bg-background px-3 py-2 text-sm"
+            className="field"
             value={selectedId}
             onChange={(e) => setSelectedId(e.target.value)}
           >
@@ -132,9 +131,7 @@ function ExplrRostersPage() {
         )}
       </section>
 
-      {rosterErr && (
-        <p className="text-sm text-destructive">Error: {rosterErr}</p>
-      )}
+      {rosterErr && <p className="text-sm text-red-700">Error: {rosterErr}</p>}
 
       <RosterTable
         title={`Roster (${roster.length})`}
@@ -148,7 +145,7 @@ function ExplrRostersPage() {
         columns={columns}
         loading={rosterLoading}
       />
-    </div>
+    </main>
   );
 }
 
@@ -164,14 +161,14 @@ function RosterTable({
   loading: boolean;
 }) {
   return (
-    <section className="space-y-2">
-      <h2 className="text-lg font-semibold">{title}</h2>
+    <section className="space-y-3">
+      <h2 className="font-display text-2xl font-bold">{title}</h2>
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-ink-500">Loading…</p>
       ) : rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No entries.</p>
+        <p className="text-sm text-ink-500">No entries.</p>
       ) : (
-        <div className="rounded border">
+        <div className="overflow-x-auto rounded-[var(--radius-card)] border border-line bg-paper-raised">
           <Table>
             <TableHeader>
               <TableRow>
@@ -186,11 +183,7 @@ function RosterTable({
                   {columns.map((c) => {
                     const v = row[c];
                     const display =
-                      v == null
-                        ? ""
-                        : typeof v === "object"
-                          ? JSON.stringify(v)
-                          : String(v);
+                      v == null ? "" : typeof v === "object" ? JSON.stringify(v) : String(v);
                     return <TableCell key={c}>{display}</TableCell>;
                   })}
                 </TableRow>

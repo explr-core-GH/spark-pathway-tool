@@ -2,7 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { OrgGuard } from "@/components/OrgGuard";
+import { PortalHeader, type PortalLink } from "@/components/passport";
+import { ChevronDown, ExternalLink } from "lucide-react";
 import { useOrg } from "@/lib/auth";
+
+const PARTNER_LINKS: PortalLink[] = [
+  { label: "Overview", to: "/org" },
+  { label: "New opportunity", to: "/org/new" },
+  { label: "Applicants", to: "/org/applicants" },
+];
 
 export const Route = createFileRoute("/org/applicants")({
   head: () => ({ meta: [{ title: "Applicants — EXPLR" }] }),
@@ -97,131 +105,147 @@ function Applicants() {
   }, [user]);
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
-      <Link to="/org" className="text-xs text-ink-500 hover:text-ink">
-        ← Dashboard
-      </Link>
-      <h1 className="mt-2 text-3xl font-light">Applicants</h1>
-      <p className="mt-2 text-sm text-ink-500">
-        Students who completed an application to one of your internships.
-      </p>
+    <div className="bg-paper text-ink-900">
+      <PortalHeader role="Partner" links={PARTNER_LINKS} signedIn />
+      <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+        <Link
+          to="/org"
+          className="inline-flex min-h-[44px] items-center text-sm font-medium text-green-deep hover:underline"
+        >
+          ← Partner portal
+        </Link>
+        <p className="eyebrow text-green">Internships</p>
+        <h1 className="display mt-1">Applicants.</h1>
+        <p className="lead mt-3 max-w-2xl">
+          Students who completed an application to one of your internships.
+        </p>
 
-      {loading ? (
-        <p className="mt-8 text-sm text-ink-500">Loading…</p>
-      ) : sels.length === 0 ? (
-        <p className="mt-8 text-sm text-ink-500">No completed applications yet.</p>
-      ) : (
-        <div className="mt-8 divide-y divide-line border-y border-line">
-          {sels.map((s) => {
-            const r = resumes[s.student_id] ?? {};
-            const isOpen = open === s.id;
-            const oppForms = forms.filter((f) => f.opportunity_id === s.opportunity_id);
-            const myCompletions = completions.filter((c) => c.student_id === s.student_id);
-            return (
-              <div key={s.id}>
-                <button
-                  onClick={() => setOpen(isOpen ? null : s.id)}
-                  className="flex w-full items-center gap-4 py-4 text-left hover:bg-paper-sunken"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">
-                      {r.fullName || "Student"}
-                      <span className="ml-2 text-xs font-normal text-ink-500">
-                        {s.opportunity_id ? oppNames[s.opportunity_id] : "Internship"}
-                      </span>
-                    </p>
-                    <p className="truncate text-xs text-ink-500">
-                      {[r.schoolName, r.expectedGraduation].filter(Boolean).join(" · ") || "—"}
-                    </p>
-                  </div>
-                  <span className="shrink-0 text-xs text-ink-500">{isOpen ? "Hide" : "View"}</span>
-                </button>
+        {loading ? (
+          <p className="mt-8 text-sm text-ink-500">Loading…</p>
+        ) : sels.length === 0 ? (
+          <p className="mt-8 rounded-[var(--radius-card)] border border-dashed border-line-strong bg-paper-raised px-6 py-10 text-center text-sm text-ink-700">
+            No completed applications yet.
+          </p>
+        ) : (
+          <div className="mt-8 divide-y divide-line overflow-hidden rounded-[var(--radius-card)] border border-line bg-paper-raised shadow-card">
+            {sels.map((s) => {
+              const r = resumes[s.student_id] ?? {};
+              const isOpen = open === s.id;
+              const oppForms = forms.filter((f) => f.opportunity_id === s.opportunity_id);
+              const myCompletions = completions.filter((c) => c.student_id === s.student_id);
+              return (
+                <div key={s.id}>
+                  <button
+                    onClick={() => setOpen(isOpen ? null : s.id)}
+                    aria-expanded={isOpen}
+                    className="flex min-h-[44px] w-full items-center gap-4 px-4 py-4 text-left hover:bg-mint-tint/40"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">
+                        {r.fullName || "Student"}
+                        <span className="ml-2 text-xs font-normal text-ink-700">
+                          {s.opportunity_id ? oppNames[s.opportunity_id] : "Internship"}
+                        </span>
+                      </p>
+                      <p className="truncate text-xs text-ink-500">
+                        {[r.schoolName, r.expectedGraduation].filter(Boolean).join(" · ") || "—"}
+                      </p>
+                    </div>
+                    <span className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-ink-700">
+                      {isOpen ? "Hide" : "View"}
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                        aria-hidden
+                      />
+                    </span>
+                  </button>
 
-                {isOpen && (
-                  <div className="border-t border-line bg-paper-sunken px-4 py-5 text-sm">
-                    <dl className="grid grid-cols-2 gap-3 text-xs">
-                      <Detail label="Email" value={r.email} />
-                      <Detail label="Phone" value={r.phone} />
-                      <Detail label="School" value={r.schoolName} />
-                      <Detail label="Expected grad" value={r.expectedGraduation} />
-                    </dl>
-                    {r.whyThisInternship && (
-                      <div className="mt-3">
-                        <p className="text-xs uppercase tracking-wider text-ink-500">
-                          Why this internship
-                        </p>
-                        <p className="mt-1 whitespace-pre-wrap text-ink-700">
-                          {String(r.whyThisInternship)}
-                        </p>
-                      </div>
-                    )}
+                  {isOpen && (
+                    <div className="border-t border-line bg-paper px-4 py-5 text-sm">
+                      <dl className="grid gap-3 text-xs sm:grid-cols-2">
+                        <Detail label="Email" value={r.email} />
+                        <Detail label="Phone" value={r.phone} />
+                        <Detail label="School" value={r.schoolName} />
+                        <Detail label="Expected grad" value={r.expectedGraduation} />
+                      </dl>
+                      {r.whyThisInternship && (
+                        <div className="mt-3">
+                          <p className="eyebrow">Why this internship</p>
+                          <p className="mt-1 whitespace-pre-wrap text-ink-700">
+                            {String(r.whyThisInternship)}
+                          </p>
+                        </div>
+                      )}
 
-                    {s.link_proofs && s.link_proofs.length > 0 && (
-                      <div className="mt-4">
-                        <p className="text-xs uppercase tracking-wider text-ink-500">Link proofs</p>
-                        <ul className="mt-1 space-y-1">
-                          {s.link_proofs.map((p, i) => (
-                            <li key={i} className="flex items-center gap-2">
-                              <span className="text-ink-700">{p.label || p.url}</span>
-                              {p.screenshot_url ? (
-                                <a
-                                  href={p.screenshot_url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="text-xs text-green-deep hover:underline"
-                                >
-                                  screenshot ↗
-                                </a>
-                              ) : (
-                                <span className="text-xs text-amber-700">missing</span>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {oppForms.length > 0 && (
-                      <div className="mt-4">
-                        <p className="text-xs uppercase tracking-wider text-ink-500">Forms</p>
-                        <ul className="mt-1 space-y-1">
-                          {oppForms.map((f) => {
-                            const c = myCompletions.find((x) => x.form_id === f.id);
-                            return (
-                              <li key={f.id} className="flex items-center gap-2">
-                                <span className="text-ink-700">{f.name}</span>
-                                {c?.completed_file_url && (
+                      {s.link_proofs && s.link_proofs.length > 0 && (
+                        <div className="mt-4">
+                          <p className="eyebrow">Link proofs</p>
+                          <ul className="mt-1 space-y-1">
+                            {s.link_proofs.map((p, i) => (
+                              <li key={i} className="flex items-center gap-2">
+                                <span className="text-ink-700">{p.label || p.url}</span>
+                                {p.screenshot_url ? (
                                   <a
-                                    href={c.completed_file_url}
+                                    href={p.screenshot_url}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="text-xs text-green-deep hover:underline"
+                                    className="inline-flex items-center gap-1 text-xs font-medium text-green-deep hover:underline"
                                   >
-                                    uploaded ↗
+                                    screenshot <ExternalLink className="h-3 w-3" aria-hidden />
                                   </a>
-                                )}
-                                {c?.signed_name && (
-                                  <span className="text-xs text-emerald-700">
-                                    signed: {c.signed_name}
+                                ) : (
+                                  <span className="rounded-full bg-gold-tint px-2 py-0.5 font-mono text-[11px] uppercase tracking-[0.08em] text-gold-deep">
+                                    missing
                                   </span>
                                 )}
-                                {!c?.completed_file_url && !c?.signed_name && (
-                                  <span className="text-xs text-ink-500">not submitted</span>
-                                )}
                               </li>
-                            );
-                          })}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </main>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {oppForms.length > 0 && (
+                        <div className="mt-4">
+                          <p className="eyebrow">Forms</p>
+                          <ul className="mt-1 space-y-1">
+                            {oppForms.map((f) => {
+                              const c = myCompletions.find((x) => x.form_id === f.id);
+                              return (
+                                <li key={f.id} className="flex items-center gap-2">
+                                  <span className="text-ink-700">{f.name}</span>
+                                  {c?.completed_file_url && (
+                                    <a
+                                      href={c.completed_file_url}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="inline-flex items-center gap-1 text-xs font-medium text-green-deep hover:underline"
+                                    >
+                                      uploaded <ExternalLink className="h-3 w-3" aria-hidden />
+                                    </a>
+                                  )}
+                                  {c?.signed_name && (
+                                    <span className="rounded-full bg-mint-tint px-2 py-0.5 font-mono text-[11px] uppercase tracking-[0.08em] text-green-deep">
+                                      signed: {c.signed_name}
+                                    </span>
+                                  )}
+                                  {!c?.completed_file_url && !c?.signed_name && (
+                                    <span className="text-xs text-ink-500">not submitted</span>
+                                  )}
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </main>
+    </div>
   );
 }
 
@@ -229,7 +253,7 @@ function Detail({ label, value }: { label: string; value?: unknown }) {
   if (!value) return null;
   return (
     <div>
-      <dt className="uppercase tracking-wider text-ink-500">{label}</dt>
+      <dt className="label mb-0">{label}</dt>
       <dd className="mt-0.5 text-ink-700">{String(value)}</dd>
     </div>
   );

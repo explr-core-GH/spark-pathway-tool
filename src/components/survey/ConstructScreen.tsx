@@ -29,10 +29,10 @@ export function ConstructScreen({
   return (
     <div>
       <p className="eyebrow">Section</p>
-      <h2 className="mt-1 text-2xl font-light">{screen.name}</h2>
+      <h2 className="mt-1 font-display text-2xl font-bold">{screen.name}</h2>
 
       {screen.preamble && (
-        <p className="mt-4 border-l-2 border-line-strong pl-4 text-sm leading-relaxed text-ink-700">
+        <p className="mt-4 rounded-[var(--radius-control)] bg-mint-tint/60 px-4 py-3 text-sm leading-relaxed text-ink-700">
           {screen.preamble}
         </p>
       )}

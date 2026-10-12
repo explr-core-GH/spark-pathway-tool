@@ -1,9 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
-import { Wordmark } from "@/components/passport";
+import { PortalHeader, type PortalLink } from "@/components/passport";
+import { SiteFooter } from "@/components/SiteFooter";
 import { WEEKDAYS } from "@/lib/opportunities";
 
 /**
@@ -12,6 +14,12 @@ import { WEEKDAYS } from "@/lib/opportunities";
  * relevant, likes and dislikes, aspirations, availability, transportation,
  * and optional demographics (used only to see who the portal reaches).
  */
+const STUDENT_LINKS: PortalLink[] = [
+  { label: "My passport", to: "/student" },
+  { label: "Opportunities", to: "/opportunities" },
+  { label: "Families", to: "/student/pathway", search: { tab: "families" } },
+];
+
 export const Route = createFileRoute("/student_/profile")({
   head: () => ({ meta: [{ title: "Internship profile — EXPLR Pathways" }] }),
   validateSearch: (s: Record<string, unknown>): { next?: string } =>
@@ -145,15 +153,14 @@ function Profile() {
 
   return (
     <div className="min-h-screen bg-paper text-ink-900">
-      <header className="border-b border-line">
-        <div className="mx-auto flex max-w-[900px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Wordmark />
-          <Link to="/student" className="text-[15px] font-medium text-green-deep hover:underline">
-            ← My passport
-          </Link>
-        </div>
-      </header>
+      <PortalHeader role="Student" links={STUDENT_LINKS} signedIn />
       <main className="mx-auto max-w-[900px] px-4 py-10 sm:px-6">
+        <Link
+          to="/student"
+          className="inline-flex min-h-[44px] items-center text-sm font-medium text-green-deep hover:underline"
+        >
+          ← My passport
+        </Link>
         <p className="eyebrow text-green">Internship general application</p>
         <h1 className="display mt-1">Tell us how to place you.</h1>
         <p className="mt-4 max-w-xl text-ink-700">
@@ -299,10 +306,10 @@ function Profile() {
                     <button
                       type="button"
                       onClick={() => setCoursework(coursework.filter((_, j) => j !== i))}
-                      className="text-sm text-ink-500 hover:text-ink-900"
+                      className="grid h-11 w-11 shrink-0 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-ink-900"
                       aria-label="Remove course"
                     >
-                      ✕
+                      <X className="h-4 w-4" aria-hidden />
                     </button>
                   </li>
                 ))}
@@ -525,7 +532,7 @@ function Profile() {
             </section>
 
             {error && (
-              <p role="alert" className="text-sm text-destructive">
+              <p role="alert" className="text-sm text-red-700">
                 {error}
               </p>
             )}
@@ -540,6 +547,7 @@ function Profile() {
           </form>
         )}
       </main>
+      <SiteFooter className="mt-16" />
     </div>
   );
 }

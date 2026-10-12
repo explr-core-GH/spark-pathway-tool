@@ -440,3 +440,214 @@ export function downloadOpenBadges(p: Passport) {
     new Blob([JSON.stringify(creds, null, 2)], { type: "application/json" }),
   );
 }
+
+// ── Student Success Plan (Ohio Model SSP order) ────────────────────────────
+
+export type SspTask = {
+  key: string;
+  label: string;
+  status: string;
+  payload?: Record<string, unknown> | null;
+};
+
+export type SspInput = {
+  schoolYear: string;
+  goals: Array<{
+    grade: number | null;
+    primary_goal: string;
+    secondary_goal: string | null;
+    cluster: string | null;
+    post_hs_plan: string | null;
+    changed_since_last: boolean | null;
+    why: string | null;
+  }>;
+  checkpoints: Array<{
+    term: string;
+    grade: number;
+    status: string;
+    submitted_at: string | null;
+    advisor_notes: string | null;
+    tasks: SspTask[];
+  }>;
+  checklist: Array<{ item_no: number; checked_at: string | null; comment: string | null }>;
+  checklistText: Array<{ no: number; text: string }>;
+  approval: {
+    student_ack_at: string | null;
+    guardian_ack_at: string | null;
+    advisor_ack_at: string | null;
+  } | null;
+  postHsLabels: Record<string, string>;
+  extras?: ResumeExtras & { email?: string };
+};
+
+function payloadText(p: Record<string, unknown> | null | undefined): string {
+  if (!p) return "";
+  return Object.entries(p)
+    .filter(([, v]) => v !== null && v !== undefined && v !== "" && v !== false)
+    .map(([k, v]) => {
+      const label = k.replace(/_/g, " ");
+      if (Array.isArray(v)) return `${label}: ${v.join(", ")}`;
+      if (typeof v === "object") return `${label}: ${JSON.stringify(v)}`;
+      return `${label}: ${String(v)}`;
+    })
+    .join(" · ");
+}
+
+const PLAN_KEYS = [
+  "course_plan",
+  "elective_plan",
+  "hs_pathway_choice",
+  "credential_program_review",
+];
+const ASSESS_KEYS = [
+  "learning_style_survey",
+  "strengths_inventory",
+  "work_values",
+  "career_profile",
+];
+const TRANSITION_KEYS = [
+  "postsecondary_search",
+  "college_admission_research",
+  "financing_plan",
+  "application_tracker",
+  "transition_plan",
+  "test_prep_plan",
+];
+
+/**
+ * Student Success Plan PDF: Ohio's forms in Ohio's order — Contact, Career
+ * Pathway Organizer, Academic Pathway Plan, Assessment Record, Career
+ * Readiness Skills, Career Exploration Activities, Additional Learning
+ * Activities, Transitions, Planning Checklist, Approval. One PDF per school
+ * year, built from the passport plus this year's checkpoints.
+ */
+export async function downloadStudentSuccessPlanPdf(p: Passport, s: SspInput) {
+  const d = await newDoc();
+  const w = new Writer(d);
+  const name = s.extras?.fullName ?? p.firstName;
+  const signed = (v: string | null | undefined) => (v ? `signed ${fmt(v)}` : "not yet signed");
+  const tasksWhere = (keys: string[]) =>
+    s.checkpoints.flatMap((c) => c.tasks.filter((t) => keys.includes(t.key)));
+  const taskLines = (tasks: SspTask[], empty: string) => {
+    if (tasks.length === 0) w.p(empty);
+    for (const t of tasks) {
+      w.p(`${t.label}: ${t.status === "done" ? "done" : t.status}`);
+      const txt = payloadText(t.payload);
+      if (txt) w.small(`  ${txt}`);
+    }
+  };
+
+  w.h1(`Student Success Plan · ${name}`);
+  w.small(
+    `EXPLR Pathways · school year ${s.schoolYear} · grade ${p.grade ?? "?"} · generated ${fmt(new Date().toISOString())} · follows Ohio's Model Student Success Plan (ORC 3313.6020)`,
+  );
+  w.rule();
+
+  w.h2("1. Contact information");
+  w.p(
+    [
+      `Name: ${name}`,
+      `Grade: ${p.grade ?? "—"}`,
+      s.extras?.highSchool ? `School: ${s.extras.highSchool}` : null,
+      s.extras?.gradYear ? `Graduation year: ${s.extras.gradYear}` : null,
+      s.extras?.email ? `Email: ${s.extras.email}` : null,
+    ]
+      .filter(Boolean)
+      .join(" · "),
+  );
+  w.small("Home address and phone are kept by the district, not EXPLR Pathways.");
+  w.gap(6);
+
+  w.h2("2. Career pathway goals");
+  if (s.goals.length === 0) w.p("No career goal recorded this year.");
+  for (const g of s.goals) {
+    w.p(
+      `Grade ${g.grade ?? p.grade ?? "—"}: ${g.primary_goal}${g.secondary_goal ? ` (also considering ${g.secondary_goal})` : ""}${g.cluster ? ` · cluster: ${g.cluster}` : ""}`,
+    );
+    w.small(
+      `After high school: ${g.post_hs_plan ? (s.postHsLabels[g.post_hs_plan] ?? g.post_hs_plan) : "not chosen"} · changed since last year: ${g.changed_since_last === null ? "—" : g.changed_since_last ? "yes" : "no"}${g.why ? ` · why: ${g.why}` : ""}`,
+    );
+  }
+  w.gap(6);
+
+  w.h2("3. Academic pathway plan");
+  taskLines(tasksWhere(PLAN_KEYS), "No course plan recorded this year.");
+  w.gap(6);
+
+  w.h2("4. Assessment record");
+  w.p(
+    `Career interests: EXPLR RIASEC interest assessment · ${p.hollandCode ? `Holland code ${p.hollandCode}` : "not yet completed"}`,
+  );
+  taskLines(tasksWhere(ASSESS_KEYS), "");
+  w.gap(6);
+
+  w.h2("5. Career readiness skills (OhioMeansJobs-Readiness Seal)");
+  const rated = p.seal.filter((x) => x.best !== null);
+  if (rated.length === 0) w.p("No supervisor ratings yet.");
+  for (const x of rated) {
+    w.p(
+      `${x.skill}: ${RATING_LEVELS[(x.best ?? 1) - 1]} · ${x.settings.size} setting${x.settings.size === 1 ? "" : "s"} · ${x.raters.size} rater${x.raters.size === 1 ? "" : "s"}${x.sealReady ? " · seal-ready" : ""}`,
+    );
+  }
+  for (const t of tasksWhere(["competency_self_rating"]).filter((t) => t.payload))
+    w.small(`  Self-description: ${payloadText(t.payload)}`);
+  w.gap(6);
+
+  w.h2("6. Career exploration activities");
+  if (p.experiences.length === 0) w.p("No experiences logged yet.");
+  for (const e of p.experiences) {
+    const dates = [fmt(e.start_date), fmt(e.end_date)].filter(Boolean).join(" to ");
+    const status =
+      e.status === "verified"
+        ? `verified${e.verified_hours != null ? ` (${e.verified_hours} h)` : ""}`
+        : e.status.replace(/_/g, " ");
+    w.p(
+      `${e.title}${e.organization ? ` · ${e.organization}` : ""} · ${EXPERIENCE_TYPE_BY_KEY[e.experience_type]?.label ?? e.experience_type} · ${STAGES[e.stage].label} · ${dates}${e.hours != null ? ` · ${e.hours} h` : ""} · ${status}`,
+    );
+    if (e.reflection) w.small(`  Reflection: ${e.reflection}`);
+  }
+  w.gap(6);
+
+  w.h2("7. Additional learning activities");
+  if (p.credentials.length === 0 && p.pieces.length === 0) w.p("None recorded yet.");
+  for (const c of p.credentials) {
+    w.p(
+      `${c.title}${c.issuer ? ` · ${c.issuer}` : ""}${c.issued_at ? ` · ${fmt(c.issued_at)}` : ""}${c.credits ? ` · ${c.credits} credits` : ""} · ${c.type.replace(/_/g, " ")} · ${c.verification_method.replace(/_/g, " ")}`,
+    );
+  }
+  for (const pc of p.pieces) w.p(`Portfolio: ${pc.title}${pc.context ? ` · ${pc.context}` : ""}`);
+  w.gap(6);
+
+  w.h2("8. Postsecondary, military, and workforce transitions");
+  taskLines(tasksWhere(TRANSITION_KEYS), "Not applicable this year.");
+  w.gap(6);
+
+  w.h2("9. Planning checklist");
+  const byNo = new Map(s.checklist.map((c) => [c.item_no, c]));
+  for (const item of s.checklistText) {
+    const c = byNo.get(item.no);
+    w.p(`${c?.checked_at ? "[x]" : "[ ]"} ${item.no}. ${item.text}`);
+    if (c?.checked_at || c?.comment)
+      w.small(
+        `    ${c?.checked_at ? `checked ${fmt(c.checked_at)}` : ""}${c?.comment ? ` · ${c.comment}` : ""}`,
+      );
+  }
+  w.gap(6);
+
+  w.h2("10. Checkpoints and approval");
+  for (const c of s.checkpoints) {
+    const done = c.tasks.filter((t) => t.status === "done").length;
+    w.p(
+      `${c.term === "fall" ? "Fall" : "Spring"} checkpoint (grade ${c.grade}): ${c.status}${c.submitted_at ? ` · submitted ${fmt(c.submitted_at)}` : ""} · ${done} of ${c.tasks.length} tasks done`,
+    );
+    if (c.advisor_notes) w.small(`  Advisor notes: ${c.advisor_notes}`);
+  }
+  w.p(`Student: ${signed(s.approval?.student_ack_at)}`);
+  w.p(`Parent or guardian: ${signed(s.approval?.guardian_ack_at)}`);
+  w.p(`Teacher or counselor: ${signed(s.approval?.advisor_ack_at)}`);
+  w.small(
+    "Sign-offs are recorded electronically in EXPLR Pathways with a timestamp: the family sign-off through the family code view, the advisor sign-off from the instructor checkpoint review.",
+  );
+
+  d.save(`explr-student-success-plan-${p.firstName.toLowerCase()}-${s.schoolYear}.pdf`);
+}

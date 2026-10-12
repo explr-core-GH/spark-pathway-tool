@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { AuthShell } from "@/components/passport/AuthShell";
 
 export const Route = createFileRoute("/sign-in")({
   head: () => ({ meta: [{ title: "Sign in — EXPLR" }] }),
-  // The home page's student door branches by grade band. Until the 4-8
+  // The home page's student card branches by grade band. Until the 4-8
   // picture/QR sign-in ships, the band only changes the copy below.
   validateSearch: (search: Record<string, unknown>): { band?: "4-8" | "9-12" } =>
     search.band === "4-8" || search.band === "9-12" ? { band: search.band } : {},
@@ -46,25 +47,61 @@ function SignIn() {
     navigate({ to: "/student" });
   }
 
+  const eyebrow =
+    band === "4-8"
+      ? "Students · grades 4-8"
+      : band === "9-12"
+        ? "Students · grades 9-12"
+        : "Students";
+  const intro =
+    band === "4-8"
+      ? "You don't need a password. Enter your class code, tap your picture, then tap your three secret shapes."
+      : band === "9-12"
+        ? "Sign in with your email, or the username from your roster, to open your passport."
+        : "Open your passport: experiences, stamps, assessments, and a resume that builds itself.";
+  const illustration =
+    band === "4-8"
+      ? "/passport/grades-4-8.webp"
+      : band === "9-12"
+        ? "/passport/grades-9-12.webp"
+        : "/passport/students.webp";
+
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
-      <Link to="/" className="eyebrow mb-12 inline-block">
-        ← EXPLR
-      </Link>
-      <h1 className="text-3xl font-light">Sign in</h1>
-      <p className="mt-2 text-sm text-ink-500">
-        {band === "4-8"
-          ? "Grades 4-8: you don't need a password. Use the picture sign-in instead."
-          : band === "9-12"
-            ? "Grades 9-12: sign in with your email, or the username from your roster."
-            : "Student account."}
-      </p>
+    <AuthShell
+      eyebrow={eyebrow}
+      title="Sign in"
+      intro={intro}
+      illustration={{ src: illustration }}
+      role="Student"
+      links={[
+        { label: "Home", to: "/" },
+        { label: "Instructors", to: "/instructor/sign-in", secondary: true },
+      ]}
+      explore={band === "4-8"}
+      footer={
+        <p>
+          New here?{" "}
+          <Link to="/sign-up" className="ink-link">
+            Create an account
+          </Link>
+          <span className="mx-2 text-ink-500">·</span>
+          <Link to="/forgot-password" className="ink-link">
+            Forgot password?
+          </Link>
+        </p>
+      }
+    >
       {band === "4-8" && (
-        <Link to="/explore" className="btn-mint mt-6 justify-center">
-          Go to picture sign-in
-        </Link>
+        <div className="mb-6 flex flex-col gap-3 rounded-[var(--radius-card)] border border-mint-soft bg-mint-tint p-4">
+          <p className="text-sm text-ink-700">
+            Grades 4-8 sign in with pictures and shapes, not a password.
+          </p>
+          <Link to="/explore" className="btn-mint justify-center">
+            Go to picture sign-in
+          </Link>
+        </div>
       )}
-      <form onSubmit={submit} className="mt-10 space-y-5">
+      <form onSubmit={submit} className="space-y-5">
         <div>
           <label className="label" htmlFor="signin-username">
             Username or email
@@ -82,7 +119,7 @@ function SignIn() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="e.g. maya42"
           />
-          <p className="mt-1 text-[11px] text-ink-500">
+          <p className="mt-1.5 text-xs text-ink-500">
             Camp kids: type the short username from your card.
           </p>
         </div>
@@ -105,17 +142,20 @@ function SignIn() {
               onClick={() => setShowPw((v) => !v)}
               aria-pressed={showPw}
               aria-label={showPw ? "Hide password" : "Show password"}
-              className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 text-xs font-medium text-ink-500 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="absolute right-1 top-1/2 inline-flex min-h-[44px] -translate-y-1/2 items-center rounded-[var(--radius-control)] px-3 text-xs font-semibold text-ink-500 hover:text-ink-900"
             >
               {showPw ? "Hide" : "Show"}
             </button>
           </div>
-          <p className="mt-1 text-[11px] text-ink-500">
+          <p className="mt-1.5 text-xs text-ink-500">
             Tap &ldquo;Show&rdquo; to check the password if sign-in isn&apos;t working.
           </p>
         </div>
         {error && (
-          <p className="text-sm text-destructive" role="alert">
+          <p
+            className="rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-sm text-ink-900"
+            role="alert"
+          >
             {error}
           </p>
         )}
@@ -123,16 +163,6 @@ function SignIn() {
           {loading ? "Signing in…" : "Sign in"}
         </button>
       </form>
-      <p className="mt-6 text-sm text-ink-500">
-        New here?{" "}
-        <Link to="/sign-up" className="ink-link">
-          Create an account
-        </Link>
-        <span className="mx-2 text-ink-500">·</span>
-        <Link to="/forgot-password" className="ink-link">
-          Forgot password?
-        </Link>
-      </p>
-    </main>
+    </AuthShell>
   );
 }

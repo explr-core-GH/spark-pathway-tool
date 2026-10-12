@@ -2,8 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { OrgGuard } from "@/components/OrgGuard";
+import { PortalHeader, type PortalLink } from "@/components/passport";
+import { Briefcase, ChevronRight, Plus, Users } from "lucide-react";
 import { useOrg } from "@/lib/auth";
 import { oppTypeMeta, STATUS_LABEL, type Opportunity } from "@/lib/opportunities";
+
+const PARTNER_LINKS: PortalLink[] = [
+  { label: "Overview", to: "/org" },
+  { label: "New opportunity", to: "/org/new" },
+  { label: "Applicants", to: "/org/applicants" },
+];
 
 export const Route = createFileRoute("/org/")({
   head: () => ({ meta: [{ title: "Partner portal — EXPLR" }] }),
@@ -16,9 +24,9 @@ const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(
 
 const STATUS_STYLE: Record<Opportunity["status"], string> = {
   draft: "bg-paper-sunken text-ink-700",
-  submitted: "bg-amber-50 text-amber-700 border border-amber-200",
-  approved: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-  rejected: "bg-rose-50 text-rose-700 border border-rose-200",
+  submitted: "bg-gold-tint text-gold-deep",
+  approved: "bg-mint-tint text-green-deep",
+  rejected: "bg-red-50 text-red-700",
 };
 
 type Reg = {
@@ -51,103 +59,120 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
   const oppName = (id: string) => opps?.find((o) => o.id === id)?.name || "Opportunity";
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          {logo ? (
-            <img src={logo} alt="" className="h-12 w-12 rounded object-cover" />
-          ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded bg-paper-sunken text-sm font-medium text-ink-500">
-              {orgName.slice(0, 2).toUpperCase()}
+    <div className="bg-paper text-ink-900">
+      <PortalHeader role="Partner" links={PARTNER_LINKS} signedIn />
+      <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-4">
+            {logo ? (
+              <img
+                src={logo}
+                alt=""
+                className="h-14 w-14 shrink-0 rounded-[var(--radius-control)] border border-line object-cover"
+              />
+            ) : (
+              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-[var(--radius-control)] border border-mint-soft bg-mint-tint font-display text-lg font-bold text-green-deep">
+                {orgName.slice(0, 2).toUpperCase()}
+              </div>
+            )}
+            <div className="min-w-0">
+              <p className="eyebrow text-green">Partner portal</p>
+              <h1 className="mt-1 font-display text-3xl font-bold leading-tight">{orgName}</h1>
             </div>
-          )}
-          <div>
-            <p className="eyebrow">Partner portal</p>
-            <h1 className="text-2xl font-light">{orgName}</h1>
           </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link to="/org/applicants" className="btn-ghost text-sm">
-            Applicants
-          </Link>
-          <Link to="/org/new" className="btn-ink">
-            + New opportunity
-          </Link>
-        </div>
-      </div>
-
-      <section className="mt-12">
-        <h2 className="text-xs uppercase tracking-wider text-ink-500">Your opportunities</h2>
-        {opps === null ? (
-          <p className="mt-4 text-sm text-ink-500">Loading…</p>
-        ) : opps.length === 0 ? (
-          <div className="mt-4 border border-dashed border-line-strong bg-paper-sunken px-6 py-12 text-center">
-            <p className="text-sm text-ink-500">
-              No opportunities yet. Build your first one — it takes a few minutes.
-            </p>
-            <Link to="/org/new" className="btn-ink mt-4 inline-flex">
-              + New opportunity
+          <div className="flex flex-wrap items-center gap-3">
+            <Link to="/org/applicants" className="btn-ghost">
+              Applicants
+            </Link>
+            <Link to="/org/new" className="btn-ink">
+              <Plus className="h-4 w-4" aria-hidden /> New opportunity
             </Link>
           </div>
-        ) : (
-          <ul className="mt-4 divide-y divide-line border-y border-line">
-            {opps.map((o) => (
-              <li key={o.id}>
-                <Link
-                  to="/org/new"
-                  search={{ id: o.id }}
-                  className="flex items-center gap-4 py-4 hover:bg-paper-sunken"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">
-                      {o.name || "Untitled opportunity"}
-                    </p>
-                    <p className="truncate text-xs text-ink-500">
-                      {oppTypeMeta(o.type).label}
-                      {o.start_date ? ` · ${o.start_date}` : ""}
-                      {o.review_notes && o.status === "rejected" ? ` · ${o.review_notes}` : ""}
-                    </p>
-                  </div>
-                  <span
-                    className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${STATUS_STYLE[o.status]}`}
-                  >
-                    {STATUS_LABEL[o.status]}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+        </div>
 
-      <section className="mt-16">
-        <h2 className="text-xs uppercase tracking-wider text-ink-500">
-          Registrations &amp; applicants
-        </h2>
-        {regs === null ? (
-          <p className="mt-4 text-sm text-ink-500">Loading…</p>
-        ) : regs.length === 0 ? (
-          <p className="mt-4 text-sm text-ink-500">No one has registered or applied yet.</p>
-        ) : (
-          <ul className="mt-4 divide-y divide-line border-y border-line">
-            {regs.map((r) => (
-              <li key={r.id} className="flex items-center justify-between py-3 text-sm">
-                <span className="min-w-0">
-                  <span className="font-medium">{r.contact_name || "Student"}</span>
-                  <span className="ml-2 text-xs text-ink-500">{oppName(r.opportunity_id)}</span>
-                  {r.contact_email && (
-                    <span className="ml-2 text-xs text-ink-500">· {r.contact_email}</span>
-                  )}
-                </span>
-                <span className="shrink-0 text-xs text-ink-500">
-                  {r.application_id ? "Applied" : "Registered"} ·{" "}
-                  {new Date(r.created_at).toLocaleDateString()}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-    </main>
+        <section className="mt-10 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card">
+          <div className="flex items-center gap-3">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
+              <Briefcase className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+            </span>
+            <h2 className="font-display text-xl font-semibold">Your opportunities</h2>
+          </div>
+          {opps === null ? (
+            <p className="mt-4 text-sm text-ink-500">Loading…</p>
+          ) : opps.length === 0 ? (
+            <div className="mt-4 rounded-[var(--radius-card)] border border-dashed border-line-strong bg-paper px-6 py-12 text-center">
+              <p className="text-sm text-ink-700">
+                No opportunities yet. Build your first one — it takes a few minutes.
+              </p>
+              <Link to="/org/new" className="btn-ink mt-4">
+                <Plus className="h-4 w-4" aria-hidden /> New opportunity
+              </Link>
+            </div>
+          ) : (
+            <ul className="mt-4 divide-y divide-line">
+              {opps.map((o) => (
+                <li key={o.id}>
+                  <Link
+                    to="/org/new"
+                    search={{ id: o.id }}
+                    className="-mx-2 flex min-h-[44px] items-center gap-4 rounded-[var(--radius-control)] px-2 py-3 hover:bg-mint-tint/50"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{o.name || "Untitled opportunity"}</p>
+                      <p className="truncate text-xs text-ink-700">
+                        {oppTypeMeta(o.type).label}
+                        {o.start_date ? ` · ${o.start_date}` : ""}
+                        {o.review_notes && o.status === "rejected" ? ` · ${o.review_notes}` : ""}
+                      </p>
+                    </div>
+                    <span
+                      className={`shrink-0 rounded-full px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] ${STATUS_STYLE[o.status]}`}
+                    >
+                      {STATUS_LABEL[o.status]}
+                    </span>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-ink-500" aria-hidden />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className="mt-6 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card">
+          <div className="flex items-center gap-3">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
+              <Users className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+            </span>
+            <h2 className="font-display text-xl font-semibold">Registrations &amp; applicants</h2>
+          </div>
+          {regs === null ? (
+            <p className="mt-4 text-sm text-ink-500">Loading…</p>
+          ) : regs.length === 0 ? (
+            <p className="mt-4 text-sm text-ink-700">No one has registered or applied yet.</p>
+          ) : (
+            <ul className="mt-4 divide-y divide-line">
+              {regs.map((r) => (
+                <li
+                  key={r.id}
+                  className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm"
+                >
+                  <span className="min-w-0">
+                    <span className="font-medium">{r.contact_name || "Student"}</span>
+                    <span className="ml-2 text-xs text-ink-700">{oppName(r.opportunity_id)}</span>
+                    {r.contact_email && (
+                      <span className="ml-2 text-xs text-ink-500">· {r.contact_email}</span>
+                    )}
+                  </span>
+                  <span className="shrink-0 text-xs text-ink-500">
+                    {r.application_id ? "Applied" : "Registered"} ·{" "}
+                    {new Date(r.created_at).toLocaleDateString()}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </main>
+    </div>
   );
 }

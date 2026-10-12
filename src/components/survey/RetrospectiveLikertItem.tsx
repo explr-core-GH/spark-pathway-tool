@@ -36,13 +36,11 @@ export function RetrospectiveLikertItem({
     <div className="border-b border-line py-5 last:border-b-0">
       <div className="flex gap-3">
         <span className="select-none text-sm font-semibold text-ink-500">{number}.</span>
-        <p className="flex-1 text-sm leading-relaxed text-ink">{text}</p>
+        <p className="flex-1 text-sm leading-relaxed text-ink-900">{text}</p>
       </div>
       <div className={skipped ? "mt-3 space-y-3 opacity-40" : "mt-3 space-y-3"}>
         <div>
-          <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-ink-500">
-            Before camp
-          </p>
+          <p className="eyebrow mb-1">Before camp</p>
           <RatingButtons
             points={points}
             value={valueThen}
@@ -52,9 +50,7 @@ export function RetrospectiveLikertItem({
           />
         </div>
         <div>
-          <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-ink-500">
-            Right now
-          </p>
+          <p className="eyebrow mb-1">Right now</p>
           <RatingButtons
             points={points}
             value={valueNow}
@@ -68,7 +64,11 @@ export function RetrospectiveLikertItem({
         {skipped ? (
           <span className="text-ink-500">Skipped</span>
         ) : (
-          <button type="button" onClick={onSkip} className="text-ink-500 underline hover:text-ink">
+          <button
+            type="button"
+            onClick={onSkip}
+            className="ink-link inline-flex min-h-[44px] items-center text-ink-500 hover:text-ink-900"
+          >
             Skip this question
           </button>
         )}
