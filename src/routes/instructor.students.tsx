@@ -150,7 +150,7 @@ function StudentsRoster() {
           <button
             key={k}
             onClick={() => setFilter(k)}
-            className={`px-3 py-1.5 border ${filter === k ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-500 hover:border-ink-900-900 hover:text-ink"}`}
+            className={`px-3 py-1.5 border ${filter === k ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-500 hover:border-ink-900 hover:text-ink"}`}
           >
             {label}
           </button>

@@ -232,7 +232,7 @@ function DemographicsAdmin() {
                   <span className="w-6 shrink-0 text-ink-500">{row.label}</span>
                   <div className="relative h-5 flex-1 bg-paper-sunken">
                     <div
-                      className="absolute inset-y-0 left-0 bg-ink-900-900"
+                      className="absolute inset-y-0 left-0 bg-ink-900"
                       style={{ width: `${row.width}%` }}
                     />
                   </div>

@@ -101,7 +101,7 @@ function Dashboard() {
               return (
                 <article
                   key={p.id}
-                  className="border border-line bg-paper-raised p-5 transition-colors hover:border-ink-900-900 rounded-[var(--radius-card)]"
+                  className="border border-line bg-paper-raised p-5 transition-colors hover:border-ink-900 rounded-[var(--radius-card)]"
                 >
                   {p.grade_band && (
                     <p className="text-[10px] uppercase tracking-wider text-ink-500">

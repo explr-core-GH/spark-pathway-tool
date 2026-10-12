@@ -198,7 +198,7 @@ function AboutPage() {
           </div>
         </section>
 
-        <section className="border-t border-line bg-ink-900-900 text-paper">
+        <section className="border-t border-line bg-ink-900 text-paper">
           <div className="mx-auto max-w-[1312px] px-4 py-14 sm:px-6 lg:px-8">
             <p className="eyebrow text-mint">Exports a district can file</p>
             <ul className="mt-4 grid gap-6 md:grid-cols-3">

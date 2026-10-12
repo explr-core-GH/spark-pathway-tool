@@ -48,8 +48,8 @@ export function GradeLevelPicker({ value, onChange, className }: Props) {
               onClick={() => toggle(g)}
               className={
                 on
-                  ? "h-8 min-w-[2rem] border border-ink-900-900-900 bg-ink-900-900-900 px-2 text-sm font-semibold text-white"
-                  : "h-8 min-w-[2rem] border border-line-strong bg-paper-raised px-2 text-sm font-medium text-ink-700 hover:border-ink-900-900-900-900-900"
+                  ? "h-8 min-w-[2rem] border border-ink-900 bg-ink-900 px-2 text-sm font-semibold text-white"
+                  : "h-8 min-w-[2rem] border border-line-strong bg-paper-raised px-2 text-sm font-medium text-ink-700 hover:border-ink-900"
               }
             >
               {GRADE_LABEL[g]}

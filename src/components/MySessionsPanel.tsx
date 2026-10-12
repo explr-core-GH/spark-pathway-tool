@@ -162,7 +162,7 @@ export function MySessionsPanel({ educatorId }: { educatorId: string }) {
           key={s.id}
           to="/instructor/sessions/$sessionId"
           params={{ sessionId: s.id }}
-          className="group block border border-line bg-paper-raised p-5 transition-colors hover:border-ink-900-900-900-900 rounded-[var(--radius-card)]"
+          className="group block border border-line bg-paper-raised p-5 transition-colors hover:border-ink-900 rounded-[var(--radius-card)]"
         >
           <p className="text-[11px] uppercase tracking-wider text-ink-500">
             {fmtRange(s.date, s.end_date)}

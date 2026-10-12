@@ -311,7 +311,7 @@ function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         maxLength={500}
-        className="mt-1 w-full border border-line-strong bg-paper-raised px-3 py-2 text-sm focus:border-ink-900-900 focus:outline-none"
+        className="mt-1 w-full border border-line-strong bg-paper-raised px-3 py-2 text-sm focus:border-ink-900 focus:outline-none"
       />
     </label>
   );
@@ -335,7 +335,7 @@ function TextArea({
       rows={rows}
       placeholder={placeholder}
       maxLength={4000}
-      className="w-full border border-line-strong bg-paper-raised px-3 py-2 text-sm focus:border-ink-900-900 focus:outline-none"
+      className="w-full border border-line-strong bg-paper-raised px-3 py-2 text-sm focus:border-ink-900 focus:outline-none"
     />
   );
 }
@@ -362,7 +362,7 @@ function RepeatingList({
             }}
             placeholder={placeholder}
             maxLength={300}
-            className="flex-1 border border-line-strong bg-paper-raised px-3 py-2 text-sm focus:border-ink-900-900 focus:outline-none"
+            className="flex-1 border border-line-strong bg-paper-raised px-3 py-2 text-sm focus:border-ink-900 focus:outline-none"
           />
           <button
             type="button"

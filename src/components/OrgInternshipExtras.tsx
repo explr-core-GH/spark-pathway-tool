@@ -215,7 +215,7 @@ function FormRow({
             Download
           </a>
         )}
-        <label className="cursor-pointer border border-dashed border-line-strong bg-paper-raised px-3 py-1 text-xs hover:border-ink-900-900-900-900-900">
+        <label className="cursor-pointer border border-dashed border-line-strong bg-paper-raised px-3 py-1 text-xs hover:border-ink-900">
           {completion?.completed_file_url ? "Replace upload" : "Upload completed"}
           <input
             type="file"

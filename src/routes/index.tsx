@@ -250,7 +250,7 @@ function Landing() {
         </section>
 
         {/* Evidence */}
-        <section className="bg-ink-900-900 text-paper">
+        <section className="bg-ink-900 text-paper">
           <div className="mx-auto grid max-w-[1312px] gap-10 px-4 py-14 sm:px-6 md:grid-cols-3 lg:px-8">
             {EVIDENCE.map((e) => (
               <div key={e.value} className="flex flex-col gap-2.5">

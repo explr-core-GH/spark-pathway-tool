@@ -188,7 +188,7 @@ function PlacementsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search student…"
-          className="ml-auto w-56 rounded-full border border-line-strong bg-paper-raised px-4 py-1.5 text-sm placeholder:text-ink-500 focus:border-ink-900-900 focus:outline-none"
+          className="ml-auto w-56 rounded-full border border-line-strong bg-paper-raised px-4 py-1.5 text-sm placeholder:text-ink-500 focus:border-ink-900 focus:outline-none"
         />
       </div>
 
@@ -260,7 +260,7 @@ function PlacementsPage() {
                             saveNotes(p, e.target.value);
                         }}
                         placeholder="Staff notes for this placement"
-                        className="mt-3 h-16 w-full rounded-md border border-line-strong bg-paper-raised p-2 text-xs focus:border-ink-900-900 focus:outline-none"
+                        className="mt-3 h-16 w-full rounded-md border border-line-strong bg-paper-raised p-2 text-xs focus:border-ink-900 focus:outline-none"
                       />
                     </div>
                   );

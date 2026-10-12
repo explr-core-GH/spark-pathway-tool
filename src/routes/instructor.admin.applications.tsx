@@ -238,7 +238,7 @@ function ApplicationsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search student or internship…"
-          className="ml-auto w-64 rounded-full border border-line-strong bg-paper-raised px-4 py-1.5 text-sm placeholder:text-ink-500 focus:border-ink-900-900 focus:outline-none"
+          className="ml-auto w-64 rounded-full border border-line-strong bg-paper-raised px-4 py-1.5 text-sm placeholder:text-ink-500 focus:border-ink-900 focus:outline-none"
         />
       </div>
 
@@ -651,7 +651,7 @@ function ApplicationDetail({
           {/* Staff notes */}
           <Section title="Staff notes">
             <textarea
-              className="h-24 w-full rounded-md border border-line-strong bg-paper-raised p-3 text-sm focus:border-ink-900-900 focus:outline-none"
+              className="h-24 w-full rounded-md border border-line-strong bg-paper-raised p-3 text-sm focus:border-ink-900 focus:outline-none"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               onBlur={() => onSaveNotes(notes)}

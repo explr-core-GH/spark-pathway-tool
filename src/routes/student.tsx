@@ -214,7 +214,7 @@ function ResumeCenter() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="about-title"
-          className="fixed inset-0 z-50 grid place-items-center bg-ink-900-900/40 p-4"
+          className="fixed inset-0 z-50 grid place-items-center bg-ink-900/40 p-4"
         >
           <form
             onSubmit={(e) => {

@@ -576,7 +576,7 @@ function ProgramEditor({
                   className={
                     on
                       ? "flex cursor-pointer items-start gap-2 border border-green bg-mint-tint px-2.5 py-2 text-sm"
-                      : "flex cursor-pointer items-start gap-2 border border-line-strong px-2.5 py-2 text-sm hover:border-ink-900-900-900"
+                      : "flex cursor-pointer items-start gap-2 border border-line-strong px-2.5 py-2 text-sm hover:border-ink-900"
                   }
                 >
                   <input
@@ -635,7 +635,7 @@ function CompareTab({ programs }: { programs: Program[] }) {
                   {p.ageBand || "—"} · {p.formatType || "—"} · {p.duration || "—"}
                 </p>
               </div>
-              <span className="bg-ink-900-900 px-2 py-1 text-xs font-semibold tabular-nums text-white">
+              <span className="bg-ink-900 px-2 py-1 text-xs font-semibold tabular-nums text-white">
                 {code || "—"}
               </span>
             </header>

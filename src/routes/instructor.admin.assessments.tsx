@@ -30,7 +30,7 @@ function AssessmentsAdmin() {
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`border-b-2 px-4 py-2 text-sm transition-colors ${
-              tab === t.id ? "border-ink-900-900 text-ink-900" : "border-transparent text-ink-500"
+              tab === t.id ? "border-ink-900 text-ink-900" : "border-transparent text-ink-500"
             }`}
           >
             {t.label}

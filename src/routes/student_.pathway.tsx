@@ -217,7 +217,7 @@ function StudentDashboard() {
 
             {/* Placement banner — top priority when present */}
             {placement && (
-              <section className="mt-10 rounded-[var(--radius-card)] border border-ink-900-900 bg-ink-900-900 p-6 text-paper">
+              <section className="mt-10 rounded-[var(--radius-card)] border border-ink-900 bg-ink-900 p-6 text-paper">
                 <p className="eyebrow" style={{ color: "var(--color-green)" }}>
                   You're in
                 </p>
@@ -384,7 +384,7 @@ function StudentDashboard() {
                           <Link
                             to="/opportunity/$id"
                             params={{ id: o.id }}
-                            className="group block h-full rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 transition-colors hover:border-ink-900-900-900"
+                            className="group block h-full rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 transition-colors hover:border-ink-900"
                           >
                             <p className="eyebrow" style={{ color: "var(--color-green)" }}>
                               {o.org_name ?? "Partner internship"}

@@ -39,7 +39,7 @@ export function RatingButtons({
             className={
               on
                 ? "flex min-h-[48px] flex-1 flex-col items-center justify-center gap-0.5 border px-1 py-1.5"
-                : "flex min-h-[48px] flex-1 flex-col items-center justify-center gap-0.5 border border-line-strong px-1 py-1.5 hover:border-ink-900-900"
+                : "flex min-h-[48px] flex-1 flex-col items-center justify-center gap-0.5 border border-line-strong px-1 py-1.5 hover:border-ink-900"
             }
             style={
               on

@@ -242,7 +242,7 @@ export function AccessibilityToolbar() {
                       <button
                         type="button"
                         onClick={stop}
-                        className="px-3 py-1.5 text-xs font-semibold border border-line-strong text-ink-700 hover:border-ink-900-900-900-900"
+                        className="px-3 py-1.5 text-xs font-semibold border border-line-strong text-ink-700 hover:border-ink-900"
                       >
                         Stop
                       </button>

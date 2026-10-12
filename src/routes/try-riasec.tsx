@@ -240,7 +240,7 @@ function TryRiasec() {
               aria-checked={false}
               onClick={() => answer(v)}
               aria-label={LIKERT_LABELS[v]}
-              className="group flex flex-col items-center gap-2 border border-line px-1 py-4 transition-colors hover:border-ink-900-900 hover:bg-paper-sunken focus-visible:border-ink-900"
+              className="group flex flex-col items-center gap-2 border border-line px-1 py-4 transition-colors hover:border-ink-900 hover:bg-paper-sunken focus-visible:border-ink-900"
             >
               <span
                 className="text-3xl leading-none transition-transform group-hover:scale-110 sm:text-4xl"

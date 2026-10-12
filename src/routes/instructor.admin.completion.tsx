@@ -210,7 +210,7 @@ function CompletionByRoster() {
             <button
               key={k}
               onClick={() => setKindFilter(k)}
-              className={`px-3 py-1.5 border ${kindFilter === k ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-500 hover:border-ink-900-900 hover:text-ink"}`}
+              className={`px-3 py-1.5 border ${kindFilter === k ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-500 hover:border-ink-900 hover:text-ink"}`}
             >
               {k === "all" ? "All" : k === "camp" ? "Camps" : "Internships"}
             </button>

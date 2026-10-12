@@ -451,7 +451,7 @@ export function OpportunityWizard({
             <button
               key={t.key}
               onClick={() => pickType(t.key)}
-              className="border border-line bg-paper-raised p-5 text-left transition-colors hover:border-ink-900-900-900-900-900 rounded-[var(--radius-card)]"
+              className="border border-line bg-paper-raised p-5 text-left transition-colors hover:border-ink-900 rounded-[var(--radius-card)]"
             >
               <p className="text-base font-medium">{t.label}</p>
               <p className="mt-1 text-sm text-ink-500">{t.blurb}</p>
@@ -1027,7 +1027,7 @@ function Uploader({
           className={`h-16 w-16 object-cover ${rounded ? "rounded-full" : "rounded"}`}
         />
       )}
-      <label className="cursor-pointer border border-dashed border-line-strong bg-paper-raised px-4 py-2 text-xs text-ink-700 hover:border-ink-900-900-900-900-900">
+      <label className="cursor-pointer border border-dashed border-line-strong bg-paper-raised px-4 py-2 text-xs text-ink-700 hover:border-ink-900">
         {current ? "Replace" : "Upload"}
         <input
           type="file"
@@ -1263,7 +1263,7 @@ function FormsEditor({
           <input type="checkbox" checked={sig} onChange={(e) => setSig(e.target.checked)} />
           Needs signature
         </label>
-        <label className="cursor-pointer border border-dashed border-line-strong bg-paper-raised px-3 py-1.5 text-xs hover:border-ink-900-900-900-900-900">
+        <label className="cursor-pointer border border-dashed border-line-strong bg-paper-raised px-3 py-1.5 text-xs hover:border-ink-900">
           Upload form
           <input
             type="file"
