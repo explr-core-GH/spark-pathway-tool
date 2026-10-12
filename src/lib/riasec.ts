@@ -28,6 +28,8 @@ export type RIASECDimension = {
   hsDescription: string;
   examples: string[];
   color: string;
+  /** Darker variant of `color` for text and icons: ≥4.6:1 on paper and on colorSoft. */
+  ink: string;
   colorSoft: string; // soft tint for backgrounds
   hexAngle: number; // degrees on the hexagon, 0 = top, clockwise
 };
@@ -38,13 +40,13 @@ export const RIASEC: Record<RIASECCode, RIASECDimension> = {
     name: "Realistic",
     msPlainName: "Building & Doing",
     hsPlainName: "Hands-On & Practical",
-    msDescription:
-      "You like working with your hands. Tools, machines, animals, and being outside.",
+    msDescription: "You like working with your hands. Tools, machines, animals, and being outside.",
     hsDescription:
       "Hands-on, practical work. Tools, machines, equipment, animals, and being outside.",
     examples: ["Mechanic", "Carpenter", "Veterinary tech", "Electrician", "Park ranger"],
     color: "#D9523B", // warm vermillion · hue 10°
     colorSoft: "#FBEBE6",
+    ink: "#c13c25", // text-safe: ≥4.6:1 on paper and the soft tint
     hexAngle: 0,
   },
   I: {
@@ -54,11 +56,11 @@ export const RIASEC: Record<RIASECCode, RIASECDimension> = {
     hsPlainName: "Investigating & Analyzing",
     msDescription:
       "You like to figure things out. Asking questions, doing science, solving puzzles.",
-    hsDescription:
-      "Research, science, analysis. Asking questions and finding answers with data.",
+    hsDescription: "Research, science, analysis. Asking questions and finding answers with data.",
     examples: ["Scientist", "Doctor", "Software developer", "Data analyst", "Lab tech"],
     color: "#D9952A", // amber-gold · hue 45°
     colorSoft: "#FBEEDC",
+    ink: "#8e6119", // text-safe: ≥4.6:1 on paper and the soft tint
     hexAngle: 60,
   },
   A: {
@@ -66,13 +68,12 @@ export const RIASEC: Record<RIASECCode, RIASECDimension> = {
     name: "Artistic",
     msPlainName: "Making & Creating",
     hsPlainName: "Creating & Expressing",
-    msDescription:
-      "You like to make things. Drawing, music, writing, design, performing.",
-    hsDescription:
-      "Creative work. Visual art, music, writing, design, performance, media.",
+    msDescription: "You like to make things. Drawing, music, writing, design, performing.",
+    hsDescription: "Creative work. Visual art, music, writing, design, performance, media.",
     examples: ["Designer", "Musician", "Writer", "Photographer", "Animator"],
     color: "#3D9C56", // forest green · hue 135° (distinct from EXPLR mint by saturation+value)
     colorSoft: "#E1F1E5",
+    ink: "#2f7742", // text-safe: ≥4.6:1 on paper and the soft tint
     hexAngle: 120,
   },
   S: {
@@ -81,11 +82,11 @@ export const RIASEC: Record<RIASECCode, RIASECDimension> = {
     msPlainName: "Helping & Teaching",
     hsPlainName: "Helping & Teaching",
     msDescription: "You like helping people. Teaching, listening, taking care of others.",
-    hsDescription:
-      "Working with people. Teaching, counseling, healthcare, community service.",
+    hsDescription: "Working with people. Teaching, counseling, healthcare, community service.",
     examples: ["Teacher", "Nurse", "Counselor", "Coach", "Social worker"],
     color: "#2E8FB0", // teal-cyan · hue 195° (opposite of R warm vermillion)
     colorSoft: "#DBEBF1",
+    ink: "#236e88", // text-safe: ≥4.6:1 on paper and the soft tint
     hexAngle: 180,
   },
   E: {
@@ -100,6 +101,7 @@ export const RIASEC: Record<RIASECCode, RIASECDimension> = {
     examples: ["Entrepreneur", "Manager", "Salesperson", "Lawyer", "Real estate agent"],
     color: "#5C56B0", // indigo-violet · hue 245° (opposite of I gold)
     colorSoft: "#E5E3F1",
+    ink: "#5c56b0", // text-safe: ≥4.6:1 on paper and the soft tint
     hexAngle: 240,
   },
   C: {
@@ -107,13 +109,12 @@ export const RIASEC: Record<RIASECCode, RIASECDimension> = {
     name: "Conventional",
     msPlainName: "Organizing & Planning",
     hsPlainName: "Organizing & Detail Work",
-    msDescription:
-      "You like things organized. Numbers, lists, plans, neat and clear.",
-    hsDescription:
-      "Detail-oriented work. Records, data, systems, organization, accuracy.",
+    msDescription: "You like things organized. Numbers, lists, plans, neat and clear.",
+    hsDescription: "Detail-oriented work. Records, data, systems, organization, accuracy.",
     examples: ["Accountant", "Office manager", "Logistics coordinator", "Bookkeeper", "Paralegal"],
     color: "#B14A99", // magenta-orchid · hue 315° (opposite of A green)
     colorSoft: "#F3E0EE",
+    ink: "#9f4289", // text-safe: ≥4.6:1 on paper and the soft tint
     hexAngle: 300,
   },
 };

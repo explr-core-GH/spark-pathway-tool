@@ -218,13 +218,13 @@ function StudentDashboard() {
               {label}
             </button>
           ))}
-          <Link
-            to="/opportunities"
-            className="ml-auto inline-flex min-h-[44px] items-center text-sm text-ink-700 hover:text-green-deep"
-          >
-            Explore opportunities →
-          </Link>
         </div>
+        <Link
+          to="/opportunities"
+          className="mt-2 inline-flex min-h-[44px] items-center text-sm text-ink-700 hover:text-green-deep"
+        >
+          Explore opportunities →
+        </Link>
 
         <div role="tabpanel" id="pathway-tabpanel" aria-labelledby={`pathway-tab-${tab}`}>
           {tab === "families" && (

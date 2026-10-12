@@ -177,7 +177,10 @@ function ResumeCenter() {
 
       <main className="mx-auto max-w-[1312px] px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-[272px_minmax(0,1fr)_272px] xl:gap-8">
-          <aside className="order-2 flex flex-col gap-4 lg:order-1">
+          <aside
+            aria-label="Assessments and checkpoints"
+            className="order-2 flex flex-col gap-4 lg:order-1"
+          >
             {!explore && <p className="eyebrow">Build your passport</p>}
             {rails.assessments}
             {rails.checkpoints}
@@ -194,7 +197,10 @@ function ResumeCenter() {
             />
           </div>
 
-          <aside className="order-3 flex flex-col gap-4">
+          <aside
+            aria-label="Experience, skills, and opportunities"
+            className="order-3 flex flex-col gap-4"
+          >
             {!explore && <p className="eyebrow">Grow it</p>}
             {explore ? rails.experience : rails.skills}
             {rails.opportunities}

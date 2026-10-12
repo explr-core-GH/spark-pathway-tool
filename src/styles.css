@@ -34,7 +34,7 @@
   --color-mint-soft: #9eebd0;
   --color-mint-tint: #d9f6ec;
   --color-gold: #d9a531;
-  --color-gold-deep: #8f6410;
+  --color-gold-deep: #865e0f; /* 4.6:1 on gold-tint */
   --color-destructive: #b3261e; /* error text; 6.5:1 on paper */
   --color-field-border: #6f7773; /* 3.6:1 on paper — WCAG 1.4.11 for input boundaries */
   --color-gold-tint: #f6e8c3;
