@@ -195,7 +195,7 @@ export const seedDemo = createServerFn({ method: "POST" })
         approved: true,
         school_name: "Lakeshore High School",
         student_count: 2,
-        grade_levels: ["6", "11"],
+        grade_levels: [6, 11],
       }),
       "educators",
     );
@@ -495,7 +495,7 @@ export const seedDemo = createServerFn({ method: "POST" })
       sb("assessment_sessions").insert([
         {
           student_id: studentId,
-          form_version: "hs-v1",
+          form_version: "HS",
           grade_at_session: 11,
           started_at: daysAgo(120),
           completed_at: daysAgo(120),
@@ -507,7 +507,7 @@ export const seedDemo = createServerFn({ method: "POST" })
         },
         {
           student_id: explorerId,
-          form_version: "ms-v1",
+          form_version: "MS",
           grade_at_session: 6,
           started_at: daysAgo(30),
           completed_at: daysAgo(30),
