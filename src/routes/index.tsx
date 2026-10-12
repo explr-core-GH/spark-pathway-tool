@@ -71,8 +71,8 @@ function Landing() {
 
       <main>
         {/* Hero */}
-        <section className="mx-auto max-w-[1312px] px-4 pb-20 pt-16 sm:px-6 lg:px-8 lg:pb-24 lg:pt-20">
-          <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
+        <section className="mx-auto max-w-[1312px] px-4 pb-14 pt-10 sm:px-6 sm:pb-20 sm:pt-16 lg:px-8 lg:pb-24 lg:pt-20">
+          <div className="grid items-center gap-10 sm:gap-12 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
             <div className="flex flex-col gap-6">
               <p className="eyebrow text-green">
                 Ohio work-based & career-connected learning · grades 4-12
@@ -275,23 +275,44 @@ function Landing() {
               {new Date().getFullYear()} EXPLR
             </p>
           </div>
-          <nav aria-label="Footer" className="flex flex-wrap gap-6 text-sm text-ink-900">
-            <Link to="/about" className="hover:text-green-deep">
+          <nav
+            aria-label="Footer"
+            className="-my-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-900"
+          >
+            <Link
+              to="/about"
+              className="inline-flex min-h-[44px] items-center hover:text-green-deep"
+            >
               About
             </Link>
-            <Link to="/privacy" className="hover:text-green-deep">
+            <Link
+              to="/privacy"
+              className="inline-flex min-h-[44px] items-center hover:text-green-deep"
+            >
               Privacy
             </Link>
-            <Link to="/terms" className="hover:text-green-deep">
+            <Link
+              to="/terms"
+              className="inline-flex min-h-[44px] items-center hover:text-green-deep"
+            >
               Terms
             </Link>
-            <Link to="/student-data" className="hover:text-green-deep">
+            <Link
+              to="/student-data"
+              className="inline-flex min-h-[44px] items-center hover:text-green-deep"
+            >
               Student data
             </Link>
-            <Link to="/instructor/sign-in" className="hover:text-green-deep">
+            <Link
+              to="/instructor/sign-in"
+              className="inline-flex min-h-[44px] items-center hover:text-green-deep"
+            >
               Instructors
             </Link>
-            <Link to="/org/sign-in" className="hover:text-green-deep">
+            <Link
+              to="/org/sign-in"
+              className="inline-flex min-h-[44px] items-center hover:text-green-deep"
+            >
               Partners
             </Link>
           </nav>

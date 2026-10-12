@@ -32,11 +32,11 @@ export function Wordmark({ className = "" }: { className?: string }) {
   return (
     <Link
       to="/"
-      className={`inline-flex items-center gap-2.5 ${className}`}
+      className={`inline-flex items-center gap-2 whitespace-nowrap sm:gap-2.5 ${className}`}
       aria-label="EXPLR Pathways home"
     >
-      <LogoMark size={32} />
-      <span className="font-display text-[19px] font-extrabold uppercase leading-none tracking-[0.01em] text-[#1A1D1F]">
+      <LogoMark size={32} className="shrink-0" />
+      <span className="font-display text-[16px] font-extrabold sm:text-[19px] uppercase leading-none tracking-[0.01em] text-[#1A1D1F]">
         EXPLR <span className="text-[#2BEDA1]">Pathways</span>
       </span>
     </Link>
