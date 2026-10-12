@@ -740,6 +740,7 @@ export const seedDemo = createServerFn({ method: "POST" })
           title: "OSHA 10-Hour General Industry",
           issuer: "OSHA",
           issued_at: `${now.getFullYear()}-06-20`,
+          evidence_url: "https://example.org/osha-10-card/amara",
           verification_method: "self_reported",
         },
         {
@@ -749,6 +750,7 @@ export const seedDemo = createServerFn({ method: "POST" })
           issuer: "Cuyahoga Community College",
           issued_at: `${now.getFullYear()}-05-30`,
           credits: 3,
+          evidence_url: "https://example.org/tri-c-transcript/amara",
           verification_method: "self_reported",
         },
         {
@@ -757,6 +759,7 @@ export const seedDemo = createServerFn({ method: "POST" })
           title: "Scratch Coding Sticker",
           issuer: "EXPLR Robotics Camp",
           issued_at: `${now.getFullYear()}-07-17`,
+          evidence_url: "https://example.org/explr-camp-badges/mia",
           verification_method: "self_reported",
         },
       ]),

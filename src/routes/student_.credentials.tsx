@@ -51,7 +51,7 @@ function Credentials() {
       issuer: issuer.trim() || null,
       issued_at: issued || null,
       credits: type === "dual_credit_ccp" && credits ? Number(credits) : null,
-      evidence_url: url.trim() || null,
+      evidence_url: url.trim(),
       verification_method: "self_reported",
     });
     setBusy(false);
@@ -168,7 +168,8 @@ function Credentials() {
           )}
           <div className="sm:col-span-2">
             <label className="label" htmlFor="cred-url">
-              Link to proof (optional)
+              Link to proof <span aria-hidden="true">*</span>
+              <span className="sr-only">(required)</span>
             </label>
             <input
               id="cred-url"
@@ -177,7 +178,13 @@ function Credentials() {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://"
+              required
+              aria-describedby="cred-url-hint"
             />
+            <p id="cred-url-hint" className="mt-1 text-xs text-ink-500">
+              A credential or seal needs proof: the issuer&apos;s verification page, a certificate,
+              a badge link, or a transcript. No link, no credential on the passport.
+            </p>
           </div>
           {error && (
             <p role="alert" className="text-sm text-red-700 sm:col-span-2">
