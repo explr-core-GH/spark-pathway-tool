@@ -60,8 +60,8 @@ export const Route = createFileRoute("/accessibility")({
       <H2 id="help">Help and feedback</H2>
       <p>
         If you hit a barrier, or need any part of EXPLR Pathways in a different format, email{" "}
-        <a href="mailto:support@explr.cc" className="ink-link">
-          support@explr.cc
+        <a href="mailto:j.seigler@csuohio.edu" className="ink-link">
+          j.seigler@csuohio.edu
         </a>
         . Tell us the page, what you were trying to do, and the device and assistive technology you
         use. We aim to reply within five business days and to fix confirmed barriers in the next

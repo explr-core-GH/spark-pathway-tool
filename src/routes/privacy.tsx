@@ -69,7 +69,7 @@ function PrivacyPage() {
         Students under 13 use EXPLR Pathways through their school. The school provides consent on
         the parent's behalf, as the Children's Online Privacy Protection Act (COPPA) allows for
         educational tools. We do not knowingly collect information from a child under 13 outside a
-        school program. If that has happened, email support@explr.cc and we will delete it.
+        school program. If that has happened, email j.seigler@csuohio.edu and we will delete it.
       </p>
 
       <H2>How we use student data</H2>
@@ -110,9 +110,10 @@ function PrivacyPage() {
       <H2>Deletion</H2>
       <p>
         Student records are scheduled for deletion 24 months after they are created. Students,
-        parents, or schools may ask for earlier deletion at any time by emailing support@explr.cc;
-        we complete it within 30 days. Records belonging to a district under contract are returned
-        or destroyed as the contract requires, and within 90 days of the contract's end.
+        parents, or schools may ask for earlier deletion at any time by emailing
+        j.seigler@csuohio.edu; we complete it within 30 days. Records belonging to a district under
+        contract are returned or destroyed as the contract requires, and within 90 days of the
+        contract's end.
       </p>
 
       <H2>Security</H2>
@@ -134,9 +135,10 @@ function PrivacyPage() {
 
       <H2>Your rights</H2>
       <p>
-        Students and parents can see, correct, or delete their data by emailing support@explr.cc.
-        Parents of students in a district program may also exercise FERPA rights through the school.
-        Instructors and organizations can update or close their accounts the same way.
+        Students and parents can see, correct, or delete their data by emailing
+        j.seigler@csuohio.edu. Parents of students in a district program may also exercise FERPA
+        rights through the school. Instructors and organizations can update or close their accounts
+        the same way.
       </p>
 
       <H2>Changes</H2>
@@ -146,7 +148,7 @@ function PrivacyPage() {
       </p>
 
       <H2>Contact</H2>
-      <p>support@explr.cc · EXPLR, [MAILING ADDRESS], Cleveland, Ohio</p>
+      <p>j.seigler@csuohio.edu · EXPLR, [MAILING ADDRESS], Cleveland, Ohio</p>
     </LegalPage>
   );
 }
