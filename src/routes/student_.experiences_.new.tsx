@@ -31,7 +31,7 @@ const STUDENT_LINKS: PortalLink[] = [
   { label: "Families", to: "/student/pathway", search: { tab: "families" } },
 ];
 
-export const Route = createFileRoute("/student_/experiences/new")({
+export const Route = createFileRoute("/student_/experiences_/new")({
   head: () => ({ meta: [{ title: "Add an experience — EXPLR Pathways" }] }),
   validateSearch: (
     s: Record<string, unknown>,

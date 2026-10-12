@@ -89,7 +89,7 @@ import { Route as InstructorCheckpointsIndexRouteImport } from './routes/instruc
 import { Route as InstructorCheckpointsStudentIdRouteImport } from './routes/instructor.checkpoints.$studentId'
 import { Route as InstructorInviteTokenRouteImport } from './routes/instructor.invite.$token'
 import { Route as InstructorSessionsSessionIdRouteImport } from './routes/instructor.sessions.$sessionId'
-import { Route as StudentExperiencesNewRouteImport } from './routes/student_.experiences.new'
+import { Route as StudentExperiencesNewRouteImport } from './routes/student_.experiences_.new'
 import { Route as InstructorAdminEducatorsIdRouteImport } from './routes/instructor.admin.educators.$id'
 import { Route as InstructorExploreCardsKindIdRouteImport } from './routes/instructor.explore-cards.$kind.$id'
 import { Route as InstructorAdminGroupsKindIndexRouteImport } from './routes/instructor.admin.groups.$kind.index'
@@ -513,9 +513,9 @@ const InstructorSessionsSessionIdRoute =
     getParentRoute: () => InstructorRoute,
   } as any)
 const StudentExperiencesNewRoute = StudentExperiencesNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => StudentExperiencesRoute,
+  id: '/student_/experiences_/new',
+  path: '/student/experiences/new',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const InstructorAdminEducatorsIdRoute =
   InstructorAdminEducatorsIdRouteImport.update({
@@ -585,7 +585,7 @@ export interface FileRoutesByFullPath {
   '/student/apply-complete': typeof StudentApplyCompleteRoute
   '/student/checkpoints': typeof StudentCheckpointsRoute
   '/student/credentials': typeof StudentCredentialsRoute
-  '/student/experiences': typeof StudentExperiencesRouteWithChildren
+  '/student/experiences': typeof StudentExperiencesRoute
   '/student/pathway': typeof StudentPathwayRoute
   '/student/pieces': typeof StudentPiecesRoute
   '/student/profile': typeof StudentProfileRoute
@@ -670,7 +670,7 @@ export interface FileRoutesByTo {
   '/student/apply-complete': typeof StudentApplyCompleteRoute
   '/student/checkpoints': typeof StudentCheckpointsRoute
   '/student/credentials': typeof StudentCredentialsRoute
-  '/student/experiences': typeof StudentExperiencesRouteWithChildren
+  '/student/experiences': typeof StudentExperiencesRoute
   '/student/pathway': typeof StudentPathwayRoute
   '/student/pieces': typeof StudentPiecesRoute
   '/student/profile': typeof StudentProfileRoute
@@ -758,7 +758,7 @@ export interface FileRoutesById {
   '/student_/apply-complete': typeof StudentApplyCompleteRoute
   '/student_/checkpoints': typeof StudentCheckpointsRoute
   '/student_/credentials': typeof StudentCredentialsRoute
-  '/student_/experiences': typeof StudentExperiencesRouteWithChildren
+  '/student_/experiences': typeof StudentExperiencesRoute
   '/student_/pathway': typeof StudentPathwayRoute
   '/student_/pieces': typeof StudentPiecesRoute
   '/student_/profile': typeof StudentProfileRoute
@@ -794,7 +794,7 @@ export interface FileRoutesById {
   '/instructor/checkpoints/$studentId': typeof InstructorCheckpointsStudentIdRoute
   '/instructor/invite/$token': typeof InstructorInviteTokenRoute
   '/instructor/sessions/$sessionId': typeof InstructorSessionsSessionIdRoute
-  '/student_/experiences/new': typeof StudentExperiencesNewRoute
+  '/student_/experiences_/new': typeof StudentExperiencesNewRoute
   '/instructor/admin/': typeof InstructorAdminIndexRoute
   '/instructor/checkpoints/': typeof InstructorCheckpointsIndexRoute
   '/instructor/admin/educators/$id': typeof InstructorAdminEducatorsIdRoute
@@ -1055,7 +1055,7 @@ export interface FileRouteTypes {
     | '/instructor/checkpoints/$studentId'
     | '/instructor/invite/$token'
     | '/instructor/sessions/$sessionId'
-    | '/student_/experiences/new'
+    | '/student_/experiences_/new'
     | '/instructor/admin/'
     | '/instructor/checkpoints/'
     | '/instructor/admin/educators/$id'
@@ -1101,7 +1101,7 @@ export interface RootRouteChildren {
   StudentApplyCompleteRoute: typeof StudentApplyCompleteRoute
   StudentCheckpointsRoute: typeof StudentCheckpointsRoute
   StudentCredentialsRoute: typeof StudentCredentialsRoute
-  StudentExperiencesRoute: typeof StudentExperiencesRouteWithChildren
+  StudentExperiencesRoute: typeof StudentExperiencesRoute
   StudentPathwayRoute: typeof StudentPathwayRoute
   StudentPiecesRoute: typeof StudentPiecesRoute
   StudentProfileRoute: typeof StudentProfileRoute
@@ -1113,6 +1113,7 @@ export interface RootRouteChildren {
   OrgIndexRoute: typeof OrgIndexRoute
   PartnerIndexRoute: typeof PartnerIndexRoute
   AssessmentSessionIdResultsRoute: typeof AssessmentSessionIdResultsRoute
+  StudentExperiencesNewRoute: typeof StudentExperiencesNewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1677,12 +1678,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InstructorSessionsSessionIdRouteImport
       parentRoute: typeof InstructorRoute
     }
-    '/student_/experiences/new': {
-      id: '/student_/experiences/new'
-      path: '/new'
+    '/student_/experiences_/new': {
+      id: '/student_/experiences_/new'
+      path: '/student/experiences/new'
       fullPath: '/student/experiences/new'
       preLoaderRoute: typeof StudentExperiencesNewRouteImport
-      parentRoute: typeof StudentExperiencesRoute
+      parentRoute: typeof rootRouteImport
     }
     '/instructor/admin/educators/$id': {
       id: '/instructor/admin/educators/$id'
@@ -1807,17 +1808,6 @@ const InstructorRouteWithChildren = InstructorRoute._addFileChildren(
   InstructorRouteChildren,
 )
 
-interface StudentExperiencesRouteChildren {
-  StudentExperiencesNewRoute: typeof StudentExperiencesNewRoute
-}
-
-const StudentExperiencesRouteChildren: StudentExperiencesRouteChildren = {
-  StudentExperiencesNewRoute: StudentExperiencesNewRoute,
-}
-
-const StudentExperiencesRouteWithChildren =
-  StudentExperiencesRoute._addFileChildren(StudentExperiencesRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -1855,7 +1845,7 @@ const rootRouteChildren: RootRouteChildren = {
   StudentApplyCompleteRoute: StudentApplyCompleteRoute,
   StudentCheckpointsRoute: StudentCheckpointsRoute,
   StudentCredentialsRoute: StudentCredentialsRoute,
-  StudentExperiencesRoute: StudentExperiencesRouteWithChildren,
+  StudentExperiencesRoute: StudentExperiencesRoute,
   StudentPathwayRoute: StudentPathwayRoute,
   StudentPiecesRoute: StudentPiecesRoute,
   StudentProfileRoute: StudentProfileRoute,
@@ -1867,6 +1857,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrgIndexRoute: OrgIndexRoute,
   PartnerIndexRoute: PartnerIndexRoute,
   AssessmentSessionIdResultsRoute: AssessmentSessionIdResultsRoute,
+  StudentExperiencesNewRoute: StudentExperiencesNewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
