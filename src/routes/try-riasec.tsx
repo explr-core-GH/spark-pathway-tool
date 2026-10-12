@@ -123,7 +123,7 @@ function TryRiasec() {
         />
         <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
           <p className="eyebrow text-green">Your Holland code</p>
-          <h1 className="display mt-2" style={{ color: primary.color }}>
+          <h1 className="display mt-2" style={{ color: primary.ink }}>
             {holland_code}
           </h1>
           <p className="lead mt-6 max-w-2xl">
@@ -146,7 +146,7 @@ function TryRiasec() {
                       <div className="flex items-baseline justify-between gap-4">
                         <div className="flex items-baseline gap-3">
                           <span className="w-4 text-xs tabular-nums text-ink-500">{i + 1}</span>
-                          <span className="text-sm font-medium" style={{ color: dim.color }}>
+                          <span className="text-sm font-medium" style={{ color: dim.ink }}>
                             {dim.code}
                           </span>
                           <span className={top.includes(c) ? "text-ink-900" : "text-ink-500"}>
@@ -171,7 +171,7 @@ function TryRiasec() {
           </div>
 
           <section className="mt-12 border-t border-line pt-10">
-            <p className="eyebrow" style={{ color: primary.color }}>
+            <p className="eyebrow" style={{ color: primary.ink }}>
               {primary.code} · {primary.name}
             </p>
             <p className="mt-4 font-display text-2xl font-bold">{primary.hsDescription}</p>
@@ -232,7 +232,7 @@ function TryRiasec() {
             ) : (
               <span
                 className="text-center font-mono text-sm font-medium uppercase tracking-[0.08em]"
-                style={{ color: scale.color }}
+                style={{ color: scale.ink }}
               >
                 {scale.name}
               </span>
@@ -241,7 +241,7 @@ function TryRiasec() {
         )}
 
         {scale && (
-          <p className="eyebrow" style={{ color: scale.color }}>
+          <p className="eyebrow" style={{ color: scale.ink }}>
             How much would you like to…
           </p>
         )}

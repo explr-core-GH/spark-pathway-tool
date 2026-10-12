@@ -254,7 +254,7 @@ function StudentsRoster() {
                   </td>
                   <td className="px-4 py-3">
                     {code && top ? (
-                      <span className="font-medium" style={{ color: RIASEC[top].color }}>
+                      <span className="font-medium" style={{ color: RIASEC[top].ink }}>
                         {code}
                       </span>
                     ) : (

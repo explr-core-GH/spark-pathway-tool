@@ -92,7 +92,7 @@ function Results() {
         </Link>
         <p className="eyebrow text-green">Your Holland code</p>
         <h1 className="display mt-2">
-          <span style={{ color: primary.color }}>{code}</span>
+          <span style={{ color: primary.ink }}>{code}</span>
         </h1>
         <p className="lead mt-6 max-w-2xl">
           You leaned strongest toward <strong>{primary.name}</strong>. This is a starting point — a
@@ -117,7 +117,7 @@ function Results() {
                     <div className="flex items-baseline justify-between gap-4">
                       <div className="flex items-baseline gap-3">
                         <span className="w-4 text-xs tabular-nums text-ink-500">{i + 1}</span>
-                        <span className="text-sm font-medium" style={{ color: dim.color }}>
+                        <span className="text-sm font-medium" style={{ color: dim.ink }}>
                           {dim.code}
                         </span>
                         <span className={isTop ? "text-ink-900" : "text-ink-500"}>{dim.name}</span>
@@ -138,7 +138,7 @@ function Results() {
         </div>
 
         <section className="mt-12 border-t border-line pt-10">
-          <p className="eyebrow" style={{ color: primary.color }}>
+          <p className="eyebrow" style={{ color: primary.ink }}>
             {primary.code} · {primary.name}
           </p>
           <p className="mt-4 font-display text-2xl font-bold">{primary.hsDescription}</p>

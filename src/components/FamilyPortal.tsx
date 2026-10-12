@@ -239,7 +239,7 @@ function InterestPanel({ data }: { data: Riasec }) {
         {top.map((c, i) => (
           <span key={c}>
             {i > 0 ? " · " : ""}
-            <span style={{ color: RIASEC[c].color }} className="font-medium">
+            <span style={{ color: RIASEC[c].ink }} className="font-medium">
               {RIASEC[c].hsPlainName}
             </span>
           </span>
@@ -254,7 +254,7 @@ function InterestPanel({ data }: { data: Riasec }) {
             <li key={c}>
               <div className="flex items-baseline justify-between gap-3">
                 <span className="text-sm">
-                  <span className="font-semibold" style={{ color: d.color }}>
+                  <span className="font-semibold" style={{ color: d.ink }}>
                     {d.code}
                   </span>{" "}
                   {d.hsPlainName}
@@ -347,7 +347,7 @@ function AboutPanel({ grade: _grade }: { grade: number | null }) {
                   {c}
                 </span>
                 <div>
-                  <p className="font-medium" style={{ color: d.color }}>
+                  <p className="font-medium" style={{ color: d.ink }}>
                     {d.hsPlainName}
                   </p>
                   <p className="text-sm text-ink-700">{d.hsDescription}</p>
