@@ -137,7 +137,7 @@ function Landing() {
               cta="Choose your grade band"
               to="/start"
               pills={[
-                { label: "Grades 4-8", to: "/sign-in", search: { band: "4-8" } },
+                { label: "Grades 4-8", to: "/explore" },
                 { label: "Grades 9-12", to: "/sign-in", search: { band: "9-12" } },
               ]}
             />
@@ -148,7 +148,7 @@ function Landing() {
               title="I'm an instructor"
               body="Teachers, worksite supervisors, camp and program staff. Review experiences, stamp them, recommend."
               cta="Sign up as an instructor"
-              to="/educator/sign-up"
+              to="/instructor/sign-up"
             />
             <DoorCard
               eyebrow="Partners & orgs"
@@ -242,7 +242,7 @@ function Landing() {
             <Link to="/student-data" className="hover:text-green-deep">
               Student data
             </Link>
-            <Link to="/educator/sign-in" className="hover:text-green-deep">
+            <Link to="/instructor/sign-in" className="hover:text-green-deep">
               Instructors
             </Link>
             <Link to="/org/sign-in" className="hover:text-green-deep">

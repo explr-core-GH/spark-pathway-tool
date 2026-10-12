@@ -159,17 +159,12 @@ export function MySessionsPanel({ educatorId }: { educatorId: string }) {
     return <p className="text-sm text-charcoal-400">Loading sessions…</p>;
   }
   if (err) {
-    return (
-      <p className="text-sm text-red-600">
-        Failed to load sessions: {err}
-      </p>
-    );
+    return <p className="text-sm text-red-600">Failed to load sessions: {err}</p>;
   }
   if (sessions.length === 0) {
     return (
       <p className="py-6 text-sm text-charcoal-400">
-        You haven&apos;t been assigned to any camp sessions yet. An EXPLR
-        admin can add you via{" "}
+        You haven&apos;t been assigned to any camp sessions yet. An EXPLR admin can add you via{" "}
         <span className="text-charcoal-600">Admin → Catalog → Sessions</span>.
       </p>
     );
@@ -180,19 +175,15 @@ export function MySessionsPanel({ educatorId }: { educatorId: string }) {
       {sessions.map((s) => (
         <Link
           key={s.id}
-          to="/educator/sessions/$sessionId"
+          to="/instructor/sessions/$sessionId"
           params={{ sessionId: s.id }}
           className="group block border border-charcoal-100 bg-white p-5 transition-colors hover:border-ink"
         >
           <p className="text-[11px] uppercase tracking-wider text-charcoal-400">
             {fmtRange(s.date, s.end_date)}
           </p>
-          <h3 className="mt-2 text-base font-medium leading-snug text-ink">
-            {s.title}
-          </h3>
-          {s.location && (
-            <p className="mt-1 text-xs text-charcoal-500">{s.location}</p>
-          )}
+          <h3 className="mt-2 text-base font-medium leading-snug text-ink">{s.title}</h3>
+          {s.location && <p className="mt-1 text-xs text-charcoal-500">{s.location}</p>}
           {s.curricula.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-1">
               {s.curricula.slice(0, 4).map((c) => (
@@ -206,9 +197,7 @@ export function MySessionsPanel({ educatorId }: { educatorId: string }) {
                 </span>
               ))}
               {s.curricula.length > 4 && (
-                <span className="text-[11px] text-charcoal-400">
-                  +{s.curricula.length - 4}
-                </span>
+                <span className="text-[11px] text-charcoal-400">+{s.curricula.length - 4}</span>
               )}
             </div>
           )}

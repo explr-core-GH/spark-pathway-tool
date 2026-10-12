@@ -11,10 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
-import { Route as EducatorRouteImport } from './routes/educator'
 import { Route as ExplrRostersRouteImport } from './routes/explr-rosters'
 import { Route as FamilyRouteImport } from './routes/family'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as InstructorRouteImport } from './routes/instructor'
 import { Route as OpportunitiesRouteImport } from './routes/opportunities'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -32,13 +32,20 @@ import { Route as AssessmentIndexRouteImport } from './routes/assessment.index'
 import { Route as AssessmentSessionIdRouteImport } from './routes/assessment.$sessionId'
 import { Route as AssessmentInternshipInterestRouteImport } from './routes/assessment.internship-interest'
 import { Route as EducatorIndexRouteImport } from './routes/educator.index'
-import { Route as EducatorAdminRouteImport } from './routes/educator.admin'
-import { Route as EducatorDashboardRouteImport } from './routes/educator.dashboard'
-import { Route as EducatorLoginDisplayRouteImport } from './routes/educator.login-display'
-import { Route as EducatorSignInRouteImport } from './routes/educator.sign-in'
-import { Route as EducatorSignUpRouteImport } from './routes/educator.sign-up'
-import { Route as EducatorStudentsRouteImport } from './routes/educator.students'
-import { Route as EducatorWorksiteRouteImport } from './routes/educator.worksite'
+import { Route as EducatorSplatRouteImport } from './routes/educator.$'
+import { Route as ExploreIndexRouteImport } from './routes/explore.index'
+import { Route as ExploreCodeRouteImport } from './routes/explore.$code'
+import { Route as ExploreScanRouteImport } from './routes/explore.scan'
+import { Route as FamilyViewRouteImport } from './routes/family.view'
+import { Route as GoTokenRouteImport } from './routes/go.$token'
+import { Route as InstructorIndexRouteImport } from './routes/instructor.index'
+import { Route as InstructorAdminRouteImport } from './routes/instructor.admin'
+import { Route as InstructorDashboardRouteImport } from './routes/instructor.dashboard'
+import { Route as InstructorLoginDisplayRouteImport } from './routes/instructor.login-display'
+import { Route as InstructorSignInRouteImport } from './routes/instructor.sign-in'
+import { Route as InstructorSignUpRouteImport } from './routes/instructor.sign-up'
+import { Route as InstructorStudentsRouteImport } from './routes/instructor.students'
+import { Route as InstructorWorksiteRouteImport } from './routes/instructor.worksite'
 import { Route as LabSplatRouteImport } from './routes/lab.$'
 import { Route as OpportunityIdRouteImport } from './routes/opportunity.$id'
 import { Route as OrgIndexRouteImport } from './routes/org.index'
@@ -46,46 +53,49 @@ import { Route as OrgApplicantsRouteImport } from './routes/org.applicants'
 import { Route as OrgNewRouteImport } from './routes/org.new'
 import { Route as OrgSignInRouteImport } from './routes/org.sign-in'
 import { Route as OrgSignUpRouteImport } from './routes/org.sign-up'
+import { Route as PartnerIndexRouteImport } from './routes/partner.index'
+import { Route as PartnerSplatRouteImport } from './routes/partner.$'
 import { Route as StudentApplyRouteImport } from './routes/student_.apply'
 import { Route as StudentApplyCompleteRouteImport } from './routes/student_.apply-complete'
 import { Route as SurveyAssignmentIdRouteImport } from './routes/survey.$assignmentId'
 import { Route as AssessmentSessionIdResultsRouteImport } from './routes/assessment.$sessionId_.results'
 import { Route as AssessmentInternshipInterestResultsRouteImport } from './routes/assessment.internship-interest_.results'
-import { Route as EducatorAdminIndexRouteImport } from './routes/educator.admin.index'
-import { Route as EducatorAdminApplicationsRouteImport } from './routes/educator.admin.applications'
-import { Route as EducatorAdminApplyRequestsRouteImport } from './routes/educator.admin.apply-requests'
-import { Route as EducatorAdminAssessmentsRouteImport } from './routes/educator.admin.assessments'
-import { Route as EducatorAdminAssignRouteImport } from './routes/educator.admin.assign'
-import { Route as EducatorAdminCampLoginsRouteImport } from './routes/educator.admin.camp-logins'
-import { Route as EducatorAdminCampsRouteImport } from './routes/educator.admin.camps'
-import { Route as EducatorAdminCompletionRouteImport } from './routes/educator.admin.completion'
-import { Route as EducatorAdminDemographicsRouteImport } from './routes/educator.admin.demographics'
-import { Route as EducatorAdminImportExplrRouteImport } from './routes/educator.admin.import-explr'
-import { Route as EducatorAdminInternshipLoginsRouteImport } from './routes/educator.admin.internship-logins'
-import { Route as EducatorAdminInternshipsRouteImport } from './routes/educator.admin.internships'
-import { Route as EducatorAdminInvitesRouteImport } from './routes/educator.admin.invites'
-import { Route as EducatorAdminOpportunitiesRouteImport } from './routes/educator.admin.opportunities'
-import { Route as EducatorAdminOpportunityFieldsRouteImport } from './routes/educator.admin.opportunity-fields'
-import { Route as EducatorAdminPasswordsRouteImport } from './routes/educator.admin.passwords'
-import { Route as EducatorAdminPlacementsRouteImport } from './routes/educator.admin.placements'
-import { Route as EducatorAdminProgramRiasecRouteImport } from './routes/educator.admin.program-riasec'
-import { Route as EducatorAdminProgramsRouteImport } from './routes/educator.admin.programs'
-import { Route as EducatorAdminRecommendationsRouteImport } from './routes/educator.admin.recommendations'
-import { Route as EducatorAdminResultsRouteImport } from './routes/educator.admin.results'
-import { Route as EducatorAdminRostersRouteImport } from './routes/educator.admin.rosters'
-import { Route as EducatorAdminSurveysRouteImport } from './routes/educator.admin.surveys'
-import { Route as EducatorCurriculumIndexRouteImport } from './routes/educator.curriculum.index'
-import { Route as EducatorCurriculumSlugRouteImport } from './routes/educator.curriculum.$slug'
-import { Route as EducatorInternshipsIndexRouteImport } from './routes/educator.internships.index'
-import { Route as EducatorInternshipsSlugRouteImport } from './routes/educator.internships.$slug'
-import { Route as EducatorInviteTokenRouteImport } from './routes/educator.invite.$token'
-import { Route as EducatorSessionsSessionIdRouteImport } from './routes/educator.sessions.$sessionId'
+import { Route as InstructorAdminIndexRouteImport } from './routes/instructor.admin.index'
+import { Route as InstructorAdminApplicationsRouteImport } from './routes/instructor.admin.applications'
+import { Route as InstructorAdminApplyRequestsRouteImport } from './routes/instructor.admin.apply-requests'
+import { Route as InstructorAdminAssessmentsRouteImport } from './routes/instructor.admin.assessments'
+import { Route as InstructorAdminAssignRouteImport } from './routes/instructor.admin.assign'
+import { Route as InstructorAdminCampLoginsRouteImport } from './routes/instructor.admin.camp-logins'
+import { Route as InstructorAdminCampsRouteImport } from './routes/instructor.admin.camps'
+import { Route as InstructorAdminCompletionRouteImport } from './routes/instructor.admin.completion'
+import { Route as InstructorAdminDemographicsRouteImport } from './routes/instructor.admin.demographics'
+import { Route as InstructorAdminImportExplrRouteImport } from './routes/instructor.admin.import-explr'
+import { Route as InstructorAdminInternshipLoginsRouteImport } from './routes/instructor.admin.internship-logins'
+import { Route as InstructorAdminInternshipsRouteImport } from './routes/instructor.admin.internships'
+import { Route as InstructorAdminInvitesRouteImport } from './routes/instructor.admin.invites'
+import { Route as InstructorAdminOpportunitiesRouteImport } from './routes/instructor.admin.opportunities'
+import { Route as InstructorAdminOpportunityFieldsRouteImport } from './routes/instructor.admin.opportunity-fields'
+import { Route as InstructorAdminPasswordsRouteImport } from './routes/instructor.admin.passwords'
+import { Route as InstructorAdminPlacementsRouteImport } from './routes/instructor.admin.placements'
+import { Route as InstructorAdminProgramRiasecRouteImport } from './routes/instructor.admin.program-riasec'
+import { Route as InstructorAdminProgramsRouteImport } from './routes/instructor.admin.programs'
+import { Route as InstructorAdminRecommendationsRouteImport } from './routes/instructor.admin.recommendations'
+import { Route as InstructorAdminResultsRouteImport } from './routes/instructor.admin.results'
+import { Route as InstructorAdminRostersRouteImport } from './routes/instructor.admin.rosters'
+import { Route as InstructorAdminSurveysRouteImport } from './routes/instructor.admin.surveys'
+import { Route as InstructorCurriculumIndexRouteImport } from './routes/instructor.curriculum.index'
+import { Route as InstructorCurriculumSlugRouteImport } from './routes/instructor.curriculum.$slug'
+import { Route as InstructorInternshipsIndexRouteImport } from './routes/instructor.internships.index'
+import { Route as InstructorInternshipsSlugRouteImport } from './routes/instructor.internships.$slug'
+import { Route as InstructorInviteTokenRouteImport } from './routes/instructor.invite.$token'
+import { Route as InstructorSessionsSessionIdRouteImport } from './routes/instructor.sessions.$sessionId'
 import { Route as DemoAptitudeBandTakeRouteImport } from './routes/demo.aptitude.$band.take'
-import { Route as EducatorAdminEducatorsIdRouteImport } from './routes/educator.admin.educators.$id'
-import { Route as EducatorAdminInternshipsIndexRouteImport } from './routes/educator.admin.internships.index'
-import { Route as EducatorAdminGroupsKindIndexRouteImport } from './routes/educator.admin.groups.$kind.index'
-import { Route as EducatorAdminGroupsKindIdRouteImport } from './routes/educator.admin.groups.$kind.$id'
-import { Route as EducatorAdminInternshipsSlugReportRouteImport } from './routes/educator.admin.internships.$slug.report'
+import { Route as InstructorAdminEducatorsIdRouteImport } from './routes/instructor.admin.educators.$id'
+import { Route as InstructorAdminInternshipsIndexRouteImport } from './routes/instructor.admin.internships.index'
+import { Route as InstructorExploreCardsKindIdRouteImport } from './routes/instructor.explore-cards.$kind.$id'
+import { Route as InstructorAdminGroupsKindIndexRouteImport } from './routes/instructor.admin.groups.$kind.index'
+import { Route as InstructorAdminGroupsKindIdRouteImport } from './routes/instructor.admin.groups.$kind.$id'
+import { Route as InstructorAdminInternshipsSlugReportRouteImport } from './routes/instructor.admin.internships.$slug.report'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -95,11 +105,6 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EducatorRoute = EducatorRouteImport.update({
-  id: '/educator',
-  path: '/educator',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExplrRostersRoute = ExplrRostersRouteImport.update({
@@ -115,6 +120,11 @@ const FamilyRoute = FamilyRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstructorRoute = InstructorRouteImport.update({
+  id: '/instructor',
+  path: '/instructor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OpportunitiesRoute = OpportunitiesRouteImport.update({
@@ -199,44 +209,79 @@ const AssessmentInternshipInterestRoute =
     getParentRoute: () => rootRouteImport,
   } as any)
 const EducatorIndexRoute = EducatorIndexRouteImport.update({
+  id: '/educator/',
+  path: '/educator/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EducatorSplatRoute = EducatorSplatRouteImport.update({
+  id: '/educator/$',
+  path: '/educator/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreIndexRoute = ExploreIndexRouteImport.update({
+  id: '/explore/',
+  path: '/explore/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreCodeRoute = ExploreCodeRouteImport.update({
+  id: '/explore/$code',
+  path: '/explore/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreScanRoute = ExploreScanRouteImport.update({
+  id: '/explore/scan',
+  path: '/explore/scan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FamilyViewRoute = FamilyViewRouteImport.update({
+  id: '/view',
+  path: '/view',
+  getParentRoute: () => FamilyRoute,
+} as any)
+const GoTokenRoute = GoTokenRouteImport.update({
+  id: '/go/$token',
+  path: '/go/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstructorIndexRoute = InstructorIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => EducatorRoute,
+  getParentRoute: () => InstructorRoute,
 } as any)
-const EducatorAdminRoute = EducatorAdminRouteImport.update({
+const InstructorAdminRoute = InstructorAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
-  getParentRoute: () => EducatorRoute,
+  getParentRoute: () => InstructorRoute,
 } as any)
-const EducatorDashboardRoute = EducatorDashboardRouteImport.update({
+const InstructorDashboardRoute = InstructorDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => EducatorRoute,
+  getParentRoute: () => InstructorRoute,
 } as any)
-const EducatorLoginDisplayRoute = EducatorLoginDisplayRouteImport.update({
+const InstructorLoginDisplayRoute = InstructorLoginDisplayRouteImport.update({
   id: '/login-display',
   path: '/login-display',
-  getParentRoute: () => EducatorRoute,
+  getParentRoute: () => InstructorRoute,
 } as any)
-const EducatorSignInRoute = EducatorSignInRouteImport.update({
+const InstructorSignInRoute = InstructorSignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
-  getParentRoute: () => EducatorRoute,
+  getParentRoute: () => InstructorRoute,
 } as any)
-const EducatorSignUpRoute = EducatorSignUpRouteImport.update({
+const InstructorSignUpRoute = InstructorSignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
-  getParentRoute: () => EducatorRoute,
+  getParentRoute: () => InstructorRoute,
 } as any)
-const EducatorStudentsRoute = EducatorStudentsRouteImport.update({
+const InstructorStudentsRoute = InstructorStudentsRouteImport.update({
   id: '/students',
   path: '/students',
-  getParentRoute: () => EducatorRoute,
+  getParentRoute: () => InstructorRoute,
 } as any)
-const EducatorWorksiteRoute = EducatorWorksiteRouteImport.update({
+const InstructorWorksiteRoute = InstructorWorksiteRouteImport.update({
   id: '/worksite',
   path: '/worksite',
-  getParentRoute: () => EducatorRoute,
+  getParentRoute: () => InstructorRoute,
 } as any)
 const LabSplatRoute = LabSplatRouteImport.update({
   id: '/lab/$',
@@ -273,6 +318,16 @@ const OrgSignUpRoute = OrgSignUpRouteImport.update({
   path: '/org/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartnerIndexRoute = PartnerIndexRouteImport.update({
+  id: '/partner/',
+  path: '/partner/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnerSplatRoute = PartnerSplatRouteImport.update({
+  id: '/partner/$',
+  path: '/partner/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StudentApplyRoute = StudentApplyRouteImport.update({
   id: '/student_/apply',
   path: '/student/apply',
@@ -300,207 +355,220 @@ const AssessmentInternshipInterestResultsRoute =
     path: '/assessment/internship-interest/results',
     getParentRoute: () => rootRouteImport,
   } as any)
-const EducatorAdminIndexRoute = EducatorAdminIndexRouteImport.update({
+const InstructorAdminIndexRoute = InstructorAdminIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => EducatorAdminRoute,
+  getParentRoute: () => InstructorAdminRoute,
 } as any)
-const EducatorAdminApplicationsRoute =
-  EducatorAdminApplicationsRouteImport.update({
+const InstructorAdminApplicationsRoute =
+  InstructorAdminApplicationsRouteImport.update({
     id: '/applications',
     path: '/applications',
-    getParentRoute: () => EducatorAdminRoute,
+    getParentRoute: () => InstructorAdminRoute,
   } as any)
-const EducatorAdminApplyRequestsRoute =
-  EducatorAdminApplyRequestsRouteImport.update({
+const InstructorAdminApplyRequestsRoute =
+  InstructorAdminApplyRequestsRouteImport.update({
     id: '/apply-requests',
     path: '/apply-requests',
-    getParentRoute: () => EducatorAdminRoute,
+    getParentRoute: () => InstructorAdminRoute,
   } as any)
-const EducatorAdminAssessmentsRoute =
-  EducatorAdminAssessmentsRouteImport.update({
+const InstructorAdminAssessmentsRoute =
+  InstructorAdminAssessmentsRouteImport.update({
     id: '/assessments',
     path: '/assessments',
-    getParentRoute: () => EducatorAdminRoute,
+    getParentRoute: () => InstructorAdminRoute,
   } as any)
-const EducatorAdminAssignRoute = EducatorAdminAssignRouteImport.update({
+const InstructorAdminAssignRoute = InstructorAdminAssignRouteImport.update({
   id: '/assign',
   path: '/assign',
-  getParentRoute: () => EducatorAdminRoute,
+  getParentRoute: () => InstructorAdminRoute,
 } as any)
-const EducatorAdminCampLoginsRoute = EducatorAdminCampLoginsRouteImport.update({
-  id: '/camp-logins',
-  path: '/camp-logins',
-  getParentRoute: () => EducatorAdminRoute,
-} as any)
-const EducatorAdminCampsRoute = EducatorAdminCampsRouteImport.update({
+const InstructorAdminCampLoginsRoute =
+  InstructorAdminCampLoginsRouteImport.update({
+    id: '/camp-logins',
+    path: '/camp-logins',
+    getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const InstructorAdminCampsRoute = InstructorAdminCampsRouteImport.update({
   id: '/camps',
   path: '/camps',
-  getParentRoute: () => EducatorAdminRoute,
+  getParentRoute: () => InstructorAdminRoute,
 } as any)
-const EducatorAdminCompletionRoute = EducatorAdminCompletionRouteImport.update({
-  id: '/completion',
-  path: '/completion',
-  getParentRoute: () => EducatorAdminRoute,
-} as any)
-const EducatorAdminDemographicsRoute =
-  EducatorAdminDemographicsRouteImport.update({
+const InstructorAdminCompletionRoute =
+  InstructorAdminCompletionRouteImport.update({
+    id: '/completion',
+    path: '/completion',
+    getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const InstructorAdminDemographicsRoute =
+  InstructorAdminDemographicsRouteImport.update({
     id: '/demographics',
     path: '/demographics',
-    getParentRoute: () => EducatorAdminRoute,
+    getParentRoute: () => InstructorAdminRoute,
   } as any)
-const EducatorAdminImportExplrRoute =
-  EducatorAdminImportExplrRouteImport.update({
+const InstructorAdminImportExplrRoute =
+  InstructorAdminImportExplrRouteImport.update({
     id: '/import-explr',
     path: '/import-explr',
-    getParentRoute: () => EducatorAdminRoute,
+    getParentRoute: () => InstructorAdminRoute,
   } as any)
-const EducatorAdminInternshipLoginsRoute =
-  EducatorAdminInternshipLoginsRouteImport.update({
+const InstructorAdminInternshipLoginsRoute =
+  InstructorAdminInternshipLoginsRouteImport.update({
     id: '/internship-logins',
     path: '/internship-logins',
-    getParentRoute: () => EducatorAdminRoute,
+    getParentRoute: () => InstructorAdminRoute,
   } as any)
-const EducatorAdminInternshipsRoute =
-  EducatorAdminInternshipsRouteImport.update({
+const InstructorAdminInternshipsRoute =
+  InstructorAdminInternshipsRouteImport.update({
     id: '/internships',
     path: '/internships',
-    getParentRoute: () => EducatorAdminRoute,
+    getParentRoute: () => InstructorAdminRoute,
   } as any)
-const EducatorAdminInvitesRoute = EducatorAdminInvitesRouteImport.update({
+const InstructorAdminInvitesRoute = InstructorAdminInvitesRouteImport.update({
   id: '/invites',
   path: '/invites',
-  getParentRoute: () => EducatorAdminRoute,
+  getParentRoute: () => InstructorAdminRoute,
 } as any)
-const EducatorAdminOpportunitiesRoute =
-  EducatorAdminOpportunitiesRouteImport.update({
+const InstructorAdminOpportunitiesRoute =
+  InstructorAdminOpportunitiesRouteImport.update({
     id: '/opportunities',
     path: '/opportunities',
-    getParentRoute: () => EducatorAdminRoute,
+    getParentRoute: () => InstructorAdminRoute,
   } as any)
-const EducatorAdminOpportunityFieldsRoute =
-  EducatorAdminOpportunityFieldsRouteImport.update({
+const InstructorAdminOpportunityFieldsRoute =
+  InstructorAdminOpportunityFieldsRouteImport.update({
     id: '/opportunity-fields',
     path: '/opportunity-fields',
-    getParentRoute: () => EducatorAdminRoute,
+    getParentRoute: () => InstructorAdminRoute,
   } as any)
-const EducatorAdminPasswordsRoute = EducatorAdminPasswordsRouteImport.update({
-  id: '/passwords',
-  path: '/passwords',
-  getParentRoute: () => EducatorAdminRoute,
-} as any)
-const EducatorAdminPlacementsRoute = EducatorAdminPlacementsRouteImport.update({
-  id: '/placements',
-  path: '/placements',
-  getParentRoute: () => EducatorAdminRoute,
-} as any)
-const EducatorAdminProgramRiasecRoute =
-  EducatorAdminProgramRiasecRouteImport.update({
+const InstructorAdminPasswordsRoute =
+  InstructorAdminPasswordsRouteImport.update({
+    id: '/passwords',
+    path: '/passwords',
+    getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const InstructorAdminPlacementsRoute =
+  InstructorAdminPlacementsRouteImport.update({
+    id: '/placements',
+    path: '/placements',
+    getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const InstructorAdminProgramRiasecRoute =
+  InstructorAdminProgramRiasecRouteImport.update({
     id: '/program-riasec',
     path: '/program-riasec',
-    getParentRoute: () => EducatorAdminRoute,
+    getParentRoute: () => InstructorAdminRoute,
   } as any)
-const EducatorAdminProgramsRoute = EducatorAdminProgramsRouteImport.update({
+const InstructorAdminProgramsRoute = InstructorAdminProgramsRouteImport.update({
   id: '/programs',
   path: '/programs',
-  getParentRoute: () => EducatorAdminRoute,
+  getParentRoute: () => InstructorAdminRoute,
 } as any)
-const EducatorAdminRecommendationsRoute =
-  EducatorAdminRecommendationsRouteImport.update({
+const InstructorAdminRecommendationsRoute =
+  InstructorAdminRecommendationsRouteImport.update({
     id: '/recommendations',
     path: '/recommendations',
-    getParentRoute: () => EducatorAdminRoute,
+    getParentRoute: () => InstructorAdminRoute,
   } as any)
-const EducatorAdminResultsRoute = EducatorAdminResultsRouteImport.update({
+const InstructorAdminResultsRoute = InstructorAdminResultsRouteImport.update({
   id: '/results',
   path: '/results',
-  getParentRoute: () => EducatorAdminRoute,
+  getParentRoute: () => InstructorAdminRoute,
 } as any)
-const EducatorAdminRostersRoute = EducatorAdminRostersRouteImport.update({
+const InstructorAdminRostersRoute = InstructorAdminRostersRouteImport.update({
   id: '/rosters',
   path: '/rosters',
-  getParentRoute: () => EducatorAdminRoute,
+  getParentRoute: () => InstructorAdminRoute,
 } as any)
-const EducatorAdminSurveysRoute = EducatorAdminSurveysRouteImport.update({
+const InstructorAdminSurveysRoute = InstructorAdminSurveysRouteImport.update({
   id: '/surveys',
   path: '/surveys',
-  getParentRoute: () => EducatorAdminRoute,
+  getParentRoute: () => InstructorAdminRoute,
 } as any)
-const EducatorCurriculumIndexRoute = EducatorCurriculumIndexRouteImport.update({
-  id: '/curriculum/',
-  path: '/curriculum/',
-  getParentRoute: () => EducatorRoute,
-} as any)
-const EducatorCurriculumSlugRoute = EducatorCurriculumSlugRouteImport.update({
-  id: '/curriculum/$slug',
-  path: '/curriculum/$slug',
-  getParentRoute: () => EducatorRoute,
-} as any)
-const EducatorInternshipsIndexRoute =
-  EducatorInternshipsIndexRouteImport.update({
+const InstructorCurriculumIndexRoute =
+  InstructorCurriculumIndexRouteImport.update({
+    id: '/curriculum/',
+    path: '/curriculum/',
+    getParentRoute: () => InstructorRoute,
+  } as any)
+const InstructorCurriculumSlugRoute =
+  InstructorCurriculumSlugRouteImport.update({
+    id: '/curriculum/$slug',
+    path: '/curriculum/$slug',
+    getParentRoute: () => InstructorRoute,
+  } as any)
+const InstructorInternshipsIndexRoute =
+  InstructorInternshipsIndexRouteImport.update({
     id: '/internships/',
     path: '/internships/',
-    getParentRoute: () => EducatorRoute,
+    getParentRoute: () => InstructorRoute,
   } as any)
-const EducatorInternshipsSlugRoute = EducatorInternshipsSlugRouteImport.update({
-  id: '/internships/$slug',
-  path: '/internships/$slug',
-  getParentRoute: () => EducatorRoute,
-} as any)
-const EducatorInviteTokenRoute = EducatorInviteTokenRouteImport.update({
+const InstructorInternshipsSlugRoute =
+  InstructorInternshipsSlugRouteImport.update({
+    id: '/internships/$slug',
+    path: '/internships/$slug',
+    getParentRoute: () => InstructorRoute,
+  } as any)
+const InstructorInviteTokenRoute = InstructorInviteTokenRouteImport.update({
   id: '/invite/$token',
   path: '/invite/$token',
-  getParentRoute: () => EducatorRoute,
+  getParentRoute: () => InstructorRoute,
 } as any)
-const EducatorSessionsSessionIdRoute =
-  EducatorSessionsSessionIdRouteImport.update({
+const InstructorSessionsSessionIdRoute =
+  InstructorSessionsSessionIdRouteImport.update({
     id: '/sessions/$sessionId',
     path: '/sessions/$sessionId',
-    getParentRoute: () => EducatorRoute,
+    getParentRoute: () => InstructorRoute,
   } as any)
 const DemoAptitudeBandTakeRoute = DemoAptitudeBandTakeRouteImport.update({
   id: '/demo/aptitude/$band/take',
   path: '/demo/aptitude/$band/take',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EducatorAdminEducatorsIdRoute =
-  EducatorAdminEducatorsIdRouteImport.update({
+const InstructorAdminEducatorsIdRoute =
+  InstructorAdminEducatorsIdRouteImport.update({
     id: '/educators/$id',
     path: '/educators/$id',
-    getParentRoute: () => EducatorAdminRoute,
+    getParentRoute: () => InstructorAdminRoute,
   } as any)
-const EducatorAdminInternshipsIndexRoute =
-  EducatorAdminInternshipsIndexRouteImport.update({
+const InstructorAdminInternshipsIndexRoute =
+  InstructorAdminInternshipsIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => EducatorAdminInternshipsRoute,
+    getParentRoute: () => InstructorAdminInternshipsRoute,
   } as any)
-const EducatorAdminGroupsKindIndexRoute =
-  EducatorAdminGroupsKindIndexRouteImport.update({
+const InstructorExploreCardsKindIdRoute =
+  InstructorExploreCardsKindIdRouteImport.update({
+    id: '/explore-cards/$kind/$id',
+    path: '/explore-cards/$kind/$id',
+    getParentRoute: () => InstructorRoute,
+  } as any)
+const InstructorAdminGroupsKindIndexRoute =
+  InstructorAdminGroupsKindIndexRouteImport.update({
     id: '/groups/$kind/',
     path: '/groups/$kind/',
-    getParentRoute: () => EducatorAdminRoute,
+    getParentRoute: () => InstructorAdminRoute,
   } as any)
-const EducatorAdminGroupsKindIdRoute =
-  EducatorAdminGroupsKindIdRouteImport.update({
+const InstructorAdminGroupsKindIdRoute =
+  InstructorAdminGroupsKindIdRouteImport.update({
     id: '/groups/$kind/$id',
     path: '/groups/$kind/$id',
-    getParentRoute: () => EducatorAdminRoute,
+    getParentRoute: () => InstructorAdminRoute,
   } as any)
-const EducatorAdminInternshipsSlugReportRoute =
-  EducatorAdminInternshipsSlugReportRouteImport.update({
+const InstructorAdminInternshipsSlugReportRoute =
+  InstructorAdminInternshipsSlugReportRouteImport.update({
     id: '/$slug/report',
     path: '/$slug/report',
-    getParentRoute: () => EducatorAdminInternshipsRoute,
+    getParentRoute: () => InstructorAdminInternshipsRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/educator': typeof EducatorRouteWithChildren
   '/explr-rosters': typeof ExplrRostersRoute
-  '/family': typeof FamilyRoute
+  '/family': typeof FamilyRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/instructor': typeof InstructorRouteWithChildren
   '/opportunities': typeof OpportunitiesRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -516,68 +584,78 @@ export interface FileRoutesByFullPath {
   '/worksites': typeof WorksitesRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
-  '/educator/admin': typeof EducatorAdminRouteWithChildren
-  '/educator/dashboard': typeof EducatorDashboardRoute
-  '/educator/login-display': typeof EducatorLoginDisplayRoute
-  '/educator/sign-in': typeof EducatorSignInRoute
-  '/educator/sign-up': typeof EducatorSignUpRoute
-  '/educator/students': typeof EducatorStudentsRoute
-  '/educator/worksite': typeof EducatorWorksiteRoute
+  '/educator/$': typeof EducatorSplatRoute
+  '/explore/$code': typeof ExploreCodeRoute
+  '/explore/scan': typeof ExploreScanRoute
+  '/family/view': typeof FamilyViewRoute
+  '/go/$token': typeof GoTokenRoute
+  '/instructor/admin': typeof InstructorAdminRouteWithChildren
+  '/instructor/dashboard': typeof InstructorDashboardRoute
+  '/instructor/login-display': typeof InstructorLoginDisplayRoute
+  '/instructor/sign-in': typeof InstructorSignInRoute
+  '/instructor/sign-up': typeof InstructorSignUpRoute
+  '/instructor/students': typeof InstructorStudentsRoute
+  '/instructor/worksite': typeof InstructorWorksiteRoute
   '/lab/$': typeof LabSplatRoute
   '/opportunity/$id': typeof OpportunityIdRoute
   '/org/applicants': typeof OrgApplicantsRoute
   '/org/new': typeof OrgNewRoute
   '/org/sign-in': typeof OrgSignInRoute
   '/org/sign-up': typeof OrgSignUpRoute
+  '/partner/$': typeof PartnerSplatRoute
   '/student/apply': typeof StudentApplyRoute
   '/student/apply-complete': typeof StudentApplyCompleteRoute
   '/survey/$assignmentId': typeof SurveyAssignmentIdRoute
   '/assessment/': typeof AssessmentIndexRoute
   '/educator/': typeof EducatorIndexRoute
+  '/explore/': typeof ExploreIndexRoute
+  '/instructor/': typeof InstructorIndexRoute
   '/org/': typeof OrgIndexRoute
+  '/partner/': typeof PartnerIndexRoute
   '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
   '/assessment/internship-interest/results': typeof AssessmentInternshipInterestResultsRoute
-  '/educator/admin/applications': typeof EducatorAdminApplicationsRoute
-  '/educator/admin/apply-requests': typeof EducatorAdminApplyRequestsRoute
-  '/educator/admin/assessments': typeof EducatorAdminAssessmentsRoute
-  '/educator/admin/assign': typeof EducatorAdminAssignRoute
-  '/educator/admin/camp-logins': typeof EducatorAdminCampLoginsRoute
-  '/educator/admin/camps': typeof EducatorAdminCampsRoute
-  '/educator/admin/completion': typeof EducatorAdminCompletionRoute
-  '/educator/admin/demographics': typeof EducatorAdminDemographicsRoute
-  '/educator/admin/import-explr': typeof EducatorAdminImportExplrRoute
-  '/educator/admin/internship-logins': typeof EducatorAdminInternshipLoginsRoute
-  '/educator/admin/internships': typeof EducatorAdminInternshipsRouteWithChildren
-  '/educator/admin/invites': typeof EducatorAdminInvitesRoute
-  '/educator/admin/opportunities': typeof EducatorAdminOpportunitiesRoute
-  '/educator/admin/opportunity-fields': typeof EducatorAdminOpportunityFieldsRoute
-  '/educator/admin/passwords': typeof EducatorAdminPasswordsRoute
-  '/educator/admin/placements': typeof EducatorAdminPlacementsRoute
-  '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
-  '/educator/admin/programs': typeof EducatorAdminProgramsRoute
-  '/educator/admin/recommendations': typeof EducatorAdminRecommendationsRoute
-  '/educator/admin/results': typeof EducatorAdminResultsRoute
-  '/educator/admin/rosters': typeof EducatorAdminRostersRoute
-  '/educator/admin/surveys': typeof EducatorAdminSurveysRoute
-  '/educator/curriculum/$slug': typeof EducatorCurriculumSlugRoute
-  '/educator/internships/$slug': typeof EducatorInternshipsSlugRoute
-  '/educator/invite/$token': typeof EducatorInviteTokenRoute
-  '/educator/sessions/$sessionId': typeof EducatorSessionsSessionIdRoute
-  '/educator/admin/': typeof EducatorAdminIndexRoute
-  '/educator/curriculum/': typeof EducatorCurriculumIndexRoute
-  '/educator/internships/': typeof EducatorInternshipsIndexRoute
+  '/instructor/admin/applications': typeof InstructorAdminApplicationsRoute
+  '/instructor/admin/apply-requests': typeof InstructorAdminApplyRequestsRoute
+  '/instructor/admin/assessments': typeof InstructorAdminAssessmentsRoute
+  '/instructor/admin/assign': typeof InstructorAdminAssignRoute
+  '/instructor/admin/camp-logins': typeof InstructorAdminCampLoginsRoute
+  '/instructor/admin/camps': typeof InstructorAdminCampsRoute
+  '/instructor/admin/completion': typeof InstructorAdminCompletionRoute
+  '/instructor/admin/demographics': typeof InstructorAdminDemographicsRoute
+  '/instructor/admin/import-explr': typeof InstructorAdminImportExplrRoute
+  '/instructor/admin/internship-logins': typeof InstructorAdminInternshipLoginsRoute
+  '/instructor/admin/internships': typeof InstructorAdminInternshipsRouteWithChildren
+  '/instructor/admin/invites': typeof InstructorAdminInvitesRoute
+  '/instructor/admin/opportunities': typeof InstructorAdminOpportunitiesRoute
+  '/instructor/admin/opportunity-fields': typeof InstructorAdminOpportunityFieldsRoute
+  '/instructor/admin/passwords': typeof InstructorAdminPasswordsRoute
+  '/instructor/admin/placements': typeof InstructorAdminPlacementsRoute
+  '/instructor/admin/program-riasec': typeof InstructorAdminProgramRiasecRoute
+  '/instructor/admin/programs': typeof InstructorAdminProgramsRoute
+  '/instructor/admin/recommendations': typeof InstructorAdminRecommendationsRoute
+  '/instructor/admin/results': typeof InstructorAdminResultsRoute
+  '/instructor/admin/rosters': typeof InstructorAdminRostersRoute
+  '/instructor/admin/surveys': typeof InstructorAdminSurveysRoute
+  '/instructor/curriculum/$slug': typeof InstructorCurriculumSlugRoute
+  '/instructor/internships/$slug': typeof InstructorInternshipsSlugRoute
+  '/instructor/invite/$token': typeof InstructorInviteTokenRoute
+  '/instructor/sessions/$sessionId': typeof InstructorSessionsSessionIdRoute
+  '/instructor/admin/': typeof InstructorAdminIndexRoute
+  '/instructor/curriculum/': typeof InstructorCurriculumIndexRoute
+  '/instructor/internships/': typeof InstructorInternshipsIndexRoute
   '/demo/aptitude/$band/take': typeof DemoAptitudeBandTakeRoute
-  '/educator/admin/educators/$id': typeof EducatorAdminEducatorsIdRoute
-  '/educator/admin/internships/': typeof EducatorAdminInternshipsIndexRoute
-  '/educator/admin/groups/$kind/$id': typeof EducatorAdminGroupsKindIdRoute
-  '/educator/admin/internships/$slug/report': typeof EducatorAdminInternshipsSlugReportRoute
-  '/educator/admin/groups/$kind/': typeof EducatorAdminGroupsKindIndexRoute
+  '/instructor/admin/educators/$id': typeof InstructorAdminEducatorsIdRoute
+  '/instructor/explore-cards/$kind/$id': typeof InstructorExploreCardsKindIdRoute
+  '/instructor/admin/internships/': typeof InstructorAdminInternshipsIndexRoute
+  '/instructor/admin/groups/$kind/$id': typeof InstructorAdminGroupsKindIdRoute
+  '/instructor/admin/internships/$slug/report': typeof InstructorAdminInternshipsSlugReportRoute
+  '/instructor/admin/groups/$kind/': typeof InstructorAdminGroupsKindIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/explr-rosters': typeof ExplrRostersRoute
-  '/family': typeof FamilyRoute
+  '/family': typeof FamilyRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/opportunities': typeof OpportunitiesRoute
   '/privacy': typeof PrivacyRoute
@@ -594,69 +672,79 @@ export interface FileRoutesByTo {
   '/worksites': typeof WorksitesRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
-  '/educator/dashboard': typeof EducatorDashboardRoute
-  '/educator/login-display': typeof EducatorLoginDisplayRoute
-  '/educator/sign-in': typeof EducatorSignInRoute
-  '/educator/sign-up': typeof EducatorSignUpRoute
-  '/educator/students': typeof EducatorStudentsRoute
-  '/educator/worksite': typeof EducatorWorksiteRoute
+  '/educator/$': typeof EducatorSplatRoute
+  '/explore/$code': typeof ExploreCodeRoute
+  '/explore/scan': typeof ExploreScanRoute
+  '/family/view': typeof FamilyViewRoute
+  '/go/$token': typeof GoTokenRoute
+  '/instructor/dashboard': typeof InstructorDashboardRoute
+  '/instructor/login-display': typeof InstructorLoginDisplayRoute
+  '/instructor/sign-in': typeof InstructorSignInRoute
+  '/instructor/sign-up': typeof InstructorSignUpRoute
+  '/instructor/students': typeof InstructorStudentsRoute
+  '/instructor/worksite': typeof InstructorWorksiteRoute
   '/lab/$': typeof LabSplatRoute
   '/opportunity/$id': typeof OpportunityIdRoute
   '/org/applicants': typeof OrgApplicantsRoute
   '/org/new': typeof OrgNewRoute
   '/org/sign-in': typeof OrgSignInRoute
   '/org/sign-up': typeof OrgSignUpRoute
+  '/partner/$': typeof PartnerSplatRoute
   '/student/apply': typeof StudentApplyRoute
   '/student/apply-complete': typeof StudentApplyCompleteRoute
   '/survey/$assignmentId': typeof SurveyAssignmentIdRoute
   '/assessment': typeof AssessmentIndexRoute
   '/educator': typeof EducatorIndexRoute
+  '/explore': typeof ExploreIndexRoute
+  '/instructor': typeof InstructorIndexRoute
   '/org': typeof OrgIndexRoute
+  '/partner': typeof PartnerIndexRoute
   '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
   '/assessment/internship-interest/results': typeof AssessmentInternshipInterestResultsRoute
-  '/educator/admin/applications': typeof EducatorAdminApplicationsRoute
-  '/educator/admin/apply-requests': typeof EducatorAdminApplyRequestsRoute
-  '/educator/admin/assessments': typeof EducatorAdminAssessmentsRoute
-  '/educator/admin/assign': typeof EducatorAdminAssignRoute
-  '/educator/admin/camp-logins': typeof EducatorAdminCampLoginsRoute
-  '/educator/admin/camps': typeof EducatorAdminCampsRoute
-  '/educator/admin/completion': typeof EducatorAdminCompletionRoute
-  '/educator/admin/demographics': typeof EducatorAdminDemographicsRoute
-  '/educator/admin/import-explr': typeof EducatorAdminImportExplrRoute
-  '/educator/admin/internship-logins': typeof EducatorAdminInternshipLoginsRoute
-  '/educator/admin/invites': typeof EducatorAdminInvitesRoute
-  '/educator/admin/opportunities': typeof EducatorAdminOpportunitiesRoute
-  '/educator/admin/opportunity-fields': typeof EducatorAdminOpportunityFieldsRoute
-  '/educator/admin/passwords': typeof EducatorAdminPasswordsRoute
-  '/educator/admin/placements': typeof EducatorAdminPlacementsRoute
-  '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
-  '/educator/admin/programs': typeof EducatorAdminProgramsRoute
-  '/educator/admin/recommendations': typeof EducatorAdminRecommendationsRoute
-  '/educator/admin/results': typeof EducatorAdminResultsRoute
-  '/educator/admin/rosters': typeof EducatorAdminRostersRoute
-  '/educator/admin/surveys': typeof EducatorAdminSurveysRoute
-  '/educator/curriculum/$slug': typeof EducatorCurriculumSlugRoute
-  '/educator/internships/$slug': typeof EducatorInternshipsSlugRoute
-  '/educator/invite/$token': typeof EducatorInviteTokenRoute
-  '/educator/sessions/$sessionId': typeof EducatorSessionsSessionIdRoute
-  '/educator/admin': typeof EducatorAdminIndexRoute
-  '/educator/curriculum': typeof EducatorCurriculumIndexRoute
-  '/educator/internships': typeof EducatorInternshipsIndexRoute
+  '/instructor/admin/applications': typeof InstructorAdminApplicationsRoute
+  '/instructor/admin/apply-requests': typeof InstructorAdminApplyRequestsRoute
+  '/instructor/admin/assessments': typeof InstructorAdminAssessmentsRoute
+  '/instructor/admin/assign': typeof InstructorAdminAssignRoute
+  '/instructor/admin/camp-logins': typeof InstructorAdminCampLoginsRoute
+  '/instructor/admin/camps': typeof InstructorAdminCampsRoute
+  '/instructor/admin/completion': typeof InstructorAdminCompletionRoute
+  '/instructor/admin/demographics': typeof InstructorAdminDemographicsRoute
+  '/instructor/admin/import-explr': typeof InstructorAdminImportExplrRoute
+  '/instructor/admin/internship-logins': typeof InstructorAdminInternshipLoginsRoute
+  '/instructor/admin/invites': typeof InstructorAdminInvitesRoute
+  '/instructor/admin/opportunities': typeof InstructorAdminOpportunitiesRoute
+  '/instructor/admin/opportunity-fields': typeof InstructorAdminOpportunityFieldsRoute
+  '/instructor/admin/passwords': typeof InstructorAdminPasswordsRoute
+  '/instructor/admin/placements': typeof InstructorAdminPlacementsRoute
+  '/instructor/admin/program-riasec': typeof InstructorAdminProgramRiasecRoute
+  '/instructor/admin/programs': typeof InstructorAdminProgramsRoute
+  '/instructor/admin/recommendations': typeof InstructorAdminRecommendationsRoute
+  '/instructor/admin/results': typeof InstructorAdminResultsRoute
+  '/instructor/admin/rosters': typeof InstructorAdminRostersRoute
+  '/instructor/admin/surveys': typeof InstructorAdminSurveysRoute
+  '/instructor/curriculum/$slug': typeof InstructorCurriculumSlugRoute
+  '/instructor/internships/$slug': typeof InstructorInternshipsSlugRoute
+  '/instructor/invite/$token': typeof InstructorInviteTokenRoute
+  '/instructor/sessions/$sessionId': typeof InstructorSessionsSessionIdRoute
+  '/instructor/admin': typeof InstructorAdminIndexRoute
+  '/instructor/curriculum': typeof InstructorCurriculumIndexRoute
+  '/instructor/internships': typeof InstructorInternshipsIndexRoute
   '/demo/aptitude/$band/take': typeof DemoAptitudeBandTakeRoute
-  '/educator/admin/educators/$id': typeof EducatorAdminEducatorsIdRoute
-  '/educator/admin/internships': typeof EducatorAdminInternshipsIndexRoute
-  '/educator/admin/groups/$kind/$id': typeof EducatorAdminGroupsKindIdRoute
-  '/educator/admin/internships/$slug/report': typeof EducatorAdminInternshipsSlugReportRoute
-  '/educator/admin/groups/$kind': typeof EducatorAdminGroupsKindIndexRoute
+  '/instructor/admin/educators/$id': typeof InstructorAdminEducatorsIdRoute
+  '/instructor/explore-cards/$kind/$id': typeof InstructorExploreCardsKindIdRoute
+  '/instructor/admin/internships': typeof InstructorAdminInternshipsIndexRoute
+  '/instructor/admin/groups/$kind/$id': typeof InstructorAdminGroupsKindIdRoute
+  '/instructor/admin/internships/$slug/report': typeof InstructorAdminInternshipsSlugReportRoute
+  '/instructor/admin/groups/$kind': typeof InstructorAdminGroupsKindIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/educator': typeof EducatorRouteWithChildren
   '/explr-rosters': typeof ExplrRostersRoute
-  '/family': typeof FamilyRoute
+  '/family': typeof FamilyRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/instructor': typeof InstructorRouteWithChildren
   '/opportunities': typeof OpportunitiesRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -672,72 +760,82 @@ export interface FileRoutesById {
   '/worksites': typeof WorksitesRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/assessment/internship-interest': typeof AssessmentInternshipInterestRoute
-  '/educator/admin': typeof EducatorAdminRouteWithChildren
-  '/educator/dashboard': typeof EducatorDashboardRoute
-  '/educator/login-display': typeof EducatorLoginDisplayRoute
-  '/educator/sign-in': typeof EducatorSignInRoute
-  '/educator/sign-up': typeof EducatorSignUpRoute
-  '/educator/students': typeof EducatorStudentsRoute
-  '/educator/worksite': typeof EducatorWorksiteRoute
+  '/educator/$': typeof EducatorSplatRoute
+  '/explore/$code': typeof ExploreCodeRoute
+  '/explore/scan': typeof ExploreScanRoute
+  '/family/view': typeof FamilyViewRoute
+  '/go/$token': typeof GoTokenRoute
+  '/instructor/admin': typeof InstructorAdminRouteWithChildren
+  '/instructor/dashboard': typeof InstructorDashboardRoute
+  '/instructor/login-display': typeof InstructorLoginDisplayRoute
+  '/instructor/sign-in': typeof InstructorSignInRoute
+  '/instructor/sign-up': typeof InstructorSignUpRoute
+  '/instructor/students': typeof InstructorStudentsRoute
+  '/instructor/worksite': typeof InstructorWorksiteRoute
   '/lab/$': typeof LabSplatRoute
   '/opportunity/$id': typeof OpportunityIdRoute
   '/org/applicants': typeof OrgApplicantsRoute
   '/org/new': typeof OrgNewRoute
   '/org/sign-in': typeof OrgSignInRoute
   '/org/sign-up': typeof OrgSignUpRoute
+  '/partner/$': typeof PartnerSplatRoute
   '/student_/apply': typeof StudentApplyRoute
   '/student_/apply-complete': typeof StudentApplyCompleteRoute
   '/survey/$assignmentId': typeof SurveyAssignmentIdRoute
   '/assessment/': typeof AssessmentIndexRoute
   '/educator/': typeof EducatorIndexRoute
+  '/explore/': typeof ExploreIndexRoute
+  '/instructor/': typeof InstructorIndexRoute
   '/org/': typeof OrgIndexRoute
+  '/partner/': typeof PartnerIndexRoute
   '/assessment/$sessionId_/results': typeof AssessmentSessionIdResultsRoute
   '/assessment/internship-interest_/results': typeof AssessmentInternshipInterestResultsRoute
-  '/educator/admin/applications': typeof EducatorAdminApplicationsRoute
-  '/educator/admin/apply-requests': typeof EducatorAdminApplyRequestsRoute
-  '/educator/admin/assessments': typeof EducatorAdminAssessmentsRoute
-  '/educator/admin/assign': typeof EducatorAdminAssignRoute
-  '/educator/admin/camp-logins': typeof EducatorAdminCampLoginsRoute
-  '/educator/admin/camps': typeof EducatorAdminCampsRoute
-  '/educator/admin/completion': typeof EducatorAdminCompletionRoute
-  '/educator/admin/demographics': typeof EducatorAdminDemographicsRoute
-  '/educator/admin/import-explr': typeof EducatorAdminImportExplrRoute
-  '/educator/admin/internship-logins': typeof EducatorAdminInternshipLoginsRoute
-  '/educator/admin/internships': typeof EducatorAdminInternshipsRouteWithChildren
-  '/educator/admin/invites': typeof EducatorAdminInvitesRoute
-  '/educator/admin/opportunities': typeof EducatorAdminOpportunitiesRoute
-  '/educator/admin/opportunity-fields': typeof EducatorAdminOpportunityFieldsRoute
-  '/educator/admin/passwords': typeof EducatorAdminPasswordsRoute
-  '/educator/admin/placements': typeof EducatorAdminPlacementsRoute
-  '/educator/admin/program-riasec': typeof EducatorAdminProgramRiasecRoute
-  '/educator/admin/programs': typeof EducatorAdminProgramsRoute
-  '/educator/admin/recommendations': typeof EducatorAdminRecommendationsRoute
-  '/educator/admin/results': typeof EducatorAdminResultsRoute
-  '/educator/admin/rosters': typeof EducatorAdminRostersRoute
-  '/educator/admin/surveys': typeof EducatorAdminSurveysRoute
-  '/educator/curriculum/$slug': typeof EducatorCurriculumSlugRoute
-  '/educator/internships/$slug': typeof EducatorInternshipsSlugRoute
-  '/educator/invite/$token': typeof EducatorInviteTokenRoute
-  '/educator/sessions/$sessionId': typeof EducatorSessionsSessionIdRoute
-  '/educator/admin/': typeof EducatorAdminIndexRoute
-  '/educator/curriculum/': typeof EducatorCurriculumIndexRoute
-  '/educator/internships/': typeof EducatorInternshipsIndexRoute
+  '/instructor/admin/applications': typeof InstructorAdminApplicationsRoute
+  '/instructor/admin/apply-requests': typeof InstructorAdminApplyRequestsRoute
+  '/instructor/admin/assessments': typeof InstructorAdminAssessmentsRoute
+  '/instructor/admin/assign': typeof InstructorAdminAssignRoute
+  '/instructor/admin/camp-logins': typeof InstructorAdminCampLoginsRoute
+  '/instructor/admin/camps': typeof InstructorAdminCampsRoute
+  '/instructor/admin/completion': typeof InstructorAdminCompletionRoute
+  '/instructor/admin/demographics': typeof InstructorAdminDemographicsRoute
+  '/instructor/admin/import-explr': typeof InstructorAdminImportExplrRoute
+  '/instructor/admin/internship-logins': typeof InstructorAdminInternshipLoginsRoute
+  '/instructor/admin/internships': typeof InstructorAdminInternshipsRouteWithChildren
+  '/instructor/admin/invites': typeof InstructorAdminInvitesRoute
+  '/instructor/admin/opportunities': typeof InstructorAdminOpportunitiesRoute
+  '/instructor/admin/opportunity-fields': typeof InstructorAdminOpportunityFieldsRoute
+  '/instructor/admin/passwords': typeof InstructorAdminPasswordsRoute
+  '/instructor/admin/placements': typeof InstructorAdminPlacementsRoute
+  '/instructor/admin/program-riasec': typeof InstructorAdminProgramRiasecRoute
+  '/instructor/admin/programs': typeof InstructorAdminProgramsRoute
+  '/instructor/admin/recommendations': typeof InstructorAdminRecommendationsRoute
+  '/instructor/admin/results': typeof InstructorAdminResultsRoute
+  '/instructor/admin/rosters': typeof InstructorAdminRostersRoute
+  '/instructor/admin/surveys': typeof InstructorAdminSurveysRoute
+  '/instructor/curriculum/$slug': typeof InstructorCurriculumSlugRoute
+  '/instructor/internships/$slug': typeof InstructorInternshipsSlugRoute
+  '/instructor/invite/$token': typeof InstructorInviteTokenRoute
+  '/instructor/sessions/$sessionId': typeof InstructorSessionsSessionIdRoute
+  '/instructor/admin/': typeof InstructorAdminIndexRoute
+  '/instructor/curriculum/': typeof InstructorCurriculumIndexRoute
+  '/instructor/internships/': typeof InstructorInternshipsIndexRoute
   '/demo/aptitude/$band/take': typeof DemoAptitudeBandTakeRoute
-  '/educator/admin/educators/$id': typeof EducatorAdminEducatorsIdRoute
-  '/educator/admin/internships/': typeof EducatorAdminInternshipsIndexRoute
-  '/educator/admin/groups/$kind/$id': typeof EducatorAdminGroupsKindIdRoute
-  '/educator/admin/internships/$slug/report': typeof EducatorAdminInternshipsSlugReportRoute
-  '/educator/admin/groups/$kind/': typeof EducatorAdminGroupsKindIndexRoute
+  '/instructor/admin/educators/$id': typeof InstructorAdminEducatorsIdRoute
+  '/instructor/explore-cards/$kind/$id': typeof InstructorExploreCardsKindIdRoute
+  '/instructor/admin/internships/': typeof InstructorAdminInternshipsIndexRoute
+  '/instructor/admin/groups/$kind/$id': typeof InstructorAdminGroupsKindIdRoute
+  '/instructor/admin/internships/$slug/report': typeof InstructorAdminInternshipsSlugReportRoute
+  '/instructor/admin/groups/$kind/': typeof InstructorAdminGroupsKindIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
-    | '/educator'
     | '/explr-rosters'
     | '/family'
     | '/forgot-password'
+    | '/instructor'
     | '/opportunities'
     | '/privacy'
     | '/reset-password'
@@ -753,62 +851,72 @@ export interface FileRouteTypes {
     | '/worksites'
     | '/assessment/$sessionId'
     | '/assessment/internship-interest'
-    | '/educator/admin'
-    | '/educator/dashboard'
-    | '/educator/login-display'
-    | '/educator/sign-in'
-    | '/educator/sign-up'
-    | '/educator/students'
-    | '/educator/worksite'
+    | '/educator/$'
+    | '/explore/$code'
+    | '/explore/scan'
+    | '/family/view'
+    | '/go/$token'
+    | '/instructor/admin'
+    | '/instructor/dashboard'
+    | '/instructor/login-display'
+    | '/instructor/sign-in'
+    | '/instructor/sign-up'
+    | '/instructor/students'
+    | '/instructor/worksite'
     | '/lab/$'
     | '/opportunity/$id'
     | '/org/applicants'
     | '/org/new'
     | '/org/sign-in'
     | '/org/sign-up'
+    | '/partner/$'
     | '/student/apply'
     | '/student/apply-complete'
     | '/survey/$assignmentId'
     | '/assessment/'
     | '/educator/'
+    | '/explore/'
+    | '/instructor/'
     | '/org/'
+    | '/partner/'
     | '/assessment/$sessionId/results'
     | '/assessment/internship-interest/results'
-    | '/educator/admin/applications'
-    | '/educator/admin/apply-requests'
-    | '/educator/admin/assessments'
-    | '/educator/admin/assign'
-    | '/educator/admin/camp-logins'
-    | '/educator/admin/camps'
-    | '/educator/admin/completion'
-    | '/educator/admin/demographics'
-    | '/educator/admin/import-explr'
-    | '/educator/admin/internship-logins'
-    | '/educator/admin/internships'
-    | '/educator/admin/invites'
-    | '/educator/admin/opportunities'
-    | '/educator/admin/opportunity-fields'
-    | '/educator/admin/passwords'
-    | '/educator/admin/placements'
-    | '/educator/admin/program-riasec'
-    | '/educator/admin/programs'
-    | '/educator/admin/recommendations'
-    | '/educator/admin/results'
-    | '/educator/admin/rosters'
-    | '/educator/admin/surveys'
-    | '/educator/curriculum/$slug'
-    | '/educator/internships/$slug'
-    | '/educator/invite/$token'
-    | '/educator/sessions/$sessionId'
-    | '/educator/admin/'
-    | '/educator/curriculum/'
-    | '/educator/internships/'
+    | '/instructor/admin/applications'
+    | '/instructor/admin/apply-requests'
+    | '/instructor/admin/assessments'
+    | '/instructor/admin/assign'
+    | '/instructor/admin/camp-logins'
+    | '/instructor/admin/camps'
+    | '/instructor/admin/completion'
+    | '/instructor/admin/demographics'
+    | '/instructor/admin/import-explr'
+    | '/instructor/admin/internship-logins'
+    | '/instructor/admin/internships'
+    | '/instructor/admin/invites'
+    | '/instructor/admin/opportunities'
+    | '/instructor/admin/opportunity-fields'
+    | '/instructor/admin/passwords'
+    | '/instructor/admin/placements'
+    | '/instructor/admin/program-riasec'
+    | '/instructor/admin/programs'
+    | '/instructor/admin/recommendations'
+    | '/instructor/admin/results'
+    | '/instructor/admin/rosters'
+    | '/instructor/admin/surveys'
+    | '/instructor/curriculum/$slug'
+    | '/instructor/internships/$slug'
+    | '/instructor/invite/$token'
+    | '/instructor/sessions/$sessionId'
+    | '/instructor/admin/'
+    | '/instructor/curriculum/'
+    | '/instructor/internships/'
     | '/demo/aptitude/$band/take'
-    | '/educator/admin/educators/$id'
-    | '/educator/admin/internships/'
-    | '/educator/admin/groups/$kind/$id'
-    | '/educator/admin/internships/$slug/report'
-    | '/educator/admin/groups/$kind/'
+    | '/instructor/admin/educators/$id'
+    | '/instructor/explore-cards/$kind/$id'
+    | '/instructor/admin/internships/'
+    | '/instructor/admin/groups/$kind/$id'
+    | '/instructor/admin/internships/$slug/report'
+    | '/instructor/admin/groups/$kind/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -831,68 +939,78 @@ export interface FileRouteTypes {
     | '/worksites'
     | '/assessment/$sessionId'
     | '/assessment/internship-interest'
-    | '/educator/dashboard'
-    | '/educator/login-display'
-    | '/educator/sign-in'
-    | '/educator/sign-up'
-    | '/educator/students'
-    | '/educator/worksite'
+    | '/educator/$'
+    | '/explore/$code'
+    | '/explore/scan'
+    | '/family/view'
+    | '/go/$token'
+    | '/instructor/dashboard'
+    | '/instructor/login-display'
+    | '/instructor/sign-in'
+    | '/instructor/sign-up'
+    | '/instructor/students'
+    | '/instructor/worksite'
     | '/lab/$'
     | '/opportunity/$id'
     | '/org/applicants'
     | '/org/new'
     | '/org/sign-in'
     | '/org/sign-up'
+    | '/partner/$'
     | '/student/apply'
     | '/student/apply-complete'
     | '/survey/$assignmentId'
     | '/assessment'
     | '/educator'
+    | '/explore'
+    | '/instructor'
     | '/org'
+    | '/partner'
     | '/assessment/$sessionId/results'
     | '/assessment/internship-interest/results'
-    | '/educator/admin/applications'
-    | '/educator/admin/apply-requests'
-    | '/educator/admin/assessments'
-    | '/educator/admin/assign'
-    | '/educator/admin/camp-logins'
-    | '/educator/admin/camps'
-    | '/educator/admin/completion'
-    | '/educator/admin/demographics'
-    | '/educator/admin/import-explr'
-    | '/educator/admin/internship-logins'
-    | '/educator/admin/invites'
-    | '/educator/admin/opportunities'
-    | '/educator/admin/opportunity-fields'
-    | '/educator/admin/passwords'
-    | '/educator/admin/placements'
-    | '/educator/admin/program-riasec'
-    | '/educator/admin/programs'
-    | '/educator/admin/recommendations'
-    | '/educator/admin/results'
-    | '/educator/admin/rosters'
-    | '/educator/admin/surveys'
-    | '/educator/curriculum/$slug'
-    | '/educator/internships/$slug'
-    | '/educator/invite/$token'
-    | '/educator/sessions/$sessionId'
-    | '/educator/admin'
-    | '/educator/curriculum'
-    | '/educator/internships'
+    | '/instructor/admin/applications'
+    | '/instructor/admin/apply-requests'
+    | '/instructor/admin/assessments'
+    | '/instructor/admin/assign'
+    | '/instructor/admin/camp-logins'
+    | '/instructor/admin/camps'
+    | '/instructor/admin/completion'
+    | '/instructor/admin/demographics'
+    | '/instructor/admin/import-explr'
+    | '/instructor/admin/internship-logins'
+    | '/instructor/admin/invites'
+    | '/instructor/admin/opportunities'
+    | '/instructor/admin/opportunity-fields'
+    | '/instructor/admin/passwords'
+    | '/instructor/admin/placements'
+    | '/instructor/admin/program-riasec'
+    | '/instructor/admin/programs'
+    | '/instructor/admin/recommendations'
+    | '/instructor/admin/results'
+    | '/instructor/admin/rosters'
+    | '/instructor/admin/surveys'
+    | '/instructor/curriculum/$slug'
+    | '/instructor/internships/$slug'
+    | '/instructor/invite/$token'
+    | '/instructor/sessions/$sessionId'
+    | '/instructor/admin'
+    | '/instructor/curriculum'
+    | '/instructor/internships'
     | '/demo/aptitude/$band/take'
-    | '/educator/admin/educators/$id'
-    | '/educator/admin/internships'
-    | '/educator/admin/groups/$kind/$id'
-    | '/educator/admin/internships/$slug/report'
-    | '/educator/admin/groups/$kind'
+    | '/instructor/admin/educators/$id'
+    | '/instructor/explore-cards/$kind/$id'
+    | '/instructor/admin/internships'
+    | '/instructor/admin/groups/$kind/$id'
+    | '/instructor/admin/internships/$slug/report'
+    | '/instructor/admin/groups/$kind'
   id:
     | '__root__'
     | '/'
     | '/about'
-    | '/educator'
     | '/explr-rosters'
     | '/family'
     | '/forgot-password'
+    | '/instructor'
     | '/opportunities'
     | '/privacy'
     | '/reset-password'
@@ -908,71 +1026,81 @@ export interface FileRouteTypes {
     | '/worksites'
     | '/assessment/$sessionId'
     | '/assessment/internship-interest'
-    | '/educator/admin'
-    | '/educator/dashboard'
-    | '/educator/login-display'
-    | '/educator/sign-in'
-    | '/educator/sign-up'
-    | '/educator/students'
-    | '/educator/worksite'
+    | '/educator/$'
+    | '/explore/$code'
+    | '/explore/scan'
+    | '/family/view'
+    | '/go/$token'
+    | '/instructor/admin'
+    | '/instructor/dashboard'
+    | '/instructor/login-display'
+    | '/instructor/sign-in'
+    | '/instructor/sign-up'
+    | '/instructor/students'
+    | '/instructor/worksite'
     | '/lab/$'
     | '/opportunity/$id'
     | '/org/applicants'
     | '/org/new'
     | '/org/sign-in'
     | '/org/sign-up'
+    | '/partner/$'
     | '/student_/apply'
     | '/student_/apply-complete'
     | '/survey/$assignmentId'
     | '/assessment/'
     | '/educator/'
+    | '/explore/'
+    | '/instructor/'
     | '/org/'
+    | '/partner/'
     | '/assessment/$sessionId_/results'
     | '/assessment/internship-interest_/results'
-    | '/educator/admin/applications'
-    | '/educator/admin/apply-requests'
-    | '/educator/admin/assessments'
-    | '/educator/admin/assign'
-    | '/educator/admin/camp-logins'
-    | '/educator/admin/camps'
-    | '/educator/admin/completion'
-    | '/educator/admin/demographics'
-    | '/educator/admin/import-explr'
-    | '/educator/admin/internship-logins'
-    | '/educator/admin/internships'
-    | '/educator/admin/invites'
-    | '/educator/admin/opportunities'
-    | '/educator/admin/opportunity-fields'
-    | '/educator/admin/passwords'
-    | '/educator/admin/placements'
-    | '/educator/admin/program-riasec'
-    | '/educator/admin/programs'
-    | '/educator/admin/recommendations'
-    | '/educator/admin/results'
-    | '/educator/admin/rosters'
-    | '/educator/admin/surveys'
-    | '/educator/curriculum/$slug'
-    | '/educator/internships/$slug'
-    | '/educator/invite/$token'
-    | '/educator/sessions/$sessionId'
-    | '/educator/admin/'
-    | '/educator/curriculum/'
-    | '/educator/internships/'
+    | '/instructor/admin/applications'
+    | '/instructor/admin/apply-requests'
+    | '/instructor/admin/assessments'
+    | '/instructor/admin/assign'
+    | '/instructor/admin/camp-logins'
+    | '/instructor/admin/camps'
+    | '/instructor/admin/completion'
+    | '/instructor/admin/demographics'
+    | '/instructor/admin/import-explr'
+    | '/instructor/admin/internship-logins'
+    | '/instructor/admin/internships'
+    | '/instructor/admin/invites'
+    | '/instructor/admin/opportunities'
+    | '/instructor/admin/opportunity-fields'
+    | '/instructor/admin/passwords'
+    | '/instructor/admin/placements'
+    | '/instructor/admin/program-riasec'
+    | '/instructor/admin/programs'
+    | '/instructor/admin/recommendations'
+    | '/instructor/admin/results'
+    | '/instructor/admin/rosters'
+    | '/instructor/admin/surveys'
+    | '/instructor/curriculum/$slug'
+    | '/instructor/internships/$slug'
+    | '/instructor/invite/$token'
+    | '/instructor/sessions/$sessionId'
+    | '/instructor/admin/'
+    | '/instructor/curriculum/'
+    | '/instructor/internships/'
     | '/demo/aptitude/$band/take'
-    | '/educator/admin/educators/$id'
-    | '/educator/admin/internships/'
-    | '/educator/admin/groups/$kind/$id'
-    | '/educator/admin/internships/$slug/report'
-    | '/educator/admin/groups/$kind/'
+    | '/instructor/admin/educators/$id'
+    | '/instructor/explore-cards/$kind/$id'
+    | '/instructor/admin/internships/'
+    | '/instructor/admin/groups/$kind/$id'
+    | '/instructor/admin/internships/$slug/report'
+    | '/instructor/admin/groups/$kind/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  EducatorRoute: typeof EducatorRouteWithChildren
   ExplrRostersRoute: typeof ExplrRostersRoute
-  FamilyRoute: typeof FamilyRoute
+  FamilyRoute: typeof FamilyRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  InstructorRoute: typeof InstructorRouteWithChildren
   OpportunitiesRoute: typeof OpportunitiesRoute
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -988,17 +1116,25 @@ export interface RootRouteChildren {
   WorksitesRoute: typeof WorksitesRoute
   AssessmentSessionIdRoute: typeof AssessmentSessionIdRoute
   AssessmentInternshipInterestRoute: typeof AssessmentInternshipInterestRoute
+  EducatorSplatRoute: typeof EducatorSplatRoute
+  ExploreCodeRoute: typeof ExploreCodeRoute
+  ExploreScanRoute: typeof ExploreScanRoute
+  GoTokenRoute: typeof GoTokenRoute
   LabSplatRoute: typeof LabSplatRoute
   OpportunityIdRoute: typeof OpportunityIdRoute
   OrgApplicantsRoute: typeof OrgApplicantsRoute
   OrgNewRoute: typeof OrgNewRoute
   OrgSignInRoute: typeof OrgSignInRoute
   OrgSignUpRoute: typeof OrgSignUpRoute
+  PartnerSplatRoute: typeof PartnerSplatRoute
   StudentApplyRoute: typeof StudentApplyRoute
   StudentApplyCompleteRoute: typeof StudentApplyCompleteRoute
   SurveyAssignmentIdRoute: typeof SurveyAssignmentIdRoute
   AssessmentIndexRoute: typeof AssessmentIndexRoute
+  EducatorIndexRoute: typeof EducatorIndexRoute
+  ExploreIndexRoute: typeof ExploreIndexRoute
   OrgIndexRoute: typeof OrgIndexRoute
+  PartnerIndexRoute: typeof PartnerIndexRoute
   AssessmentSessionIdResultsRoute: typeof AssessmentSessionIdResultsRoute
   AssessmentInternshipInterestResultsRoute: typeof AssessmentInternshipInterestResultsRoute
   DemoAptitudeBandTakeRoute: typeof DemoAptitudeBandTakeRoute
@@ -1020,13 +1156,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/educator': {
-      id: '/educator'
-      path: '/educator'
-      fullPath: '/educator'
-      preLoaderRoute: typeof EducatorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/explr-rosters': {
       id: '/explr-rosters'
       path: '/explr-rosters'
@@ -1046,6 +1175,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/instructor': {
+      id: '/instructor'
+      path: '/instructor'
+      fullPath: '/instructor'
+      preLoaderRoute: typeof InstructorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/opportunities': {
@@ -1162,59 +1298,108 @@ declare module '@tanstack/react-router' {
     }
     '/educator/': {
       id: '/educator/'
-      path: '/'
+      path: '/educator'
       fullPath: '/educator/'
       preLoaderRoute: typeof EducatorIndexRouteImport
-      parentRoute: typeof EducatorRoute
+      parentRoute: typeof rootRouteImport
     }
-    '/educator/admin': {
-      id: '/educator/admin'
+    '/educator/$': {
+      id: '/educator/$'
+      path: '/educator/$'
+      fullPath: '/educator/$'
+      preLoaderRoute: typeof EducatorSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/': {
+      id: '/explore/'
+      path: '/explore'
+      fullPath: '/explore/'
+      preLoaderRoute: typeof ExploreIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/$code': {
+      id: '/explore/$code'
+      path: '/explore/$code'
+      fullPath: '/explore/$code'
+      preLoaderRoute: typeof ExploreCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/scan': {
+      id: '/explore/scan'
+      path: '/explore/scan'
+      fullPath: '/explore/scan'
+      preLoaderRoute: typeof ExploreScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/family/view': {
+      id: '/family/view'
+      path: '/view'
+      fullPath: '/family/view'
+      preLoaderRoute: typeof FamilyViewRouteImport
+      parentRoute: typeof FamilyRoute
+    }
+    '/go/$token': {
+      id: '/go/$token'
+      path: '/go/$token'
+      fullPath: '/go/$token'
+      preLoaderRoute: typeof GoTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/instructor/': {
+      id: '/instructor/'
+      path: '/'
+      fullPath: '/instructor/'
+      preLoaderRoute: typeof InstructorIndexRouteImport
+      parentRoute: typeof InstructorRoute
+    }
+    '/instructor/admin': {
+      id: '/instructor/admin'
       path: '/admin'
-      fullPath: '/educator/admin'
-      preLoaderRoute: typeof EducatorAdminRouteImport
-      parentRoute: typeof EducatorRoute
+      fullPath: '/instructor/admin'
+      preLoaderRoute: typeof InstructorAdminRouteImport
+      parentRoute: typeof InstructorRoute
     }
-    '/educator/dashboard': {
-      id: '/educator/dashboard'
+    '/instructor/dashboard': {
+      id: '/instructor/dashboard'
       path: '/dashboard'
-      fullPath: '/educator/dashboard'
-      preLoaderRoute: typeof EducatorDashboardRouteImport
-      parentRoute: typeof EducatorRoute
+      fullPath: '/instructor/dashboard'
+      preLoaderRoute: typeof InstructorDashboardRouteImport
+      parentRoute: typeof InstructorRoute
     }
-    '/educator/login-display': {
-      id: '/educator/login-display'
+    '/instructor/login-display': {
+      id: '/instructor/login-display'
       path: '/login-display'
-      fullPath: '/educator/login-display'
-      preLoaderRoute: typeof EducatorLoginDisplayRouteImport
-      parentRoute: typeof EducatorRoute
+      fullPath: '/instructor/login-display'
+      preLoaderRoute: typeof InstructorLoginDisplayRouteImport
+      parentRoute: typeof InstructorRoute
     }
-    '/educator/sign-in': {
-      id: '/educator/sign-in'
+    '/instructor/sign-in': {
+      id: '/instructor/sign-in'
       path: '/sign-in'
-      fullPath: '/educator/sign-in'
-      preLoaderRoute: typeof EducatorSignInRouteImport
-      parentRoute: typeof EducatorRoute
+      fullPath: '/instructor/sign-in'
+      preLoaderRoute: typeof InstructorSignInRouteImport
+      parentRoute: typeof InstructorRoute
     }
-    '/educator/sign-up': {
-      id: '/educator/sign-up'
+    '/instructor/sign-up': {
+      id: '/instructor/sign-up'
       path: '/sign-up'
-      fullPath: '/educator/sign-up'
-      preLoaderRoute: typeof EducatorSignUpRouteImport
-      parentRoute: typeof EducatorRoute
+      fullPath: '/instructor/sign-up'
+      preLoaderRoute: typeof InstructorSignUpRouteImport
+      parentRoute: typeof InstructorRoute
     }
-    '/educator/students': {
-      id: '/educator/students'
+    '/instructor/students': {
+      id: '/instructor/students'
       path: '/students'
-      fullPath: '/educator/students'
-      preLoaderRoute: typeof EducatorStudentsRouteImport
-      parentRoute: typeof EducatorRoute
+      fullPath: '/instructor/students'
+      preLoaderRoute: typeof InstructorStudentsRouteImport
+      parentRoute: typeof InstructorRoute
     }
-    '/educator/worksite': {
-      id: '/educator/worksite'
+    '/instructor/worksite': {
+      id: '/instructor/worksite'
       path: '/worksite'
-      fullPath: '/educator/worksite'
-      preLoaderRoute: typeof EducatorWorksiteRouteImport
-      parentRoute: typeof EducatorRoute
+      fullPath: '/instructor/worksite'
+      preLoaderRoute: typeof InstructorWorksiteRouteImport
+      parentRoute: typeof InstructorRoute
     }
     '/lab/$': {
       id: '/lab/$'
@@ -1265,6 +1450,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgSignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/partner/': {
+      id: '/partner/'
+      path: '/partner'
+      fullPath: '/partner/'
+      preLoaderRoute: typeof PartnerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partner/$': {
+      id: '/partner/$'
+      path: '/partner/$'
+      fullPath: '/partner/$'
+      preLoaderRoute: typeof PartnerSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/student_/apply': {
       id: '/student_/apply'
       path: '/student/apply'
@@ -1300,208 +1499,208 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssessmentInternshipInterestResultsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/educator/admin/': {
-      id: '/educator/admin/'
+    '/instructor/admin/': {
+      id: '/instructor/admin/'
       path: '/'
-      fullPath: '/educator/admin/'
-      preLoaderRoute: typeof EducatorAdminIndexRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/'
+      preLoaderRoute: typeof InstructorAdminIndexRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/applications': {
-      id: '/educator/admin/applications'
+    '/instructor/admin/applications': {
+      id: '/instructor/admin/applications'
       path: '/applications'
-      fullPath: '/educator/admin/applications'
-      preLoaderRoute: typeof EducatorAdminApplicationsRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/applications'
+      preLoaderRoute: typeof InstructorAdminApplicationsRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/apply-requests': {
-      id: '/educator/admin/apply-requests'
+    '/instructor/admin/apply-requests': {
+      id: '/instructor/admin/apply-requests'
       path: '/apply-requests'
-      fullPath: '/educator/admin/apply-requests'
-      preLoaderRoute: typeof EducatorAdminApplyRequestsRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/apply-requests'
+      preLoaderRoute: typeof InstructorAdminApplyRequestsRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/assessments': {
-      id: '/educator/admin/assessments'
+    '/instructor/admin/assessments': {
+      id: '/instructor/admin/assessments'
       path: '/assessments'
-      fullPath: '/educator/admin/assessments'
-      preLoaderRoute: typeof EducatorAdminAssessmentsRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/assessments'
+      preLoaderRoute: typeof InstructorAdminAssessmentsRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/assign': {
-      id: '/educator/admin/assign'
+    '/instructor/admin/assign': {
+      id: '/instructor/admin/assign'
       path: '/assign'
-      fullPath: '/educator/admin/assign'
-      preLoaderRoute: typeof EducatorAdminAssignRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/assign'
+      preLoaderRoute: typeof InstructorAdminAssignRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/camp-logins': {
-      id: '/educator/admin/camp-logins'
+    '/instructor/admin/camp-logins': {
+      id: '/instructor/admin/camp-logins'
       path: '/camp-logins'
-      fullPath: '/educator/admin/camp-logins'
-      preLoaderRoute: typeof EducatorAdminCampLoginsRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/camp-logins'
+      preLoaderRoute: typeof InstructorAdminCampLoginsRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/camps': {
-      id: '/educator/admin/camps'
+    '/instructor/admin/camps': {
+      id: '/instructor/admin/camps'
       path: '/camps'
-      fullPath: '/educator/admin/camps'
-      preLoaderRoute: typeof EducatorAdminCampsRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/camps'
+      preLoaderRoute: typeof InstructorAdminCampsRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/completion': {
-      id: '/educator/admin/completion'
+    '/instructor/admin/completion': {
+      id: '/instructor/admin/completion'
       path: '/completion'
-      fullPath: '/educator/admin/completion'
-      preLoaderRoute: typeof EducatorAdminCompletionRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/completion'
+      preLoaderRoute: typeof InstructorAdminCompletionRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/demographics': {
-      id: '/educator/admin/demographics'
+    '/instructor/admin/demographics': {
+      id: '/instructor/admin/demographics'
       path: '/demographics'
-      fullPath: '/educator/admin/demographics'
-      preLoaderRoute: typeof EducatorAdminDemographicsRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/demographics'
+      preLoaderRoute: typeof InstructorAdminDemographicsRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/import-explr': {
-      id: '/educator/admin/import-explr'
+    '/instructor/admin/import-explr': {
+      id: '/instructor/admin/import-explr'
       path: '/import-explr'
-      fullPath: '/educator/admin/import-explr'
-      preLoaderRoute: typeof EducatorAdminImportExplrRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/import-explr'
+      preLoaderRoute: typeof InstructorAdminImportExplrRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/internship-logins': {
-      id: '/educator/admin/internship-logins'
+    '/instructor/admin/internship-logins': {
+      id: '/instructor/admin/internship-logins'
       path: '/internship-logins'
-      fullPath: '/educator/admin/internship-logins'
-      preLoaderRoute: typeof EducatorAdminInternshipLoginsRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/internship-logins'
+      preLoaderRoute: typeof InstructorAdminInternshipLoginsRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/internships': {
-      id: '/educator/admin/internships'
+    '/instructor/admin/internships': {
+      id: '/instructor/admin/internships'
       path: '/internships'
-      fullPath: '/educator/admin/internships'
-      preLoaderRoute: typeof EducatorAdminInternshipsRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/internships'
+      preLoaderRoute: typeof InstructorAdminInternshipsRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/invites': {
-      id: '/educator/admin/invites'
+    '/instructor/admin/invites': {
+      id: '/instructor/admin/invites'
       path: '/invites'
-      fullPath: '/educator/admin/invites'
-      preLoaderRoute: typeof EducatorAdminInvitesRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/invites'
+      preLoaderRoute: typeof InstructorAdminInvitesRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/opportunities': {
-      id: '/educator/admin/opportunities'
+    '/instructor/admin/opportunities': {
+      id: '/instructor/admin/opportunities'
       path: '/opportunities'
-      fullPath: '/educator/admin/opportunities'
-      preLoaderRoute: typeof EducatorAdminOpportunitiesRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/opportunities'
+      preLoaderRoute: typeof InstructorAdminOpportunitiesRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/opportunity-fields': {
-      id: '/educator/admin/opportunity-fields'
+    '/instructor/admin/opportunity-fields': {
+      id: '/instructor/admin/opportunity-fields'
       path: '/opportunity-fields'
-      fullPath: '/educator/admin/opportunity-fields'
-      preLoaderRoute: typeof EducatorAdminOpportunityFieldsRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/opportunity-fields'
+      preLoaderRoute: typeof InstructorAdminOpportunityFieldsRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/passwords': {
-      id: '/educator/admin/passwords'
+    '/instructor/admin/passwords': {
+      id: '/instructor/admin/passwords'
       path: '/passwords'
-      fullPath: '/educator/admin/passwords'
-      preLoaderRoute: typeof EducatorAdminPasswordsRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/passwords'
+      preLoaderRoute: typeof InstructorAdminPasswordsRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/placements': {
-      id: '/educator/admin/placements'
+    '/instructor/admin/placements': {
+      id: '/instructor/admin/placements'
       path: '/placements'
-      fullPath: '/educator/admin/placements'
-      preLoaderRoute: typeof EducatorAdminPlacementsRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/placements'
+      preLoaderRoute: typeof InstructorAdminPlacementsRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/program-riasec': {
-      id: '/educator/admin/program-riasec'
+    '/instructor/admin/program-riasec': {
+      id: '/instructor/admin/program-riasec'
       path: '/program-riasec'
-      fullPath: '/educator/admin/program-riasec'
-      preLoaderRoute: typeof EducatorAdminProgramRiasecRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/program-riasec'
+      preLoaderRoute: typeof InstructorAdminProgramRiasecRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/programs': {
-      id: '/educator/admin/programs'
+    '/instructor/admin/programs': {
+      id: '/instructor/admin/programs'
       path: '/programs'
-      fullPath: '/educator/admin/programs'
-      preLoaderRoute: typeof EducatorAdminProgramsRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/programs'
+      preLoaderRoute: typeof InstructorAdminProgramsRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/recommendations': {
-      id: '/educator/admin/recommendations'
+    '/instructor/admin/recommendations': {
+      id: '/instructor/admin/recommendations'
       path: '/recommendations'
-      fullPath: '/educator/admin/recommendations'
-      preLoaderRoute: typeof EducatorAdminRecommendationsRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/recommendations'
+      preLoaderRoute: typeof InstructorAdminRecommendationsRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/results': {
-      id: '/educator/admin/results'
+    '/instructor/admin/results': {
+      id: '/instructor/admin/results'
       path: '/results'
-      fullPath: '/educator/admin/results'
-      preLoaderRoute: typeof EducatorAdminResultsRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/results'
+      preLoaderRoute: typeof InstructorAdminResultsRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/rosters': {
-      id: '/educator/admin/rosters'
+    '/instructor/admin/rosters': {
+      id: '/instructor/admin/rosters'
       path: '/rosters'
-      fullPath: '/educator/admin/rosters'
-      preLoaderRoute: typeof EducatorAdminRostersRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/rosters'
+      preLoaderRoute: typeof InstructorAdminRostersRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/surveys': {
-      id: '/educator/admin/surveys'
+    '/instructor/admin/surveys': {
+      id: '/instructor/admin/surveys'
       path: '/surveys'
-      fullPath: '/educator/admin/surveys'
-      preLoaderRoute: typeof EducatorAdminSurveysRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/surveys'
+      preLoaderRoute: typeof InstructorAdminSurveysRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/curriculum/': {
-      id: '/educator/curriculum/'
+    '/instructor/curriculum/': {
+      id: '/instructor/curriculum/'
       path: '/curriculum'
-      fullPath: '/educator/curriculum/'
-      preLoaderRoute: typeof EducatorCurriculumIndexRouteImport
-      parentRoute: typeof EducatorRoute
+      fullPath: '/instructor/curriculum/'
+      preLoaderRoute: typeof InstructorCurriculumIndexRouteImport
+      parentRoute: typeof InstructorRoute
     }
-    '/educator/curriculum/$slug': {
-      id: '/educator/curriculum/$slug'
+    '/instructor/curriculum/$slug': {
+      id: '/instructor/curriculum/$slug'
       path: '/curriculum/$slug'
-      fullPath: '/educator/curriculum/$slug'
-      preLoaderRoute: typeof EducatorCurriculumSlugRouteImport
-      parentRoute: typeof EducatorRoute
+      fullPath: '/instructor/curriculum/$slug'
+      preLoaderRoute: typeof InstructorCurriculumSlugRouteImport
+      parentRoute: typeof InstructorRoute
     }
-    '/educator/internships/': {
-      id: '/educator/internships/'
+    '/instructor/internships/': {
+      id: '/instructor/internships/'
       path: '/internships'
-      fullPath: '/educator/internships/'
-      preLoaderRoute: typeof EducatorInternshipsIndexRouteImport
-      parentRoute: typeof EducatorRoute
+      fullPath: '/instructor/internships/'
+      preLoaderRoute: typeof InstructorInternshipsIndexRouteImport
+      parentRoute: typeof InstructorRoute
     }
-    '/educator/internships/$slug': {
-      id: '/educator/internships/$slug'
+    '/instructor/internships/$slug': {
+      id: '/instructor/internships/$slug'
       path: '/internships/$slug'
-      fullPath: '/educator/internships/$slug'
-      preLoaderRoute: typeof EducatorInternshipsSlugRouteImport
-      parentRoute: typeof EducatorRoute
+      fullPath: '/instructor/internships/$slug'
+      preLoaderRoute: typeof InstructorInternshipsSlugRouteImport
+      parentRoute: typeof InstructorRoute
     }
-    '/educator/invite/$token': {
-      id: '/educator/invite/$token'
+    '/instructor/invite/$token': {
+      id: '/instructor/invite/$token'
       path: '/invite/$token'
-      fullPath: '/educator/invite/$token'
-      preLoaderRoute: typeof EducatorInviteTokenRouteImport
-      parentRoute: typeof EducatorRoute
+      fullPath: '/instructor/invite/$token'
+      preLoaderRoute: typeof InstructorInviteTokenRouteImport
+      parentRoute: typeof InstructorRoute
     }
-    '/educator/sessions/$sessionId': {
-      id: '/educator/sessions/$sessionId'
+    '/instructor/sessions/$sessionId': {
+      id: '/instructor/sessions/$sessionId'
       path: '/sessions/$sessionId'
-      fullPath: '/educator/sessions/$sessionId'
-      preLoaderRoute: typeof EducatorSessionsSessionIdRouteImport
-      parentRoute: typeof EducatorRoute
+      fullPath: '/instructor/sessions/$sessionId'
+      preLoaderRoute: typeof InstructorSessionsSessionIdRouteImport
+      parentRoute: typeof InstructorRoute
     }
     '/demo/aptitude/$band/take': {
       id: '/demo/aptitude/$band/take'
@@ -1510,168 +1709,188 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoAptitudeBandTakeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/educator/admin/educators/$id': {
-      id: '/educator/admin/educators/$id'
+    '/instructor/admin/educators/$id': {
+      id: '/instructor/admin/educators/$id'
       path: '/educators/$id'
-      fullPath: '/educator/admin/educators/$id'
-      preLoaderRoute: typeof EducatorAdminEducatorsIdRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/educators/$id'
+      preLoaderRoute: typeof InstructorAdminEducatorsIdRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/internships/': {
-      id: '/educator/admin/internships/'
+    '/instructor/admin/internships/': {
+      id: '/instructor/admin/internships/'
       path: '/'
-      fullPath: '/educator/admin/internships/'
-      preLoaderRoute: typeof EducatorAdminInternshipsIndexRouteImport
-      parentRoute: typeof EducatorAdminInternshipsRoute
+      fullPath: '/instructor/admin/internships/'
+      preLoaderRoute: typeof InstructorAdminInternshipsIndexRouteImport
+      parentRoute: typeof InstructorAdminInternshipsRoute
     }
-    '/educator/admin/groups/$kind/': {
-      id: '/educator/admin/groups/$kind/'
+    '/instructor/explore-cards/$kind/$id': {
+      id: '/instructor/explore-cards/$kind/$id'
+      path: '/explore-cards/$kind/$id'
+      fullPath: '/instructor/explore-cards/$kind/$id'
+      preLoaderRoute: typeof InstructorExploreCardsKindIdRouteImport
+      parentRoute: typeof InstructorRoute
+    }
+    '/instructor/admin/groups/$kind/': {
+      id: '/instructor/admin/groups/$kind/'
       path: '/groups/$kind'
-      fullPath: '/educator/admin/groups/$kind/'
-      preLoaderRoute: typeof EducatorAdminGroupsKindIndexRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/groups/$kind/'
+      preLoaderRoute: typeof InstructorAdminGroupsKindIndexRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/groups/$kind/$id': {
-      id: '/educator/admin/groups/$kind/$id'
+    '/instructor/admin/groups/$kind/$id': {
+      id: '/instructor/admin/groups/$kind/$id'
       path: '/groups/$kind/$id'
-      fullPath: '/educator/admin/groups/$kind/$id'
-      preLoaderRoute: typeof EducatorAdminGroupsKindIdRouteImport
-      parentRoute: typeof EducatorAdminRoute
+      fullPath: '/instructor/admin/groups/$kind/$id'
+      preLoaderRoute: typeof InstructorAdminGroupsKindIdRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/educator/admin/internships/$slug/report': {
-      id: '/educator/admin/internships/$slug/report'
+    '/instructor/admin/internships/$slug/report': {
+      id: '/instructor/admin/internships/$slug/report'
       path: '/$slug/report'
-      fullPath: '/educator/admin/internships/$slug/report'
-      preLoaderRoute: typeof EducatorAdminInternshipsSlugReportRouteImport
-      parentRoute: typeof EducatorAdminInternshipsRoute
+      fullPath: '/instructor/admin/internships/$slug/report'
+      preLoaderRoute: typeof InstructorAdminInternshipsSlugReportRouteImport
+      parentRoute: typeof InstructorAdminInternshipsRoute
     }
   }
 }
 
-interface EducatorAdminInternshipsRouteChildren {
-  EducatorAdminInternshipsIndexRoute: typeof EducatorAdminInternshipsIndexRoute
-  EducatorAdminInternshipsSlugReportRoute: typeof EducatorAdminInternshipsSlugReportRoute
+interface FamilyRouteChildren {
+  FamilyViewRoute: typeof FamilyViewRoute
 }
 
-const EducatorAdminInternshipsRouteChildren: EducatorAdminInternshipsRouteChildren =
+const FamilyRouteChildren: FamilyRouteChildren = {
+  FamilyViewRoute: FamilyViewRoute,
+}
+
+const FamilyRouteWithChildren =
+  FamilyRoute._addFileChildren(FamilyRouteChildren)
+
+interface InstructorAdminInternshipsRouteChildren {
+  InstructorAdminInternshipsIndexRoute: typeof InstructorAdminInternshipsIndexRoute
+  InstructorAdminInternshipsSlugReportRoute: typeof InstructorAdminInternshipsSlugReportRoute
+}
+
+const InstructorAdminInternshipsRouteChildren: InstructorAdminInternshipsRouteChildren =
   {
-    EducatorAdminInternshipsIndexRoute: EducatorAdminInternshipsIndexRoute,
-    EducatorAdminInternshipsSlugReportRoute:
-      EducatorAdminInternshipsSlugReportRoute,
+    InstructorAdminInternshipsIndexRoute: InstructorAdminInternshipsIndexRoute,
+    InstructorAdminInternshipsSlugReportRoute:
+      InstructorAdminInternshipsSlugReportRoute,
   }
 
-const EducatorAdminInternshipsRouteWithChildren =
-  EducatorAdminInternshipsRoute._addFileChildren(
-    EducatorAdminInternshipsRouteChildren,
+const InstructorAdminInternshipsRouteWithChildren =
+  InstructorAdminInternshipsRoute._addFileChildren(
+    InstructorAdminInternshipsRouteChildren,
   )
 
-interface EducatorAdminRouteChildren {
-  EducatorAdminApplicationsRoute: typeof EducatorAdminApplicationsRoute
-  EducatorAdminApplyRequestsRoute: typeof EducatorAdminApplyRequestsRoute
-  EducatorAdminAssessmentsRoute: typeof EducatorAdminAssessmentsRoute
-  EducatorAdminAssignRoute: typeof EducatorAdminAssignRoute
-  EducatorAdminCampLoginsRoute: typeof EducatorAdminCampLoginsRoute
-  EducatorAdminCampsRoute: typeof EducatorAdminCampsRoute
-  EducatorAdminCompletionRoute: typeof EducatorAdminCompletionRoute
-  EducatorAdminDemographicsRoute: typeof EducatorAdminDemographicsRoute
-  EducatorAdminImportExplrRoute: typeof EducatorAdminImportExplrRoute
-  EducatorAdminInternshipLoginsRoute: typeof EducatorAdminInternshipLoginsRoute
-  EducatorAdminInternshipsRoute: typeof EducatorAdminInternshipsRouteWithChildren
-  EducatorAdminInvitesRoute: typeof EducatorAdminInvitesRoute
-  EducatorAdminOpportunitiesRoute: typeof EducatorAdminOpportunitiesRoute
-  EducatorAdminOpportunityFieldsRoute: typeof EducatorAdminOpportunityFieldsRoute
-  EducatorAdminPasswordsRoute: typeof EducatorAdminPasswordsRoute
-  EducatorAdminPlacementsRoute: typeof EducatorAdminPlacementsRoute
-  EducatorAdminProgramRiasecRoute: typeof EducatorAdminProgramRiasecRoute
-  EducatorAdminProgramsRoute: typeof EducatorAdminProgramsRoute
-  EducatorAdminRecommendationsRoute: typeof EducatorAdminRecommendationsRoute
-  EducatorAdminResultsRoute: typeof EducatorAdminResultsRoute
-  EducatorAdminRostersRoute: typeof EducatorAdminRostersRoute
-  EducatorAdminSurveysRoute: typeof EducatorAdminSurveysRoute
-  EducatorAdminIndexRoute: typeof EducatorAdminIndexRoute
-  EducatorAdminEducatorsIdRoute: typeof EducatorAdminEducatorsIdRoute
-  EducatorAdminGroupsKindIdRoute: typeof EducatorAdminGroupsKindIdRoute
-  EducatorAdminGroupsKindIndexRoute: typeof EducatorAdminGroupsKindIndexRoute
+interface InstructorAdminRouteChildren {
+  InstructorAdminApplicationsRoute: typeof InstructorAdminApplicationsRoute
+  InstructorAdminApplyRequestsRoute: typeof InstructorAdminApplyRequestsRoute
+  InstructorAdminAssessmentsRoute: typeof InstructorAdminAssessmentsRoute
+  InstructorAdminAssignRoute: typeof InstructorAdminAssignRoute
+  InstructorAdminCampLoginsRoute: typeof InstructorAdminCampLoginsRoute
+  InstructorAdminCampsRoute: typeof InstructorAdminCampsRoute
+  InstructorAdminCompletionRoute: typeof InstructorAdminCompletionRoute
+  InstructorAdminDemographicsRoute: typeof InstructorAdminDemographicsRoute
+  InstructorAdminImportExplrRoute: typeof InstructorAdminImportExplrRoute
+  InstructorAdminInternshipLoginsRoute: typeof InstructorAdminInternshipLoginsRoute
+  InstructorAdminInternshipsRoute: typeof InstructorAdminInternshipsRouteWithChildren
+  InstructorAdminInvitesRoute: typeof InstructorAdminInvitesRoute
+  InstructorAdminOpportunitiesRoute: typeof InstructorAdminOpportunitiesRoute
+  InstructorAdminOpportunityFieldsRoute: typeof InstructorAdminOpportunityFieldsRoute
+  InstructorAdminPasswordsRoute: typeof InstructorAdminPasswordsRoute
+  InstructorAdminPlacementsRoute: typeof InstructorAdminPlacementsRoute
+  InstructorAdminProgramRiasecRoute: typeof InstructorAdminProgramRiasecRoute
+  InstructorAdminProgramsRoute: typeof InstructorAdminProgramsRoute
+  InstructorAdminRecommendationsRoute: typeof InstructorAdminRecommendationsRoute
+  InstructorAdminResultsRoute: typeof InstructorAdminResultsRoute
+  InstructorAdminRostersRoute: typeof InstructorAdminRostersRoute
+  InstructorAdminSurveysRoute: typeof InstructorAdminSurveysRoute
+  InstructorAdminIndexRoute: typeof InstructorAdminIndexRoute
+  InstructorAdminEducatorsIdRoute: typeof InstructorAdminEducatorsIdRoute
+  InstructorAdminGroupsKindIdRoute: typeof InstructorAdminGroupsKindIdRoute
+  InstructorAdminGroupsKindIndexRoute: typeof InstructorAdminGroupsKindIndexRoute
 }
 
-const EducatorAdminRouteChildren: EducatorAdminRouteChildren = {
-  EducatorAdminApplicationsRoute: EducatorAdminApplicationsRoute,
-  EducatorAdminApplyRequestsRoute: EducatorAdminApplyRequestsRoute,
-  EducatorAdminAssessmentsRoute: EducatorAdminAssessmentsRoute,
-  EducatorAdminAssignRoute: EducatorAdminAssignRoute,
-  EducatorAdminCampLoginsRoute: EducatorAdminCampLoginsRoute,
-  EducatorAdminCampsRoute: EducatorAdminCampsRoute,
-  EducatorAdminCompletionRoute: EducatorAdminCompletionRoute,
-  EducatorAdminDemographicsRoute: EducatorAdminDemographicsRoute,
-  EducatorAdminImportExplrRoute: EducatorAdminImportExplrRoute,
-  EducatorAdminInternshipLoginsRoute: EducatorAdminInternshipLoginsRoute,
-  EducatorAdminInternshipsRoute: EducatorAdminInternshipsRouteWithChildren,
-  EducatorAdminInvitesRoute: EducatorAdminInvitesRoute,
-  EducatorAdminOpportunitiesRoute: EducatorAdminOpportunitiesRoute,
-  EducatorAdminOpportunityFieldsRoute: EducatorAdminOpportunityFieldsRoute,
-  EducatorAdminPasswordsRoute: EducatorAdminPasswordsRoute,
-  EducatorAdminPlacementsRoute: EducatorAdminPlacementsRoute,
-  EducatorAdminProgramRiasecRoute: EducatorAdminProgramRiasecRoute,
-  EducatorAdminProgramsRoute: EducatorAdminProgramsRoute,
-  EducatorAdminRecommendationsRoute: EducatorAdminRecommendationsRoute,
-  EducatorAdminResultsRoute: EducatorAdminResultsRoute,
-  EducatorAdminRostersRoute: EducatorAdminRostersRoute,
-  EducatorAdminSurveysRoute: EducatorAdminSurveysRoute,
-  EducatorAdminIndexRoute: EducatorAdminIndexRoute,
-  EducatorAdminEducatorsIdRoute: EducatorAdminEducatorsIdRoute,
-  EducatorAdminGroupsKindIdRoute: EducatorAdminGroupsKindIdRoute,
-  EducatorAdminGroupsKindIndexRoute: EducatorAdminGroupsKindIndexRoute,
+const InstructorAdminRouteChildren: InstructorAdminRouteChildren = {
+  InstructorAdminApplicationsRoute: InstructorAdminApplicationsRoute,
+  InstructorAdminApplyRequestsRoute: InstructorAdminApplyRequestsRoute,
+  InstructorAdminAssessmentsRoute: InstructorAdminAssessmentsRoute,
+  InstructorAdminAssignRoute: InstructorAdminAssignRoute,
+  InstructorAdminCampLoginsRoute: InstructorAdminCampLoginsRoute,
+  InstructorAdminCampsRoute: InstructorAdminCampsRoute,
+  InstructorAdminCompletionRoute: InstructorAdminCompletionRoute,
+  InstructorAdminDemographicsRoute: InstructorAdminDemographicsRoute,
+  InstructorAdminImportExplrRoute: InstructorAdminImportExplrRoute,
+  InstructorAdminInternshipLoginsRoute: InstructorAdminInternshipLoginsRoute,
+  InstructorAdminInternshipsRoute: InstructorAdminInternshipsRouteWithChildren,
+  InstructorAdminInvitesRoute: InstructorAdminInvitesRoute,
+  InstructorAdminOpportunitiesRoute: InstructorAdminOpportunitiesRoute,
+  InstructorAdminOpportunityFieldsRoute: InstructorAdminOpportunityFieldsRoute,
+  InstructorAdminPasswordsRoute: InstructorAdminPasswordsRoute,
+  InstructorAdminPlacementsRoute: InstructorAdminPlacementsRoute,
+  InstructorAdminProgramRiasecRoute: InstructorAdminProgramRiasecRoute,
+  InstructorAdminProgramsRoute: InstructorAdminProgramsRoute,
+  InstructorAdminRecommendationsRoute: InstructorAdminRecommendationsRoute,
+  InstructorAdminResultsRoute: InstructorAdminResultsRoute,
+  InstructorAdminRostersRoute: InstructorAdminRostersRoute,
+  InstructorAdminSurveysRoute: InstructorAdminSurveysRoute,
+  InstructorAdminIndexRoute: InstructorAdminIndexRoute,
+  InstructorAdminEducatorsIdRoute: InstructorAdminEducatorsIdRoute,
+  InstructorAdminGroupsKindIdRoute: InstructorAdminGroupsKindIdRoute,
+  InstructorAdminGroupsKindIndexRoute: InstructorAdminGroupsKindIndexRoute,
 }
 
-const EducatorAdminRouteWithChildren = EducatorAdminRoute._addFileChildren(
-  EducatorAdminRouteChildren,
+const InstructorAdminRouteWithChildren = InstructorAdminRoute._addFileChildren(
+  InstructorAdminRouteChildren,
 )
 
-interface EducatorRouteChildren {
-  EducatorAdminRoute: typeof EducatorAdminRouteWithChildren
-  EducatorDashboardRoute: typeof EducatorDashboardRoute
-  EducatorLoginDisplayRoute: typeof EducatorLoginDisplayRoute
-  EducatorSignInRoute: typeof EducatorSignInRoute
-  EducatorSignUpRoute: typeof EducatorSignUpRoute
-  EducatorStudentsRoute: typeof EducatorStudentsRoute
-  EducatorWorksiteRoute: typeof EducatorWorksiteRoute
-  EducatorIndexRoute: typeof EducatorIndexRoute
-  EducatorCurriculumSlugRoute: typeof EducatorCurriculumSlugRoute
-  EducatorInternshipsSlugRoute: typeof EducatorInternshipsSlugRoute
-  EducatorInviteTokenRoute: typeof EducatorInviteTokenRoute
-  EducatorSessionsSessionIdRoute: typeof EducatorSessionsSessionIdRoute
-  EducatorCurriculumIndexRoute: typeof EducatorCurriculumIndexRoute
-  EducatorInternshipsIndexRoute: typeof EducatorInternshipsIndexRoute
+interface InstructorRouteChildren {
+  InstructorAdminRoute: typeof InstructorAdminRouteWithChildren
+  InstructorDashboardRoute: typeof InstructorDashboardRoute
+  InstructorLoginDisplayRoute: typeof InstructorLoginDisplayRoute
+  InstructorSignInRoute: typeof InstructorSignInRoute
+  InstructorSignUpRoute: typeof InstructorSignUpRoute
+  InstructorStudentsRoute: typeof InstructorStudentsRoute
+  InstructorWorksiteRoute: typeof InstructorWorksiteRoute
+  InstructorIndexRoute: typeof InstructorIndexRoute
+  InstructorCurriculumSlugRoute: typeof InstructorCurriculumSlugRoute
+  InstructorInternshipsSlugRoute: typeof InstructorInternshipsSlugRoute
+  InstructorInviteTokenRoute: typeof InstructorInviteTokenRoute
+  InstructorSessionsSessionIdRoute: typeof InstructorSessionsSessionIdRoute
+  InstructorCurriculumIndexRoute: typeof InstructorCurriculumIndexRoute
+  InstructorInternshipsIndexRoute: typeof InstructorInternshipsIndexRoute
+  InstructorExploreCardsKindIdRoute: typeof InstructorExploreCardsKindIdRoute
 }
 
-const EducatorRouteChildren: EducatorRouteChildren = {
-  EducatorAdminRoute: EducatorAdminRouteWithChildren,
-  EducatorDashboardRoute: EducatorDashboardRoute,
-  EducatorLoginDisplayRoute: EducatorLoginDisplayRoute,
-  EducatorSignInRoute: EducatorSignInRoute,
-  EducatorSignUpRoute: EducatorSignUpRoute,
-  EducatorStudentsRoute: EducatorStudentsRoute,
-  EducatorWorksiteRoute: EducatorWorksiteRoute,
-  EducatorIndexRoute: EducatorIndexRoute,
-  EducatorCurriculumSlugRoute: EducatorCurriculumSlugRoute,
-  EducatorInternshipsSlugRoute: EducatorInternshipsSlugRoute,
-  EducatorInviteTokenRoute: EducatorInviteTokenRoute,
-  EducatorSessionsSessionIdRoute: EducatorSessionsSessionIdRoute,
-  EducatorCurriculumIndexRoute: EducatorCurriculumIndexRoute,
-  EducatorInternshipsIndexRoute: EducatorInternshipsIndexRoute,
+const InstructorRouteChildren: InstructorRouteChildren = {
+  InstructorAdminRoute: InstructorAdminRouteWithChildren,
+  InstructorDashboardRoute: InstructorDashboardRoute,
+  InstructorLoginDisplayRoute: InstructorLoginDisplayRoute,
+  InstructorSignInRoute: InstructorSignInRoute,
+  InstructorSignUpRoute: InstructorSignUpRoute,
+  InstructorStudentsRoute: InstructorStudentsRoute,
+  InstructorWorksiteRoute: InstructorWorksiteRoute,
+  InstructorIndexRoute: InstructorIndexRoute,
+  InstructorCurriculumSlugRoute: InstructorCurriculumSlugRoute,
+  InstructorInternshipsSlugRoute: InstructorInternshipsSlugRoute,
+  InstructorInviteTokenRoute: InstructorInviteTokenRoute,
+  InstructorSessionsSessionIdRoute: InstructorSessionsSessionIdRoute,
+  InstructorCurriculumIndexRoute: InstructorCurriculumIndexRoute,
+  InstructorInternshipsIndexRoute: InstructorInternshipsIndexRoute,
+  InstructorExploreCardsKindIdRoute: InstructorExploreCardsKindIdRoute,
 }
 
-const EducatorRouteWithChildren = EducatorRoute._addFileChildren(
-  EducatorRouteChildren,
+const InstructorRouteWithChildren = InstructorRoute._addFileChildren(
+  InstructorRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  EducatorRoute: EducatorRouteWithChildren,
   ExplrRostersRoute: ExplrRostersRoute,
-  FamilyRoute: FamilyRoute,
+  FamilyRoute: FamilyRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  InstructorRoute: InstructorRouteWithChildren,
   OpportunitiesRoute: OpportunitiesRoute,
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
@@ -1687,17 +1906,25 @@ const rootRouteChildren: RootRouteChildren = {
   WorksitesRoute: WorksitesRoute,
   AssessmentSessionIdRoute: AssessmentSessionIdRoute,
   AssessmentInternshipInterestRoute: AssessmentInternshipInterestRoute,
+  EducatorSplatRoute: EducatorSplatRoute,
+  ExploreCodeRoute: ExploreCodeRoute,
+  ExploreScanRoute: ExploreScanRoute,
+  GoTokenRoute: GoTokenRoute,
   LabSplatRoute: LabSplatRoute,
   OpportunityIdRoute: OpportunityIdRoute,
   OrgApplicantsRoute: OrgApplicantsRoute,
   OrgNewRoute: OrgNewRoute,
   OrgSignInRoute: OrgSignInRoute,
   OrgSignUpRoute: OrgSignUpRoute,
+  PartnerSplatRoute: PartnerSplatRoute,
   StudentApplyRoute: StudentApplyRoute,
   StudentApplyCompleteRoute: StudentApplyCompleteRoute,
   SurveyAssignmentIdRoute: SurveyAssignmentIdRoute,
   AssessmentIndexRoute: AssessmentIndexRoute,
+  EducatorIndexRoute: EducatorIndexRoute,
+  ExploreIndexRoute: ExploreIndexRoute,
   OrgIndexRoute: OrgIndexRoute,
+  PartnerIndexRoute: PartnerIndexRoute,
   AssessmentSessionIdResultsRoute: AssessmentSessionIdResultsRoute,
   AssessmentInternshipInterestResultsRoute:
     AssessmentInternshipInterestResultsRoute,

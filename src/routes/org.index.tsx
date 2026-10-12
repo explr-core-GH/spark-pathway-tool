@@ -3,15 +3,13 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { OrgGuard } from "@/components/OrgGuard";
 import { useOrg } from "@/lib/auth";
-import {
-  oppTypeMeta,
-  STATUS_LABEL,
-  type Opportunity,
-} from "@/lib/opportunities";
+import { oppTypeMeta, STATUS_LABEL, type Opportunity } from "@/lib/opportunities";
 
 export const Route = createFileRoute("/org/")({
-  head: () => ({ meta: [{ title: "Your organization — EXPLR" }] }),
-  component: () => <OrgGuard>{(org) => <OrgHome orgName={org.name} logo={org.logo_url} />}</OrgGuard>,
+  head: () => ({ meta: [{ title: "Partner portal — EXPLR" }] }),
+  component: () => (
+    <OrgGuard>{(org) => <OrgHome orgName={org.name} logo={org.logo_url} />}</OrgGuard>
+  ),
 });
 
 const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
@@ -64,7 +62,7 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
             </div>
           )}
           <div>
-            <p className="eyebrow">Organization</p>
+            <p className="eyebrow">Partner portal</p>
             <h1 className="text-2xl font-light">{orgName}</h1>
           </div>
         </div>
@@ -107,12 +105,12 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
                     <p className="truncate text-xs text-charcoal-500">
                       {oppTypeMeta(o.type).label}
                       {o.start_date ? ` · ${o.start_date}` : ""}
-                      {o.review_notes && o.status === "rejected"
-                        ? ` · ${o.review_notes}`
-                        : ""}
+                      {o.review_notes && o.status === "rejected" ? ` · ${o.review_notes}` : ""}
                     </p>
                   </div>
-                  <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${STATUS_STYLE[o.status]}`}>
+                  <span
+                    className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${STATUS_STYLE[o.status]}`}
+                  >
                     {STATUS_LABEL[o.status]}
                   </span>
                 </Link>
@@ -129,16 +127,16 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
         {regs === null ? (
           <p className="mt-4 text-sm text-charcoal-400">Loading…</p>
         ) : regs.length === 0 ? (
-          <p className="mt-4 text-sm text-charcoal-400">
-            No one has registered or applied yet.
-          </p>
+          <p className="mt-4 text-sm text-charcoal-400">No one has registered or applied yet.</p>
         ) : (
           <ul className="mt-4 divide-y divide-charcoal-100 border-y border-charcoal-100">
             {regs.map((r) => (
               <li key={r.id} className="flex items-center justify-between py-3 text-sm">
                 <span className="min-w-0">
                   <span className="font-medium">{r.contact_name || "Student"}</span>
-                  <span className="ml-2 text-xs text-charcoal-400">{oppName(r.opportunity_id)}</span>
+                  <span className="ml-2 text-xs text-charcoal-400">
+                    {oppName(r.opportunity_id)}
+                  </span>
                   {r.contact_email && (
                     <span className="ml-2 text-xs text-charcoal-400">· {r.contact_email}</span>
                   )}

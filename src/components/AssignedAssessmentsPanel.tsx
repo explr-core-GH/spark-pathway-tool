@@ -16,8 +16,8 @@ export function AssignedAssessmentsPanel({ studentId }: { studentId: string }) {
   if (pending.length === 0) {
     return (
       <p className="mt-3 text-charcoal-500 max-w-2xl">
-        You&apos;re all caught up — nothing to complete right now. Anything your
-        educator or an EXPLR admin assigns will show up here.
+        You&apos;re all caught up — nothing to complete right now. Anything your instructor or an
+        EXPLR admin assigns will show up here.
       </p>
     );
   }
@@ -42,7 +42,8 @@ export function AssignedAssessmentsPanel({ studentId }: { studentId: string }) {
 function subline(t: AssignmentItem): string {
   const parts: string[] = [];
   if (t.dueAt) parts.push(`Due ${new Date(t.dueAt).toLocaleDateString()}`);
-  else if (t.availableUntil) parts.push(`Open until ${new Date(t.availableUntil).toLocaleDateString()}`);
+  else if (t.availableUntil)
+    parts.push(`Open until ${new Date(t.availableUntil).toLocaleDateString()}`);
   else parts.push("No due date");
   if (t.notes) parts.push(t.notes);
   return parts.join(" · ");

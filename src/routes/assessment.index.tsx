@@ -22,13 +22,22 @@ function AssessmentIntro() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (cancelled) return;
-      if (!session) { setAuthed(false); setLoading(false); return; }
+      if (!session) {
+        setAuthed(false);
+        setLoading(false);
+        return;
+      }
       setAuthed(true);
       setUserId(session.user.id);
       const { data: edu } = await supabase
-        .from("educators").select("role").eq("id", session.user.id).maybeSingle();
+        .from("educators")
+        .select("role")
+        .eq("id", session.user.id)
+        .maybeSingle();
       if (cancelled) return;
       // Non-admin educators shouldn't take the student assessment.
       if (edu && edu.role !== "admin") {
@@ -37,17 +46,23 @@ function AssessmentIntro() {
         return;
       }
       const { data: stud } = await supabase
-        .from("students").select("grade").eq("id", session.user.id).maybeSingle();
+        .from("students")
+        .select("grade")
+        .eq("id", session.user.id)
+        .maybeSingle();
       if (cancelled) return;
       if (stud?.grade) setGrade(stud.grade);
       setLoading(false);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
   async function start() {
     if (!userId || !grade) return;
-    setStarting(true); setError(null);
+    setStarting(true);
+    setError(null);
     // Resume any in-progress session first
     const { data: existing } = await supabase
       .from("assessment_sessions")
@@ -55,7 +70,8 @@ function AssessmentIntro() {
       .eq("student_id", userId)
       .is("completed_at", null)
       .order("started_at", { ascending: false })
-      .limit(1).maybeSingle();
+      .limit(1)
+      .maybeSingle();
     if (existing?.session_id) {
       navigate({ to: "/assessment/$sessionId", params: { sessionId: existing.session_id } });
       return;
@@ -65,7 +81,11 @@ function AssessmentIntro() {
     const { error: studErr } = await supabase
       .from("students")
       .upsert({ id: userId, grade }, { onConflict: "id" });
-    if (studErr) { setError(studErr.message); setStarting(false); return; }
+    if (studErr) {
+      setError(studErr.message);
+      setStarting(false);
+      return;
+    }
 
     const sessionId = crypto.randomUUID();
     const item_sequence = buildItemSequence(sessionId);
@@ -76,24 +96,33 @@ function AssessmentIntro() {
       form_version: grade <= 6 ? "MS" : "HS",
       item_sequence,
     });
-    if (insErr) { setError(insErr.message); setStarting(false); return; }
+    if (insErr) {
+      setError(insErr.message);
+      setStarting(false);
+      return;
+    }
     navigate({ to: "/assessment/$sessionId", params: { sessionId } });
   }
 
-  if (loading) return <div className="mx-auto max-w-2xl px-6 py-24 text-charcoal-500">Loading…</div>;
+  if (loading)
+    return <div className="mx-auto max-w-2xl px-6 py-24 text-charcoal-500">Loading…</div>;
 
   if (educatorMismatch) {
     return (
       <main className="mx-auto max-w-md px-6 py-24 text-center">
-        <p className="eyebrow">Educator account</p>
+        <p className="eyebrow">Instructor account</p>
         <h1 className="mt-3 text-2xl font-light">This area is for students</h1>
         <p className="mt-4 text-sm text-charcoal-500">
-          Your account is registered as an educator. Head to your educator
-          dashboard for curriculum, internships, and rosters.
+          Your account is registered as an instructor. Head to your instructor dashboard for
+          curriculum, internships, and rosters.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link to="/educator/dashboard" className="btn-ink">Go to educator dashboard</Link>
-          <Link to="/" className="btn-ghost">Back to home</Link>
+          <Link to="/instructor/dashboard" className="btn-ink">
+            Go to instructor dashboard
+          </Link>
+          <Link to="/" className="btn-ghost">
+            Back to home
+          </Link>
         </div>
       </main>
     );
@@ -102,32 +131,46 @@ function AssessmentIntro() {
   if (!authed) {
     return (
       <div className="mx-auto max-w-4xl px-6 py-20">
-        <Link to="/" className="eyebrow">← EXPLR</Link>
+        <Link to="/" className="eyebrow">
+          ← EXPLR
+        </Link>
         <h1 className="display mt-10">Get started.</h1>
         <p className="lead mt-4">Pick your pathway.</p>
         <div className="mt-12 grid gap-6 md:grid-cols-2">
           <div className="r-md border border-charcoal-100 p-8">
             <p className="eyebrow">For students</p>
-            <h4 className="mt-3 text-xl font-light text-charcoal-700">A starting point you actually own.</h4>
+            <h4 className="mt-3 text-xl font-light text-charcoal-700">
+              A starting point you actually own.
+            </h4>
             <p className="mt-3 text-sm text-charcoal-500">
-              Take the survey. See your Holland code. Use it to ask better questions about
-              what comes after high school.
+              Take the survey. See your Holland code. Use it to ask better questions about what
+              comes after high school.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/sign-up" className="btn-ink">Create student account</Link>
-              <Link to="/sign-in" className="btn-ghost">Sign in</Link>
+              <Link to="/sign-up" className="btn-ink">
+                Create student account
+              </Link>
+              <Link to="/sign-in" className="btn-ghost">
+                Sign in
+              </Link>
             </div>
           </div>
           <div className="r-md border border-charcoal-100 p-8">
-            <p className="eyebrow">For educators</p>
-            <h4 className="mt-3 text-xl font-light text-charcoal-700">Curriculum and rosters in one place.</h4>
+            <p className="eyebrow">For instructors</p>
+            <h4 className="mt-3 text-xl font-light text-charcoal-700">
+              Curriculum and rosters in one place.
+            </h4>
             <p className="mt-3 text-sm text-charcoal-500">
-              STEM, CS, robotics coaches, camp instructors, and internship supervisors —
-              manage assignments and student lists per program.
+              STEM, CS, robotics coaches, camp instructors, and internship supervisors — manage
+              assignments and student lists per program.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/educator/sign-up" className="btn-ink">Request educator access</Link>
-              <Link to="/educator/sign-in" className="btn-ghost">Sign in</Link>
+              <Link to="/instructor/sign-up" className="btn-ink">
+                Request instructor access
+              </Link>
+              <Link to="/instructor/sign-in" className="btn-ghost">
+                Sign in
+              </Link>
             </div>
           </div>
         </div>
@@ -137,13 +180,15 @@ function AssessmentIntro() {
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-20">
-      <Link to="/" className="eyebrow">← EXPLR</Link>
+      <Link to="/" className="eyebrow">
+        ← EXPLR
+      </Link>
       <div className="mt-10 grid items-center gap-12 lg:grid-cols-[1fr_280px]">
         <div>
           <h1 className="display">The assessment.</h1>
           <p className="lead mt-6">
-            Forty-eight short statements. For each one, say how much you'd like to do it.
-            About ten minutes. Be honest — there are no right answers.
+            Forty-eight short statements. For each one, say how much you'd like to do it. About ten
+            minutes. Be honest — there are no right answers.
           </p>
           <ul className="mt-8 space-y-2 text-sm text-charcoal-500">
             <li>· Your answers are private to you.</li>
@@ -153,10 +198,24 @@ function AssessmentIntro() {
 
           <div className="mt-10 flex items-end gap-4">
             <div>
-              <label className="label" htmlFor="assess-grade">Grade this fall</label>
-              <select id="assess-grade" aria-describedby="assess-grade-hint" className="field w-28" value={grade ?? ""} onChange={(e) => setGrade(Number(e.target.value))}>
-                <option value="" disabled>—</option>
-                {[5,6,7,8,9,10,11,12].map((g) => <option key={g} value={g}>{g}</option>)}
+              <label className="label" htmlFor="assess-grade">
+                Grade this fall
+              </label>
+              <select
+                id="assess-grade"
+                aria-describedby="assess-grade-hint"
+                className="field w-28"
+                value={grade ?? ""}
+                onChange={(e) => setGrade(Number(e.target.value))}
+              >
+                <option value="" disabled>
+                  —
+                </option>
+                {[5, 6, 7, 8, 9, 10, 11, 12].map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
               </select>
               <p id="assess-grade-hint" className="mt-1 text-[11px] text-charcoal-400">
                 The grade you&apos;re entering this fall.
@@ -166,7 +225,11 @@ function AssessmentIntro() {
               {starting ? "Starting…" : "Begin"}
             </button>
           </div>
-          {error && <p className="mt-4 text-sm text-destructive" role="alert">{error}</p>}
+          {error && (
+            <p className="mt-4 text-sm text-destructive" role="alert">
+              {error}
+            </p>
+          )}
         </div>
         <div className="flex justify-center">
           <HollandHexagon size={260} />

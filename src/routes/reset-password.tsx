@@ -43,16 +43,24 @@ function ResetPassword() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
-      <Link to="/" className="eyebrow mb-12 inline-block">← EXPLR</Link>
+      <Link to="/" className="eyebrow mb-12 inline-block">
+        ← EXPLR
+      </Link>
       <h1 className="text-3xl font-light">Set a new password</h1>
 
       {done ? (
         <div className="mt-4 text-sm text-charcoal-600">
           <p>Your password has been updated. Sign in with it now.</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link to="/sign-in" className="btn-ink">Student sign in</Link>
-            <Link to="/educator/sign-in" className="btn-ghost">Educator sign in</Link>
-            <Link to="/org/sign-in" className="btn-ghost">Organization sign in</Link>
+            <Link to="/sign-in" className="btn-ink">
+              Student sign in
+            </Link>
+            <Link to="/instructor/sign-in" className="btn-ghost">
+              Instructor sign in
+            </Link>
+            <Link to="/org/sign-in" className="btn-ghost">
+              Organization sign in
+            </Link>
           </div>
         </div>
       ) : (
@@ -61,12 +69,17 @@ function ResetPassword() {
             <p className="mt-2 text-sm text-amber-700">
               Open this page from the reset link in your email. If you got here another way, request
               a new link from{" "}
-              <Link to="/forgot-password" className="ink-link">Forgot password</Link>.
+              <Link to="/forgot-password" className="ink-link">
+                Forgot password
+              </Link>
+              .
             </p>
           )}
           <form onSubmit={submit} className="mt-8 space-y-5">
             <div>
-              <label className="label" htmlFor="rp-password">New password</label>
+              <label className="label" htmlFor="rp-password">
+                New password
+              </label>
               <div className="relative">
                 <input
                   id="rp-password"
@@ -88,8 +101,16 @@ function ResetPassword() {
               </div>
               <p className="mt-1 text-[11px] text-charcoal-400">At least 8 characters.</p>
             </div>
-            {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
-            <button type="submit" disabled={loading || password.length < 8} className="btn-ink w-full justify-center">
+            {error && (
+              <p className="text-sm text-destructive" role="alert">
+                {error}
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={loading || password.length < 8}
+              className="btn-ink w-full justify-center"
+            >
               {loading ? "Saving…" : "Update password"}
             </button>
           </form>

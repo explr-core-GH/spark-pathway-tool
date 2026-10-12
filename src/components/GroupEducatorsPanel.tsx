@@ -110,7 +110,7 @@ export function GroupEducatorsPanel({ kind, id }: { kind: GroupKind; id: string 
     setClassEdu(eduId);
   }
 
-  if (loading) return <p className="text-sm text-charcoal-400">Loading educators…</p>;
+  if (loading) return <p className="text-sm text-charcoal-400">Loading instructors…</p>;
 
   if (kind === "classes") {
     return (
@@ -129,8 +129,8 @@ export function GroupEducatorsPanel({ kind, id }: { kind: GroupKind; id: string 
           ))}
         </select>
         <p className="mt-2 text-xs text-charcoal-500">
-          The teacher can see this class&apos;s roster and results, and any
-          assessment assigned to them reaches these students.
+          The teacher can see this class&apos;s roster and results, and any assessment assigned to
+          them reaches these students.
         </p>
       </div>
     );
@@ -144,16 +144,13 @@ export function GroupEducatorsPanel({ kind, id }: { kind: GroupKind; id: string 
         Educators connected to this {kind === "camps" ? "camp" : "internship"}.
       </p>
       {assigned.length === 0 ? (
-        <p className="mt-3 text-sm text-charcoal-400">No educators connected yet.</p>
+        <p className="mt-3 text-sm text-charcoal-400">No instructors connected yet.</p>
       ) : (
         <ul className="mt-3 divide-y divide-charcoal-100 border-y border-charcoal-100">
           {assigned.map((eid) => (
             <li key={eid} className="flex items-center justify-between py-2.5 text-sm">
               <span>{nameOf(eid)}</span>
-              <button
-                onClick={() => remove(eid)}
-                className="text-xs text-red-600 hover:underline"
-              >
+              <button onClick={() => remove(eid)} className="text-xs text-red-600 hover:underline">
                 Remove
               </button>
             </li>
@@ -161,12 +158,8 @@ export function GroupEducatorsPanel({ kind, id }: { kind: GroupKind; id: string 
         </ul>
       )}
       <div className="mt-4 flex items-center gap-2">
-        <select
-          className="field max-w-xs"
-          value={pick}
-          onChange={(e) => setPick(e.target.value)}
-        >
-          <option value="">— Add an educator —</option>
+        <select className="field max-w-xs" value={pick} onChange={(e) => setPick(e.target.value)}>
+          <option value="">— Add an instructor —</option>
           {available.map((e) => (
             <option key={e.id} value={e.id}>
               {e.full_name ?? "(educator)"}

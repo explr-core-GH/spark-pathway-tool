@@ -1,12 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { SiteHeader } from "@/components/passport";
 import { SiteFooter } from "@/components/SiteFooter";
+import { redeemFamilyCode } from "@/lib/family.functions";
 
 /**
- * /family — the families entry point. Family codes (a system-generated code a student
- * shares so a caregiver can view their passport without an account) ship in
- * the sign-in phase of the rebuild. Until then this page explains what
- * families can see today and how.
+ * /family — the families entry point. A caregiver enters the code their
+ * student generated and gets a 30-day read-only view at /family/view.
  */
 export const Route = createFileRoute("/family")({
   head: () => ({
@@ -14,14 +14,41 @@ export const Route = createFileRoute("/family")({
       { title: "Families — EXPLR Pathways" },
       {
         name: "description",
-        content: "How families see a student's EXPLR passport: results, hours, and opportunities.",
+        content:
+          "Enter your student's family code to see their EXPLR passport: results, matches, and next steps.",
       },
     ],
   }),
   component: Family,
 });
 
+const FAMILY_TOKEN_KEY = "explr.family.token";
+
 function Family() {
+  const navigate = useNavigate();
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      const { token } = await redeemFamilyCode({ data: { code } });
+      try {
+        localStorage.setItem(FAMILY_TOKEN_KEY, token);
+      } catch {
+        // private mode: the view also reads the token from the URL
+      }
+      navigate({ to: "/family/view", search: { t: token } });
+    } catch (err) {
+      setError(err instanceof Error ? err.message.replace(/^Error:\s*/, "") : String(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-paper text-ink-900">
       <SiteHeader />
@@ -31,34 +58,46 @@ function Family() {
             <p className="eyebrow text-green">For families</p>
             <h1 className="display">Your student's passport, in your hands.</h1>
             <p className="lead max-w-[600px] text-ink-700">
-              Families can see completed interest results, internship matches, and what a student
-              has explored. You don't need to interpret a chart; the passport explains itself.
+              See completed interest results, internship matches, and what your student has
+              explored. You don't need an account, just the code your student made for you.
             </p>
-            <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 shadow-card">
-              <h2 className="font-display text-xl font-semibold">How to see it today</h2>
-              <ol className="mt-3 list-decimal space-y-2 pl-5 text-ink-700">
-                <li>Sit with your student and have them sign in.</li>
-                <li>
-                  On their dashboard, open the <strong>For families</strong> tab.
-                </li>
-                <li>Everything there is written for you: results, matches, and next steps.</li>
-              </ol>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Link to="/sign-in" className="btn-ink">
-                  Student sign in
-                </Link>
+
+            <form
+              onSubmit={submit}
+              className="flex flex-col gap-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 shadow-card"
+            >
+              <label htmlFor="family-code" className="font-display text-xl font-semibold">
+                Enter your family code
+              </label>
+              <input
+                id="family-code"
+                className="w-full rounded-[var(--radius-control)] border-2 border-line-strong bg-paper px-4 py-3 font-mono text-xl uppercase tracking-[0.1em] focus:border-emerald focus:outline-none"
+                placeholder="EXPLR-7K4P2M"
+                autoCapitalize="characters"
+                autoCorrect="off"
+                spellCheck={false}
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                required
+              />
+              {error && (
+                <p role="alert" className="text-sm text-destructive">
+                  {error}
+                </p>
+              )}
+              <div className="flex flex-wrap gap-3">
+                <button type="submit" disabled={busy} className="btn-ink">
+                  {busy ? "Opening…" : "Open the passport"}
+                </button>
                 <Link to="/student-data" className="btn-ghost">
                   How student data is protected
                 </Link>
               </div>
-            </div>
-            <div className="rounded-[var(--radius-card)] bg-gold-tint p-5">
-              <p className="eyebrow text-gold-deep">Coming next</p>
-              <p className="mt-1 text-sm text-ink-700">
-                Family codes. Your student will be able to share a short code so you can open their
-                passport from your own phone, no account needed.
+              <p className="text-sm text-ink-500">
+                Your student makes the code on their dashboard under <strong>For families</strong>.
+                It lasts 90 days, and they can turn it off any time.
               </p>
-            </div>
+            </form>
           </div>
           <div className="flex justify-center lg:justify-end">
             <img

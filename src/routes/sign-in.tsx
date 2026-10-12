@@ -54,11 +54,16 @@ function SignIn() {
       <h1 className="text-3xl font-light">Sign in</h1>
       <p className="mt-2 text-sm text-charcoal-500">
         {band === "4-8"
-          ? "Grades 4-8: use the username and password your instructor gave you. Picture and QR sign-in are coming soon."
+          ? "Grades 4-8: you don't need a password. Use the picture sign-in instead."
           : band === "9-12"
             ? "Grades 9-12: sign in with your email, or the username from your roster."
             : "Student account."}
       </p>
+      {band === "4-8" && (
+        <Link to="/explore" className="btn-mint mt-6 justify-center">
+          Go to picture sign-in
+        </Link>
+      )}
       <form onSubmit={submit} className="mt-10 space-y-5">
         <div>
           <label className="label" htmlFor="signin-username">

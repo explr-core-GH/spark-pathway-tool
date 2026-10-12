@@ -13,8 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
  * errors from the classes kind (the migration may not be applied yet).
  */
 
-const sb = (table: string): any =>
-  (supabase.from as unknown as (n: string) => any)(table);
+const sb = (table: string): any => (supabase.from as unknown as (n: string) => any)(table);
 
 export type GroupKind = "camps" | "internships" | "classes";
 export const GROUP_KINDS: GroupKind[] = ["camps", "internships", "classes"];
@@ -37,13 +36,13 @@ export const KIND_META: Record<GroupKind, KindMeta> = {
     label: "Camps",
     singular: "Camp",
     newLabel: null,
-    createHint: { to: "/educator/admin/camp-logins", label: "Add camps & logins" },
+    createHint: { to: "/instructor/admin/camp-logins", label: "Add camps & logins" },
   },
   internships: {
     label: "Internships",
     singular: "Internship",
     newLabel: null,
-    createHint: { to: "/educator/admin/internships", label: "Edit offerings" },
+    createHint: { to: "/instructor/admin/internships", label: "Edit offerings" },
   },
   classes: {
     label: "Classes",
@@ -174,9 +173,7 @@ async function fetchInternshipGroups(): Promise<GroupSummary[]> {
       .order("sort_order")
       .order("name"),
     supabase.from("internship_placements").select("approved_internship_id, student_id"),
-    supabase
-      .from("internship_student_logins")
-      .select("internship_slug, student_id, child_name"),
+    supabase.from("internship_student_logins").select("internship_slug, student_id, child_name"),
   ]);
 
   const bySlug = new Map<string, { ids: string[]; names: Record<string, string> }>();
@@ -210,19 +207,23 @@ async function fetchInternshipGroups(): Promise<GroupSummary[]> {
     }
   }
 
-  return ((list ?? []) as Array<{
-    slug: string;
-    name: string;
-    theme: string | null;
-    riasec: string[] | null;
-  }>).map((i) => {
+  return (
+    (list ?? []) as Array<{
+      slug: string;
+      name: string;
+      theme: string | null;
+      riasec: string[] | null;
+    }>
+  ).map((i) => {
     const e = bySlug.get(i.slug) ?? { ids: [], names: {} };
     return {
       id: i.slug,
       name: i.name,
       meta: [i.theme, (i.riasec ?? []).join("")].filter(Boolean).join(" · "),
       studentIds: e.ids,
-      names: Object.fromEntries(e.ids.map((id) => [id, e.names[id] ?? fallbackNames[id] ?? "Student"])),
+      names: Object.fromEntries(
+        e.ids.map((id) => [id, e.names[id] ?? fallbackNames[id] ?? "Student"]),
+      ),
     };
   });
 }
@@ -244,7 +245,10 @@ async function fetchClassGroups(): Promise<GroupSummary[]> {
 
   const { data: members } = await sb("class_students")
     .select("class_id, student_id")
-    .in("class_id", cls.map((c) => c.id));
+    .in(
+      "class_id",
+      cls.map((c) => c.id),
+    );
   const mem = (members ?? []) as Array<{ class_id: string; student_id: string }>;
 
   const studentIds = [...new Set(mem.map((m) => m.student_id))];

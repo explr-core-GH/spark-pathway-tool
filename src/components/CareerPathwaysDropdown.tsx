@@ -34,7 +34,9 @@ export function CareerPathwaysDropdown({ internshipSlug }: Props) {
       setLinks(l);
       setLoaded(true);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [open, loaded]);
 
   const mine = links.filter((l) => l.internship_slug === internshipSlug);
@@ -67,43 +69,69 @@ export function CareerPathwaysDropdown({ internshipSlug }: Props) {
           ) : myOccs.length === 0 ? (
             <p className="text-xs text-charcoal-400">
               No occupations tagged yet. An admin can add them in{" "}
-              <span className="font-mono">/educator/admin/pathways</span>.
+              <span className="font-mono">/instructor/admin/pathways</span>.
             </p>
           ) : (
             Array.from(byCluster.entries()).map(([clusterId, list]) => (
               <div key={clusterId}>
-                <p className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "var(--explr)" }}>
+                <p
+                  className="text-[11px] font-medium uppercase tracking-wider"
+                  style={{ color: "var(--explr)" }}
+                >
                   {clustersById[clusterId]?.label ?? clusterId}
                 </p>
                 <ul className="mt-2 space-y-2">
                   {list.map((o) => (
-                    <li key={o.id} className="rounded-md border border-charcoal-100 bg-charcoal-50/40 p-3 text-xs">
+                    <li
+                      key={o.id}
+                      className="rounded-md border border-charcoal-100 bg-charcoal-50/40 p-3 text-xs"
+                    >
                       <div className="flex items-start justify-between gap-3">
                         <p className="text-sm font-medium text-charcoal-700">{o.title}</p>
                         {o.soc_code && (
-                          <span className="font-mono text-[10px] text-charcoal-400">SOC {o.soc_code}</span>
+                          <span className="font-mono text-[10px] text-charcoal-400">
+                            SOC {o.soc_code}
+                          </span>
                         )}
                       </div>
                       {o.description && <p className="mt-1 text-charcoal-600">{o.description}</p>}
                       <dl className="mt-2 grid grid-cols-3 gap-2 text-[11px]">
                         <div>
-                          <dt className="uppercase tracking-wider text-charcoal-400">Median wage</dt>
-                          <dd className="font-medium text-charcoal-700">{formatWage(o.median_wage)}</dd>
+                          <dt className="uppercase tracking-wider text-charcoal-400">
+                            Median wage
+                          </dt>
+                          <dd className="font-medium text-charcoal-700">
+                            {formatWage(o.median_wage)}
+                          </dd>
                         </div>
                         <div>
                           <dt className="uppercase tracking-wider text-charcoal-400">Growth</dt>
-                          <dd className="font-medium" style={{ color: (o.growth_pct ?? 0) >= 0 ? "var(--color-explr-700)" : "var(--color-charcoal-700)" }}>
+                          <dd
+                            className="font-medium"
+                            style={{
+                              color:
+                                (o.growth_pct ?? 0) >= 0
+                                  ? "var(--color-explr-700)"
+                                  : "var(--color-charcoal-700)",
+                            }}
+                          >
                             {formatGrowth(o.growth_pct)}
                           </dd>
                         </div>
                         <div>
-                          <dt className="uppercase tracking-wider text-charcoal-400">Openings / yr</dt>
-                          <dd className="font-medium text-charcoal-700">{o.annual_openings?.toLocaleString() ?? "—"}</dd>
+                          <dt className="uppercase tracking-wider text-charcoal-400">
+                            Openings / yr
+                          </dt>
+                          <dd className="font-medium text-charcoal-700">
+                            {o.annual_openings?.toLocaleString() ?? "—"}
+                          </dd>
                         </div>
                       </dl>
                       {o.education && (
                         <p className="mt-2 text-[11px] text-charcoal-500">
-                          <span className="uppercase tracking-wider text-charcoal-400">Typical entry: </span>
+                          <span className="uppercase tracking-wider text-charcoal-400">
+                            Typical entry:{" "}
+                          </span>
                           {o.education}
                         </p>
                       )}

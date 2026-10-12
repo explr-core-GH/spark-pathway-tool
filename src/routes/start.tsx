@@ -30,7 +30,9 @@ function Start() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (cancelled) return;
       if (!session) {
         setAuthed(false);
@@ -41,18 +43,16 @@ function Start() {
       // Look up roles in parallel; first match wins.
       const [{ data: ad }, { data: ed }] = await Promise.all([
         // admins table — cast because the generated Database type may lag.
-        (supabase as any)
-          .from("admins")
-          .select("id").eq("id", session.user.id).maybeSingle(),
+        (supabase as any).from("admins").select("id").eq("id", session.user.id).maybeSingle(),
         supabase.from("educators").select("id").eq("id", session.user.id).maybeSingle(),
       ]);
       if (cancelled) return;
       if (ad) {
-        navigate({ to: "/educator/admin" });
+        navigate({ to: "/instructor/admin" });
         return;
       }
       if (ed) {
-        navigate({ to: "/educator/dashboard" });
+        navigate({ to: "/instructor/dashboard" });
         return;
       }
       // Student: if they've already taken (or started) the assessment, go
@@ -66,7 +66,9 @@ function Start() {
       if (cancelled) return;
       navigate({ to: sess ? "/student" : "/assessment" });
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
   if (resolving) {
@@ -83,40 +85,54 @@ function Start() {
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-20">
-      <Link to="/" className="eyebrow">← EXPLR</Link>
+      <Link to="/" className="eyebrow">
+        ← EXPLR
+      </Link>
       <h1 className="display mt-10">Get started.</h1>
       <p className="lead mt-4">Pick your pathway.</p>
 
       <div className="mt-12 grid gap-6 md:grid-cols-2">
         {/* Student */}
         <article className="border border-charcoal-100 p-8">
-          <p className="eyebrow" style={{ color: "var(--explr)" }}>For students</p>
+          <p className="eyebrow" style={{ color: "var(--explr)" }}>
+            For students
+          </p>
           <h2 className="mt-3 text-xl font-light text-charcoal-700">
             A starting point you actually own.
           </h2>
           <p className="mt-3 text-sm text-charcoal-500">
-            Take the survey. See your Holland code. Use it to ask better
-            questions about what comes after high school.
+            Take the survey. See your Holland code. Use it to ask better questions about what comes
+            after high school.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link to="/sign-up" className="btn-ink">Create student account</Link>
-            <Link to="/sign-in" className="btn-ghost">Sign in</Link>
+            <Link to="/sign-up" className="btn-ink">
+              Create student account
+            </Link>
+            <Link to="/sign-in" className="btn-ghost">
+              Sign in
+            </Link>
           </div>
         </article>
 
         {/* Educator */}
         <article className="border border-charcoal-100 p-8">
-          <p className="eyebrow" style={{ color: "var(--explr)" }}>For educators</p>
+          <p className="eyebrow" style={{ color: "var(--explr)" }}>
+            For instructors
+          </p>
           <h2 className="mt-3 text-xl font-light text-charcoal-700">
             Curriculum and rosters in one place.
           </h2>
           <p className="mt-3 text-sm text-charcoal-500">
-            STEM, CS, robotics coaches, camp instructors, and internship
-            supervisors — manage assignments and student lists per program.
+            STEM, CS, robotics coaches, camp instructors, and internship supervisors — manage
+            assignments and student lists per program.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link to="/educator/sign-up" className="btn-ink">Request educator access</Link>
-            <Link to="/educator/sign-in" className="btn-ghost">Sign in</Link>
+            <Link to="/instructor/sign-up" className="btn-ink">
+              Request instructor access
+            </Link>
+            <Link to="/instructor/sign-in" className="btn-ghost">
+              Sign in
+            </Link>
           </div>
         </article>
       </div>

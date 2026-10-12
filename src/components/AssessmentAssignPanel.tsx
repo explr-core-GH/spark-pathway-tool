@@ -20,8 +20,7 @@ import { SURVEY_TYPE_LABEL, type SurveyType } from "@/lib/explr-stem";
 
 // Untyped accessor for tables/columns newer than the generated types
 // (classes, assessment_targets.target_slug / nullable target_id).
-const sb = (table: string): any =>
-  (supabase.from as unknown as (n: string) => any)(table);
+const sb = (table: string): any => (supabase.from as unknown as (n: string) => any)(table);
 
 type Educator = { id: string; full_name: string; email: string };
 type Student = { id: string; first_name: string | null; grade: number };
@@ -59,7 +58,7 @@ const FIXED_KINDS: Array<{ kind: string; label: string }> = [
 ];
 
 const TARGET_CHOICES: Array<{ key: TargetType; label: string }> = [
-  { key: "educator", label: "Educator (whole roster)" },
+  { key: "educator", label: "Instructor (whole roster)" },
   { key: "camp", label: "Camp session (whole roster)" },
   { key: "class", label: "Class (whole roster)" },
   { key: "internship", label: "Internship (placed students)" },
@@ -109,24 +108,15 @@ export function AssessmentAssignPanel() {
           .select("id, full_name, email")
           .eq("approved", true)
           .order("full_name"),
-        supabase
-          .from("students")
-          .select("id, first_name, grade")
-          .order("first_name"),
-        supabase
-          .from("explr_camps")
-          .select("id, title, date")
-          .order("date", { ascending: true }),
+        supabase.from("students").select("id, first_name, grade").order("first_name"),
+        supabase.from("explr_camps").select("id, title, date").order("date", { ascending: true }),
         supabase
           .from("survey_assignments")
           .select("id, title, survey_type, administration")
           .order("created_at", { ascending: false }),
         // select("*") so the window + target_slug columns degrade gracefully
         // before their migrations are applied.
-        supabase
-          .from("assessment_targets")
-          .select("*")
-          .order("created_at", { ascending: false }),
+        supabase.from("assessment_targets").select("*").order("created_at", { ascending: false }),
         supabase.from("internships").select("slug, name").order("sort_order").order("name"),
       ]);
     // Classes are newer than the generated types — read via the cast and
@@ -149,9 +139,10 @@ export function AssessmentAssignPanel() {
   // Selectable assessment options: the 4 fixed kinds + every survey
   // assignment. Key form: "riasec" / "survey:<surveyAssignmentId>".
   const options = useMemo(() => {
-    const opts: Array<{ key: string; label: string }> = FIXED_KINDS.map(
-      (k) => ({ key: k.kind, label: k.label }),
-    );
+    const opts: Array<{ key: string; label: string }> = FIXED_KINDS.map((k) => ({
+      key: k.kind,
+      label: k.label,
+    }));
     for (const s of surveys) {
       opts.push({
         key: `survey:${s.id}`,
@@ -161,15 +152,9 @@ export function AssessmentAssignPanel() {
     return opts;
   }, [surveys]);
 
-  const eduName = useMemo(
-    () => new Map(educators.map((e) => [e.id, e.full_name])),
-    [educators],
-  );
+  const eduName = useMemo(() => new Map(educators.map((e) => [e.id, e.full_name])), [educators]);
   const studName = useMemo(
-    () =>
-      new Map(
-        students.map((s) => [s.id, `${s.first_name ?? "Student"} · grade ${s.grade}`]),
-      ),
+    () => new Map(students.map((s) => [s.id, `${s.first_name ?? "Student"} · grade ${s.grade}`])),
     [students],
   );
   const campName = useMemo(() => new Map(camps.map((c) => [c.id, c.title])), [camps]);
@@ -262,9 +247,7 @@ export function AssessmentAssignPanel() {
       const s = surveys.find((x) => x.id === t.survey_assignment_id);
       return s ? `STEM survey · ${s.title}` : "STEM survey";
     }
-    return (
-      FIXED_KINDS.find((k) => k.kind === t.assessment_kind)?.label ?? t.assessment_kind
-    );
+    return FIXED_KINDS.find((k) => k.kind === t.assessment_kind)?.label ?? t.assessment_kind;
   }
 
   function targetDescription(t: TargetRow): string {
@@ -287,19 +270,17 @@ export function AssessmentAssignPanel() {
   return (
     <div>
       <p className="lead">
-        Assign assessments to an educator or camp (cascades to the whole roster),
-        a class or internship (its students), or an individual student.
+        Assign assessments to an educator or camp (cascades to the whole roster), a class or
+        internship (its students), or an individual student.
       </p>
 
       {/* Sub-tabs — keep create vs. manage separate so the page doesn't
           turn into a wall of cards once a handful of things are assigned. */}
       <div className="mt-6 flex flex-wrap gap-1 border-b border-charcoal-100">
-        {(
-          [
-            { id: "create" as const, label: "Create new" },
-            { id: "manage" as const, label: `Manage existing (${targets.length})` },
-          ]
-        ).map((t) => (
+        {[
+          { id: "create" as const, label: "Create new" },
+          { id: "manage" as const, label: `Manage existing (${targets.length})` },
+        ].map((t) => (
           <button
             key={t.id}
             type="button"
@@ -377,7 +358,7 @@ export function AssessmentAssignPanel() {
               <div>
                 <label className="label">
                   {targetType === "educator"
-                    ? "Educators"
+                    ? "Instructors"
                     : targetType === "camp"
                       ? "Camp sessions"
                       : targetType === "class"

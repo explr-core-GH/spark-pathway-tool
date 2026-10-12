@@ -53,9 +53,9 @@ function CampMaterials({ campId }: { campId: string }) {
   if (slug === null) {
     return (
       <p className="max-w-xl text-sm text-charcoal-600">
-        This camp session isn&apos;t linked to a curriculum item, so there are no
-        shared files. Link it from{" "}
-        <Link to="/educator/admin/camps" className="ink-link">
+        This camp session isn&apos;t linked to a curriculum item, so there are no shared files. Link
+        it from{" "}
+        <Link to="/instructor/admin/camps" className="ink-link">
           Curriculum
         </Link>{" "}
         to attach slide decks and resources.
@@ -112,7 +112,7 @@ function InternshipMaterials({ slug }: { slug: string }) {
       )}
       <p className="border-t border-charcoal-100 pt-4 text-xs text-charcoal-500">
         Edit these on the{" "}
-        <Link to="/educator/admin/internships" className="ink-link">
+        <Link to="/instructor/admin/internships" className="ink-link">
           offering
         </Link>
         .

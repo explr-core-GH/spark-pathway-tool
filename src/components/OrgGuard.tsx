@@ -11,19 +11,17 @@ export function OrgGuard({ children }: { children: (org: OrgRow) => React.ReactN
   const { user, org, loading } = useOrg();
 
   if (loading) {
-    return (
-      <main className="mx-auto max-w-md px-6 py-24 text-sm text-charcoal-400">Loading…</main>
-    );
+    return <main className="mx-auto max-w-md px-6 py-24 text-sm text-charcoal-400">Loading…</main>;
   }
 
   if (!user) {
     return (
       <Mismatch
-        eyebrow="Organizations"
-        title="Sign in to your organization"
-        body="Manage the camps, workshops, internships, and ongoing opportunities your organization offers."
-        primary={{ to: "/org/sign-in", label: "Organization sign in" }}
-        secondary={{ to: "/org/sign-up", label: "Register your organization" }}
+        eyebrow="Partners & organizations"
+        title="Sign in to the partner portal"
+        body="Manage the camps, workshops, internships, and ongoing opportunities your organization or company offers."
+        primary={{ to: "/org/sign-in", label: "Partner sign in" }}
+        secondary={{ to: "/org/sign-up", label: "Register as a partner" }}
       />
     );
   }
@@ -33,14 +31,19 @@ export function OrgGuard({ children }: { children: (org: OrgRow) => React.ReactN
       <Mismatch
         eyebrow="Finish setup"
         title="This account isn't an organization yet"
-        body="You're signed in, but there's no organization on file for this account. Register your organization to start building opportunities."
-        primary={{ to: "/org/sign-up", label: "Register your organization" }}
+        body="You're signed in, but there's no organization on file for this account. Register as a partner to start building opportunities."
+        primary={{ to: "/org/sign-up", label: "Register as a partner" }}
         secondary={{ to: "/", label: "Back to home" }}
       />
     );
   }
 
-  return <>{children(org)}<SiteFooter /></>;
+  return (
+    <>
+      {children(org)}
+      <SiteFooter />
+    </>
+  );
 }
 
 type LinkOpt = { to: string; label: string };

@@ -51,9 +51,11 @@ function TryRiasec() {
   const [photos, setPhotos] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    (supabase.from as unknown as (n: string) => {
-      select: (c: string) => Promise<{ data: Array<{ item_id: string; url: string }> | null }>;
-    })("assessment_item_photos")
+    (
+      supabase.from as unknown as (n: string) => {
+        select: (c: string) => Promise<{ data: Array<{ item_id: string; url: string }> | null }>;
+      }
+    )("assessment_item_photos")
       .select("item_id, url")
       .then(({ data: rows }) => {
         const m: Record<string, string> = {};
@@ -88,13 +90,21 @@ function TryRiasec() {
 
     return (
       <div className="min-h-screen">
-        <Header right={<button onClick={restart} className="text-sm text-charcoal-500 hover:text-ink">Start over</button>} />
+        <Header
+          right={
+            <button onClick={restart} className="text-sm text-charcoal-500 hover:text-ink">
+              Start over
+            </button>
+          }
+        />
         <main className="mx-auto max-w-5xl px-6 py-16">
           <p className="eyebrow">Your Holland code</p>
-          <h1 className="display mt-4" style={{ color: primary.color }}>{holland_code}</h1>
+          <h1 className="display mt-4" style={{ color: primary.color }}>
+            {holland_code}
+          </h1>
           <p className="lead mt-6 max-w-2xl">
-            You leaned strongest toward <strong>{primary.name}</strong>. This is exactly what
-            your students see when they finish the assessment.
+            You leaned strongest toward <strong>{primary.name}</strong>. This is exactly what your
+            students see when they finish the assessment.
           </p>
 
           <div className="mt-14 grid gap-14 lg:grid-cols-[360px_1fr]">
@@ -111,14 +121,25 @@ function TryRiasec() {
                     <li key={c}>
                       <div className="flex items-baseline justify-between gap-4">
                         <div className="flex items-baseline gap-3">
-                          <span className="w-4 text-xs tabular-nums text-charcoal-400">{i + 1}</span>
-                          <span className="text-sm font-medium" style={{ color: dim.color }}>{dim.code}</span>
-                          <span className={top.includes(c) ? "text-ink" : "text-charcoal-500"}>{dim.name}</span>
+                          <span className="w-4 text-xs tabular-nums text-charcoal-400">
+                            {i + 1}
+                          </span>
+                          <span className="text-sm font-medium" style={{ color: dim.color }}>
+                            {dim.code}
+                          </span>
+                          <span className={top.includes(c) ? "text-ink" : "text-charcoal-500"}>
+                            {dim.name}
+                          </span>
                         </div>
-                        <span className="text-sm tabular-nums text-charcoal-500">{score.toFixed(2)}</span>
+                        <span className="text-sm tabular-nums text-charcoal-500">
+                          {score.toFixed(2)}
+                        </span>
                       </div>
                       <div className="mt-2 h-1 bg-charcoal-100">
-                        <div className="h-full" style={{ width: `${(score / 5) * 100}%`, background: dim.color }} />
+                        <div
+                          className="h-full"
+                          style={{ width: `${(score / 5) * 100}%`, background: dim.color }}
+                        />
                       </div>
                     </li>
                   );
@@ -128,7 +149,9 @@ function TryRiasec() {
           </div>
 
           <section className="mt-16 border-t border-charcoal-100 pt-10">
-            <p className="eyebrow" style={{ color: primary.color }}>{primary.code} · {primary.name}</p>
+            <p className="eyebrow" style={{ color: primary.color }}>
+              {primary.code} · {primary.name}
+            </p>
             <p className="mt-4 text-2xl font-light">{primary.hsDescription}</p>
             <p className="mt-4 text-sm text-charcoal-500">
               Example careers: {primary.examples.join(" · ")}
@@ -149,16 +172,25 @@ function TryRiasec() {
 
   return (
     <div className="min-h-screen">
-      <Header right={<span className="text-xs text-charcoal-500">{idx + 1} of {total}</span>} />
+      <Header
+        right={
+          <span className="text-xs text-charcoal-500">
+            {idx + 1} of {total}
+          </span>
+        }
+      />
       <div className="h-0.5 bg-charcoal-100">
-        <div className="h-full transition-[width] duration-300" style={{ width: `${pct}%`, background: "var(--color-explr-500)" }} />
+        <div
+          className="h-full transition-[width] duration-300"
+          style={{ width: `${pct}%`, background: "var(--color-explr-500)" }}
+        />
       </div>
 
       <main className="mx-auto max-w-2xl px-6 py-14">
         {idx === 0 && (
           <p className="mb-8 border-l-2 border-charcoal-200 pl-4 text-sm text-charcoal-500">
-            Practice run for educators. No account, no saving — answer as yourself and
-            you'll get your own Holland code at the end.
+            Practice run for instructors. No account, no saving — answer as yourself and you'll get
+            your own Holland code at the end.
           </p>
         )}
 
@@ -177,19 +209,30 @@ function TryRiasec() {
                 }}
               />
             ) : (
-              <span className="text-center text-sm font-semibold uppercase tracking-wider" style={{ color: scale.color }}>
+              <span
+                className="text-center text-sm font-semibold uppercase tracking-wider"
+                style={{ color: scale.color }}
+              >
                 {scale.name}
               </span>
             )}
           </div>
         )}
 
-        {scale && <p className="eyebrow" style={{ color: scale.color }}>How much would you like to…</p>}
+        {scale && (
+          <p className="eyebrow" style={{ color: scale.color }}>
+            How much would you like to…
+          </p>
+        )}
         <h1 id="prompt-text" className="mt-4 text-3xl font-light leading-tight md:text-4xl">
           {item ? item.hs : "—"}
         </h1>
 
-        <div role="radiogroup" aria-labelledby="prompt-text" className="mt-10 grid grid-cols-5 gap-2">
+        <div
+          role="radiogroup"
+          aria-labelledby="prompt-text"
+          className="mt-10 grid grid-cols-5 gap-2"
+        >
           {([1, 2, 3, 4, 5] as LikertValue[]).map((v) => (
             <button
               key={v}
@@ -200,10 +243,15 @@ function TryRiasec() {
               aria-label={LIKERT_LABELS[v]}
               className="group flex flex-col items-center gap-2 border border-charcoal-100 px-1 py-4 transition-colors hover:border-ink hover:bg-charcoal-50 focus-visible:border-ink"
             >
-              <span className="text-3xl leading-none transition-transform group-hover:scale-110 sm:text-4xl" aria-hidden>
+              <span
+                className="text-3xl leading-none transition-transform group-hover:scale-110 sm:text-4xl"
+                aria-hidden
+              >
                 {FACES[v]}
               </span>
-              <span className="text-center text-[11px] leading-tight text-charcoal-500">{LIKERT_LABELS[v]}</span>
+              <span className="text-center text-[11px] leading-tight text-charcoal-500">
+                {LIKERT_LABELS[v]}
+              </span>
             </button>
           ))}
         </div>

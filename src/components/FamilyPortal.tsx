@@ -23,15 +23,23 @@ type SurveyRes = {
   sectorValues: Record<string, number> | null;
   matches: Match[] | null;
 };
-type Apt = { band: string; subscaleScores: Record<string, number> | null; total: number; items: number };
+type Apt = {
+  band: string;
+  subscaleScores: Record<string, number> | null;
+  total: number;
+  items: number;
+};
+
+export type FamilyResultsData = {
+  riasec: Riasec | null;
+  survey: SurveyRes | null;
+  apt: Apt | null;
+  stemDone: boolean;
+};
 
 export function FamilyPortal({ studentId, grade }: { studentId: string; grade: number | null }) {
   const [loading, setLoading] = useState(true);
-  const [riasec, setRiasec] = useState<Riasec | null>(null);
-  const [survey, setSurvey] = useState<SurveyRes | null>(null);
-  const [apt, setApt] = useState<Apt | null>(null);
-  const [stemDone, setStemDone] = useState(false);
-  const [tab, setTab] = useState<string>("");
+  const [data, setData] = useState<FamilyResultsData | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,22 +72,29 @@ export function FamilyPortal({ studentId, grade }: { studentId: string; grade: n
       ]);
       if (cancelled) return;
 
-      const r: Riasec | null =
-        sess?.holland_code ? { hollandCode: sess.holland_code, scaleScores: (sess.scale_scores as Record<string, number>) ?? {} } : null;
-      const s: SurveyRes | null = sv
-        ? { hollandCode: sv.holland_code ?? null, sectorValues: sv.sector_values ?? null, matches: (sv.matches as Match[]) ?? null }
+      const r: Riasec | null = sess?.holland_code
+        ? {
+            hollandCode: sess.holland_code,
+            scaleScores: (sess.scale_scores as Record<string, number>) ?? {},
+          }
+        : null;
+      const sr: SurveyRes | null = sv
+        ? {
+            hollandCode: sv.holland_code ?? null,
+            sectorValues: sv.sector_values ?? null,
+            matches: (sv.matches as Match[]) ?? null,
+          }
         : null;
       const a: Apt | null = ap
-        ? { band: ap.band, subscaleScores: ap.subscale_scores ?? null, total: ap.total_score ?? 0, items: ap.total_items ?? 0 }
+        ? {
+            band: ap.band,
+            subscaleScores: ap.subscale_scores ?? null,
+            total: ap.total_score ?? 0,
+            items: ap.total_items ?? 0,
+          }
         : null;
 
-      const hasStem = ((stem ?? []) as unknown[]).length > 0;
-      setRiasec(r);
-      setSurvey(s);
-      setApt(a);
-      setStemDone(hasStem);
-      // Default to the first available results tab; fall back to the explainer.
-      setTab(r ? "interest" : s ? "internship" : a ? "aptitude" : hasStem ? "stem" : "about");
+      setData({ riasec: r, survey: sr, apt: a, stemDone: ((stem ?? []) as unknown[]).length > 0 });
       setLoading(false);
     })();
     return () => {
@@ -87,17 +102,37 @@ export function FamilyPortal({ studentId, grade }: { studentId: string; grade: n
     };
   }, [studentId]);
 
-  if (loading) {
+  if (loading || !data) {
     return <p className="mt-8 text-sm text-charcoal-400">Loading results…</p>;
   }
+  return (
+    <FamilyResults data={data} grade={grade} stemPanel={<StemPanel studentId={studentId} />} />
+  );
+}
 
+/**
+ * The family-facing results view. Used inside the student's own session
+ * (above) and on /family/view for caregivers who opened a family code,
+ * where the data arrives from the server and the STEM panel (which needs
+ * the student's own RLS access) is omitted.
+ */
+export function FamilyResults({
+  data,
+  grade,
+  stemPanel,
+}: {
+  data: FamilyResultsData;
+  grade: number | null;
+  stemPanel?: React.ReactNode;
+}) {
+  const { riasec, survey, apt, stemDone } = data;
   const tabs: Array<{ id: string; label: string }> = [];
   if (riasec) tabs.push({ id: "interest", label: "Interest profile" });
   if (survey) tabs.push({ id: "internship", label: "Internship matches" });
   if (apt) tabs.push({ id: "aptitude", label: "Aptitude" });
-  if (stemDone) tabs.push({ id: "stem", label: "STEM survey" });
+  if (stemDone && stemPanel) tabs.push({ id: "stem", label: "STEM survey" });
   tabs.push({ id: "about", label: "About these results" });
-
+  const [tab, setTab] = useState<string>(tabs[0].id);
   const current = tabs.some((t) => t.id === tab) ? tab : tabs[0].id;
 
   return (
@@ -108,7 +143,11 @@ export function FamilyPortal({ studentId, grade }: { studentId: string; grade: n
       </p>
 
       {/* Sub-tabs — only the completed instruments show up. */}
-      <div role="tablist" aria-label="Family results" className="mt-5 flex flex-wrap gap-1 border-b border-charcoal-100">
+      <div
+        role="tablist"
+        aria-label="Family results"
+        className="mt-5 flex flex-wrap gap-1 border-b border-charcoal-100"
+      >
         {tabs.map((t) => (
           <button
             key={t.id}
@@ -132,7 +171,7 @@ export function FamilyPortal({ studentId, grade }: { studentId: string; grade: n
         {current === "interest" && riasec && <InterestPanel data={riasec} />}
         {current === "internship" && survey && <InternshipPanel data={survey} />}
         {current === "aptitude" && apt && <AptitudePanel data={apt} />}
-        {current === "stem" && <StemPanel studentId={studentId} />}
+        {current === "stem" && stemPanel}
         {current === "about" && <AboutPanel grade={grade} />}
       </div>
     </div>
@@ -143,23 +182,37 @@ export function FamilyPortal({ studentId, grade }: { studentId: string; grade: n
 function CareersCallout() {
   return (
     <div className="mt-6 border border-charcoal-200 bg-charcoal-50 p-5">
-      <p className="eyebrow" style={{ color: "var(--explr)" }}>Search jobs by your Holland code</p>
+      <p className="eyebrow" style={{ color: "var(--explr)" }}>
+        Search jobs by your Holland code
+      </p>
       <p className="mt-2 max-w-2xl text-sm text-charcoal-600">
-        Your student&rsquo;s <strong>Holland code</strong> (their three interest letters) is the key.
-        The EXPLR career-connected site is wired to real workforce data, so families can search for
-        jobs and careers that match the code — <strong>what they pay, where they&rsquo;re growing, and
-        the path to get there</strong>. It&rsquo;s the same six-interest (RIASEC) system as the U.S.
-        Department of Labor&rsquo;s O*NET.
+        Your student&rsquo;s <strong>Holland code</strong> (their three interest letters) is the
+        key. The EXPLR career-connected site is wired to real workforce data, so families can search
+        for jobs and careers that match the code —{" "}
+        <strong>what they pay, where they&rsquo;re growing, and the path to get there</strong>.
+        It&rsquo;s the same six-interest (RIASEC) system as the U.S. Department of Labor&rsquo;s
+        O*NET.
       </p>
       <ol className="mt-3 space-y-1 text-sm text-charcoal-600">
-        <li>1. Go to{" "}
-          <a className="ink-link" href="https://explrpathways.netlify.app/" target="_blank" rel="noreferrer">
+        <li>
+          1. Go to{" "}
+          <a
+            className="ink-link"
+            href="https://explrpathways.netlify.app/"
+            target="_blank"
+            rel="noreferrer"
+          >
             explrpathways.netlify.app
           </a>
           .
         </li>
-        <li>2. Choose <strong>&ldquo;Explore as a family.&rdquo;</strong></li>
-        <li>3. Search by your student&rsquo;s Holland code (e.g. their letters above) to see matching jobs — with pay and pathways.</li>
+        <li>
+          2. Choose <strong>&ldquo;Explore as a family.&rdquo;</strong>
+        </li>
+        <li>
+          3. Search by your student&rsquo;s Holland code (e.g. their letters above) to see matching
+          jobs — with pay and pathways.
+        </li>
       </ol>
       <a
         href="https://explrpathways.netlify.app/"
@@ -175,8 +228,12 @@ function CareersCallout() {
 
 // ── Interest profile (RIASEC) ────────────────────────────────────────────
 function InterestPanel({ data }: { data: Riasec }) {
-  const top = (data.hollandCode.split("").filter((c) => RIASEC[c as RIASECCode]) as RIASECCode[]).slice(0, 3);
-  const sorted = [...RIASEC_ORDER].sort((a, b) => (data.scaleScores[b] ?? 0) - (data.scaleScores[a] ?? 0));
+  const top = (
+    data.hollandCode.split("").filter((c) => RIASEC[c as RIASECCode]) as RIASECCode[]
+  ).slice(0, 3);
+  const sorted = [...RIASEC_ORDER].sort(
+    (a, b) => (data.scaleScores[b] ?? 0) - (data.scaleScores[a] ?? 0),
+  );
   return (
     <div>
       <p className="eyebrow">Interest assessment (RIASEC)</p>
@@ -213,13 +270,20 @@ function InterestPanel({ data }: { data: Riasec }) {
             <li key={c}>
               <div className="flex items-baseline justify-between gap-3">
                 <span className="text-sm">
-                  <span className="font-semibold" style={{ color: d.color }}>{d.code}</span>{" "}
+                  <span className="font-semibold" style={{ color: d.color }}>
+                    {d.code}
+                  </span>{" "}
                   {d.hsPlainName}
                 </span>
-                <span className="text-xs tabular-nums text-charcoal-500">{score.toFixed(1)} / 5</span>
+                <span className="text-xs tabular-nums text-charcoal-500">
+                  {score.toFixed(1)} / 5
+                </span>
               </div>
               <div className="mt-1 h-1.5 bg-charcoal-100">
-                <div className="h-full" style={{ width: `${(score / 5) * 100}%`, background: d.color }} />
+                <div
+                  className="h-full"
+                  style={{ width: `${(score / 5) * 100}%`, background: d.color }}
+                />
               </div>
             </li>
           );
@@ -259,11 +323,18 @@ function InternshipPanel({ data }: { data: SurveyRes }) {
             const full = INTERNSHIPS.find((x) => x.slug === m.slug);
             return (
               <li key={m.slug} className="border border-charcoal-100 p-4">
-                <p className="eyebrow" style={{ color: "var(--explr)" }}>{i + 1}. {m.theme}</p>
-                <p className="mt-1 font-medium">
-                  <span className="mr-2" aria-hidden>{m.emoji}</span>{m.name}
+                <p className="eyebrow" style={{ color: "var(--explr)" }}>
+                  {i + 1}. {m.theme}
                 </p>
-                {full?.deliverables && <p className="mt-1 text-sm text-charcoal-500">{full.deliverables}</p>}
+                <p className="mt-1 font-medium">
+                  <span className="mr-2" aria-hidden>
+                    {m.emoji}
+                  </span>
+                  {m.name}
+                </p>
+                {full?.deliverables && (
+                  <p className="mt-1 text-sm text-charcoal-500">{full.deliverables}</p>
+                )}
                 {m.whyFit && (
                   <p className="mt-2 text-sm italic" style={{ color: "var(--explr)" }}>
                     Why this fits: {m.whyFit}
@@ -275,8 +346,8 @@ function InternshipPanel({ data }: { data: SurveyRes }) {
         </ul>
       )}
       <p className="mt-4 text-xs text-charcoal-400">
-        Matches are ranked by your student&rsquo;s interests. In grades 8–12 they can apply to any of
-        these from their dashboard.
+        Matches are ranked by your student&rsquo;s interests. In grades 8–12 they can apply to any
+        of these from their dashboard.
       </p>
     </div>
   );
@@ -284,13 +355,16 @@ function InternshipPanel({ data }: { data: SurveyRes }) {
 
 // ── Aptitude ───────────────────────────────────────────────────────────────
 function AptitudePanel({ data }: { data: Apt }) {
-  const subs = data.subscaleScores && typeof data.subscaleScores === "object"
-    ? Object.entries(data.subscaleScores)
-    : [];
+  const subs =
+    data.subscaleScores && typeof data.subscaleScores === "object"
+      ? Object.entries(data.subscaleScores)
+      : [];
   const pct = data.items > 0 ? Math.round((data.total / data.items) * 100) : null;
   return (
     <div>
-      <p className="eyebrow">Aptitude battery ({data.band === "HS" ? "high school" : "middle school"})</p>
+      <p className="eyebrow">
+        Aptitude battery ({data.band === "HS" ? "high school" : "middle school"})
+      </p>
       <h3 className="mt-2 text-lg font-medium">A quick reasoning snapshot</h3>
       {pct !== null && (
         <p className="mt-3 text-3xl font-light">
@@ -301,7 +375,10 @@ function AptitudePanel({ data }: { data: Apt }) {
       {subs.length > 0 && (
         <ul className="mt-4 space-y-2">
           {subs.map(([name, val]) => (
-            <li key={name} className="flex items-baseline justify-between border-b border-charcoal-100 pb-2 text-sm">
+            <li
+              key={name}
+              className="flex items-baseline justify-between border-b border-charcoal-100 pb-2 text-sm"
+            >
               <span className="capitalize text-charcoal-700">{name.replace(/[_-]+/g, " ")}</span>
               <span className="tabular-nums text-charcoal-500">{String(val)}</span>
             </li>
@@ -309,8 +386,8 @@ function AptitudePanel({ data }: { data: Apt }) {
         </ul>
       )}
       <p className="mt-4 max-w-2xl text-xs text-charcoal-400">
-        This is a low-stakes snapshot of puzzle-style reasoning — it is <strong>not a grade</strong>,
-        not a placement test, and is never used to limit any opportunity. Use it to celebrate a
+        This is a low-stakes snapshot of puzzle-style reasoning — it is <strong>not a grade</strong>
+        , not a placement test, and is never used to limit any opportunity. Use it to celebrate a
         strength or spark a conversation.
       </p>
     </div>
@@ -323,18 +400,30 @@ function StemPanel({ studentId }: { studentId: string }) {
     <div className="space-y-8">
       <section>
         <p className="eyebrow">STEM survey</p>
-        <h3 className="mt-2 text-lg font-medium">Your student&rsquo;s STEM attitudes &amp; confidence</h3>
+        <h3 className="mt-2 text-lg font-medium">
+          Your student&rsquo;s STEM attitudes &amp; confidence
+        </h3>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-charcoal-600">
-          Programs give this short survey at the start and end (or as one before-and-after reflection)
-          to see how a student&rsquo;s confidence and interest grow. It measures <strong>attitudes —
-          there are no right or wrong answers</strong> — across several areas:
+          Programs give this short survey at the start and end (or as one before-and-after
+          reflection) to see how a student&rsquo;s confidence and interest grow. It measures{" "}
+          <strong>attitudes — there are no right or wrong answers</strong> — across several areas:
         </p>
         <ul className="mt-3 grid gap-1.5 text-sm text-charcoal-600 sm:grid-cols-2">
-          <li>· <strong>Math / Science</strong> — confidence and attitudes toward each.</li>
-          <li>· <strong>Engineering &amp; Technology</strong> — interest in building and tech.</li>
-          <li>· <strong>21st-Century Learning</strong> — teamwork, communication, persistence.</li>
-          <li>· <strong>STEM career interest</strong> — interest in STEM jobs.</li>
-          <li>· <strong>Career planning</strong> — confidence planning next steps.</li>
+          <li>
+            · <strong>Math / Science</strong> — confidence and attitudes toward each.
+          </li>
+          <li>
+            · <strong>Engineering &amp; Technology</strong> — interest in building and tech.
+          </li>
+          <li>
+            · <strong>21st-Century Learning</strong> — teamwork, communication, persistence.
+          </li>
+          <li>
+            · <strong>STEM career interest</strong> — interest in STEM jobs.
+          </li>
+          <li>
+            · <strong>Career planning</strong> — confidence planning next steps.
+          </li>
         </ul>
       </section>
 
@@ -342,9 +431,9 @@ function StemPanel({ studentId }: { studentId: string }) {
 
       <p className="border-t border-charcoal-100 pt-6 text-xs text-charcoal-400">
         Based on the <strong>S-STEM Survey</strong> (Friday Institute for Educational Innovation,
-        2012) — a widely used, validated instrument for evaluating STEM programs — with career-planning
-        items adapted from Falco &amp; Summers (2019). Scored at the area level (never single
-        questions); it reflects attitudes and confidence, not ability.
+        2012) — a widely used, validated instrument for evaluating STEM programs — with
+        career-planning items adapted from Falco &amp; Summers (2019). Scored at the area level
+        (never single questions); it reflects attitudes and confidence, not ability.
       </p>
     </div>
   );
@@ -358,11 +447,11 @@ function AboutPanel({ grade }: { grade: number | null }) {
       <section>
         <p className="eyebrow">The interest assessment</p>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-charcoal-600">
-          Students rate how much they&rsquo;d enjoy a range of everyday activities. Their answers sort
-          into <strong>six interest areas</strong> (the RIASEC model); the top three become their
-          &ldquo;Holland code.&rdquo; Almost everyone is a blend. EXPLR uses RIASEC because it&rsquo;s the
-          most researched framework for this age (45+ years; it underlies the U.S. Department of
-          Labor&rsquo;s O*NET career tools).
+          Students rate how much they&rsquo;d enjoy a range of everyday activities. Their answers
+          sort into <strong>six interest areas</strong> (the RIASEC model); the top three become
+          their &ldquo;Holland code.&rdquo; Almost everyone is a blend. EXPLR uses RIASEC because
+          it&rsquo;s the most researched framework for this age (45+ years; it underlies the U.S.
+          Department of Labor&rsquo;s O*NET career tools).
         </p>
         <ul className="mt-5 grid gap-4 sm:grid-cols-2">
           {RIASEC_ORDER.map((c) => {
@@ -377,7 +466,9 @@ function AboutPanel({ grade }: { grade: number | null }) {
                   {c}
                 </span>
                 <div>
-                  <p className="font-medium" style={{ color: d.color }}>{d.hsPlainName}</p>
+                  <p className="font-medium" style={{ color: d.color }}>
+                    {d.hsPlainName}
+                  </p>
                   <p className="text-sm text-charcoal-600">{d.hsDescription}</p>
                 </div>
               </li>
@@ -390,8 +481,9 @@ function AboutPanel({ grade }: { grade: number | null }) {
       <section className="border-t border-charcoal-100 pt-8">
         <p className="eyebrow">The internship interest survey</p>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-charcoal-600">
-          A short survey that reads interests, sectors, and work style, then <strong>ranks the real
-          EXPLR internships</strong> that fit best — each with a plain &ldquo;why this fits you.&rdquo;
+          A short survey that reads interests, sectors, and work style, then{" "}
+          <strong>ranks the real EXPLR internships</strong> that fit best — each with a plain
+          &ldquo;why this fits you.&rdquo;
           {isHS ? " Your student can explore and apply." : " Matching opens up in grades 8–12."}
         </p>
       </section>
@@ -399,9 +491,16 @@ function AboutPanel({ grade }: { grade: number | null }) {
       <section className="border-t border-charcoal-100 pt-8">
         <p className="eyebrow">What the results are — and aren&rsquo;t</p>
         <ul className="mt-3 max-w-2xl space-y-2 text-sm text-charcoal-600">
-          <li>· A <strong>strength</strong>, framed positively — never a verdict or a limit.</li>
-          <li>· <strong>Private</strong> to your student; research surveys are never shown next to a name.</li>
-          <li>· <strong>No grades</strong> and no high-stakes scoring in the interest tools.</li>
+          <li>
+            · A <strong>strength</strong>, framed positively — never a verdict or a limit.
+          </li>
+          <li>
+            · <strong>Private</strong> to your student; research surveys are never shown next to a
+            name.
+          </li>
+          <li>
+            · <strong>No grades</strong> and no high-stakes scoring in the interest tools.
+          </li>
           <li>· A moment in time — interests grow and change a lot at this age.</li>
         </ul>
       </section>
@@ -409,15 +508,22 @@ function AboutPanel({ grade }: { grade: number | null }) {
       <section className="border-t border-charcoal-100 pt-8">
         <p className="eyebrow">How to use this at home</p>
         <ul className="mt-3 max-w-2xl space-y-2 text-sm text-charcoal-600">
-          <li>· Ask <em>&ldquo;which activities did you enjoy, and why?&rdquo;</em></li>
+          <li>
+            · Ask <em>&ldquo;which activities did you enjoy, and why?&rdquo;</em>
+          </li>
           <li>· Use the interests to pick clubs, summer programs, and things to try next.</li>
-          <li>· Reframe &ldquo;what do you want to be?&rdquo; as &ldquo;what do you like to do?&rdquo;</li>
+          <li>
+            · Reframe &ldquo;what do you want to be?&rdquo; as &ldquo;what do you like to do?&rdquo;
+          </li>
         </ul>
       </section>
 
       <p className="border-t border-charcoal-100 pt-6 text-xs text-charcoal-400">
-        Questions? Ask your camp educator or email{" "}
-        <a href="mailto:support@explr.cc" className="ink-link">support@explr.cc</a>.
+        Questions? Ask your camp instructor or email{" "}
+        <a href="mailto:support@explr.cc" className="ink-link">
+          support@explr.cc
+        </a>
+        .
       </p>
     </div>
   );

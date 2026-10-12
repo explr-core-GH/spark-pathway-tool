@@ -3,7 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/org/sign-in")({
-  head: () => ({ meta: [{ title: "Organization sign in — EXPLR" }] }),
+  head: () => ({ meta: [{ title: "Partner sign in — EXPLR" }] }),
   component: OrgSignIn,
 });
 
@@ -33,14 +33,26 @@ function OrgSignIn() {
       <Link to="/" className="eyebrow mb-12 inline-block">
         ← EXPLR
       </Link>
-      <h1 className="text-3xl font-light">Organization sign in</h1>
+      <h1 className="text-3xl font-light">Partner sign in</h1>
       <form onSubmit={submit} className="mt-10 space-y-5">
         <div>
-          <label className="label" htmlFor="org-email">Email</label>
-          <input id="org-email" className="field" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <label className="label" htmlFor="org-email">
+            Email
+          </label>
+          <input
+            id="org-email"
+            className="field"
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
         <div>
-          <label className="label" htmlFor="org-password">Passphrase</label>
+          <label className="label" htmlFor="org-password">
+            Passphrase
+          </label>
           <div className="relative">
             <input
               id="org-password"
@@ -60,15 +72,24 @@ function OrgSignIn() {
             </button>
           </div>
         </div>
-        {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
+        {error && (
+          <p className="text-sm text-destructive" role="alert">
+            {error}
+          </p>
+        )}
         <button type="submit" disabled={loading} className="btn-ink w-full justify-center">
           {loading ? "Signing in…" : "Sign in"}
         </button>
       </form>
       <p className="mt-6 text-sm text-charcoal-500">
-        New partner? <Link to="/org/sign-up" className="ink-link">Register your organization</Link>
+        New partner?{" "}
+        <Link to="/org/sign-up" className="ink-link">
+          Register your organization or company
+        </Link>
         <span className="mx-2 text-charcoal-300">·</span>
-        <Link to="/forgot-password" className="ink-link">Forgot password?</Link>
+        <Link to="/forgot-password" className="ink-link">
+          Forgot password?
+        </Link>
       </p>
     </main>
   );

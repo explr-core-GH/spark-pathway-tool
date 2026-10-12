@@ -23,11 +23,7 @@ export function RoleGuard({ requires, children }: Props) {
   const { user, educator, isAdmin, loading } = useEducator();
 
   if (loading) {
-    return (
-      <main className="mx-auto max-w-md px-6 py-24 text-sm text-charcoal-400">
-        Loading…
-      </main>
-    );
+    return <main className="mx-auto max-w-md px-6 py-24 text-sm text-charcoal-400">Loading…</main>;
   }
 
   // Not signed in at all
@@ -35,11 +31,7 @@ export function RoleGuard({ requires, children }: Props) {
     return (
       <Mismatch
         eyebrow="Sign in required"
-        title={
-          requires === "student"
-            ? "Sign in to take the assessment"
-            : "Sign in required"
-        }
+        title={requires === "student" ? "Sign in to take the assessment" : "Sign in required"}
         body={
           requires === "student"
             ? "You need a student account to take the assessment and apply for internships."
@@ -48,12 +40,12 @@ export function RoleGuard({ requires, children }: Props) {
         primary={
           requires === "student"
             ? { to: "/sign-in", label: "Student sign in" }
-            : { to: "/educator/sign-in", label: "Educator sign in" }
+            : { to: "/instructor/sign-in", label: "Educator sign in" }
         }
         secondary={
           requires === "student"
             ? { to: "/sign-up", label: "Create student account" }
-            : { to: "/educator/sign-up", label: "Request access" }
+            : { to: "/instructor/sign-up", label: "Request access" }
         }
       />
     );
@@ -68,10 +60,10 @@ export function RoleGuard({ requires, children }: Props) {
   if (requires === "student" && isEducator && !isAdmin) {
     return (
       <Mismatch
-        eyebrow="Educator account"
+        eyebrow="Instructor account"
         title="This area is for students"
         body="Your account is registered as an educator. Head to your educator dashboard for curriculum, internships, and rosters."
-        primary={{ to: "/educator/dashboard", label: "Go to educator dashboard" }}
+        primary={{ to: "/instructor/dashboard", label: "Go to instructor dashboard" }}
         secondary={{ to: "/", label: "Back to home" }}
       />
     );
@@ -83,10 +75,10 @@ export function RoleGuard({ requires, children }: Props) {
     return (
       <Mismatch
         eyebrow="Student account"
-        title="This area is for educators"
+        title="This area is for instructors"
         body="Your account isn't registered as an educator. Request educator access, or head back to your student experience."
         primary={{ to: "/assessment", label: "Back to assessment" }}
-        secondary={{ to: "/educator/sign-up", label: "Request educator access" }}
+        secondary={{ to: "/instructor/sign-up", label: "Request educator access" }}
       />
     );
   }
@@ -110,7 +102,7 @@ export function RoleGuard({ requires, children }: Props) {
         body="This area is reserved for EXPLR admins."
         primary={
           isApprovedEducator
-            ? { to: "/educator/dashboard", label: "Back to educator dashboard" }
+            ? { to: "/instructor/dashboard", label: "Back to instructor dashboard" }
             : { to: "/", label: "Back to home" }
         }
       />
@@ -141,9 +133,13 @@ function Mismatch({
       <h1 className="mt-3 text-2xl font-light">{title}</h1>
       <p className="mt-4 text-sm text-charcoal-500">{body}</p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <Link to={primary.to as never} className="btn-ink">{primary.label}</Link>
+        <Link to={primary.to as never} className="btn-ink">
+          {primary.label}
+        </Link>
         {secondary && (
-          <Link to={secondary.to as never} className="btn-ghost">{secondary.label}</Link>
+          <Link to={secondary.to as never} className="btn-ghost">
+            {secondary.label}
+          </Link>
         )}
       </div>
     </main>

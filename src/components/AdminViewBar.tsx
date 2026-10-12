@@ -7,7 +7,7 @@ export function AdminViewBar() {
 
   if (loading || !educator || educator.role !== "admin") return null;
   // Already inside the educator/admin surface — the educator header has its own bar.
-  if (location.pathname.startsWith("/educator")) return null;
+  if (location.pathname.startsWith("/instructor")) return null;
 
   return (
     <div className="border-b border-charcoal-100 bg-charcoal-50">
@@ -15,7 +15,7 @@ export function AdminViewBar() {
         <span className="eyebrow" style={{ margin: 0 }}>
           Viewing as student
         </span>
-        <Link to="/educator/admin" className="ink-link">
+        <Link to="/instructor/admin" className="ink-link">
           ← Back to admin
         </Link>
       </div>
