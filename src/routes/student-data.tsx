@@ -29,13 +29,25 @@ function StudentDataPage() {
       <List
         items={[
           <>
-            <strong>The district owns the records.</strong> Student names, grade levels, assessment
-            responses, and Holland codes created under the contract are the district's educational
-            records, not EXPLR's. The same goes for survey and quiz answers (including written
-            answers and optional background questions), camp and internship rosters and sign-in
-            usernames, program progress, internship applications, supervisor ratings and
-            recommendations, recommendation letters, and records of when students were active in the
-            tool.
+            <strong>The district owns the records it creates with us.</strong> Student names, grade
+            levels, class rosters, assessment responses, and Holland codes created under the
+            contract are the district's educational records, not EXPLR's. The same goes for survey
+            answers (including written answers and optional background questions), checkpoints and
+            Student Success Plans, experiences and supervisor ratings logged through a district
+            program, internship applications, recommendation letters, and records of when students
+            were active in the tool.
+          </>,
+          <>
+            <strong>Camp records are EXPLR's, not the district's.</strong> Camp registrations,
+            attendance, rosters, and camp sign-in cards come from EXPLR's own camp registration
+            platform, where a parent or guardian registers their child directly with EXPLR. Those
+            are EXPLR program records held under that parent's registration and our{" "}
+            <Link to="/privacy" className="ink-link">
+              privacy policy
+            </Link>
+            , not a district's records under Senate Bill 29, even when the same child also uses
+            Pathways through a district contract. They are never shared with a district without the
+            parent's consent.
           </>,
           <>
             <strong>Limited use.</strong> We use them only to produce student reports, match

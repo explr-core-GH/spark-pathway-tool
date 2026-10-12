@@ -97,8 +97,10 @@ function PrivacyPage() {
         ]}
       />
       <p>
-        When a school district uses EXPLR Pathways under a contract, that district owns its
-        students' records. See our{" "}
+        When a school district uses EXPLR Pathways under a contract, that district owns the records
+        created under it. Camp registrations, attendance, and rosters are different: parents
+        register for camps directly with EXPLR, so those are EXPLR program records under this
+        policy, not district records. See our{" "}
         <Link to="/student-data" className="ink-link">
           Student Data Privacy Statement
         </Link>
@@ -108,9 +110,9 @@ function PrivacyPage() {
       <H2>Deletion</H2>
       <p>
         Student records are scheduled for deletion 24 months after they are created. Students,
-        parents, or schools may ask for earlier deletion at any time by emailing [CONTACT EMAIL]; we
-        complete it within 30 days. Records belonging to a district under contract are returned or
-        destroyed as the contract requires, and within 90 days of the contract's end.
+        parents, or schools may ask for earlier deletion at any time by emailing support@explr.cc;
+        we complete it within 30 days. Records belonging to a district under contract are returned
+        or destroyed as the contract requires, and within 90 days of the contract's end.
       </p>
 
       <H2>Security</H2>
