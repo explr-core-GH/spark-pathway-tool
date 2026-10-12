@@ -66,7 +66,6 @@ import { Route as SurveyAssignmentIdRouteImport } from './routes/survey.$assignm
 import { Route as AssessmentSessionIdResultsRouteImport } from './routes/assessment.$sessionId_.results'
 import { Route as InstructorAdminIndexRouteImport } from './routes/instructor.admin.index'
 import { Route as InstructorAdminApplicationsRouteImport } from './routes/instructor.admin.applications'
-import { Route as InstructorAdminApplyRequestsRouteImport } from './routes/instructor.admin.apply-requests'
 import { Route as InstructorAdminArchiveRouteImport } from './routes/instructor.admin.archive'
 import { Route as InstructorAdminAssessmentsRouteImport } from './routes/instructor.admin.assessments'
 import { Route as InstructorAdminAssignRouteImport } from './routes/instructor.admin.assign'
@@ -382,12 +381,6 @@ const InstructorAdminApplicationsRoute =
     path: '/applications',
     getParentRoute: () => InstructorAdminRoute,
   } as any)
-const InstructorAdminApplyRequestsRoute =
-  InstructorAdminApplyRequestsRouteImport.update({
-    id: '/apply-requests',
-    path: '/apply-requests',
-    getParentRoute: () => InstructorAdminRoute,
-  } as any)
 const InstructorAdminArchiveRoute = InstructorAdminArchiveRouteImport.update({
   id: '/archive',
   path: '/archive',
@@ -599,7 +592,6 @@ export interface FileRoutesByFullPath {
   '/partner/': typeof PartnerIndexRoute
   '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
   '/instructor/admin/applications': typeof InstructorAdminApplicationsRoute
-  '/instructor/admin/apply-requests': typeof InstructorAdminApplyRequestsRoute
   '/instructor/admin/archive': typeof InstructorAdminArchiveRoute
   '/instructor/admin/assessments': typeof InstructorAdminAssessmentsRoute
   '/instructor/admin/assign': typeof InstructorAdminAssignRoute
@@ -684,7 +676,6 @@ export interface FileRoutesByTo {
   '/partner': typeof PartnerIndexRoute
   '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
   '/instructor/admin/applications': typeof InstructorAdminApplicationsRoute
-  '/instructor/admin/apply-requests': typeof InstructorAdminApplyRequestsRoute
   '/instructor/admin/archive': typeof InstructorAdminArchiveRoute
   '/instructor/admin/assessments': typeof InstructorAdminAssessmentsRoute
   '/instructor/admin/assign': typeof InstructorAdminAssignRoute
@@ -772,7 +763,6 @@ export interface FileRoutesById {
   '/partner/': typeof PartnerIndexRoute
   '/assessment/$sessionId_/results': typeof AssessmentSessionIdResultsRoute
   '/instructor/admin/applications': typeof InstructorAdminApplicationsRoute
-  '/instructor/admin/apply-requests': typeof InstructorAdminApplyRequestsRoute
   '/instructor/admin/archive': typeof InstructorAdminArchiveRoute
   '/instructor/admin/assessments': typeof InstructorAdminAssessmentsRoute
   '/instructor/admin/assign': typeof InstructorAdminAssignRoute
@@ -861,7 +851,6 @@ export interface FileRouteTypes {
     | '/partner/'
     | '/assessment/$sessionId/results'
     | '/instructor/admin/applications'
-    | '/instructor/admin/apply-requests'
     | '/instructor/admin/archive'
     | '/instructor/admin/assessments'
     | '/instructor/admin/assign'
@@ -946,7 +935,6 @@ export interface FileRouteTypes {
     | '/partner'
     | '/assessment/$sessionId/results'
     | '/instructor/admin/applications'
-    | '/instructor/admin/apply-requests'
     | '/instructor/admin/archive'
     | '/instructor/admin/assessments'
     | '/instructor/admin/assign'
@@ -1033,7 +1021,6 @@ export interface FileRouteTypes {
     | '/partner/'
     | '/assessment/$sessionId_/results'
     | '/instructor/admin/applications'
-    | '/instructor/admin/apply-requests'
     | '/instructor/admin/archive'
     | '/instructor/admin/assessments'
     | '/instructor/admin/assign'
@@ -1517,13 +1504,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InstructorAdminApplicationsRouteImport
       parentRoute: typeof InstructorAdminRoute
     }
-    '/instructor/admin/apply-requests': {
-      id: '/instructor/admin/apply-requests'
-      path: '/apply-requests'
-      fullPath: '/instructor/admin/apply-requests'
-      preLoaderRoute: typeof InstructorAdminApplyRequestsRouteImport
-      parentRoute: typeof InstructorAdminRoute
-    }
     '/instructor/admin/archive': {
       id: '/instructor/admin/archive'
       path: '/archive'
@@ -1718,7 +1698,6 @@ declare module '@tanstack/react-router' {
 
 interface InstructorAdminRouteChildren {
   InstructorAdminApplicationsRoute: typeof InstructorAdminApplicationsRoute
-  InstructorAdminApplyRequestsRoute: typeof InstructorAdminApplyRequestsRoute
   InstructorAdminArchiveRoute: typeof InstructorAdminArchiveRoute
   InstructorAdminAssessmentsRoute: typeof InstructorAdminAssessmentsRoute
   InstructorAdminAssignRoute: typeof InstructorAdminAssignRoute
@@ -1745,7 +1724,6 @@ interface InstructorAdminRouteChildren {
 
 const InstructorAdminRouteChildren: InstructorAdminRouteChildren = {
   InstructorAdminApplicationsRoute: InstructorAdminApplicationsRoute,
-  InstructorAdminApplyRequestsRoute: InstructorAdminApplyRequestsRoute,
   InstructorAdminArchiveRoute: InstructorAdminArchiveRoute,
   InstructorAdminAssessmentsRoute: InstructorAdminAssessmentsRoute,
   InstructorAdminAssignRoute: InstructorAdminAssignRoute,

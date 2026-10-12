@@ -473,11 +473,11 @@ test.describe("Amara (grade 11)", () => {
     await expect(major).toHaveValue(original, SLOW);
   });
 
-  test("/student/apply: the demo internship is listed as Requested", async () => {
+  test("/student/apply: the demo internship is listed as Submitted", async () => {
     await openAs(page, TARGET_BASE, amara, "/student/apply");
     const row = page.locator("li", { hasText: "Supply Chain & Pharmacy Operations Intern" });
     await expect(row.first()).toBeVisible(SLOW);
-    await expect(page.getByText("Requested", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("Submitted", { exact: true }).first()).toBeVisible();
   });
 
   test("/student/pathway: tabs work; family code create + revoke (live)", async () => {

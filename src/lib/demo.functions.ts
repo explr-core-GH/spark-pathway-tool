@@ -930,7 +930,8 @@ export const seedDemo = createServerFn({ method: "POST" })
         student_id: studentId,
         internship_ref: `opp:${internshipId}`,
         opportunity_id: internshipId,
-        status: "requested",
+        status: "submitted",
+        submitted_at: daysAgo(5),
         rank: 1,
         acknowledgments: [
           "Closed-toed shoes required",

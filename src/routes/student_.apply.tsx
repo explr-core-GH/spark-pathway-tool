@@ -40,10 +40,9 @@ const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(
 const MIN_CHOICES = 4;
 
 const STATUS_LABEL: Record<string, string> = {
-  requested: "Requested",
-  approved: "Approved — complete it",
-  denied: "Not approved",
-  submitted: "Application submitted",
+  approved: "In progress — finish it",
+  submitted: "Submitted",
+  denied: "Withdrawn",
 };
 
 function SelectPage() {
@@ -196,18 +195,18 @@ function SelectPage() {
     );
     if (unacked.length) {
       setError(
-        `Check every requirement for ${unacked.map(nameByRef).join(", ")} before requesting.`,
+        `Check every requirement for ${unacked.map(nameByRef).join(", ")} before continuing.`,
       );
       return;
     }
     setSubmitting(true);
-    // Insert fresh requests with their rank; re-rank existing still-requested rows.
+    // Insert fresh choices with their rank (ready to complete); re-rank the ones still in progress.
     const fresh = selected.filter((ref) => !existing[ref]);
     const rows = fresh.map((ref) => ({
       student_id: user.id,
       internship_ref: ref,
       opportunity_id: isOppSlug(ref) ? oppIdFromSlug(ref) : null,
-      status: "requested",
+      status: "approved",
       rank: selected.indexOf(ref) + 1,
       acknowledgments: acks[ref] ?? [],
     }));
@@ -222,9 +221,9 @@ function SelectPage() {
         return;
       }
     }
-    // Update rank on existing requests that are still pending.
+    // Update rank on choices that are still in progress.
     for (const ref of selected) {
-      if (existing[ref] === "requested") {
+      if (existing[ref] === "approved") {
         await sb("internship_selections")
           .update({ rank: selected.indexOf(ref) + 1, acknowledgments: acks[ref] ?? [] })
           .eq("student_id", user.id)
@@ -232,7 +231,8 @@ function SelectPage() {
       }
     }
     setSubmitting(false);
-    setDone(true);
+    // Straight on to the application itself: resume, proofs, and partner forms.
+    navigate({ to: "/student/apply-complete" });
   }
 
   if (authLoading || loading) {
@@ -277,7 +277,7 @@ function SelectPage() {
             </ul>
             {Object.values(existing).some((s) => s === "approved") && (
               <Link to="/student/apply-complete" className="btn-ink mt-4">
-                Complete approved applications →
+                Finish my application →
               </Link>
             )}
           </div>
@@ -306,12 +306,10 @@ function SelectPage() {
             role="status"
             className="mt-10 rounded-[var(--radius-card)] border border-mint-soft bg-mint-tint p-6"
           >
-            <p className="font-display text-xl font-semibold text-green-deep">
-              Requests submitted.
-            </p>
+            <p className="font-display text-xl font-semibold text-green-deep">Choices saved.</p>
             <p className="mt-1 text-sm text-ink-700">
-              An admin will review them. You&apos;ll be able to complete the application for each
-              one that&apos;s approved.
+              Finish your application next: resume, proofs, and any forms the partner asks for.
+              Placements are decided at the end of the application window.
             </p>
             <button
               type="button"

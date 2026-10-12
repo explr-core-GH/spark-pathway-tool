@@ -15,10 +15,11 @@ import {
 } from "@/lib/matching/placement";
 
 /**
- * /instructor/admin/matching — the placement matching tool. For every open
- * internship, the requesting students ranked by a weighted score, with the
- * hard requirements each one fails shown plainly. Approve or deny requests
- * from here; approvals flow into the existing two-stage application.
+ * /instructor/admin/matching — the placement matching tool. Students apply
+ * directly; at the end of the window every listing shows its applicants
+ * ranked by the weighted score, with the hard requirements each one fails
+ * shown plainly. Place (or un-place) a student from here; placements are
+ * what the passport and the hours log read.
  */
 export const Route = createFileRoute("/instructor/admin/matching")({
   head: () => ({ meta: [{ title: "Internship matching — Admin" }] }),
@@ -49,13 +50,30 @@ function Matching() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [view, setView] = useState<"listing" | "student">("listing");
+  const [placements, setPlacements] = useState<
+    Array<{ student_id: string; approved_internship_id: string }>
+  >([]);
+  const [applicationIds, setApplicationIds] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
     const { data: selRows } = await sb("internship_selections")
       .select("id, student_id, internship_ref, status, rank, acknowledgments")
-      .in("status", ["requested", "approved"]);
+      .in("status", ["submitted", "approved"]);
     const selections = (selRows ?? []) as Sel[];
+    const [{ data: plRows }, { data: appRows }] = await Promise.all([
+      sb("internship_placements").select("student_id, approved_internship_id"),
+      sb("internship_applications").select("id, student_id"),
+    ]);
+    setPlacements((plRows ?? []) as Array<{ student_id: string; approved_internship_id: string }>);
+    setApplicationIds(
+      Object.fromEntries(
+        ((appRows ?? []) as Array<{ id: string; student_id: string }>).map((a) => [
+          a.student_id,
+          a.id,
+        ]),
+      ),
+    );
     const refs = [...new Set(selections.map((s) => s.internship_ref))];
     const oppIds = refs.filter(isOppSlug).map(oppIdFromSlug);
     const studentIds = [...new Set(selections.map((s) => s.student_id))];
@@ -244,28 +262,47 @@ function Matching() {
     return m;
   }, [targets, candidatesByRef]);
 
-  async function decide(
-    studentId: string,
-    ref: string,
-    status: "approved" | "denied",
-    outcome?: MatchOutcome,
-  ) {
+  const placedAt = (studentId: string, ref: string) =>
+    placements.some((p) => p.student_id === studentId && p.approved_internship_id === ref);
+
+  /** Place a student at a listing (or remove the placement). Scores are stored with the selection. */
+  async function place(studentId: string, ref: string, on: boolean, outcome?: MatchOutcome) {
     setBusy(`${studentId}:${ref}`);
-    await sb("internship_selections")
-      .update({
-        status,
-        decided_at: new Date().toISOString(),
-        ...(outcome
-          ? {
-              match_score: outcome.score,
-              match_breakdown: outcome.breakdown,
-              hard_fail: outcome.hardFails,
-              match_computed_at: new Date().toISOString(),
-            }
-          : {}),
-      })
-      .eq("student_id", studentId)
-      .eq("internship_ref", ref);
+    if (on) {
+      const applicationId = applicationIds[studentId];
+      if (!applicationId) {
+        alert("This student has not finished their application yet.");
+        setBusy(null);
+        return;
+      }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      const { error } = await sb("internship_placements").insert({
+        application_id: applicationId,
+        student_id: studentId,
+        approved_internship_id: ref,
+        approved_by: user?.id ?? null,
+      });
+      if (error) alert(error.message);
+      if (outcome)
+        await sb("internship_selections")
+          .update({
+            match_score: outcome.score,
+            match_breakdown: outcome.breakdown,
+            hard_fail: outcome.hardFails,
+            match_computed_at: new Date().toISOString(),
+            decided_at: new Date().toISOString(),
+          })
+          .eq("student_id", studentId)
+          .eq("internship_ref", ref);
+    } else {
+      const { error } = await sb("internship_placements")
+        .delete()
+        .eq("student_id", studentId)
+        .eq("approved_internship_id", ref);
+      if (error) alert(error.message);
+    }
     await load();
     setBusy(null);
   }
@@ -289,7 +326,7 @@ function Matching() {
   }
 
   const statusOf = (studentId: string, ref: string) =>
-    sels.find((s) => s.student_id === studentId && s.internship_ref === ref)?.status ?? "requested";
+    sels.find((s) => s.student_id === studentId && s.internship_ref === ref)?.status ?? "approved";
   const nameOf = (studentId: string) =>
     Object.values(candidatesByRef)
       .flat()
@@ -391,14 +428,15 @@ function Matching() {
                           o={o}
                           name={nameOf(o.studentId)}
                           status={statusOf(o.studentId, t.ref)}
+                          placed={placedAt(o.studentId, t.ref)}
                           busy={busy === `${o.studentId}:${t.ref}`}
-                          onApprove={() => decide(o.studentId, t.ref, "approved", o)}
-                          onDeny={() => decide(o.studentId, t.ref, "denied", o)}
+                          onPlace={() => place(o.studentId, t.ref, true, o)}
+                          onUnplace={() => place(o.studentId, t.ref, false)}
                         />
                       </li>
                     ))}
                     {list.length === 0 && (
-                      <li className="py-3 text-xs text-ink-500">No requests.</li>
+                      <li className="py-3 text-xs text-ink-500">No applicants yet.</li>
                     )}
                   </ol>
                 )}
@@ -426,9 +464,10 @@ function Matching() {
                       o={o}
                       name=""
                       status={statusOf(sid, o.ref)}
+                      placed={placedAt(sid, o.ref)}
                       busy={busy === `${sid}:${o.ref}`}
-                      onApprove={() => decide(sid, o.ref, "approved", o)}
-                      onDeny={() => decide(sid, o.ref, "denied", o)}
+                      onPlace={() => place(sid, o.ref, true, o)}
+                      onUnplace={() => place(sid, o.ref, false)}
                     />
                   </li>
                 ))}
@@ -445,16 +484,18 @@ function OutcomeRow({
   o,
   name,
   status,
+  placed,
   busy,
-  onApprove,
-  onDeny,
+  onPlace,
+  onUnplace,
 }: {
   o: MatchOutcome;
   name: string;
   status: string;
+  placed: boolean;
   busy: boolean;
-  onApprove: () => void;
-  onDeny: () => void;
+  onPlace: () => void;
+  onUnplace: () => void;
 }) {
   const pct = Math.round(o.score * 100);
   return (
@@ -487,19 +528,26 @@ function OutcomeRow({
         </p>
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-xs text-ink-500">{status}</span>
-        {status !== "approved" && (
-          <button type="button" disabled={busy} onClick={onApprove} className="btn-ink text-xs">
-            Approve
+        <span className="rounded-full bg-paper-sunken px-2 py-0.5 font-mono text-[11px] uppercase tracking-[0.08em] text-ink-700">
+          {placed ? "Placed" : status === "submitted" ? "Applied" : "In progress"}
+        </span>
+        {placed ? (
+          <button type="button" disabled={busy} onClick={onUnplace} className="btn-ghost text-xs">
+            Remove placement{name ? <span className="sr-only"> for {name}</span> : null}
+          </button>
+        ) : (
+          <button
+            type="button"
+            disabled={busy || status !== "submitted"}
+            onClick={onPlace}
+            className="btn-ink text-xs disabled:opacity-40"
+            title={status !== "submitted" ? "Waits for the student to finish applying" : undefined}
+          >
+            Place here
             {name ? <span className="sr-only"> {name}</span> : null}
             {!o.eligible && (
-              <span className="sr-only"> (fails a hard requirement; approve only if resolved)</span>
+              <span className="sr-only"> (fails a hard requirement; place only if resolved)</span>
             )}
-          </button>
-        )}
-        {status !== "denied" && (
-          <button type="button" disabled={busy} onClick={onDeny} className="btn-ghost text-xs">
-            Deny{name ? <span className="sr-only"> {name}</span> : null}
           </button>
         )}
       </div>

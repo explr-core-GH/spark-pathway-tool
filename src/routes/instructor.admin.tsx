@@ -53,11 +53,6 @@ const SECTIONS: Section[] = [
     label: "Internships",
     items: [
       {
-        label: "Apply requests",
-        to: "/instructor/admin/apply-requests",
-        match: "/instructor/admin/apply-requests",
-      },
-      {
         label: "Applications",
         to: "/instructor/admin/applications",
         match: "/instructor/admin/applications",
