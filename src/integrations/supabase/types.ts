@@ -296,6 +296,69 @@ export type Database = {
           },
         ]
       }
+      attestation_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          email_error: string | null
+          experience_id: string
+          expires_at: string
+          id: string
+          opened_at: string | null
+          sent_at: string | null
+          status: string
+          student_id: string
+          supervisor_email: string
+          supervisor_name: string
+          token_hash: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          email_error?: string | null
+          experience_id: string
+          expires_at?: string
+          id?: string
+          opened_at?: string | null
+          sent_at?: string | null
+          status?: string
+          student_id: string
+          supervisor_email: string
+          supervisor_name: string
+          token_hash: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          email_error?: string | null
+          experience_id?: string
+          expires_at?: string
+          id?: string
+          opened_at?: string | null
+          sent_at?: string | null
+          status?: string
+          student_id?: string
+          supervisor_email?: string
+          supervisor_name?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attestation_requests_experience_id_fkey"
+            columns: ["experience_id"]
+            isOneToOne: false
+            referencedRelation: "experiences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attestation_requests_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       camp_educators: {
         Row: {
           assigned_at: string
@@ -447,6 +510,198 @@ export type Database = {
         }
         Relationships: []
       }
+      career_goals: {
+        Row: {
+          changed_since_last: boolean | null
+          checkpoint_id: string | null
+          cluster: string | null
+          created_at: string
+          grade: number | null
+          id: string
+          post_hs_plan: string | null
+          primary_goal: string
+          secondary_goal: string | null
+          student_id: string
+          why: string | null
+        }
+        Insert: {
+          changed_since_last?: boolean | null
+          checkpoint_id?: string | null
+          cluster?: string | null
+          created_at?: string
+          grade?: number | null
+          id?: string
+          post_hs_plan?: string | null
+          primary_goal: string
+          secondary_goal?: string | null
+          student_id: string
+          why?: string | null
+        }
+        Update: {
+          changed_since_last?: boolean | null
+          checkpoint_id?: string | null
+          cluster?: string | null
+          created_at?: string
+          grade?: number | null
+          id?: string
+          post_hs_plan?: string | null
+          primary_goal?: string
+          secondary_goal?: string | null
+          student_id?: string
+          why?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "career_goals_checkpoint_id_fkey"
+            columns: ["checkpoint_id"]
+            isOneToOne: false
+            referencedRelation: "checkpoints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "career_goals_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checklist_items: {
+        Row: {
+          auto: boolean
+          checked_at: string | null
+          comment: string | null
+          id: string
+          item_no: number
+          school_year: string
+          student_id: string
+        }
+        Insert: {
+          auto?: boolean
+          checked_at?: string | null
+          comment?: string | null
+          id?: string
+          item_no: number
+          school_year: string
+          student_id: string
+        }
+        Update: {
+          auto?: boolean
+          checked_at?: string | null
+          comment?: string | null
+          id?: string
+          item_no?: number
+          school_year?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_items_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checkpoint_tasks: {
+        Row: {
+          checkpoint_id: string
+          completed_at: string | null
+          id: string
+          payload: Json | null
+          required: boolean
+          status: string
+          task_key: string
+          updated_at: string
+          waived_by: string | null
+          waived_reason: string | null
+        }
+        Insert: {
+          checkpoint_id: string
+          completed_at?: string | null
+          id?: string
+          payload?: Json | null
+          required?: boolean
+          status?: string
+          task_key: string
+          updated_at?: string
+          waived_by?: string | null
+          waived_reason?: string | null
+        }
+        Update: {
+          checkpoint_id?: string
+          completed_at?: string | null
+          id?: string
+          payload?: Json | null
+          required?: boolean
+          status?: string
+          task_key?: string
+          updated_at?: string
+          waived_by?: string | null
+          waived_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkpoint_tasks_checkpoint_id_fkey"
+            columns: ["checkpoint_id"]
+            isOneToOne: false
+            referencedRelation: "checkpoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checkpoints: {
+        Row: {
+          advisor_notes: string | null
+          created_at: string
+          grade: number
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          school_year: string
+          status: string
+          student_id: string
+          submitted_at: string | null
+          term: string
+        }
+        Insert: {
+          advisor_notes?: string | null
+          created_at?: string
+          grade: number
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          school_year: string
+          status?: string
+          student_id: string
+          submitted_at?: string | null
+          term: string
+        }
+        Update: {
+          advisor_notes?: string | null
+          created_at?: string
+          grade?: number
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          school_year?: string
+          status?: string
+          student_id?: string
+          submitted_at?: string | null
+          term?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkpoints_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_students: {
         Row: {
           added_at: string
@@ -490,6 +745,7 @@ export type Database = {
           educator_id: string | null
           grade: number | null
           id: string
+          join_code: string | null
           name: string
           period: string | null
           school_irn: string | null
@@ -500,6 +756,7 @@ export type Database = {
           educator_id?: string | null
           grade?: number | null
           id?: string
+          join_code?: string | null
           name: string
           period?: string | null
           school_irn?: string | null
@@ -510,6 +767,7 @@ export type Database = {
           educator_id?: string | null
           grade?: number | null
           id?: string
+          join_code?: string | null
           name?: string
           period?: string | null
           school_irn?: string | null
@@ -520,6 +778,53 @@ export type Database = {
             columns: ["educator_id"]
             isOneToOne: false
             referencedRelation: "educators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credentials: {
+        Row: {
+          created_at: string
+          credits: number | null
+          evidence_url: string | null
+          id: string
+          issued_at: string | null
+          issuer: string | null
+          student_id: string
+          title: string
+          type: string
+          verification_method: string
+        }
+        Insert: {
+          created_at?: string
+          credits?: number | null
+          evidence_url?: string | null
+          id?: string
+          issued_at?: string | null
+          issuer?: string | null
+          student_id: string
+          title: string
+          type: string
+          verification_method?: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number | null
+          evidence_url?: string | null
+          id?: string
+          issued_at?: string | null
+          issuer?: string | null
+          student_id?: string
+          title?: string
+          type?: string
+          verification_method?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credentials_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
@@ -632,6 +937,221 @@ export type Database = {
         }
         Relationships: []
       }
+      experience_ratings: {
+        Row: {
+          comment: string | null
+          competency: string
+          experience_id: string
+          id: string
+          omj_skill: string | null
+          rated_at: string
+          rater_email: string | null
+          rater_name: string
+          rating_baseline: number | null
+          rating_final: number
+          setting: string
+        }
+        Insert: {
+          comment?: string | null
+          competency: string
+          experience_id: string
+          id?: string
+          omj_skill?: string | null
+          rated_at?: string
+          rater_email?: string | null
+          rater_name: string
+          rating_baseline?: number | null
+          rating_final: number
+          setting: string
+        }
+        Update: {
+          comment?: string | null
+          competency?: string
+          experience_id?: string
+          id?: string
+          omj_skill?: string | null
+          rated_at?: string
+          rater_email?: string | null
+          rater_name?: string
+          rating_baseline?: number | null
+          rating_final?: number
+          setting?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experience_ratings_experience_id_fkey"
+            columns: ["experience_id"]
+            isOneToOne: false
+            referencedRelation: "experiences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      experiences: {
+        Row: {
+          attestation: Json | null
+          career_cluster: string | null
+          compensation_type: string | null
+          created_at: string
+          duties: string | null
+          end_date: string | null
+          experience_type: string
+          explr_camp_id: string | null
+          hours: number | null
+          id: string
+          internship_slug: string | null
+          opportunity_id: string | null
+          organization: string | null
+          reflection: string | null
+          riasec_module: string | null
+          role_title: string | null
+          source: string
+          stage: string
+          start_date: string | null
+          status: string
+          student_id: string
+          supervisor_email: string | null
+          supervisor_name: string | null
+          title: string
+          updated_at: string
+          verified_at: string | null
+          verified_hours: number | null
+        }
+        Insert: {
+          attestation?: Json | null
+          career_cluster?: string | null
+          compensation_type?: string | null
+          created_at?: string
+          duties?: string | null
+          end_date?: string | null
+          experience_type: string
+          explr_camp_id?: string | null
+          hours?: number | null
+          id?: string
+          internship_slug?: string | null
+          opportunity_id?: string | null
+          organization?: string | null
+          reflection?: string | null
+          riasec_module?: string | null
+          role_title?: string | null
+          source?: string
+          stage: string
+          start_date?: string | null
+          status?: string
+          student_id: string
+          supervisor_email?: string | null
+          supervisor_name?: string | null
+          title: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_hours?: number | null
+        }
+        Update: {
+          attestation?: Json | null
+          career_cluster?: string | null
+          compensation_type?: string | null
+          created_at?: string
+          duties?: string | null
+          end_date?: string | null
+          experience_type?: string
+          explr_camp_id?: string | null
+          hours?: number | null
+          id?: string
+          internship_slug?: string | null
+          opportunity_id?: string | null
+          organization?: string | null
+          reflection?: string | null
+          riasec_module?: string | null
+          role_title?: string | null
+          source?: string
+          stage?: string
+          start_date?: string | null
+          status?: string
+          student_id?: string
+          supervisor_email?: string | null
+          supervisor_name?: string | null
+          title?: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_hours?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experiences_explr_camp_id_fkey"
+            columns: ["explr_camp_id"]
+            isOneToOne: false
+            referencedRelation: "explr_camps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "experiences_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "experiences_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      explore_logins: {
+        Row: {
+          avatar_color: string
+          avatar_shape: string
+          created_at: string
+          created_by: string | null
+          failed_attempts: number
+          id: string
+          last_signed_in_at: string | null
+          locked_until: string | null
+          rotated_at: string
+          secret_hash: string
+          student_id: string
+          token_hash: string
+        }
+        Insert: {
+          avatar_color: string
+          avatar_shape: string
+          created_at?: string
+          created_by?: string | null
+          failed_attempts?: number
+          id?: string
+          last_signed_in_at?: string | null
+          locked_until?: string | null
+          rotated_at?: string
+          secret_hash: string
+          student_id: string
+          token_hash: string
+        }
+        Update: {
+          avatar_color?: string
+          avatar_shape?: string
+          created_at?: string
+          created_by?: string | null
+          failed_attempts?: number
+          id?: string
+          last_signed_in_at?: string | null
+          locked_until?: string | null
+          rotated_at?: string
+          secret_hash?: string
+          student_id?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "explore_logins_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       explr_camp_curriculum_links: {
         Row: {
           camp_slug: string
@@ -708,6 +1228,7 @@ export type Database = {
           id: string
           image: string | null
           imported_at: string
+          join_code: string | null
           linked_camp_slug: string | null
           location: string | null
           source_updated_at: string | null
@@ -724,6 +1245,7 @@ export type Database = {
           id: string
           image?: string | null
           imported_at?: string
+          join_code?: string | null
           linked_camp_slug?: string | null
           location?: string | null
           source_updated_at?: string | null
@@ -740,6 +1262,7 @@ export type Database = {
           id?: string
           image?: string | null
           imported_at?: string
+          join_code?: string | null
           linked_camp_slug?: string | null
           location?: string | null
           source_updated_at?: string | null
@@ -791,6 +1314,82 @@ export type Database = {
             columns: ["camp_id"]
             isOneToOne: false
             referencedRelation: "explr_camps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_links: {
+        Row: {
+          code_hash: string
+          created_at: string
+          expires_at: string
+          id: string
+          label: string | null
+          last_used_at: string | null
+          revoked_at: string | null
+          student_id: string
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          label?: string | null
+          last_used_at?: string | null
+          revoked_at?: string | null
+          student_id: string
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          label?: string | null
+          last_used_at?: string | null
+          revoked_at?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_links_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_sessions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          family_link_id: string
+          id: string
+          last_seen_at: string | null
+          token_hash: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          family_link_id: string
+          id?: string
+          last_seen_at?: string | null
+          token_hash: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          family_link_id?: string
+          id?: string
+          last_seen_at?: string | null
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_sessions_family_link_id_fkey"
+            columns: ["family_link_id"]
+            isOneToOne: false
+            referencedRelation: "family_links"
             referencedColumns: ["id"]
           },
         ]
@@ -1090,6 +1689,65 @@ export type Database = {
           },
         ]
       }
+      internship_profiles: {
+        Row: {
+          availability: Json
+          career_aspiration: string | null
+          coursework: Json
+          demographics: Json
+          dislikes: string | null
+          grad_year: number | null
+          high_school: string | null
+          intended_college: string | null
+          intended_major: string | null
+          likes: string | null
+          student_id: string
+          transportation: string | null
+          updated_at: string
+          work_authorization: boolean | null
+        }
+        Insert: {
+          availability?: Json
+          career_aspiration?: string | null
+          coursework?: Json
+          demographics?: Json
+          dislikes?: string | null
+          grad_year?: number | null
+          high_school?: string | null
+          intended_college?: string | null
+          intended_major?: string | null
+          likes?: string | null
+          student_id: string
+          transportation?: string | null
+          updated_at?: string
+          work_authorization?: boolean | null
+        }
+        Update: {
+          availability?: Json
+          career_aspiration?: string | null
+          coursework?: Json
+          demographics?: Json
+          dislikes?: string | null
+          grad_year?: number | null
+          high_school?: string | null
+          intended_college?: string | null
+          intended_major?: string | null
+          likes?: string | null
+          student_id?: string
+          transportation?: string | null
+          updated_at?: string
+          work_authorization?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internship_profiles_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       internship_rosters: {
         Row: {
           id: string
@@ -1119,6 +1777,81 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "internships"
             referencedColumns: ["slug"]
+          },
+        ]
+      }
+      internship_selections: {
+        Row: {
+          acknowledgments: string[]
+          answers: Json
+          decided_at: string | null
+          decided_notes: string | null
+          hard_fail: string[]
+          id: string
+          internship_ref: string
+          link_proofs: Json
+          match_breakdown: Json | null
+          match_computed_at: string | null
+          match_score: number | null
+          opportunity_id: string | null
+          rank: number | null
+          requested_at: string
+          status: string
+          student_id: string
+          submitted_at: string | null
+        }
+        Insert: {
+          acknowledgments?: string[]
+          answers?: Json
+          decided_at?: string | null
+          decided_notes?: string | null
+          hard_fail?: string[]
+          id?: string
+          internship_ref: string
+          link_proofs?: Json
+          match_breakdown?: Json | null
+          match_computed_at?: string | null
+          match_score?: number | null
+          opportunity_id?: string | null
+          rank?: number | null
+          requested_at?: string
+          status?: string
+          student_id: string
+          submitted_at?: string | null
+        }
+        Update: {
+          acknowledgments?: string[]
+          answers?: Json
+          decided_at?: string | null
+          decided_notes?: string | null
+          hard_fail?: string[]
+          id?: string
+          internship_ref?: string
+          link_proofs?: Json
+          match_breakdown?: Json | null
+          match_computed_at?: string | null
+          match_score?: number | null
+          opportunity_id?: string | null
+          rank?: number | null
+          requested_at?: string
+          status?: string
+          student_id?: string
+          submitted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internship_selections_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "internship_selections_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1445,7 +2178,12 @@ export type Database = {
           decided_at: string | null
           description: string | null
           end_date: string | null
+          experience_type: string | null
           external_url: string | null
+          gate_evidence: Json | null
+          gate_reviewed_at: string | null
+          gate_reviewed_by: string | null
+          gate_status: string
           grade_max: number | null
           grade_min: number | null
           id: string
@@ -1465,11 +2203,14 @@ export type Database = {
           riasec_weights: Json | null
           schedule: string | null
           schedule_json: Json | null
+          stage: string | null
           start_date: string | null
           status: string
           submitted_at: string | null
+          target_competencies: string[]
           type: string
           updated_at: string
+          wbl: Json
         }
         Insert: {
           application_links?: Json
@@ -1480,7 +2221,12 @@ export type Database = {
           decided_at?: string | null
           description?: string | null
           end_date?: string | null
+          experience_type?: string | null
           external_url?: string | null
+          gate_evidence?: Json | null
+          gate_reviewed_at?: string | null
+          gate_reviewed_by?: string | null
+          gate_status?: string
           grade_max?: number | null
           grade_min?: number | null
           id?: string
@@ -1500,11 +2246,14 @@ export type Database = {
           riasec_weights?: Json | null
           schedule?: string | null
           schedule_json?: Json | null
+          stage?: string | null
           start_date?: string | null
           status?: string
           submitted_at?: string | null
+          target_competencies?: string[]
           type: string
           updated_at?: string
+          wbl?: Json
         }
         Update: {
           application_links?: Json
@@ -1515,7 +2264,12 @@ export type Database = {
           decided_at?: string | null
           description?: string | null
           end_date?: string | null
+          experience_type?: string | null
           external_url?: string | null
+          gate_evidence?: Json | null
+          gate_reviewed_at?: string | null
+          gate_reviewed_by?: string | null
+          gate_status?: string
           grade_max?: number | null
           grade_min?: number | null
           id?: string
@@ -1535,11 +2289,14 @@ export type Database = {
           riasec_weights?: Json | null
           schedule?: string | null
           schedule_json?: Json | null
+          stage?: string | null
           start_date?: string | null
           status?: string
           submitted_at?: string | null
+          target_competencies?: string[]
           type?: string
           updated_at?: string
+          wbl?: Json
         }
         Relationships: [
           {
@@ -1712,6 +2469,113 @@ export type Database = {
         }
         Relationships: []
       }
+      plan_approvals: {
+        Row: {
+          advisor_ack_at: string | null
+          advisor_id: string | null
+          guardian_ack_at: string | null
+          id: string
+          method: string | null
+          school_year: string
+          student_ack_at: string | null
+          student_id: string
+        }
+        Insert: {
+          advisor_ack_at?: string | null
+          advisor_id?: string | null
+          guardian_ack_at?: string | null
+          id?: string
+          method?: string | null
+          school_year: string
+          student_ack_at?: string | null
+          student_id: string
+        }
+        Update: {
+          advisor_ack_at?: string | null
+          advisor_id?: string | null
+          guardian_ack_at?: string | null
+          id?: string
+          method?: string | null
+          school_year?: string
+          student_ack_at?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_approvals_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portfolio_pieces: {
+        Row: {
+          artifact_type: string
+          competency_tags: string[]
+          context: string | null
+          created_at: string
+          experience_id: string | null
+          id: string
+          media_consent: boolean
+          reflection: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          student_id: string
+          title: string
+          url: string | null
+          visibility: string
+        }
+        Insert: {
+          artifact_type?: string
+          competency_tags?: string[]
+          context?: string | null
+          created_at?: string
+          experience_id?: string | null
+          id?: string
+          media_consent?: boolean
+          reflection?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          student_id: string
+          title: string
+          url?: string | null
+          visibility?: string
+        }
+        Update: {
+          artifact_type?: string
+          competency_tags?: string[]
+          context?: string | null
+          created_at?: string
+          experience_id?: string | null
+          id?: string
+          media_consent?: boolean
+          reflection?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          student_id?: string
+          title?: string
+          url?: string | null
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_pieces_experience_id_fkey"
+            columns: ["experience_id"]
+            isOneToOne: false
+            referencedRelation: "experiences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "portfolio_pieces_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       program_educators: {
         Row: {
           added_at: string
@@ -1881,29 +2745,35 @@ export type Database = {
       }
       students: {
         Row: {
+          about_me: string | null
           created_at: string
           date_of_birth: string | null
           first_name: string | null
           grade: number
           grade_band: string | null
+          headline: string | null
           id: string
           scheduled_deletion_at: string | null
         }
         Insert: {
+          about_me?: string | null
           created_at?: string
           date_of_birth?: string | null
           first_name?: string | null
           grade: number
           grade_band?: string | null
+          headline?: string | null
           id: string
           scheduled_deletion_at?: string | null
         }
         Update: {
+          about_me?: string | null
           created_at?: string
           date_of_birth?: string | null
           first_name?: string | null
           grade?: number
           grade_band?: string | null
+          headline?: string | null
           id?: string
           scheduled_deletion_at?: string | null
         }
@@ -2133,8 +3003,13 @@ export type Database = {
     }
     Functions: {
       advance_session: { Args: { p_session_id: string }; Returns: undefined }
+      daily_explr_sync_enabled: { Args: never; Returns: boolean }
       educator_can_access_camp: {
         Args: { _educator_id: string; _explr_camp_id: string }
+        Returns: boolean
+      }
+      educator_can_access_class: {
+        Args: { _class_id: string; _educator_id: string }
         Returns: boolean
       }
       educator_can_access_student: {
@@ -2144,6 +3019,11 @@ export type Database = {
       is_admin: { Args: { uid: string }; Returns: boolean }
       is_educator: { Args: { uid: string }; Returns: boolean }
       is_organization: { Args: { uid: string }; Returns: boolean }
+      set_daily_explr_sync: { Args: { _enabled: boolean }; Returns: boolean }
+      staff_can_see_student: {
+        Args: { _student_id: string; _uid: string }
+        Returns: boolean
+      }
     }
     Enums: {
       assessment_kind:
