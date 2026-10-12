@@ -391,8 +391,8 @@ function AboutPanel({ grade: _grade }: { grade: number | null }) {
 
       <p className="border-t border-line pt-6 text-xs text-ink-500">
         Questions? Ask your camp instructor or email{" "}
-        <a href="mailto:support@explr.cc" className="ink-link">
-          support@explr.cc
+        <a href="mailto:j.seigler@csuohio.edu" className="ink-link">
+          j.seigler@csuohio.edu
         </a>
         .
       </p>
