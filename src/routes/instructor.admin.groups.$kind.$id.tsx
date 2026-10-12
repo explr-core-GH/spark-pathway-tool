@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { RosterDataPanel } from "@/components/RosterDataPanel";
 import { CampLoginsPanel } from "@/components/CampLoginsPanel";
 import { GroupEducatorsPanel } from "@/components/GroupEducatorsPanel";
+import { GroupAssignPanel } from "@/components/GroupAssignPanel";
+import { CampAssignmentsPanel } from "@/components/CampAssignmentsPanel";
 import {
   fetchGroup,
   fetchCompletion,
@@ -133,7 +135,9 @@ function Inner({ kind, id }: { kind: GroupKind; id: string }) {
             <RosterDataPanel studentIds={group.studentIds} names={group.names} />
           </>
         )}
-        {tab === "assessments" && <AssessmentsTab group={group} completion={completion} />}
+        {tab === "assessments" && (
+          <AssessmentsTab kind={kind} group={group} completion={completion} />
+        )}
         {tab === "educators" && <GroupEducatorsPanel kind={kind} id={group.id} />}
         {tab === "logins" && <CampLoginsPanel campId={group.id} title={group.name} />}
       </div>
@@ -206,9 +210,11 @@ function Overview({
 }
 
 function AssessmentsTab({
+  kind,
   group,
   completion,
 }: {
+  kind: GroupKind;
   group: GroupSummary;
   completion: Completion | null;
 }) {
@@ -223,12 +229,26 @@ function AssessmentsTab({
     <div>
       <p className="max-w-2xl text-sm text-ink-700">
         How far this group has come on the two instruments EXPLR Pathways uses: the RIASEC interest
-        assessment and the STEM efficacy survey.
+        assessment and the STEM efficacy survey. Anything you assign here cascades to every student
+        in this group.
       </p>
       <div className="mt-6 grid max-w-2xl grid-cols-2 gap-3">
         <Metric label="RIASEC done" value={`${aDone} / ${total}`} />
         <Metric label="Surveys done" value={`${sDone} / ${total}`} />
       </div>
+
+      <div className="mt-8">
+        <GroupAssignPanel kind={kind} groupId={group.id} />
+      </div>
+
+      {kind === "camps" && (
+        <div className="mt-8 max-w-2xl">
+          <p className="eyebrow">Including instructor cascade · completion</p>
+          <div className="mt-3">
+            <CampAssignmentsPanel campId={group.id} studentIds={group.studentIds} />
+          </div>
+        </div>
+      )}
 
       <div className="mt-8 flex flex-wrap gap-3">
         <Link to="/instructor/admin/assessments" className="btn-ghost text-sm">

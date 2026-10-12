@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { AssessmentAssignPanel } from "@/components/AssessmentAssignPanel";
 import { AssessmentPhotosPanel } from "@/components/AssessmentPhotosPanel";
 import { SurveyAdminPanel } from "./instructor.admin.surveys";
 
@@ -8,15 +9,16 @@ export const Route = createFileRoute("/instructor/admin/assessments")({
   component: AssessmentsAdmin,
 });
 
-type Tab = "surveys" | "photos";
+type Tab = "assign" | "surveys" | "photos";
 
 const TABS: Array<{ id: Tab; label: string }> = [
+  { id: "assign", label: "Assign" },
   { id: "surveys", label: "STEM surveys" },
   { id: "photos", label: "Question photos" },
 ];
 
 function AssessmentsAdmin() {
-  const [tab, setTab] = useState<Tab>("surveys");
+  const [tab, setTab] = useState<Tab>("assign");
 
   return (
     <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
@@ -41,6 +43,7 @@ function AssessmentsAdmin() {
       </div>
 
       <div className="mt-8">
+        {tab === "assign" && <AssessmentAssignPanel />}
         {tab === "surveys" && <SurveyAdminPanel />}
         {tab === "photos" && <AssessmentPhotosPanel />}
       </div>

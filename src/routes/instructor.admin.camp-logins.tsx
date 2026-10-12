@@ -9,6 +9,7 @@ import {
 import { familyReportPageHtml, familyReportDocument } from "@/lib/family-report";
 import { RosterDataPanel } from "@/components/RosterDataPanel";
 import { RosterLiveMonitor } from "@/components/RosterLiveMonitor";
+import { CampAssignmentsPanel } from "@/components/CampAssignmentsPanel";
 
 export const Route = createFileRoute("/instructor/admin/camp-logins")({
   head: () => ({ meta: [{ title: "Camp logins — Admin" }] }),
@@ -610,6 +611,21 @@ function CampLoginsAdmin() {
 
                   {expanded === s.id && (
                     <div>
+                      {/* Assignments — what this roster has been asked to do,
+                        including anything cascaded from its instructors. */}
+                      <div className="mt-3 rounded-[var(--radius-card)] border border-line bg-paper-sunken p-4">
+                        <p className="eyebrow">Assignments</p>
+                        <div className="mt-3">
+                          <CampAssignmentsPanel
+                            campId={s.id}
+                            studentIds={logins
+                              .filter((l) => l.explr_camp_id === s.id)
+                              .map((l) => l.student_id)
+                              .filter((x): x is string => !!x)}
+                          />
+                        </div>
+                      </div>
+
                       {/* Live monitor — lazy + polls only while open. */}
                       <div className="mt-3 rounded-[var(--radius-card)] border border-line bg-paper-sunken p-4">
                         <div className="flex items-center justify-between">

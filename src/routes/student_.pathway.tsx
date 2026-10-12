@@ -1,6 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Briefcase, ChevronRight, ClipboardList, Compass, PartyPopper } from "lucide-react";
+import {
+  Briefcase,
+  CalendarCheck,
+  ChevronRight,
+  ClipboardList,
+  Compass,
+  PartyPopper,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
@@ -10,6 +17,7 @@ import { RIASEC, type RIASECCode } from "@/lib/riasec";
 import { fetchInternshipCatalog, useInternshipRefs } from "@/lib/internship-refs";
 import type { Opportunity } from "@/lib/opportunities";
 import { StudentSurveysPanel } from "@/components/StudentSurveysPanel";
+import { AssignedAssessmentsPanel } from "@/components/AssignedAssessmentsPanel";
 import { FamilyPortal } from "@/components/FamilyPortal";
 import { FamilyCodePanel } from "@/components/FamilyCodePanel";
 import { SurveyResultsPanel } from "@/components/SurveyResultsPanel";
@@ -213,6 +221,23 @@ function StudentDashboard() {
         {tab === "dashboard" && (
           <>
             <ApplyStatusBanner studentId={user!.id} />
+
+            {/* Assigned to you — pending assessments/surveys from an instructor or admin */}
+            <section className="mt-10 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card sm:p-6">
+              <div className="flex items-center gap-4">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
+                  <CalendarCheck className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+                </span>
+                <div>
+                  <p className="eyebrow">Assigned to you</p>
+                  <h2 className="mt-1 font-display text-xl font-semibold">Things to complete</h2>
+                </div>
+              </div>
+              <p className="mt-3 max-w-2xl text-ink-700">
+                Assessments and surveys your instructor or an EXPLR admin has asked you to finish.
+              </p>
+              <AssignedAssessmentsPanel studentId={user!.id} />
+            </section>
 
             {/* Placement banner — top priority when present */}
             {placement && (
