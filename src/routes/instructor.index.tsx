@@ -6,7 +6,7 @@ export const Route = createFileRoute("/instructor/")({
       { title: "Instructor portal — EXPLR" },
       {
         name: "description",
-        content: "Curriculum, rosters, and assessment assignments for Cleveland K-12 educators.",
+        content: "Curriculum, rosters, and assessment assignments for Cleveland K-12 instructors.",
       },
       { property: "og:title", content: "Instructor portal — EXPLR" },
       { property: "og:description", content: "Curriculum, rosters, and assessment assignments." },

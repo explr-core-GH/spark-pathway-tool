@@ -66,7 +66,7 @@ const TARGET_CHOICES: Array<{ key: TargetType; label: string }> = [
 ];
 
 const TARGET_NOUN: Record<TargetType, string> = {
-  educator: "an educator",
+  educator: "an instructor",
   camp: "a camp session",
   class: "a class",
   internship: "an internship",

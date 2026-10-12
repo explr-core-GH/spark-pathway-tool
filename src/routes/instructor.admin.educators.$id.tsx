@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { EducatorSchoolEditor } from "@/components/EducatorSchoolEditor";
 
 export const Route = createFileRoute("/instructor/admin/educators/$id")({
-  head: () => ({ meta: [{ title: "Manage educator — Admin" }] }),
+  head: () => ({ meta: [{ title: "Manage instructor — Admin" }] }),
   component: ManageEducator,
 });
 

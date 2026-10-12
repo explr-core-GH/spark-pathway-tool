@@ -35,12 +35,12 @@ export function RoleGuard({ requires, children }: Props) {
         body={
           requires === "student"
             ? "You need a student account to take the assessment and apply for internships."
-            : "You need an approved educator account to view this area."
+            : "You need an approved instructor account to view this area."
         }
         primary={
           requires === "student"
             ? { to: "/sign-in", label: "Student sign in" }
-            : { to: "/instructor/sign-in", label: "Educator sign in" }
+            : { to: "/instructor/sign-in", label: "Instructor sign in" }
         }
         secondary={
           requires === "student"
@@ -62,7 +62,7 @@ export function RoleGuard({ requires, children }: Props) {
       <Mismatch
         eyebrow="Instructor account"
         title="This area is for students"
-        body="Your account is registered as an educator. Head to your educator dashboard for curriculum, internships, and rosters."
+        body="Your account is registered as an instructor. Head to your instructor dashboard for curriculum, internships, and rosters."
         primary={{ to: "/instructor/dashboard", label: "Go to instructor dashboard" }}
         secondary={{ to: "/", label: "Back to home" }}
       />
@@ -78,7 +78,7 @@ export function RoleGuard({ requires, children }: Props) {
         title="This area is for instructors"
         body="Your account isn't registered as an educator. Request educator access, or head back to your student experience."
         primary={{ to: "/assessment", label: "Back to assessment" }}
-        secondary={{ to: "/instructor/sign-up", label: "Request educator access" }}
+        secondary={{ to: "/instructor/sign-up", label: "Request instructor access" }}
       />
     );
   }

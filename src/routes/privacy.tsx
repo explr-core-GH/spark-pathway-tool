@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { LegalPage, H2, List } from "@/components/LegalPage";
 
 const DESC =
-  "How EXPLR Pathways collects, uses, protects, and deletes student, educator, and organization data under Ohio and federal student privacy law.";
+  "How EXPLR Pathways collects, uses, protects, and deletes student, instructor, and organization data under Ohio and federal student privacy law.";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({

@@ -10,13 +10,13 @@ export const Route = createFileRoute("/instructor/admin/internships/")({
       {
         name: "description",
         content:
-          "Manage EXPLR internship offerings, visibility, educator assignments, and funder reports.",
+          "Manage EXPLR internship offerings, visibility, instructor assignments, and funder reports.",
       },
       { property: "og:title", content: "Internship Programs — EXPLR Admin" },
       {
         property: "og:description",
         content:
-          "Manage EXPLR internship offerings, visibility, educator assignments, and funder reports.",
+          "Manage EXPLR internship offerings, visibility, instructor assignments, and funder reports.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

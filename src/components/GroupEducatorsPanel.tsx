@@ -57,8 +57,8 @@ export function GroupEducatorsPanel({ kind, id }: { kind: GroupKind; id: string 
   }, [load]);
 
   const nameOf = useMemo(() => {
-    const m = new Map(educators.map((e) => [e.id, e.full_name ?? "(educator)"]));
-    return (eid: string) => m.get(eid) ?? "(educator)";
+    const m = new Map(educators.map((e) => [e.id, e.full_name ?? "(instructor)"]));
+    return (eid: string) => m.get(eid) ?? "(instructor)";
   }, [educators]);
 
   async function add(eduId: string) {
@@ -124,7 +124,7 @@ export function GroupEducatorsPanel({ kind, id }: { kind: GroupKind; id: string 
           <option value="">— Unassigned —</option>
           {educators.map((e) => (
             <option key={e.id} value={e.id}>
-              {e.full_name ?? "(educator)"}
+              {e.full_name ?? "(instructor)"}
             </option>
           ))}
         </select>
@@ -162,7 +162,7 @@ export function GroupEducatorsPanel({ kind, id }: { kind: GroupKind; id: string 
           <option value="">— Add an instructor —</option>
           {available.map((e) => (
             <option key={e.id} value={e.id}>
-              {e.full_name ?? "(educator)"}
+              {e.full_name ?? "(instructor)"}
             </option>
           ))}
         </select>

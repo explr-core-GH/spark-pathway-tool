@@ -266,7 +266,7 @@ function NewClassModal({ onClose, onSaved }: { onClose: () => void; onSaved: () 
               <option value="">— Select instructor —</option>
               {educators.map((e) => (
                 <option key={e.id} value={e.id}>
-                  {e.full_name ?? "(educator)"}
+                  {e.full_name ?? "(instructor)"}
                 </option>
               ))}
             </select>

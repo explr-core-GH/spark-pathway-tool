@@ -134,7 +134,7 @@ function DemographicsAdmin() {
         if (e.school_irn && e.student_count != null) {
           ss.push({
             kind: "educator",
-            label: e.full_name ?? "(educator)",
+            label: e.full_name ?? "(instructor)",
             school_irn: e.school_irn,
             school_name: e.school_name,
             student_count: e.student_count,

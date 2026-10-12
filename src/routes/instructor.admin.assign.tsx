@@ -17,7 +17,7 @@ import { useSession } from "@/lib/auth";
  *
  * Deep-linkable via ?mode=session&filter_slug=<curriculum> to focus on
  * sessions linked to one curriculum (used by the catalog admin's
- * "Assign educators" button).
+ * "Assign instructors" button).
  */
 
 const searchSchema = z.object({
@@ -29,7 +29,7 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute("/instructor/admin/assign")({
-  head: () => ({ meta: [{ title: "Assign educators — Admin" }] }),
+  head: () => ({ meta: [{ title: "Assign instructors — Admin" }] }),
   validateSearch: searchSchema,
   component: AssignAdmin,
 });
@@ -291,7 +291,7 @@ function AssignAdmin() {
             <>
               <input
                 className="field mt-4"
-                placeholder="Filter educators by name or email…"
+                placeholder="Filter instructors by name or email…"
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
               />
