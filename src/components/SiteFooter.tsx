@@ -6,6 +6,7 @@ const LINKS: Array<{ to: string; label: string }> = [
   { to: "/privacy", label: "Privacy" },
   { to: "/terms", label: "Terms" },
   { to: "/student-data", label: "Student data" },
+  { to: "/accessibility", label: "WCAG 2.2 compliance" },
   { to: "/instructor/sign-in", label: "Instructors" },
   { to: "/org/sign-in", label: "Partners" },
   { to: "/demo", label: "Demo" },

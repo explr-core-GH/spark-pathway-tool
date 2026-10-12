@@ -27,8 +27,12 @@ export function LegalPage({
   );
 }
 
-export function H2({ children }: { children: React.ReactNode }) {
-  return <h2 className="font-display text-xl font-bold pt-6 text-ink-900">{children}</h2>;
+export function H2({ children, id }: { children: React.ReactNode; id?: string }) {
+  return (
+    <h2 id={id} className="font-display text-xl font-bold pt-6 text-ink-900">
+      {children}
+    </h2>
+  );
 }
 
 export function List({ items }: { items: React.ReactNode[] }) {

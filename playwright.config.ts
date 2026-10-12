@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 // Accessibility baseline (axe-core). Drives the dev server, which the Lovable
 // config pins to :8080. Unit tests stay on vitest (src/**/*.test.ts); Playwright
 // only owns e2e/*.spec.ts, so the two never collide.
-const PORT = 8080;
+const PORT = Number(process.env.PW_PORT ?? 8080);
 const BASE = `http://localhost:${PORT}`;
 
 export default defineConfig({

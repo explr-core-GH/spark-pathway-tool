@@ -77,8 +77,11 @@ function TryRiasec() {
     return (
       <div className="min-h-screen bg-paper text-ink-900">
         <Header />
-        <main className="mx-auto max-w-2xl px-4 py-24 text-center text-ink-500 sm:px-6">
-          Loading…
+        <main className="mx-auto max-w-2xl px-4 py-24 text-center sm:px-6">
+          <h1 className="font-display text-2xl font-bold">Loading the interest survey…</h1>
+          <p className="mt-2 text-sm text-ink-500" role="status">
+            One moment.
+          </p>
         </main>
       </div>
     );

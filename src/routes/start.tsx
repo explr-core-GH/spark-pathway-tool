@@ -80,8 +80,11 @@ function Start() {
     return (
       <div className="flex min-h-screen flex-col bg-paper text-ink-900">
         <PortalHeader links={[{ label: "Home", to: "/" }]} />
-        <main className="mx-auto w-full max-w-[1312px] flex-1 px-4 py-24 text-center text-sm text-ink-500 sm:px-6 lg:px-8">
-          Loading…
+        <main className="mx-auto w-full max-w-[1312px] flex-1 px-4 py-24 text-center sm:px-6 lg:px-8">
+          <h1 className="font-display text-2xl font-bold">Getting you to the right place…</h1>
+          <p className="mt-2 text-sm text-ink-500" role="status">
+            Checking who you are signed in as.
+          </p>
         </main>
         <SiteFooter className="mt-10" />
       </div>
@@ -113,6 +116,7 @@ function Start() {
 
         <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           <DoorCard
+            headingLevel="h2"
             eyebrow="Students"
             icon={GraduationCap}
             image="/passport/students.webp"
@@ -126,6 +130,7 @@ function Start() {
             ]}
           />
           <DoorCard
+            headingLevel="h2"
             eyebrow="Instructors"
             icon={UserCheck}
             image="/passport/assessments.webp"
@@ -136,6 +141,7 @@ function Start() {
             pills={[{ label: "Request access", to: "/instructor/sign-up" }]}
           />
           <DoorCard
+            headingLevel="h2"
             eyebrow="Partners & organizations"
             icon={Building2}
             image="/passport/organizations.webp"

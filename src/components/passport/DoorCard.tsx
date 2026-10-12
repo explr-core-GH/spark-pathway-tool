@@ -15,6 +15,8 @@ type DoorCardProps = {
   image: string;
   /** Optional sub-choices (the student door branches to 4-8 and 9-12). */
   pills?: DoorPill[];
+  /** Heading level, so the card fits the page outline (h2 directly under an h1). */
+  headingLevel?: "h2" | "h3";
 };
 
 /** Home page audience card ("door" is the team's internal name; it never appears in copy). */
@@ -27,7 +29,9 @@ export function DoorCard({
   icon: Icon,
   image,
   pills,
+  headingLevel = "h3",
 }: DoorCardProps) {
+  const Heading = headingLevel;
   return (
     <article className="flex flex-col gap-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 shadow-card">
       <img
@@ -46,9 +50,9 @@ export function DoorCard({
           {eyebrow}
         </span>
       </div>
-      <h3 className="font-display text-[28px] font-bold leading-tight tracking-tight text-ink-900">
+      <Heading className="font-display text-[28px] font-bold leading-tight tracking-tight text-ink-900">
         {title}
-      </h3>
+      </Heading>
       <p className="text-sm leading-relaxed text-ink-700">{body}</p>
       {pills && pills.length > 0 && (
         <div className="flex flex-wrap gap-2">

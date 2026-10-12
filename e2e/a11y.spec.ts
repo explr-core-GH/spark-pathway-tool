@@ -1,99 +1,62 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-// Accessibility baseline — runs axe-core against the public, signed-out routes.
+// Accessibility gate (axe-core, WCAG 2.2 AA). Every public route is scanned
+// and ANY violation fails the run — no impact threshold and no brand-color
+// exemption; the passport palette has text-safe greens for small type.
 //
-// Gate policy:
-//   • Blocks the run on ANY serious/critical WCAG 2.x A/AA violation
-//     (missing labels, bad ARIA, heading/landmark problems, etc.).
-//   • EXCEPTION: color-contrast failures whose foreground is one of the EXPLR
-//     brand colors are treated as ADVISORY (printed, non-blocking). The mint
-//     wordmark is a logotype (WCAG 1.4.3 exempts logotypes) and the six RIASEC
-//     hues are a fixed, deliberately-tuned palette — changing them is a design
-//     decision Jordan owns, not a silent test fix. A contrast failure on any
-//     OTHER color (e.g. grey body text) still blocks, so real regressions are
-//     caught.
-//
-// Authenticated surfaces (student dashboard, educator/admin, the assessment +
-// survey runners) need a logged-in fixture and aren't covered yet — see the
-// note at the bottom of this file.
+// Signed-in surfaces are covered by the code audit and by running the same
+// scan against the deployed site with the /demo accounts. To add them here:
+// create e2e/auth.setup.ts that signs in a seeded demo user and saves
+// storageState, then a project with `use: { storageState }`.
 
 const ROUTES: Array<{ path: string; name: string }> = [
   { path: "/", name: "home" },
   { path: "/family", name: "families" },
   { path: "/explore", name: "explore sign-in (4-8)" },
+  { path: "/explore/scan", name: "explore scan" },
   { path: "/about", name: "about" },
+  { path: "/accessibility", name: "accessibility statement" },
   { path: "/privacy", name: "privacy" },
+  { path: "/terms", name: "terms" },
+  { path: "/student-data", name: "student data" },
   { path: "/start", name: "start (pathway chooser)" },
   { path: "/sign-in", name: "student sign-in" },
   { path: "/sign-up", name: "student sign-up" },
+  { path: "/forgot-password", name: "forgot password" },
+  { path: "/reset-password", name: "reset password" },
+  { path: "/instructor", name: "instructor landing" },
   { path: "/instructor/sign-in", name: "instructor sign-in" },
   { path: "/instructor/sign-up", name: "instructor sign-up" },
   { path: "/org/sign-in", name: "partner sign-in" },
+  { path: "/org/sign-up", name: "partner sign-up" },
   { path: "/demo", name: "demo" },
   { path: "/opportunities", name: "opportunities" },
+  { path: "/try-riasec", name: "RIASEC demo" },
   { path: "/assessment", name: "assessment intro (signed-out)" },
 ];
 
-const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
-
-// EXPLR brand foreground colors exempt from the contrast GATE (still reported).
-// Mint accent + the six RIASEC hues (see src/lib/riasec.ts).
-const BRAND_FG = new Set([
-  "#2beda1",
-  "#38dbad",
-  "#d9523b",
-  "#d9952a",
-  "#3d9c56",
-  "#2e8fb0",
-  "#5c56b0",
-  "#b14a99",
-]);
+const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"];
 
 type Violation = Awaited<ReturnType<AxeBuilder["analyze"]>>["violations"][number];
 
-// A contrast violation counts as brand-palette only if EVERY failing node's
-// foreground is a brand color. Mixed/other colors fall through and block.
-function isBrandPaletteContrast(v: Violation): boolean {
-  if (v.id !== "color-contrast") return false;
-  return v.nodes.every((n) =>
-    (n.any ?? []).some((a) =>
-      BRAND_FG.has(String((a.data as { fgColor?: string })?.fgColor ?? "").toLowerCase()),
-    ),
-  );
-}
-
 function describe(v: Violation): string {
-  return `  [${v.impact}] ${v.id}: ${v.help} — ${v.nodes.length} node(s)\n    ${v.nodes[0]?.target?.join(" ") ?? ""}`;
+  const targets = v.nodes
+    .slice(0, 3)
+    .map((n) => n.target.join(" "))
+    .join(" | ");
+  return `  [${v.impact}] ${v.id}: ${v.help} — ${v.nodes.length} node(s): ${targets}`;
 }
 
 for (const route of ROUTES) {
   test(`a11y: ${route.name} (${route.path})`, async ({ page }) => {
     await page.goto(route.path, { waitUntil: "load" });
     await page.locator("body").waitFor({ state: "visible" });
+    // Let client-side loaders settle (role checks, data) before scanning.
+    await page.waitForTimeout(800);
 
     const { violations } = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
-    const seriousOrCritical = violations.filter(
-      (v) => v.impact === "serious" || v.impact === "critical",
-    );
-
-    const advisory = seriousOrCritical.filter(isBrandPaletteContrast);
-    const blocking = seriousOrCritical.filter((v) => !isBrandPaletteContrast(v));
-
-    if (advisory.length > 0) {
-      console.warn(
-        `[a11y advisory] ${route.path} — brand-palette color-contrast (reviewed separately):\n${advisory.map(describe).join("\n")}`,
-      );
-    }
-
-    expect(
-      blocking.length,
-      `Serious/critical accessibility violations on ${route.path}:\n${blocking.map(describe).join("\n") || "  (none)"}`,
-    ).toBe(0);
+    const lines = violations.map(describe).join("\n");
+    expect(violations.length, `Accessibility violations on ${route.path}:\n${lines}`).toBe(0);
   });
 }
-
-// To extend coverage to authenticated pages later: create e2e/auth.setup.ts that
-// signs in a seeded test student/educator and saves storageState, then add a
-// Playwright project with `use: { storageState }` that visits /student,
-// /educator/dashboard, /educator/admin, /assessment/$id, etc.

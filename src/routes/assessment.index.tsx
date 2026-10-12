@@ -144,7 +144,12 @@ function AssessmentIntro() {
   if (loading) {
     return (
       <Shell authed={false}>
-        <p className="py-14 text-center text-sm text-ink-500">Loading…</p>
+        <h1 className="pt-14 text-center font-display text-2xl font-bold">
+          Loading the assessment…
+        </h1>
+        <p className="pb-14 pt-2 text-center text-sm text-ink-500" role="status">
+          One moment.
+        </p>
       </Shell>
     );
   }
@@ -190,6 +195,7 @@ function AssessmentIntro() {
         </div>
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           <DoorCard
+            headingLevel="h2"
             eyebrow="Students"
             icon={GraduationCap}
             image="/passport/assessments.webp"
@@ -200,6 +206,7 @@ function AssessmentIntro() {
             pills={[{ label: "Sign in", to: "/sign-in" }]}
           />
           <DoorCard
+            headingLevel="h2"
             eyebrow="Instructors"
             icon={UserCheck}
             image="/passport/grades-9-12.webp"

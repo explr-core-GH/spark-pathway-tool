@@ -36,8 +36,9 @@
   --color-gold: #d9a531;
   --color-gold-deep: #8f6410;
   --color-destructive: #b3261e; /* error text; 6.5:1 on paper */
+  --color-field-border: #6f7773; /* 3.6:1 on paper — WCAG 1.4.11 for input boundaries */
   --color-gold-tint: #f6e8c3;
-  --color-stamp-self: #7a827e;
+  --color-stamp-self: #5c6460; /* 5.6:1 on paper — unverified stamps stay readable */
 
   --shadow-card: 0 2px 6px rgba(25, 32, 31, 0.06), 0 12px 28px -8px rgba(25, 32, 31, 0.08);
   --shadow-lift: 0 20px 40px -12px rgba(25, 32, 31, 0.14);
@@ -402,7 +403,7 @@ h4 {
   .field {
     width: 100%;
     background: var(--bg-elevated);
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-field-border);
     border-radius: var(--radius-control);
     padding: 0.625rem 0.875rem;
     font-size: 0.9375rem;
@@ -435,4 +436,33 @@ h4 {
   .tile:hover {
     border-color: var(--fg);
   }
+}
+
+/* ============================================================
+ * WCAG 2.2 global rules
+ * ============================================================ */
+/* 2.3.3 Animation from interactions — honor the OS reduced-motion setting. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* 2.4.11 Focus not obscured — the fixed nudge and accessibility toolbar sit
+   bottom-right; keep focused controls scrolled clear of them. */
+html {
+  scroll-padding-bottom: 7rem;
+}
+[tabindex],
+a,
+button,
+input,
+select,
+textarea,
+summary {
+  scroll-margin-bottom: 7rem;
 }
