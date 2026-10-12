@@ -35,7 +35,7 @@ import { Route as EducatorSplatRouteImport } from './routes/educator.$'
 import { Route as ExploreIndexRouteImport } from './routes/explore.index'
 import { Route as ExploreCodeRouteImport } from './routes/explore.$code'
 import { Route as ExploreScanRouteImport } from './routes/explore.scan'
-import { Route as FamilyViewRouteImport } from './routes/family.view'
+import { Route as FamilyViewRouteImport } from './routes/family_.view'
 import { Route as GoTokenRouteImport } from './routes/go.$token'
 import { Route as InstructorIndexRouteImport } from './routes/instructor.index'
 import { Route as InstructorAdminRouteImport } from './routes/instructor.admin'
@@ -226,9 +226,9 @@ const ExploreScanRoute = ExploreScanRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const FamilyViewRoute = FamilyViewRouteImport.update({
-  id: '/view',
-  path: '/view',
-  getParentRoute: () => FamilyRoute,
+  id: '/family_/view',
+  path: '/family/view',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const GoTokenRoute = GoTokenRouteImport.update({
   id: '/go/$token',
@@ -548,7 +548,7 @@ export interface FileRoutesByFullPath {
   '/accessibility': typeof AccessibilityRoute
   '/demo': typeof DemoRoute
   '/explr-rosters': typeof ExplrRostersRoute
-  '/family': typeof FamilyRouteWithChildren
+  '/family': typeof FamilyRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/instructor': typeof InstructorRouteWithChildren
   '/opportunities': typeof OpportunitiesRoute
@@ -635,7 +635,7 @@ export interface FileRoutesByTo {
   '/accessibility': typeof AccessibilityRoute
   '/demo': typeof DemoRoute
   '/explr-rosters': typeof ExplrRostersRoute
-  '/family': typeof FamilyRouteWithChildren
+  '/family': typeof FamilyRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/opportunities': typeof OpportunitiesRoute
   '/privacy': typeof PrivacyRoute
@@ -721,7 +721,7 @@ export interface FileRoutesById {
   '/accessibility': typeof AccessibilityRoute
   '/demo': typeof DemoRoute
   '/explr-rosters': typeof ExplrRostersRoute
-  '/family': typeof FamilyRouteWithChildren
+  '/family': typeof FamilyRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/instructor': typeof InstructorRouteWithChildren
   '/opportunities': typeof OpportunitiesRoute
@@ -739,7 +739,7 @@ export interface FileRoutesById {
   '/educator/$': typeof EducatorSplatRoute
   '/explore/$code': typeof ExploreCodeRoute
   '/explore/scan': typeof ExploreScanRoute
-  '/family/view': typeof FamilyViewRoute
+  '/family_/view': typeof FamilyViewRoute
   '/go/$token': typeof GoTokenRoute
   '/instructor/admin': typeof InstructorAdminRouteWithChildren
   '/instructor/dashboard': typeof InstructorDashboardRoute
@@ -1000,7 +1000,7 @@ export interface FileRouteTypes {
     | '/educator/$'
     | '/explore/$code'
     | '/explore/scan'
-    | '/family/view'
+    | '/family_/view'
     | '/go/$token'
     | '/instructor/admin'
     | '/instructor/dashboard'
@@ -1070,7 +1070,7 @@ export interface RootRouteChildren {
   AccessibilityRoute: typeof AccessibilityRoute
   DemoRoute: typeof DemoRoute
   ExplrRostersRoute: typeof ExplrRostersRoute
-  FamilyRoute: typeof FamilyRouteWithChildren
+  FamilyRoute: typeof FamilyRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   InstructorRoute: typeof InstructorRouteWithChildren
   OpportunitiesRoute: typeof OpportunitiesRoute
@@ -1088,6 +1088,7 @@ export interface RootRouteChildren {
   EducatorSplatRoute: typeof EducatorSplatRoute
   ExploreCodeRoute: typeof ExploreCodeRoute
   ExploreScanRoute: typeof ExploreScanRoute
+  FamilyViewRoute: typeof FamilyViewRoute
   GoTokenRoute: typeof GoTokenRoute
   OpportunityIdRoute: typeof OpportunityIdRoute
   OrgApplicantsRoute: typeof OrgApplicantsRoute
@@ -1298,12 +1299,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExploreScanRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/family/view': {
-      id: '/family/view'
-      path: '/view'
+    '/family_/view': {
+      id: '/family_/view'
+      path: '/family/view'
       fullPath: '/family/view'
       preLoaderRoute: typeof FamilyViewRouteImport
-      parentRoute: typeof FamilyRoute
+      parentRoute: typeof rootRouteImport
     }
     '/go/$token': {
       id: '/go/$token'
@@ -1714,17 +1715,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface FamilyRouteChildren {
-  FamilyViewRoute: typeof FamilyViewRoute
-}
-
-const FamilyRouteChildren: FamilyRouteChildren = {
-  FamilyViewRoute: FamilyViewRoute,
-}
-
-const FamilyRouteWithChildren =
-  FamilyRoute._addFileChildren(FamilyRouteChildren)
-
 interface InstructorAdminRouteChildren {
   InstructorAdminApplicationsRoute: typeof InstructorAdminApplicationsRoute
   InstructorAdminApplyRequestsRoute: typeof InstructorAdminApplyRequestsRoute
@@ -1834,7 +1824,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccessibilityRoute: AccessibilityRoute,
   DemoRoute: DemoRoute,
   ExplrRostersRoute: ExplrRostersRoute,
-  FamilyRoute: FamilyRouteWithChildren,
+  FamilyRoute: FamilyRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   InstructorRoute: InstructorRouteWithChildren,
   OpportunitiesRoute: OpportunitiesRoute,
@@ -1852,6 +1842,7 @@ const rootRouteChildren: RootRouteChildren = {
   EducatorSplatRoute: EducatorSplatRoute,
   ExploreCodeRoute: ExploreCodeRoute,
   ExploreScanRoute: ExploreScanRoute,
+  FamilyViewRoute: FamilyViewRoute,
   GoTokenRoute: GoTokenRoute,
   OpportunityIdRoute: OpportunityIdRoute,
   OrgApplicantsRoute: OrgApplicantsRoute,

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Check, Circle } from "lucide-react";
-import { SiteHeader } from "@/components/passport";
+import { PortalHeader } from "@/components/passport";
 import { SiteFooter } from "@/components/SiteFooter";
 import { FamilyResults, type FamilyResultsData } from "@/components/FamilyPortal";
 import { getFamilyView, guardianAckPlan, type FamilyView } from "@/lib/family.functions";
@@ -10,7 +10,7 @@ import { Stamp } from "@/components/passport";
 const FAMILY_TOKEN_KEY = "explr.family.token";
 
 /** /family/view — read-only passport view for a caregiver holding a family session. */
-export const Route = createFileRoute("/family/view")({
+export const Route = createFileRoute("/family_/view")({
   head: () => ({
     meta: [{ title: "Family view — EXPLR Pathways" }, { name: "robots", content: "noindex" }],
   }),
@@ -101,19 +101,32 @@ function View() {
 
   return (
     <div className="min-h-screen bg-paper text-ink-900">
-      <SiteHeader />
+      {/* Caregivers hold a code, not an account: no Sign in / Start buttons here. */}
+      <PortalHeader
+        role="Family"
+        links={[
+          { label: "Home", to: "/" },
+          { label: "Use a different code", to: "/family" },
+        ]}
+      />
       <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
         {error && (
           <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-6">
             <p className="eyebrow text-green">For families</p>
             <h1 className="mt-2 font-display text-3xl font-bold">We couldn't open that.</h1>
-            <p className="mt-2 text-ink-700">{error}</p>
+            <p role="alert" className="mt-2 text-ink-700">
+              {error}
+            </p>
             <Link to="/family" className="btn-ink mt-5">
               Enter a family code
             </Link>
           </div>
         )}
-        {!error && !view && <p className="text-ink-500">Opening the passport…</p>}
+        {!error && !view && (
+          <p role="status" className="text-ink-500">
+            Opening the passport…
+          </p>
+        )}
         {view && data && (
           <>
             <p className="eyebrow text-green">Family view · grade {view.grade ?? "?"}</p>
@@ -160,7 +173,7 @@ function View() {
                     </button>
                   </form>
                 ) : (
-                  <p className="mt-2 text-xs text-ink-500">
+                  <p role="status" className="mt-2 text-xs text-ink-500">
                     Thank you. Your sign-off is recorded for {view.plan.schoolYear}.
                   </p>
                 )}
