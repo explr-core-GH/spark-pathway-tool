@@ -55,7 +55,7 @@ function ResetPassword() {
       ]}
     >
       {done ? (
-        <div className="flex flex-col gap-4 text-ink-700">
+        <div className="flex flex-col gap-4 text-ink-700" role="status">
           <span className="grid h-12 w-12 place-items-center rounded-[14px] border border-mint-soft bg-mint-tint text-green-deep">
             <BadgeCheck className="h-6 w-6" strokeWidth={2} aria-hidden />
           </span>
@@ -76,7 +76,10 @@ function ResetPassword() {
       ) : (
         <>
           {!ready && (
-            <p className="mb-5 rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-sm text-ink-900">
+            <p
+              role="status"
+              className="mb-5 rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-sm text-ink-900"
+            >
               Open this page from the reset link in your email. If you got here another way, request
               a new link from{" "}
               <Link to="/forgot-password" className="ink-link">
@@ -98,6 +101,7 @@ function ResetPassword() {
                   required
                   minLength={8}
                   autoComplete="new-password"
+                  aria-describedby="rp-password-hint"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -111,7 +115,9 @@ function ResetPassword() {
                   {show ? "Hide" : "Show"}
                 </button>
               </div>
-              <p className="mt-1.5 text-xs text-ink-500">At least 8 characters.</p>
+              <p id="rp-password-hint" className="mt-1.5 text-xs text-ink-500">
+                At least 8 characters.
+              </p>
             </div>
             {error && (
               <p

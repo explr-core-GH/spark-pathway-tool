@@ -155,7 +155,9 @@ function PlacementsPage() {
 
       <div className="mt-8 flex flex-wrap items-center gap-2">
         <button
+          type="button"
           onClick={() => setFilter("all")}
+          aria-pressed={filter === "all"}
           className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${filter === "all" ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
         >
           All <span className="ml-1 opacity-70">{rows.length}</span>
@@ -165,7 +167,9 @@ function PlacementsPage() {
           return (
             <button
               key={slug}
+              type="button"
               onClick={() => setFilter(slug)}
+              aria-pressed={active}
               className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${active ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
             >
               <span className="mr-1">{emojiFor(slug)}</span>
@@ -177,6 +181,7 @@ function PlacementsPage() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          aria-label="Search students by name"
           placeholder="Search student…"
           className="field w-full sm:ml-auto sm:w-56"
         />
@@ -184,7 +189,9 @@ function PlacementsPage() {
 
       <div className="mt-8 space-y-8">
         {loading ? (
-          <p className="text-sm text-ink-500">Loading…</p>
+          <p role="status" className="text-sm text-ink-500">
+            Loading…
+          </p>
         ) : visibleGroups.length === 0 ? (
           <div className="rounded-[var(--radius-card)] border border-dashed border-line-strong bg-paper-raised p-10 text-center">
             <p className="text-sm text-ink-700">
@@ -240,10 +247,15 @@ function PlacementsPage() {
                           </p>
                         </div>
                         <button
+                          type="button"
                           onClick={() => removePlacement(p)}
                           className="inline-flex min-h-[44px] items-center text-xs text-red-700 hover:underline"
                         >
                           Remove
+                          <span className="sr-only">
+                            {" "}
+                            {s?.first_name ?? "student"} from {nameFor(group.slug)}
+                          </span>
                         </button>
                       </div>
                       <textarea
@@ -253,6 +265,7 @@ function PlacementsPage() {
                             saveNotes(p, e.target.value);
                         }}
                         placeholder="Staff notes for this placement"
+                        aria-label={`Staff notes for ${s?.first_name ?? "this student"}`}
                         className="field mt-3 h-16 text-xs"
                       />
                     </div>

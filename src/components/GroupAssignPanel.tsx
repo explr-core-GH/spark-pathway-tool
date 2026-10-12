@@ -247,7 +247,9 @@ export function GroupAssignPanel({ kind, groupId }: { kind: GroupKind; groupId: 
       <div className="mt-6">
         <p className="eyebrow">Assigned to this {noun}</p>
         {loading ? (
-          <p className="mt-3 text-sm text-ink-500">Loading…</p>
+          <p role="status" className="mt-3 text-sm text-ink-500">
+            Loading…
+          </p>
         ) : targets.length === 0 ? (
           <p className="mt-3 text-sm text-ink-700">Nothing assigned directly yet.</p>
         ) : (
@@ -272,7 +274,7 @@ export function GroupAssignPanel({ kind, groupId }: { kind: GroupKind; groupId: 
                   onClick={() => remove(t.id)}
                   className="inline-flex min-h-[44px] items-center text-xs text-red-700 hover:underline"
                 >
-                  Remove
+                  Remove<span className="sr-only"> {labelFor(t)}</span>
                 </button>
               </li>
             ))}

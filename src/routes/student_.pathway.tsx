@@ -143,7 +143,11 @@ function StudentDashboard() {
   }, [user, reload]);
 
   if (authLoading || loading) {
-    return <main className="mx-auto max-w-3xl px-6 py-24 text-sm text-ink-500">Loading…</main>;
+    return (
+      <main role="status" className="mx-auto max-w-3xl px-6 py-24 text-sm text-ink-500">
+        Loading…
+      </main>
+    );
   }
 
   const hasResults = !!(session?.completed_at && session.holland_code);
@@ -192,8 +196,19 @@ function StudentDashboard() {
               key={id}
               type="button"
               role="tab"
+              id={`pathway-tab-${id}`}
               aria-selected={tab === id}
+              aria-controls="pathway-tabpanel"
+              tabIndex={tab === id ? 0 : -1}
               onClick={() => setTab(id)}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+                  e.preventDefault();
+                  const next = tab === "dashboard" ? "families" : "dashboard";
+                  setTab(next);
+                  document.getElementById(`pathway-tab-${next}`)?.focus();
+                }
+              }}
               className={`-mb-px inline-flex min-h-[44px] items-center border-b-2 px-4 text-[15px] transition-colors ${
                 tab === id
                   ? "border-ink-900 font-semibold text-ink-900"
@@ -211,247 +226,255 @@ function StudentDashboard() {
           </Link>
         </div>
 
-        {tab === "families" && (
-          <>
-            <FamilyCodePanel />
-            <FamilyPortal studentId={user!.id} grade={grade} />
-          </>
-        )}
+        <div role="tabpanel" id="pathway-tabpanel" aria-labelledby={`pathway-tab-${tab}`}>
+          {tab === "families" && (
+            <>
+              <FamilyCodePanel />
+              <FamilyPortal studentId={user!.id} grade={grade} />
+            </>
+          )}
 
-        {tab === "dashboard" && (
-          <>
-            <ApplyStatusBanner studentId={user!.id} />
+          {tab === "dashboard" && (
+            <>
+              <ApplyStatusBanner studentId={user!.id} />
 
-            {/* Assigned to you — pending assessments/surveys from an instructor or admin */}
-            <section className="mt-10 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card sm:p-6">
-              <div className="flex items-center gap-4">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
-                  <CalendarCheck className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
-                </span>
-                <div>
-                  <p className="eyebrow">Assigned to you</p>
-                  <h2 className="mt-1 font-display text-xl font-semibold">Things to complete</h2>
+              {/* Assigned to you — pending assessments/surveys from an instructor or admin */}
+              <section className="mt-10 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card sm:p-6">
+                <div className="flex items-center gap-4">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
+                    <CalendarCheck className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+                  </span>
+                  <div>
+                    <p className="eyebrow">Assigned to you</p>
+                    <h2 className="mt-1 font-display text-xl font-semibold">Things to complete</h2>
+                  </div>
                 </div>
-              </div>
-              <p className="mt-3 max-w-2xl text-ink-700">
-                Assessments and surveys your instructor or an EXPLR admin has asked you to finish.
-              </p>
-              <AssignedAssessmentsPanel studentId={user!.id} />
-            </section>
+                <p className="mt-3 max-w-2xl text-ink-700">
+                  Assessments and surveys your instructor or an EXPLR admin has asked you to finish.
+                </p>
+                <AssignedAssessmentsPanel studentId={user!.id} />
+              </section>
 
-            {/* Placement banner — top priority when present */}
-            {placement && (
-              <section className="mt-10 flex flex-wrap items-start gap-4 rounded-[var(--radius-card)] border border-ink-900 bg-ink-900 p-6 text-paper shadow-card">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] bg-mint text-ink-900">
-                  <PartyPopper className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="eyebrow text-mint">You're in</p>
-                  <h2 className="mt-2 font-display text-3xl font-bold">
-                    Accepted to <span className="text-mint">{placedName}</span>
-                  </h2>
-                  <p className="mt-2 text-sm text-paper/70">
-                    Approved {new Date(placement.approved_at).toLocaleDateString()}.
-                  </p>
-                  {placedId && (
-                    <Link to="/opportunity/$id" params={{ id: placedId }} className="btn-mint mt-5">
-                      View {placedName} →
+              {/* Placement banner — top priority when present */}
+              {placement && (
+                <section className="mt-10 flex flex-wrap items-start gap-4 rounded-[var(--radius-card)] border border-ink-900 bg-ink-900 p-6 text-paper shadow-card">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] bg-mint text-ink-900">
+                    <PartyPopper className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="eyebrow text-mint">You're in</p>
+                    <h2 className="mt-2 font-display text-3xl font-bold">
+                      Accepted to <span className="text-mint">{placedName}</span>
+                    </h2>
+                    <p className="mt-2 text-sm text-paper/70">
+                      Approved {new Date(placement.approved_at).toLocaleDateString()}.
+                    </p>
+                    {placedId && (
+                      <Link
+                        to="/opportunity/$id"
+                        params={{ id: placedId }}
+                        className="btn-mint mt-5"
+                      >
+                        View {placedName} →
+                      </Link>
+                    )}
+                  </div>
+                </section>
+              )}
+
+              {/* Assessment status */}
+              <section className="mt-10 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card sm:p-6">
+                <div className="flex flex-wrap items-start justify-between gap-6">
+                  <div className="flex min-w-0 flex-1 items-start gap-4">
+                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
+                      <Compass className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="eyebrow">Assessment</p>
+                      {hasResults ? (
+                        <p className="mt-2 font-display text-2xl font-bold">
+                          Your Holland code is{" "}
+                          <span style={{ color: primary!.color }}>{session!.holland_code}</span>
+                        </p>
+                      ) : hasInProgress ? (
+                        <p className="mt-2 font-display text-2xl font-bold text-ink-700">
+                          You have an assessment in progress. Pick up where you left off.
+                        </p>
+                      ) : (
+                        <p className="mt-2 font-display text-2xl font-bold text-ink-700">
+                          You haven't started the assessment yet.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  {hasResults ? (
+                    <div className="flex shrink-0 flex-col items-end gap-2">
+                      <Link
+                        to="/assessment/$sessionId/results"
+                        params={{ sessionId: session!.session_id }}
+                        className="btn-ghost"
+                      >
+                        View full assessment results
+                      </Link>
+                      <Link
+                        to="/assessment"
+                        className="inline-flex min-h-[44px] items-center text-sm text-ink-500 hover:text-ink-900"
+                      >
+                        Retake assessment
+                      </Link>
+                    </div>
+                  ) : hasInProgress ? (
+                    <Link
+                      to="/assessment/$sessionId"
+                      params={{ sessionId: session!.session_id }}
+                      className="btn-ink shrink-0"
+                    >
+                      Resume assessment →
+                    </Link>
+                  ) : (
+                    <Link to="/assessment" className="btn-ink shrink-0">
+                      Take the assessment
                     </Link>
                   )}
                 </div>
               </section>
-            )}
 
-            {/* Assessment status */}
-            <section className="mt-10 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card sm:p-6">
-              <div className="flex flex-wrap items-start justify-between gap-6">
-                <div className="flex min-w-0 flex-1 items-start gap-4">
+              {/* STEM surveys — admin-assigned pre/post research surveys */}
+              <section className="mt-6 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card sm:p-6">
+                <div className="flex items-center gap-4">
                   <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
-                    <Compass className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+                    <ClipboardList className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
                   </span>
-                  <div className="min-w-0">
-                    <p className="eyebrow">Assessment</p>
-                    {hasResults ? (
-                      <p className="mt-2 font-display text-2xl font-bold">
-                        Your Holland code is{" "}
-                        <span style={{ color: primary!.color }}>{session!.holland_code}</span>
-                      </p>
-                    ) : hasInProgress ? (
-                      <p className="mt-2 font-display text-2xl font-bold text-ink-700">
-                        You have an assessment in progress. Pick up where you left off.
-                      </p>
-                    ) : (
-                      <p className="mt-2 font-display text-2xl font-bold text-ink-700">
-                        You haven't started the assessment yet.
-                      </p>
-                    )}
-                  </div>
+                  <h2 className="font-display text-xl font-semibold">STEM surveys</h2>
                 </div>
-                {hasResults ? (
-                  <div className="flex shrink-0 flex-col items-end gap-2">
-                    <Link
-                      to="/assessment/$sessionId/results"
-                      params={{ sessionId: session!.session_id }}
-                      className="btn-ghost"
-                    >
-                      View full results
-                    </Link>
-                    <Link
-                      to="/assessment"
-                      className="inline-flex min-h-[44px] items-center text-sm text-ink-500 hover:text-ink-900"
-                    >
-                      Retake assessment
-                    </Link>
-                  </div>
-                ) : hasInProgress ? (
-                  <Link
-                    to="/assessment/$sessionId"
-                    params={{ sessionId: session!.session_id }}
-                    className="btn-ink shrink-0"
-                  >
-                    Resume assessment →
-                  </Link>
-                ) : (
-                  <Link to="/assessment" className="btn-ink shrink-0">
-                    Take the assessment
-                  </Link>
-                )}
-              </div>
-            </section>
+                <p className="mt-3 max-w-2xl text-ink-700">
+                  Short research surveys from your camp or internship. They help EXPLR understand
+                  what&apos;s working — your answers are never shown next to your name to anyone
+                  else.
+                </p>
+                <StudentSurveysPanel studentId={user!.id} />
 
-            {/* STEM surveys — admin-assigned pre/post research surveys */}
-            <section className="mt-6 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card sm:p-6">
-              <div className="flex items-center gap-4">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
-                  <ClipboardList className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
-                </span>
-                <h2 className="font-display text-xl font-semibold">STEM surveys</h2>
-              </div>
-              <p className="mt-3 max-w-2xl text-ink-700">
-                Short research surveys from your camp or internship. They help EXPLR understand
-                what&apos;s working — your answers are never shown next to your name to anyone else.
-              </p>
-              <StudentSurveysPanel studentId={user!.id} />
+                <p className="eyebrow mt-8">Your results</p>
+                <p className="mt-2 max-w-2xl text-sm text-ink-700">
+                  How your confidence and interest scored across STEM areas — only you (and your
+                  family) can see these.
+                </p>
+                <SurveyResultsPanel studentId={user!.id} />
+              </section>
 
-              <p className="eyebrow mt-8">Your results</p>
-              <p className="mt-2 max-w-2xl text-sm text-ink-700">
-                How your confidence and interest scored across STEM areas — only you (and your
-                family) can see these.
-              </p>
-              <SurveyResultsPanel studentId={user!.id} />
-            </section>
-
-            {/* Application & internships — grades 8–12. */}
-            {canSeeInternshipTrack && (
-              <>
-                <section className="mt-6 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card sm:p-6">
-                  <div className="flex items-center gap-4">
-                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
-                      <Briefcase className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
-                    </span>
-                    <h2 className="font-display text-xl font-semibold">Internship application</h2>
-                  </div>
-                  {activeApplication ? (
-                    <div className="mt-4">
-                      <p className="flex flex-wrap items-center gap-2 text-lg">
-                        Status:{" "}
-                        <span className="inline-flex items-center rounded-full bg-mint-tint px-3 py-1 font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-green-deep">
-                          {application!.status.replace(/_/g, " ")}
-                        </span>
-                      </p>
-                      <p className="mt-2 text-sm text-ink-700">
-                        Submitted {new Date(application!.submitted_at).toLocaleDateString()} for{" "}
-                        {application!.submission_term}. You ranked{" "}
-                        {application!.selected_internship_ids.length} internship
-                        {application!.selected_internship_ids.length === 1 ? "" : "s"}.
-                      </p>
-                      {canWithdraw && (
-                        <div className="mt-5 flex flex-wrap items-center gap-3">
-                          <button
-                            onClick={withdrawApplication}
-                            disabled={withdrawing}
-                            className="btn-ghost disabled:opacity-50"
-                          >
-                            {withdrawing ? "Withdrawing…" : "Withdraw application"}
-                          </button>
-                          <span className="text-sm text-ink-500">
-                            Take it back to change your picks and apply again.
-                          </span>
-                        </div>
-                      )}
+              {/* Application & internships — grades 8–12. */}
+              {canSeeInternshipTrack && (
+                <>
+                  <section className="mt-6 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card sm:p-6">
+                    <div className="flex items-center gap-4">
+                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
+                        <Briefcase className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+                      </span>
+                      <h2 className="font-display text-xl font-semibold">Internship application</h2>
                     </div>
-                  ) : (
-                    <div className="mt-4">
-                      {application && (
-                        <p className="mb-2 text-sm text-ink-700">
-                          Your previous application was{" "}
-                          <span className="capitalize text-ink-900">{application.status}</span>. You
-                          can apply again below.
+                    {activeApplication ? (
+                      <div className="mt-4">
+                        <p className="flex flex-wrap items-center gap-2 text-lg">
+                          Status:{" "}
+                          <span className="inline-flex items-center rounded-full bg-mint-tint px-3 py-1 font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-green-deep">
+                            {application!.status.replace(/_/g, " ")}
+                          </span>
                         </p>
-                      )}
-                      <p className="max-w-2xl text-ink-700">
-                        {hasResults
-                          ? "You're ready to apply. Pick the internships that fit and fill in your digital résumé."
-                          : "Finish the main assessment too — your Holland code helps match you to internships that fit."}
-                      </p>
-                      <Link to="/student/apply" className="btn-ink mt-5">
-                        {application ? "Apply again →" : "Apply now →"}
+                        <p className="mt-2 text-sm text-ink-700">
+                          Submitted {new Date(application!.submitted_at).toLocaleDateString()} for{" "}
+                          {application!.submission_term}. You ranked{" "}
+                          {application!.selected_internship_ids.length} internship
+                          {application!.selected_internship_ids.length === 1 ? "" : "s"}.
+                        </p>
+                        {canWithdraw && (
+                          <div className="mt-5 flex flex-wrap items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={withdrawApplication}
+                              disabled={withdrawing}
+                              className="btn-ghost disabled:opacity-50"
+                            >
+                              {withdrawing ? "Withdrawing…" : "Withdraw application"}
+                            </button>
+                            <span className="text-sm text-ink-500">
+                              Take it back to change your picks and apply again.
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="mt-4">
+                        {application && (
+                          <p className="mb-2 text-sm text-ink-700">
+                            Your previous application was{" "}
+                            <span className="capitalize text-ink-900">{application.status}</span>.
+                            You can apply again below.
+                          </p>
+                        )}
+                        <p className="max-w-2xl text-ink-700">
+                          {hasResults
+                            ? "You're ready to apply. Pick the internships that fit and fill in your digital résumé."
+                            : "Finish the main assessment too — your Holland code helps match you to internships that fit."}
+                        </p>
+                        <Link to="/student/apply" className="btn-ink mt-5">
+                          {application ? "Apply again →" : "Apply now →"}
+                        </Link>
+                      </div>
+                    )}
+                  </section>
+
+                  <section className="mt-10 border-t border-line pt-8">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <h2 className="font-display text-2xl font-bold">Internships open now</h2>
+                      <Link
+                        to="/opportunities"
+                        className="inline-flex min-h-[44px] items-center text-sm text-ink-700 hover:text-green-deep"
+                      >
+                        Browse all opportunities →
                       </Link>
                     </div>
-                  )}
-                </section>
-
-                <section className="mt-10 border-t border-line pt-8">
-                  <div className="flex flex-wrap items-center justify-between gap-4">
-                    <h2 className="font-display text-2xl font-bold">Internships open now</h2>
-                    <Link
-                      to="/opportunities"
-                      className="inline-flex min-h-[44px] items-center text-sm text-ink-700 hover:text-green-deep"
-                    >
-                      Browse all opportunities →
-                    </Link>
-                  </div>
-                  <p className="mt-2 max-w-2xl text-ink-700">
-                    Approved partner internships you can request through the application above.
-                  </p>
-
-                  {openInternships.length === 0 ? (
-                    <p className="mt-8 text-sm text-ink-500">
-                      No internships are open right now. Check back soon.
+                    <p className="mt-2 max-w-2xl text-ink-700">
+                      Approved partner internships you can request through the application above.
                     </p>
-                  ) : (
-                    <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {openInternships.map((o) => (
-                        <li key={o.id}>
-                          <Link
-                            to="/opportunity/$id"
-                            params={{ id: o.id }}
-                            className="group block h-full rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card transition-colors hover:border-emerald"
-                          >
-                            <p className="eyebrow text-green">
-                              {o.org_name ?? "Partner internship"}
-                            </p>
-                            <h3 className="mt-2 font-display text-lg font-semibold leading-tight text-ink-900">
-                              {o.name ?? "Internship"}
-                            </h3>
-                            {o.description && (
-                              <p className="mt-3 text-sm text-ink-700">
-                                {shortDescription(o.description)}
+
+                    {openInternships.length === 0 ? (
+                      <p className="mt-8 text-sm text-ink-500">
+                        No internships are open right now. Check back soon.
+                      </p>
+                    ) : (
+                      <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {openInternships.map((o) => (
+                          <li key={o.id}>
+                            <Link
+                              to="/opportunity/$id"
+                              params={{ id: o.id }}
+                              className="group block h-full rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card transition-colors hover:border-emerald"
+                            >
+                              <p className="eyebrow text-green">
+                                {o.org_name ?? "Partner internship"}
                               </p>
-                            )}
-                            <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-green-deep group-hover:underline">
-                              View details <ChevronRight className="h-4 w-4" aria-hidden />
-                            </span>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </section>
-              </>
-            )}
-          </>
-        )}
+                              <h3 className="mt-2 font-display text-lg font-semibold leading-tight text-ink-900">
+                                {o.name ?? "Internship"}
+                              </h3>
+                              {o.description && (
+                                <p className="mt-3 text-sm text-ink-700">
+                                  {shortDescription(o.description)}
+                                </p>
+                              )}
+                              <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-green-deep group-hover:underline">
+                                View details <ChevronRight className="h-4 w-4" aria-hidden />
+                              </span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </section>
+                </>
+              )}
+            </>
+          )}
+        </div>
       </main>
       <SiteFooter className="mt-16" />
     </div>

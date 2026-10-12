@@ -30,7 +30,9 @@ function AssessmentsAdmin() {
         {TABS.map((t) => (
           <button
             key={t.id}
+            type="button"
             onClick={() => setTab(t.id)}
+            aria-pressed={tab === t.id}
             className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${
               tab === t.id
                 ? "border-ink-900 bg-ink-900 text-paper"

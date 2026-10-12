@@ -156,6 +156,7 @@ export function AssessmentPhotosPanel() {
       {/* Bulk import: pick many files named by question id at once. */}
       <div className="mt-4 flex flex-wrap items-center gap-3 rounded-[var(--radius-card)] border border-line bg-paper-sunken p-4">
         <button
+          type="button"
           onClick={() => bulkInput.current?.click()}
           disabled={!!bulk}
           className="btn-ink text-xs disabled:opacity-50"
@@ -179,10 +180,16 @@ export function AssessmentPhotosPanel() {
         />
       </div>
 
-      {err && <p className="mt-3 text-sm text-ink-700">{err}</p>}
+      {err && (
+        <p role="status" className="mt-3 text-sm text-ink-700">
+          {err}
+        </p>
+      )}
 
       {loading ? (
-        <p className="mt-6 text-sm text-ink-500">Loading…</p>
+        <p role="status" className="mt-6 text-sm text-ink-500">
+          Loading…
+        </p>
       ) : (
         <div className="mt-6 space-y-8">
           {SCALE_ORDER.map((code) => {
@@ -190,7 +197,11 @@ export function AssessmentPhotosPanel() {
             return (
               <div key={code}>
                 <div className="flex items-center gap-2">
-                  <span className="h-3 w-3 rounded-full" style={{ background: dim.color }} />
+                  <span
+                    className="h-3 w-3 rounded-full"
+                    style={{ background: dim.color }}
+                    aria-hidden="true"
+                  />
                   <h3 className="font-display text-xl font-bold">{dim.name}</h3>
                 </div>
                 <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -221,19 +232,22 @@ export function AssessmentPhotosPanel() {
                           <p className="line-clamp-2 text-xs leading-snug text-ink-900">{it.hs}</p>
                           <div className="mt-2 flex gap-2">
                             <button
+                              type="button"
                               onClick={() => inputs.current[it.id]?.click()}
                               disabled={busy === it.id}
-                              className="inline-flex min-h-[36px] items-center text-xs font-medium text-green-deep hover:underline disabled:opacity-50"
+                              className="inline-flex min-h-[44px] items-center text-xs font-medium text-green-deep hover:underline disabled:opacity-50"
                             >
                               {busy === it.id ? "Uploading…" : url ? "Replace" : "Upload"}
+                              <span className="sr-only"> photo for {it.id}</span>
                             </button>
                             {url && (
                               <button
+                                type="button"
                                 onClick={() => remove(it.id)}
                                 disabled={busy === it.id}
-                                className="inline-flex min-h-[36px] items-center text-xs text-red-700 hover:underline disabled:opacity-50"
+                                className="inline-flex min-h-[44px] items-center text-xs text-red-700 hover:underline disabled:opacity-50"
                               >
-                                Remove
+                                Remove<span className="sr-only"> photo for {it.id}</span>
                               </button>
                             )}
                           </div>

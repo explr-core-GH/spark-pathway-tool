@@ -116,6 +116,7 @@ function WizardFields() {
         {OPP_TYPES.map((t) => (
           <button
             key={t.key}
+            type="button"
             onClick={() => setType(t.key)}
             aria-pressed={type === t.key}
             className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${type === t.key ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
@@ -126,7 +127,9 @@ function WizardFields() {
       </div>
 
       {loading ? (
-        <p className="mt-8 text-sm text-ink-500">Loading…</p>
+        <p role="status" className="mt-8 text-sm text-ink-500">
+          Loading…
+        </p>
       ) : (
         <div className="mt-6 space-y-2">
           {[...fields]
@@ -139,22 +142,25 @@ function WizardFields() {
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="flex flex-col">
                     <button
+                      type="button"
                       onClick={() => move(f, -1)}
-                      className="grid h-6 w-8 place-items-center rounded-[6px] text-ink-500 hover:bg-paper-sunken hover:text-ink-900"
-                      aria-label="Move up"
+                      className="grid h-8 w-10 place-items-center rounded-[6px] text-ink-500 hover:bg-paper-sunken hover:text-ink-900"
+                      aria-label={`Move ${f.label} up`}
                     >
                       <ChevronUp className="h-4 w-4" aria-hidden />
                     </button>
                     <button
+                      type="button"
                       onClick={() => move(f, 1)}
-                      className="grid h-6 w-8 place-items-center rounded-[6px] text-ink-500 hover:bg-paper-sunken hover:text-ink-900"
-                      aria-label="Move down"
+                      className="grid h-8 w-10 place-items-center rounded-[6px] text-ink-500 hover:bg-paper-sunken hover:text-ink-900"
+                      aria-label={`Move ${f.label} down`}
                     >
                       <ChevronDown className="h-4 w-4" aria-hidden />
                     </button>
                   </div>
                   <input
                     className="field flex-1 min-w-[180px]"
+                    aria-label={`Label for the ${f.field_key} field`}
                     value={f.label}
                     onChange={(e) =>
                       setFields((prev) =>
@@ -169,7 +175,7 @@ function WizardFields() {
                   <label className="flex min-h-[44px] items-center gap-1.5 text-xs text-ink-700">
                     <input
                       type="checkbox"
-                      className="h-4 w-4 accent-green"
+                      className="h-5 w-5 accent-green"
                       checked={f.enabled}
                       onChange={(e) => patch(f.id, { enabled: e.target.checked })}
                     />
@@ -178,7 +184,7 @@ function WizardFields() {
                   <label className="flex min-h-[44px] items-center gap-1.5 text-xs text-ink-700">
                     <input
                       type="checkbox"
-                      className="h-4 w-4 accent-green"
+                      className="h-5 w-5 accent-green"
                       checked={f.required}
                       onChange={(e) => patch(f.id, { required: e.target.checked })}
                     />
@@ -186,15 +192,17 @@ function WizardFields() {
                   </label>
                   {!f.is_core && (
                     <button
+                      type="button"
                       onClick={() => remove(f)}
                       className="inline-flex min-h-[44px] items-center text-xs text-red-700 hover:underline"
                     >
-                      Delete
+                      Delete<span className="sr-only"> {f.label}</span>
                     </button>
                   )}
                 </div>
                 <input
                   className="field mt-2 text-xs"
+                  aria-label={`Help text for ${f.label} (optional)`}
                   placeholder="Help text (optional)"
                   value={f.help_text ?? ""}
                   onChange={(e) =>
@@ -215,12 +223,14 @@ function WizardFields() {
         <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_160px_auto]">
           <input
             className="field"
+            aria-label="New field label"
             placeholder="Field label (e.g. Bus provided?)"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
           />
           <select
             className="field"
+            aria-label="New field type"
             value={ftype}
             onChange={(e) => setFtype(e.target.value as typeof ftype)}
           >
@@ -231,6 +241,7 @@ function WizardFields() {
             ))}
           </select>
           <button
+            type="button"
             onClick={addCustom}
             disabled={!label.trim()}
             className="btn-ink text-sm disabled:opacity-40"
@@ -241,6 +252,7 @@ function WizardFields() {
         {ftype === "select" && (
           <input
             className="field mt-3"
+            aria-label="Options, comma-separated"
             placeholder="Options, comma-separated (e.g. Yes, No, Maybe)"
             value={options}
             onChange={(e) => setOptions(e.target.value)}

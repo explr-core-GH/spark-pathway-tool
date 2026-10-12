@@ -131,8 +131,11 @@ function ProgramsAdmin() {
         className="mt-10 grid gap-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 md:grid-cols-[2fr_1fr_1fr_auto]"
       >
         <div>
-          <label className="label">Program name</label>
+          <label className="label" htmlFor="prog-name">
+            Program name
+          </label>
           <input
+            id="prog-name"
             className="field mt-1"
             required
             value={name}
@@ -141,8 +144,11 @@ function ProgramsAdmin() {
           />
         </div>
         <div>
-          <label className="label">Type</label>
+          <label className="label" htmlFor="prog-type">
+            Type
+          </label>
           <select
+            id="prog-type"
             className="field mt-1"
             value={pt}
             onChange={(e) => setPt(e.target.value as ProgramType)}
@@ -155,8 +161,11 @@ function ProgramsAdmin() {
           </select>
         </div>
         <div>
-          <label className="label">Grade band (display)</label>
+          <label className="label" htmlFor="prog-band">
+            Grade band (display)
+          </label>
           <input
+            id="prog-band"
             className="field mt-1"
             value={gradeBand}
             onChange={(e) => setGradeBand(e.target.value)}
@@ -171,18 +180,22 @@ function ProgramsAdmin() {
 
         {/* School + roster size + grade levels — feed the admin demographics dashboard */}
         <div className="md:col-span-4">
-          <label className="label">School (Ohio Dept of Ed directory)</label>
+          <p className="label">School (Ohio Dept of Ed directory)</p>
           <div className="mt-1">
             <SchoolSearch
               initial={school}
               onSelect={setSchool}
+              label="School (Ohio Dept of Ed directory)"
               placeholder="Search Ohio schools by name, district, or city"
             />
           </div>
         </div>
         <div>
-          <label className="label">Number of students</label>
+          <label className="label" htmlFor="prog-count">
+            Number of students
+          </label>
           <input
+            id="prog-count"
             type="number"
             min={0}
             className="field mt-1"
@@ -192,15 +205,18 @@ function ProgramsAdmin() {
           />
         </div>
         <div className="md:col-span-3">
-          <label className="label">Grade levels</label>
+          <p className="label">Grade levels</p>
           <div className="mt-1">
             <GradeLevelPicker value={gradeLevels} onChange={setGradeLevels} />
           </div>
         </div>
 
         <div className="md:col-span-4">
-          <label className="label">Description (optional)</label>
+          <label className="label" htmlFor="prog-desc">
+            Description (optional)
+          </label>
           <textarea
+            id="prog-desc"
             className="field mt-1"
             rows={2}
             value={desc}
@@ -223,6 +239,7 @@ function ProgramsAdmin() {
                   }`}
                 >
                   <button
+                    type="button"
                     onClick={() => setSelected(p.id)}
                     aria-pressed={selected === p.id}
                     className="min-h-[44px] flex-1 text-left"
@@ -255,10 +272,11 @@ function ProgramsAdmin() {
                     )}
                   </button>
                   <button
+                    type="button"
                     onClick={() => deleteProgram(p.id)}
                     className="inline-flex min-h-[44px] items-center text-xs text-red-700 hover:underline"
                   >
-                    Delete
+                    Delete<span className="sr-only"> {p.name}</span>
                   </button>
                 </li>
               );
@@ -278,17 +296,19 @@ function ProgramsAdmin() {
               {educators.map((e) => {
                 const checked = assignedSet.has(e.id);
                 return (
-                  <li key={e.id} className="flex min-h-[44px] items-center gap-3 px-4 py-3">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 accent-green"
-                      checked={checked}
-                      onChange={() => toggleEducator(selectedProg.id, e.id)}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">{e.full_name}</p>
-                      <p className="text-xs text-ink-500 truncate">{e.email}</p>
-                    </div>
+                  <li key={e.id}>
+                    <label className="flex min-h-[44px] cursor-pointer items-center gap-3 px-4 py-3">
+                      <input
+                        type="checkbox"
+                        className="h-5 w-5 shrink-0 accent-green"
+                        checked={checked}
+                        onChange={() => toggleEducator(selectedProg.id, e.id)}
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium">{e.full_name}</span>
+                        <span className="block truncate text-xs text-ink-500">{e.email}</span>
+                      </span>
+                    </label>
                   </li>
                 );
               })}

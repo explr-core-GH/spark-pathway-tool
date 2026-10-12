@@ -68,17 +68,39 @@ export function ResumeForm({
 
   return (
     <>
-      <Section title="Personal info" hint="So we can reach you about your application.">
+      <Section
+        title="Personal info"
+        hint="So we can reach you about your application. Fields marked * are required."
+      >
         <Grid2>
-          <Field label="Full name *" value={resume.fullName} onChange={(v) => u("fullName", v)} />
+          <Field
+            label="Full name *"
+            autoComplete="name"
+            required
+            value={resume.fullName}
+            onChange={(v) => u("fullName", v)}
+          />
           <Field
             label="Email *"
             type="email"
+            autoComplete="email"
+            required
             value={resume.email}
             onChange={(v) => u("email", v)}
           />
-          <Field label="Phone" value={resume.phone} onChange={(v) => u("phone", v)} />
-          <Field label="Street address" value={resume.address} onChange={(v) => u("address", v)} />
+          <Field
+            label="Phone"
+            type="tel"
+            autoComplete="tel"
+            value={resume.phone}
+            onChange={(v) => u("phone", v)}
+          />
+          <Field
+            label="Street address"
+            autoComplete="street-address"
+            value={resume.address}
+            onChange={(v) => u("address", v)}
+          />
           <Field
             label="City, State ZIP"
             value={resume.cityStateZip}
@@ -92,6 +114,7 @@ export function ResumeForm({
         hint="3–5 sentences. What excites you about the work? What do you hope to learn or contribute?"
       >
         <TextArea
+          label="Why these internships"
           value={resume.whyThisInternship}
           onChange={(v) => u("whyThisInternship", v)}
           rows={5}
@@ -119,6 +142,7 @@ export function ResumeForm({
         </Grid2>
         <p className="label mt-6 mb-0">Relevant coursework</p>
         <RepeatingList
+          label="Relevant coursework"
           items={resume.coursework}
           onChange={(v) => u("coursework", v)}
           placeholder="e.g. AP Biology"
@@ -142,6 +166,7 @@ export function ResumeForm({
         </div>
         <div className="mt-4">
           <TextArea
+            label="Featured project description"
             value={resume.projectDescription}
             onChange={(v) => u("projectDescription", v)}
             rows={4}
@@ -181,6 +206,7 @@ export function ResumeForm({
               </div>
               <div className="mt-3">
                 <TextArea
+                  label="Activity description"
                   value={item.description}
                   onChange={(v) => set({ ...item, description: v })}
                   rows={3}
@@ -220,6 +246,7 @@ export function ResumeForm({
 
       <Section title="Awards & honors (optional)">
         <RepeatingList
+          label="Award or honor"
           items={resume.awards}
           onChange={(v) => u("awards", v)}
           placeholder="e.g. Honor Roll, 2024"
@@ -257,6 +284,7 @@ export function ResumeForm({
               </div>
               <div className="mt-3">
                 <TextArea
+                  label="Work or volunteer description"
                   value={item.description}
                   onChange={(v) => set({ ...item, description: v })}
                   rows={3}
@@ -298,11 +326,15 @@ function Field({
   value,
   onChange,
   type = "text",
+  autoComplete,
+  required,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   type?: string;
+  autoComplete?: string;
+  required?: boolean;
 }) {
   return (
     <label className="block">
@@ -312,6 +344,8 @@ function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         maxLength={500}
+        autoComplete={autoComplete}
+        required={required}
         className="field mt-1"
       />
     </label>
@@ -319,11 +353,14 @@ function Field({
 }
 
 function TextArea({
+  label,
   value,
   onChange,
   rows = 4,
   placeholder,
 }: {
+  /** Accessible name; the visible heading above already says this. */
+  label: string;
   value: string;
   onChange: (v: string) => void;
   rows?: number;
@@ -331,6 +368,7 @@ function TextArea({
 }) {
   return (
     <textarea
+      aria-label={label}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       rows={rows}
@@ -342,10 +380,13 @@ function TextArea({
 }
 
 function RepeatingList({
+  label,
   items,
   onChange,
   placeholder,
 }: {
+  /** Accessible name for each row's input, e.g. "Skill". */
+  label: string;
   items: string[];
   onChange: (v: string[]) => void;
   placeholder?: string;
@@ -361,6 +402,7 @@ function RepeatingList({
               next[idx] = e.target.value;
               onChange(next);
             }}
+            aria-label={`${label} ${idx + 1}`}
             placeholder={placeholder}
             maxLength={300}
             className="field min-w-0 flex-1"
@@ -369,7 +411,7 @@ function RepeatingList({
             type="button"
             onClick={() => onChange(items.filter((_, i) => i !== idx))}
             className="grid h-11 w-11 shrink-0 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-ink-900"
-            aria-label="Remove"
+            aria-label={`Remove ${label} ${idx + 1}`}
           >
             <X className="h-4 w-4" aria-hidden />
           </button>
@@ -381,6 +423,7 @@ function RepeatingList({
         className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-medium text-green-deep hover:underline"
       >
         <Plus className="h-4 w-4" aria-hidden /> Add
+        <span className="sr-only"> {label}</span>
       </button>
     </div>
   );
@@ -408,7 +451,7 @@ function RepeatingBlocks<T>({
               onClick={() => onChange(items.filter((_, i) => i !== idx))}
               className="inline-flex min-h-[44px] items-center text-sm text-ink-500 hover:text-ink-900"
             >
-              Remove
+              Remove<span className="sr-only"> entry {idx + 1}</span>
             </button>
           </div>
           {render(item, (next) => {
@@ -442,7 +485,12 @@ function SkillGroup({
     <div className="mt-6 first:mt-0">
       <p className="label mb-0">{label}</p>
       <div className="mt-2">
-        <RepeatingList items={items} onChange={onChange} placeholder="Skill" />
+        <RepeatingList
+          label={`${label} skill`}
+          items={items}
+          onChange={onChange}
+          placeholder="Skill"
+        />
       </div>
     </div>
   );

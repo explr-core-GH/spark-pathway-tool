@@ -159,9 +159,13 @@ function EducatorSignUp() {
                   required
                   minLength={8}
                   autoComplete="new-password"
+                  aria-describedby="edu-password-hint"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
+                <p id="edu-password-hint" className="mt-1.5 text-xs text-ink-500">
+                  At least 8 characters.
+                </p>
               </div>
               <div>
                 <span className="label">
@@ -183,11 +187,12 @@ function EducatorSignUp() {
                   type="number"
                   min={0}
                   className="field"
+                  aria-describedby="edu-studentcount-hint"
                   value={studentCount}
                   onChange={(e) => setStudentCount(e.target.value)}
                   placeholder="e.g. 28"
                 />
-                <p className="mt-1.5 text-xs text-ink-500">
+                <p id="edu-studentcount-hint" className="mt-1.5 text-xs text-ink-500">
                   Used to weight aggregate demographics for EXPLR&apos;s admin dashboard.
                 </p>
               </div>

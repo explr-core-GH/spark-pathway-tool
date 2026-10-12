@@ -300,8 +300,14 @@ export function AssessmentAssignPanel() {
 
           {/* assessment multi-select */}
           <div className="mt-6">
-            <p className="label">Assessments — pick one or more</p>
-            <div className="flex flex-wrap gap-2">
+            <p className="label" id="assign-assessments-label">
+              Assessments — pick one or more
+            </p>
+            <div
+              className="flex flex-wrap gap-2"
+              role="group"
+              aria-labelledby="assign-assessments-label"
+            >
               {options.map((o) => {
                 const on = picked.has(o.key);
                 return (
@@ -329,8 +335,14 @@ export function AssessmentAssignPanel() {
           {/* target */}
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <p className="label">Assign to</p>
-              <div className="flex flex-wrap gap-2">
+              <p className="label" id="assign-target-type-label">
+                Assign to
+              </p>
+              <div
+                className="flex flex-wrap gap-2"
+                role="group"
+                aria-labelledby="assign-target-type-label"
+              >
                 {TARGET_CHOICES.map(({ key, label }) => (
                   <button
                     key={key}
@@ -351,8 +363,8 @@ export function AssessmentAssignPanel() {
                 ))}
               </div>
             </div>
-            <div className="sm:col-span-2">
-              <p className="label">{TARGET_LIST_LABEL[targetType]} — pick one or more</p>
+            <fieldset className="sm:col-span-2">
+              <legend className="label">{TARGET_LIST_LABEL[targetType]} — pick one or more</legend>
               <div className="max-h-56 space-y-1 overflow-y-auto rounded-[var(--radius-control)] border border-line bg-paper p-2">
                 {targetOptions.map((o) => (
                   <label
@@ -361,7 +373,7 @@ export function AssessmentAssignPanel() {
                   >
                     <input
                       type="checkbox"
-                      className="h-4 w-4 accent-green-deep"
+                      className="h-5 w-5 shrink-0 accent-green-deep"
                       checked={targetIds.includes(o.id)}
                       onChange={(e) =>
                         setTargetIds((prev) =>
@@ -376,11 +388,14 @@ export function AssessmentAssignPanel() {
                   <p className="px-2 py-3 text-sm text-ink-500">{emptyTargetHint}</p>
                 )}
               </div>
-              <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-ink-500">
+              <p
+                className="mt-2 inline-flex items-center gap-1.5 text-xs text-ink-500"
+                aria-live="polite"
+              >
                 <Users className="h-3.5 w-3.5" aria-hidden />
                 {targetIds.length} selected — every picked assessment goes to each one.
               </p>
-            </div>
+            </fieldset>
             <div>
               <label className="label" htmlFor="assign-from">
                 Available from (optional)
@@ -454,7 +469,9 @@ export function AssessmentAssignPanel() {
         <section className="mt-6">
           <p className="eyebrow">Current assignments</p>
           {loading ? (
-            <p className="mt-3 text-sm text-ink-500">Loading…</p>
+            <p role="status" className="mt-3 text-sm text-ink-500">
+              Loading…
+            </p>
           ) : targets.length === 0 ? (
             <p className="mt-3 text-sm text-ink-700">Nothing assigned yet.</p>
           ) : (
@@ -481,6 +498,10 @@ export function AssessmentAssignPanel() {
                     className="inline-flex min-h-[44px] items-center text-xs text-red-700 hover:underline"
                   >
                     Remove
+                    <span className="sr-only">
+                      {" "}
+                      {labelForKind(t)} ({targetDescription(t)})
+                    </span>
                   </button>
                 </li>
               ))}

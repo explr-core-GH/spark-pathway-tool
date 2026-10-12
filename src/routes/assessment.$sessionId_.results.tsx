@@ -50,16 +50,26 @@ function Results() {
     })();
   }, [sessionId]);
 
-  if (error) return <div className="mx-auto max-w-xl px-6 py-24 text-red-700">{error}</div>;
-  if (!row) return <div className="mx-auto max-w-xl px-6 py-24 text-ink-500">Loading…</div>;
+  if (error)
+    return (
+      <main role="alert" className="mx-auto max-w-xl px-6 py-24 text-red-700">
+        {error}
+      </main>
+    );
+  if (!row)
+    return (
+      <main role="status" className="mx-auto max-w-xl px-6 py-24 text-ink-500">
+        Loading…
+      </main>
+    );
   if (!row.completed_at || !row.holland_code || !row.scale_scores) {
     return (
-      <div className="mx-auto max-w-xl px-6 py-24">
-        <p className="text-ink-500">This assessment isn't finished yet.</p>
+      <main className="mx-auto max-w-xl px-6 py-24">
+        <h1 className="font-display text-2xl font-bold">This assessment isn't finished yet.</h1>
         <Link to="/assessment/$sessionId" params={{ sessionId }} className="btn-ink mt-4">
-          Resume →
+          Resume the assessment →
         </Link>
-      </div>
+      </main>
     );
   }
 
@@ -136,7 +146,10 @@ function Results() {
         </section>
 
         {(row.flag_uniform || row.flag_speeding) && (
-          <p className="mt-12 rounded-[var(--radius-card)] bg-gold-tint px-4 py-3 text-sm text-ink-900">
+          <p
+            role="status"
+            className="mt-12 rounded-[var(--radius-card)] bg-gold-tint px-4 py-3 text-sm text-ink-900"
+          >
             Heads up: your answers looked {row.flag_uniform ? "very uniform" : "very fast"}.
             Consider re-taking it when you have a quiet ten minutes.
           </p>

@@ -129,6 +129,7 @@ function SignUp() {
               required
               minLength={8}
               autoComplete="new-password"
+              aria-describedby="su-password-hint"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -142,7 +143,9 @@ function SignUp() {
               {showPw ? "Hide" : "Show"}
             </button>
           </div>
-          <p className="mt-1.5 text-xs text-ink-500">At least 8 characters.</p>
+          <p id="su-password-hint" className="mt-1.5 text-xs text-ink-500">
+            At least 8 characters.
+          </p>
         </div>
         {error && (
           <p

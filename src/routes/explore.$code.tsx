@@ -75,7 +75,10 @@ function PictureSignIn() {
         </Link>
 
         {error && (
-          <div className="mt-8 flex flex-col gap-3 rounded-[var(--radius-card)] border-2 border-line bg-paper-raised p-7 shadow-card">
+          <div
+            role="alert"
+            className="mt-8 flex flex-col gap-3 rounded-[var(--radius-card)] border-2 border-line bg-paper-raised p-7 shadow-card"
+          >
             <span className="grid h-14 w-14 place-items-center rounded-[16px] border border-mint-soft bg-mint-tint text-green-deep">
               <CircleAlert className="h-7 w-7" strokeWidth={2} aria-hidden />
             </span>
@@ -87,7 +90,11 @@ function PictureSignIn() {
           </div>
         )}
 
-        {!error && !group && <p className="mt-10 text-ink-500">Finding your class…</p>}
+        {!error && !group && (
+          <p role="status" className="mt-10 text-ink-500">
+            Finding your class…
+          </p>
+        )}
 
         {group && !picked && (
           <section className="mt-6">

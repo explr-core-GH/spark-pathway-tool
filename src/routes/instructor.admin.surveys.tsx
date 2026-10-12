@@ -316,8 +316,11 @@ export function SurveyAdminPanel() {
         <h2 className="font-display text-2xl font-bold">New survey assignment</h2>
         <form onSubmit={createAssignment} className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">Survey</label>
+            <label className="label" htmlFor="sv-type">
+              Survey
+            </label>
             <select
+              id="sv-type"
               className="field mt-1"
               value={fSurveyType}
               onChange={(e) => setFSurveyType(e.target.value as SurveyType)}
@@ -336,8 +339,8 @@ export function SurveyAdminPanel() {
                   : "Creates a Start and an End assignment; the End is gated behind the Start."}
             </p>
           </div>
-          <div>
-            <label className="label">Attach to</label>
+          <fieldset>
+            <legend className="label">Attach to</legend>
             <div className="mt-1 flex flex-wrap gap-2">
               {(["camp", "internship"] as const).map((u) => (
                 <button
@@ -354,11 +357,11 @@ export function SurveyAdminPanel() {
                 </button>
               ))}
             </div>
-          </div>
-          <div>
-            <label className="label">
+          </fieldset>
+          <fieldset>
+            <legend className="label">
               {fUnitType === "camp" ? "Camp sessions" : "Internships"} — pick one or more
-            </label>
+            </legend>
             <div className="mt-1 max-h-48 space-y-1 overflow-y-auto rounded-[var(--radius-control)] border border-line bg-paper-sunken p-2">
               {(fUnitType === "camp"
                 ? campSessions.map((s) => ({
@@ -367,10 +370,10 @@ export function SurveyAdminPanel() {
                   }))
                 : internships.map((i) => ({ ref: i.slug, label: i.name }))
               ).map(({ ref, label }) => (
-                <label key={ref} className="flex min-h-[36px] items-center gap-2 px-1 text-sm">
+                <label key={ref} className="flex min-h-[44px] items-center gap-2 px-1 text-sm">
                   <input
                     type="checkbox"
-                    className="h-4 w-4 accent-green"
+                    className="h-5 w-5 shrink-0 accent-green"
                     checked={fUnitRefs.includes(ref)}
                     onChange={(e) =>
                       setFUnitRefs((prev) =>
@@ -387,15 +390,16 @@ export function SurveyAdminPanel() {
                 </p>
               )}
             </div>
-            <p className="mt-1 text-xs text-ink-500">
+            <p className="mt-1 text-xs text-ink-500" aria-live="polite">
               {fUnitRefs.length} selected — one assignment per selection.
             </p>
-          </div>
+          </fieldset>
           <div>
-            <label className="label">
+            <label className="label" htmlFor="sv-title">
               Title shown to students <span className="text-ink-500">(optional)</span>
             </label>
             <input
+              id="sv-title"
               className="field mt-1"
               value={fTitle}
               onChange={(e) => setFTitle(e.target.value)}
@@ -423,7 +427,9 @@ export function SurveyAdminPanel() {
       <section className="mt-12">
         <h2 className="eyebrow">Assignments</h2>
         {loading ? (
-          <p className="mt-4 text-sm text-ink-500">Loading…</p>
+          <p role="status" className="mt-4 text-sm text-ink-500">
+            Loading…
+          </p>
         ) : assignments.length === 0 ? (
           <p className="mt-4 text-sm text-ink-500">No assignments yet.</p>
         ) : (
@@ -442,10 +448,11 @@ export function SurveyAdminPanel() {
                   {completedCount(a.id)} completed
                 </span>
                 <button
+                  type="button"
                   onClick={() => removeAssignment(a.id)}
                   className="inline-flex min-h-[44px] items-center text-xs text-red-700 hover:underline"
                 >
-                  Delete
+                  Delete<span className="sr-only"> {a.title}</span>
                 </button>
               </li>
             ))}
@@ -460,6 +467,7 @@ export function SurveyAdminPanel() {
           {groups.length > 0 && (
             <select
               className="field max-w-xs"
+              aria-label="Survey to show results for"
               value={selectedGroup ?? ""}
               onChange={(e) => setSelectedGroup(e.target.value || null)}
             >
@@ -581,15 +589,29 @@ function ResultsPanel({
         ) : (
           <div className="mt-2 overflow-x-auto rounded-[var(--radius-card)] border border-line">
             <table className="w-full text-sm">
-              <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+              <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-700">
                 <tr>
-                  <th className="px-3 py-2.5 font-medium">Construct</th>
-                  <th className="px-3 py-2.5 font-medium">Pre</th>
-                  <th className="px-3 py-2.5 font-medium">Post</th>
-                  <th className="px-3 py-2.5 font-medium">Change</th>
-                  <th className="px-3 py-2.5 font-medium">n</th>
-                  <th className="px-3 py-2.5 font-medium">Cohen&apos;s d</th>
-                  <th className="px-3 py-2.5 font-medium">Significance</th>
+                  <th scope="col" className="px-3 py-2.5 font-medium">
+                    Construct
+                  </th>
+                  <th scope="col" className="px-3 py-2.5 font-medium">
+                    Pre
+                  </th>
+                  <th scope="col" className="px-3 py-2.5 font-medium">
+                    Post
+                  </th>
+                  <th scope="col" className="px-3 py-2.5 font-medium">
+                    Change
+                  </th>
+                  <th scope="col" className="px-3 py-2.5 font-medium">
+                    n
+                  </th>
+                  <th scope="col" className="px-3 py-2.5 font-medium">
+                    Cohen&apos;s d
+                  </th>
+                  <th scope="col" className="px-3 py-2.5 font-medium">
+                    Significance
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line bg-paper-raised">
@@ -754,7 +776,11 @@ function ResultsPanel({
     <div className="mt-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h3 className="font-display text-xl font-bold">{group.title}</h3>
-        <button onClick={exportCsv} className="ink-link text-xs">
+        <button
+          type="button"
+          onClick={exportCsv}
+          className="ink-link inline-flex min-h-[44px] items-center text-xs"
+        >
           Export raw CSV
         </button>
       </div>

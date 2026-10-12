@@ -98,7 +98,9 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
             <h2 className="font-display text-xl font-semibold">Your opportunities</h2>
           </div>
           {opps === null ? (
-            <p className="mt-4 text-sm text-ink-500">Loading…</p>
+            <p role="status" className="mt-4 text-sm text-ink-500">
+              Loading…
+            </p>
           ) : opps.length === 0 ? (
             <div className="mt-4 rounded-[var(--radius-card)] border border-dashed border-line-strong bg-paper px-6 py-12 text-center">
               <p className="text-sm text-ink-700">
@@ -146,7 +148,9 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
             <h2 className="font-display text-xl font-semibold">Registrations &amp; applicants</h2>
           </div>
           {regs === null ? (
-            <p className="mt-4 text-sm text-ink-500">Loading…</p>
+            <p role="status" className="mt-4 text-sm text-ink-500">
+              Loading…
+            </p>
           ) : regs.length === 0 ? (
             <p className="mt-4 text-sm text-ink-700">No one has registered or applied yet.</p>
           ) : (

@@ -170,23 +170,31 @@ function Profile() {
         </p>
 
         {!loaded ? (
-          <p className="mt-8 text-ink-500">Loading…</p>
+          <p role="status" className="mt-8 text-ink-500">
+            Loading…
+          </p>
         ) : (
           <form onSubmit={save} className="mt-8 flex flex-col gap-8">
+            <p className="text-sm text-ink-700">
+              Fields marked <span aria-hidden="true">*</span>
+              <span className="sr-only">with an asterisk</span> are required.
+            </p>
             {!hasDob && (
               <section className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
                 <label className="label" htmlFor="pf-dob">
-                  Date of birth
+                  Date of birth <span aria-hidden="true">*</span>
                 </label>
                 <input
                   id="pf-dob"
                   type="date"
                   className="field max-w-xs"
                   required
+                  autoComplete="bday"
+                  aria-describedby="pf-dob-hint"
                   value={dob}
                   onChange={(e) => setDob(e.target.value)}
                 />
-                <p className="mt-1 text-xs text-ink-500">
+                <p id="pf-dob-hint" className="mt-1 text-xs text-ink-500">
                   Used only to check age rules for internships. Never shown on your passport.
                 </p>
               </section>
@@ -258,6 +266,7 @@ function Profile() {
                     <input
                       className="field"
                       placeholder="Subject"
+                      aria-label={`Course ${i + 1} subject`}
                       value={c.subject}
                       onChange={(e) =>
                         setCoursework(
@@ -270,6 +279,7 @@ function Profile() {
                     <input
                       className="field"
                       placeholder="Course"
+                      aria-label={`Course ${i + 1} name`}
                       value={c.course}
                       onChange={(e) =>
                         setCoursework(
@@ -282,6 +292,7 @@ function Profile() {
                     <input
                       className="field"
                       placeholder="Grade"
+                      aria-label={`Course ${i + 1} grade level`}
                       value={c.grade_level}
                       onChange={(e) =>
                         setCoursework(
@@ -294,6 +305,7 @@ function Profile() {
                     <input
                       className="field"
                       placeholder="Why it's relevant"
+                      aria-label={`Course ${i + 1}: why it's relevant`}
                       value={c.relevance}
                       onChange={(e) =>
                         setCoursework(
@@ -307,7 +319,7 @@ function Profile() {
                       type="button"
                       onClick={() => setCoursework(coursework.filter((_, j) => j !== i))}
                       className="grid h-11 w-11 shrink-0 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-ink-900"
-                      aria-label="Remove course"
+                      aria-label={`Remove course ${i + 1}${c.course ? ` (${c.course})` : ""}`}
                     >
                       <X className="h-4 w-4" aria-hidden />
                     </button>
@@ -353,17 +365,19 @@ function Profile() {
             <section className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
               <h2 className="font-display text-xl font-semibold">When you're available</h2>
               <div className="mt-3 flex flex-wrap gap-4 text-sm">
-                <label className="flex items-center gap-2">
+                <label className="flex min-h-[44px] items-center gap-2">
                   <input
                     type="checkbox"
+                    className="h-5 w-5 accent-green-deep"
                     checked={summer}
                     onChange={(e) => setSummer(e.target.checked)}
                   />{" "}
                   Summer
                 </label>
-                <label className="flex items-center gap-2">
+                <label className="flex min-h-[44px] items-center gap-2">
                   <input
                     type="checkbox"
+                    className="h-5 w-5 accent-green-deep"
                     checked={schoolYear}
                     onChange={(e) => setSchoolYear(e.target.checked)}
                   />{" "}
@@ -381,7 +395,7 @@ function Profile() {
                         type="button"
                         aria-pressed={on}
                         onClick={() => setDays(on ? days.filter((x) => x !== d) : [...days, d])}
-                        className={`rounded-full border px-3 py-1.5 text-sm ${on ? "border-emerald bg-mint-tint text-green-deep" : "border-line-strong text-ink-700"}`}
+                        className={`inline-flex min-h-[44px] items-center rounded-full border px-3 text-sm ${on ? "border-emerald bg-mint-tint text-green-deep" : "border-line-strong text-ink-700"}`}
                       >
                         {d}
                       </button>
@@ -402,12 +416,13 @@ function Profile() {
               <h2 className="font-display text-xl font-semibold sm:col-span-2">Getting there</h2>
               <div>
                 <label className="label" htmlFor="pf-transport">
-                  How would you get to an internship?
+                  How would you get to an internship? <span aria-hidden="true">*</span>
                 </label>
                 <select
                   id="pf-transport"
                   className="field"
                   required
+                  aria-describedby="pf-transport-hint"
                   value={transportation}
                   onChange={(e) => setTransportation(e.target.value)}
                 >
@@ -418,36 +433,38 @@ function Profile() {
                   <option value="bike_walk">Bike or walk</option>
                   <option value="needs_help">I'd need help with transportation</option>
                 </select>
-                <p className="mt-1 text-xs text-ink-500">
+                <p id="pf-transport-hint" className="mt-1 text-xs text-ink-500">
                   Honest answers help. We only match you with places you can actually get to.
                 </p>
               </div>
-              <div>
-                <span className="label">Are you authorized to work in the U.S.?</span>
+              <fieldset aria-describedby="pf-wa-hint">
+                <legend className="label">Are you authorized to work in the U.S.?</legend>
                 <div className="flex gap-4 text-sm">
-                  <label className="flex items-center gap-1.5">
+                  <label className="flex min-h-[44px] items-center gap-1.5">
                     <input
                       type="radio"
                       name="wa"
+                      className="h-5 w-5 accent-green-deep"
                       checked={workAuth === true}
                       onChange={() => setWorkAuth(true)}
                     />{" "}
                     Yes
                   </label>
-                  <label className="flex items-center gap-1.5">
+                  <label className="flex min-h-[44px] items-center gap-1.5">
                     <input
                       type="radio"
                       name="wa"
+                      className="h-5 w-5 accent-green-deep"
                       checked={workAuth === false}
                       onChange={() => setWorkAuth(false)}
                     />{" "}
                     No / not sure
                   </label>
                 </div>
-                <p className="mt-1 text-xs text-ink-500">
+                <p id="pf-wa-hint" className="mt-1 text-xs text-ink-500">
                   Some paid internships require it. Unpaid and credit-bearing ones usually don't.
                 </p>
-              </div>
+              </fieldset>
             </section>
 
             <section className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
@@ -514,7 +531,7 @@ function Profile() {
                                   : [...ethnicity.filter((x) => x !== PREFER_NOT), e],
                             )
                           }
-                          className={`rounded-full border px-3 py-1.5 text-sm ${on ? "border-emerald bg-mint-tint text-green-deep" : "border-line-strong text-ink-700"}`}
+                          className={`inline-flex min-h-[44px] items-center rounded-full border px-3 text-sm ${on ? "border-emerald bg-mint-tint text-green-deep" : "border-line-strong text-ink-700"}`}
                         >
                           {e}
                         </button>
@@ -573,6 +590,7 @@ function Field({
     <div>
       <label className="label" htmlFor={id}>
         {label}
+        {required ? <span aria-hidden="true"> *</span> : null}
       </label>
       {textarea ? (
         <textarea
@@ -580,6 +598,7 @@ function Field({
           className="field min-h-[80px]"
           required={required}
           maxLength={1000}
+          aria-describedby={hint ? `${id}-hint` : undefined}
           value={value}
           onChange={(e) => onChange(e.target.value)}
         />
@@ -589,11 +608,16 @@ function Field({
           className="field"
           required={required}
           maxLength={160}
+          aria-describedby={hint ? `${id}-hint` : undefined}
           value={value}
           onChange={(e) => onChange(e.target.value)}
         />
       )}
-      {hint && <p className="mt-1 text-xs text-ink-500">{hint}</p>}
+      {hint && (
+        <p id={`${id}-hint`} className="mt-1 text-xs text-ink-500">
+          {hint}
+        </p>
+      )}
     </div>
   );
 }

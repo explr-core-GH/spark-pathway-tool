@@ -42,12 +42,26 @@ export function DemographicsScreen({
       </p>
 
       <div className="mt-6 space-y-6">
-        {visible.map((f) => (
-          <div key={f.id}>
-            <label className="label">{f.label}</label>
-            <div className="mt-1.5">{renderField(f, values, onChange)}</div>
-          </div>
-        ))}
+        {visible.map((f) => {
+          const isGroup = (f.type === "single_select" || f.type === "multi_select") && !!f.options;
+          const isList = f.type === "text_list";
+          if (isGroup || isList) {
+            return (
+              <fieldset key={f.id}>
+                <legend className="label">{f.label}</legend>
+                <div className="mt-1.5">{renderField(f, values, onChange)}</div>
+              </fieldset>
+            );
+          }
+          return (
+            <div key={f.id}>
+              <label className="label" htmlFor={`dem-${f.id}`}>
+                {f.label}
+              </label>
+              <div className="mt-1.5">{renderField(f, values, onChange)}</div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -116,6 +130,7 @@ function renderField(
   if (f.type === "text_long") {
     return (
       <textarea
+        id={`dem-${f.id}`}
         className="field"
         rows={3}
         value={typeof v === "string" ? v : ""}
@@ -133,6 +148,7 @@ function renderField(
           <input
             key={i}
             className="field"
+            aria-label={`${f.label} ${i + 1}`}
             value={items[i] ?? ""}
             placeholder={`#${i + 1}`}
             onChange={(e) => {
@@ -149,6 +165,7 @@ function renderField(
   // default: text / integer
   return (
     <input
+      id={`dem-${f.id}`}
       className="field"
       type={f.type === "integer" ? "number" : "text"}
       min={f.min}

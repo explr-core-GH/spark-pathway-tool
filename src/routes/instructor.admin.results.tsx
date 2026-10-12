@@ -460,6 +460,7 @@ function ResultsHub() {
           </p>
         </div>
         <button
+          type="button"
           onClick={exportAll}
           disabled={exporting || !riasec || !stem}
           className="print:hidden btn-ink disabled:opacity-40"
@@ -468,7 +469,11 @@ function ResultsHub() {
         </button>
       </div>
 
-      {err && <p className="mt-6 text-sm text-red-700">Couldn&apos;t load results: {err}</p>}
+      {err && (
+        <p role="alert" className="mt-6 text-sm text-red-700">
+          Couldn&apos;t load results: {err}
+        </p>
+      )}
 
       {/* Filter — program type + specific group + date range.
           Applies to the tables AND the downloads. */}
@@ -538,6 +543,7 @@ function ResultsHub() {
         </label>
         {filterActive && (
           <button
+            type="button"
             onClick={() => {
               setKindKey("all");
               setGroupKey("all");
@@ -560,6 +566,7 @@ function ResultsHub() {
         {TABS.map((t) => (
           <button
             key={t.id}
+            type="button"
             onClick={() => setTab(t.id)}
             aria-pressed={tab === t.id}
             className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${tab === t.id ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
@@ -570,6 +577,7 @@ function ResultsHub() {
         ))}
         {tab === "charts" ? (
           <button
+            type="button"
             onClick={() => window.print()}
             className="inline-flex min-h-[44px] items-center text-xs font-medium text-green-deep hover:underline sm:ml-auto"
           >
@@ -577,6 +585,7 @@ function ResultsHub() {
           </button>
         ) : (
           <button
+            type="button"
             onClick={exportTab}
             disabled={exporting}
             className="inline-flex min-h-[44px] items-center text-xs font-medium text-green-deep hover:underline disabled:opacity-40 sm:ml-auto"
@@ -590,10 +599,13 @@ function ResultsHub() {
           side-by-side comparison across groups is readable. */}
       {tab !== "charts" && (
         <div className="print:hidden mt-4 flex flex-wrap items-center gap-2 text-xs text-ink-500">
-          <span className="eyebrow">Focus</span>
+          <span className="eyebrow" id="results-focus-label">
+            Focus
+          </span>
           {tab === "riasec" && (
             <select
               className="field w-full sm:w-56"
+              aria-labelledby="results-focus-label"
               value={riasecFocus}
               onChange={(e) => setRiasecFocus(e.target.value)}
             >
@@ -608,6 +620,7 @@ function ResultsHub() {
           {tab === "stem" && (
             <select
               className="field w-full sm:w-72"
+              aria-label="Focus on one construct"
               value={stemFocus}
               onChange={(e) => setStemFocus(e.target.value)}
             >
@@ -622,6 +635,7 @@ function ResultsHub() {
           {tab === "stem" && (
             <select
               className="field w-full sm:w-72"
+              aria-label="Focus on one open-ended question"
               value={openFocus}
               onChange={(e) => setOpenFocus(e.target.value)}
             >
@@ -671,13 +685,20 @@ function ResultsHub() {
 
 function Th({ children }: { children: React.ReactNode }) {
   return (
-    <th className="px-3 py-2.5 text-left font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-500">
+    <th
+      scope="col"
+      className="px-3 py-2.5 text-left font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-500"
+    >
       {children}
     </th>
   );
 }
 function Empty({ loading }: { loading: boolean }) {
-  return <p className="py-8 text-sm text-ink-500">{loading ? "Loading…" : "No results yet."}</p>;
+  return (
+    <p role={loading ? "status" : undefined} className="py-8 text-sm text-ink-500">
+      {loading ? "Loading…" : "No results yet."}
+    </p>
+  );
 }
 function Capped({ total }: { total: number }) {
   if (total <= DISPLAY_CAP) return null;
@@ -921,7 +942,12 @@ function ImpactCharts({
 
   const assessed = new Set((riasec ?? []).map((r) => r.sid)).size;
 
-  if (loading) return <p className="py-8 text-sm text-ink-500">Loading…</p>;
+  if (loading)
+    return (
+      <p role="status" className="py-8 text-sm text-ink-500">
+        Loading…
+      </p>
+    );
 
   return (
     <div className="max-w-4xl">
@@ -1173,7 +1199,12 @@ function StemItemDistribution({
     return out;
   }, [rows, focusName, byId]);
 
-  if (!rows) return <p className="mt-6 text-sm text-ink-500">Loading response breakdown…</p>;
+  if (!rows)
+    return (
+      <p role="status" className="mt-6 text-sm text-ink-500">
+        Loading response breakdown…
+      </p>
+    );
   if (!distributions || distributions.length === 0) {
     return (
       <p className="mt-6 text-sm text-ink-500">No STEM survey responses in this selection yet.</p>
@@ -1208,6 +1239,7 @@ function StemItemDistribution({
                   <span
                     className="inline-block h-2 w-2 rounded-sm"
                     style={{ background: LIKERT_COLORS[i] ?? "#999" }}
+                    aria-hidden="true"
                   />
                   {p.label}
                 </span>
@@ -1253,8 +1285,16 @@ function StackedBar({
 }: {
   segments: Array<{ value: number; label: string; count: number; pct: number }>;
 }) {
+  const summary = segments
+    .filter((s) => s.count > 0)
+    .map((s) => `${s.label}: ${s.count} (${s.pct}%)`)
+    .join(", ");
   return (
-    <div className="flex h-5 flex-1 overflow-hidden rounded-full bg-paper-sunken text-[9px] font-medium text-white">
+    <div
+      role="img"
+      aria-label={summary || "No responses"}
+      className="flex h-5 flex-1 overflow-hidden rounded-full bg-paper-sunken text-[9px] font-medium text-white"
+    >
       {segments.map((s, i) =>
         s.pct > 0 ? (
           <div

@@ -142,10 +142,18 @@ export function MySessionsPanel({ educatorId }: { educatorId: string }) {
   }, [educatorId]);
 
   if (loading) {
-    return <p className="text-sm text-ink-500">Loading sessions…</p>;
+    return (
+      <p role="status" className="text-sm text-ink-500">
+        Loading sessions…
+      </p>
+    );
   }
   if (err) {
-    return <p className="text-sm text-red-700">Failed to load sessions: {err}</p>;
+    return (
+      <p role="alert" className="text-sm text-red-700">
+        Failed to load sessions: {err}
+      </p>
+    );
   }
   if (sessions.length === 0) {
     return (

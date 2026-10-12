@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { isOppSlug, oppIdFromSlug } from "@/lib/opportunities";
@@ -223,7 +223,9 @@ function ApplicationsPage() {
           return (
             <button
               key={f.id}
+              type="button"
               onClick={() => setFilter(f.id)}
+              aria-pressed={active}
               className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${active ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
             >
               {f.label} <span className="ml-1 opacity-70">{f.count}</span>
@@ -233,6 +235,7 @@ function ApplicationsPage() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          aria-label="Search by student or internship"
           placeholder="Search student or internship…"
           className="field w-full sm:ml-auto sm:w-64"
         />
@@ -241,7 +244,9 @@ function ApplicationsPage() {
       {/* Cards */}
       <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2">
         {loading ? (
-          <p className="text-sm text-ink-500">Loading…</p>
+          <p role="status" className="text-sm text-ink-500">
+            Loading…
+          </p>
         ) : visible.length === 0 ? (
           <div className="col-span-full rounded-[var(--radius-card)] border border-dashed border-line-strong bg-paper-raised p-10 text-center">
             <p className="text-sm text-ink-700">
@@ -259,7 +264,9 @@ function ApplicationsPage() {
             return (
               <button
                 key={a.id}
+                type="button"
                 onClick={() => setSelected(a)}
+                aria-haspopup="dialog"
                 className="group flex flex-col rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 text-left shadow-card transition-colors hover:border-emerald focus-visible:border-emerald"
               >
                 <div className="flex items-start gap-3">
@@ -297,7 +304,7 @@ function ApplicationsPage() {
                     </span>
                   ))}
                   {extra > 0 && (
-                    <span className="rounded-full bg-paper-sunken px-2.5 py-1 text-xs text-ink-500">
+                    <span className="rounded-full bg-paper-sunken px-2.5 py-1 text-xs text-ink-700">
                       +{extra} more
                     </span>
                   )}
@@ -372,6 +379,16 @@ function ApplicationDetail({
 }) {
   const [placement, setPlacement] = useState<string>(app.selected_internship_ids[0] ?? "");
   const [notes, setNotes] = useState<string>(app.staff_notes ?? "");
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  // Focus management for the side panel dialog (WCAG 2.4.3 / 2.1.2): focus
+  // moves to the Close button on open, returns to the opener on close, and
+  // Escape closes.
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    return () => opener?.focus?.();
+  }, []);
   const responses = (app.responses ?? {}) as Responses;
   const resume = responses.resume ?? {};
   const interest = responses.interest_snapshot ?? {};
@@ -405,6 +422,9 @@ function ApplicationDetail({
         aria-modal="true"
         aria-labelledby="application-title"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") onClose();
+        }}
         className="h-full w-full max-w-2xl overflow-y-auto bg-paper-raised shadow-lift"
       >
         {/* Header */}
@@ -436,8 +456,10 @@ function ApplicationDetail({
                 {st.label}
               </span>
               <button
+                ref={closeRef}
+                type="button"
                 onClick={onClose}
-                aria-label="Close"
+                aria-label="Close application details"
                 className="grid h-11 w-11 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-ink-900"
               >
                 <X className="h-5 w-5" aria-hidden />
@@ -657,6 +679,7 @@ function ApplicationDetail({
           <Section title="Staff notes">
             <textarea
               className="field h-24"
+              aria-label="Staff notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               onBlur={() => onSaveNotes(notes)}
@@ -669,8 +692,11 @@ function ApplicationDetail({
             <div className="mt-8 rounded-[var(--radius-card)] border border-line bg-paper-sunken p-4">
               <p className="eyebrow">Decision</p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <label className="label mb-0">Place into</label>
+                <label className="label mb-0" htmlFor="app-placement">
+                  Place into
+                </label>
                 <select
+                  id="app-placement"
                   className="field w-auto"
                   value={placement}
                   onChange={(e) => setPlacement(e.target.value)}
@@ -682,10 +708,11 @@ function ApplicationDetail({
                   ))}
                 </select>
                 <div className="flex gap-2 sm:ml-auto">
-                  <button className="btn-ghost text-sm" onClick={onReject}>
+                  <button type="button" className="btn-ghost text-sm" onClick={onReject}>
                     Reject
                   </button>
                   <button
+                    type="button"
                     className="btn-ink text-sm disabled:opacity-50"
                     disabled={!placement}
                     onClick={() => onApprove(placement)}

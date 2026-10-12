@@ -169,10 +169,18 @@ export function RosterDataPanel({ studentIds, names }: Props) {
   }, [studentIds.join(","), names]);
 
   if (loading) {
-    return <p className="text-sm text-ink-500">Loading results…</p>;
+    return (
+      <p role="status" className="text-sm text-ink-500">
+        Loading results…
+      </p>
+    );
   }
   if (err) {
-    return <p className="text-sm text-red-700">Couldn&apos;t load results: {err}</p>;
+    return (
+      <p role="alert" className="text-sm text-red-700">
+        Couldn&apos;t load results: {err}
+      </p>
+    );
   }
   if (rows.length === 0) {
     return <p className="text-sm text-ink-500">No students in this roster yet.</p>;
@@ -196,15 +204,29 @@ export function RosterDataPanel({ studentIds, names }: Props) {
       {/* Per-student table */}
       <div className="mt-4 overflow-x-auto rounded-[var(--radius-card)] border border-line">
         <table className="w-full text-sm">
-          <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+          <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-700">
             <tr>
-              <th className="px-3 py-2.5 font-medium">Student</th>
-              <th className="px-3 py-2.5 font-medium">RIASEC</th>
-              <th className="px-3 py-2.5 font-medium">Assessment</th>
-              <th className="px-3 py-2.5 font-medium">Time</th>
-              <th className="px-3 py-2.5 font-medium">Surveys</th>
-              <th className="px-3 py-2.5 font-medium">Survey time</th>
-              <th className="px-3 py-2.5 font-medium">Results</th>
+              <th scope="col" className="px-3 py-2.5 font-medium">
+                Student
+              </th>
+              <th scope="col" className="px-3 py-2.5 font-medium">
+                RIASEC
+              </th>
+              <th scope="col" className="px-3 py-2.5 font-medium">
+                Assessment
+              </th>
+              <th scope="col" className="px-3 py-2.5 font-medium">
+                Time
+              </th>
+              <th scope="col" className="px-3 py-2.5 font-medium">
+                Surveys
+              </th>
+              <th scope="col" className="px-3 py-2.5 font-medium">
+                Survey time
+              </th>
+              <th scope="col" className="px-3 py-2.5 font-medium">
+                Results
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line bg-paper-raised">
@@ -226,7 +248,7 @@ export function RosterDataPanel({ studentIds, names }: Props) {
                           ? "bg-mint-tint text-green-deep"
                           : r.assessmentStatus === "in progress"
                             ? "bg-gold-tint text-gold-deep"
-                            : "bg-paper-sunken text-ink-500"
+                            : "bg-paper-sunken text-ink-700"
                       }`}
                     >
                       {r.assessmentStatus}
@@ -243,16 +265,19 @@ export function RosterDataPanel({ studentIds, names }: Props) {
                   <td className="px-3 py-2 tabular-nums">{fmtDuration(r.surveySeconds)}</td>
                   <td className="px-3 py-2">
                     <button
+                      type="button"
                       onClick={() => setOpen(open === r.studentId ? null : r.studentId)}
                       aria-expanded={open === r.studentId}
-                      className="inline-flex min-h-[36px] items-center text-xs font-medium text-green-deep hover:underline"
+                      aria-controls={`roster-detail-${r.studentId}`}
+                      className="inline-flex min-h-[44px] items-center text-xs font-medium text-green-deep hover:underline"
                     >
                       {open === r.studentId ? "Hide" : "View"}
+                      <span className="sr-only"> results for {r.name}</span>
                     </button>
                   </td>
                 </tr>
                 {open === r.studentId && (
-                  <tr>
+                  <tr id={`roster-detail-${r.studentId}`}>
                     <td colSpan={7} className="border-t border-line bg-paper-sunken p-0">
                       <StudentAssessmentDetail studentId={r.studentId} />
                     </td>

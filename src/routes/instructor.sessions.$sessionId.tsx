@@ -48,12 +48,12 @@ export const Route = createFileRoute("/instructor/sessions/$sessionId")({
     </EducatorGate>
   ),
   notFoundComponent: () => (
-    <div className="mx-auto max-w-md px-6 py-24 text-center text-sm text-ink-500">
-      Session not found.{" "}
-      <Link to="/instructor/dashboard" className="ink-link">
+    <main className="mx-auto max-w-md px-6 py-24 text-center text-sm text-ink-500">
+      <h1 className="font-display text-2xl font-bold text-ink-900">Session not found.</h1>
+      <Link to="/instructor/dashboard" className="ink-link mt-4 inline-block">
         Back to dashboard
       </Link>
-    </div>
+    </main>
   ),
 });
 
@@ -105,7 +105,10 @@ function SessionDetail() {
 
   if (!loaded) {
     return (
-      <main className="mx-auto max-w-[1312px] px-4 py-24 text-sm text-ink-500 sm:px-6 lg:px-8">
+      <main
+        role="status"
+        className="mx-auto max-w-[1312px] px-4 py-24 text-sm text-ink-500 sm:px-6 lg:px-8"
+      >
         Loading…
       </main>
     );
@@ -156,11 +159,17 @@ function SessionDetail() {
         ) : (
           <div className="mt-4 overflow-x-auto rounded-[var(--radius-card)] border border-line">
             <table className="w-full text-sm">
-              <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+              <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-700">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Student</th>
-                  <th className="px-4 py-3 font-medium">Age</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th scope="col" className="px-4 py-3 font-medium">
+                    Student
+                  </th>
+                  <th scope="col" className="px-4 py-3 font-medium">
+                    Age
+                  </th>
+                  <th scope="col" className="px-4 py-3 font-medium">
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line bg-paper-raised">

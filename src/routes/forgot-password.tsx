@@ -58,7 +58,7 @@ function ForgotPassword() {
       }
     >
       {sent ? (
-        <div className="flex flex-col gap-4 text-ink-700">
+        <div className="flex flex-col gap-4 text-ink-700" role="status">
           <span className="grid h-12 w-12 place-items-center rounded-[14px] border border-mint-soft bg-mint-tint text-green-deep">
             <MailCheck className="h-6 w-6" strokeWidth={2} aria-hidden />
           </span>

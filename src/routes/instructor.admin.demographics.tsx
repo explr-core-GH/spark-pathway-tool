@@ -204,7 +204,9 @@ function DemographicsAdmin() {
       </p>
 
       {loading ? (
-        <p className="mt-12 text-sm text-ink-500">Loading sources and building data…</p>
+        <p role="status" className="mt-12 text-sm text-ink-500">
+          Loading sources and building data…
+        </p>
       ) : sources.length === 0 ? (
         <div className="mt-12 rounded-[var(--radius-card)] border border-dashed border-line-strong bg-paper-raised p-8 text-sm text-ink-700">
           No sources yet. Demographics aggregate from instructors who connect a school + student

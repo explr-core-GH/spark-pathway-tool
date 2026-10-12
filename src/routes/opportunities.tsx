@@ -226,7 +226,9 @@ function Browse() {
         )}
 
         {opps === null ? (
-          <p className="mt-10 text-sm text-ink-500">Loading…</p>
+          <p role="status" className="mt-10 text-sm text-ink-500">
+            Loading…
+          </p>
         ) : cards.length === 0 ? (
           <p className="mt-10 rounded-[var(--radius-card)] border border-dashed border-line-strong bg-paper-raised px-6 py-10 text-center text-sm text-ink-700">
             {filter === "internship" && internshipState === "ok"
@@ -290,13 +292,20 @@ function InternshipGate({
             Students must turn <span className="font-medium">14 by June 1</span> of the
             internship&apos;s year. Enter your date of birth to see the internships you qualify for.
           </p>
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <input
-              type="date"
-              className="field w-48"
-              value={dob}
-              onChange={(e) => setDob(e.target.value)}
-            />
+          <div className="mt-3 flex flex-wrap items-end gap-3">
+            <div>
+              <label className="label" htmlFor="internship-dob">
+                Date of birth
+              </label>
+              <input
+                id="internship-dob"
+                type="date"
+                autoComplete="bday"
+                className="field w-48"
+                value={dob}
+                onChange={(e) => setDob(e.target.value)}
+              />
+            </div>
             <button
               onClick={saveDob}
               disabled={!dob || savingDob}
@@ -382,7 +391,7 @@ function OppCard({
                 search={{ opportunity: o.id }}
                 className="btn-ink w-full justify-center"
               >
-                Apply
+                Apply<span className="sr-only"> to {o.name || "this opportunity"}</span>
               </Link>
             ) : (
               <Link to="/sign-in" className="btn-ghost w-full justify-center">
@@ -397,14 +406,15 @@ function OppCard({
               className="btn-ink w-full justify-center"
             >
               Register on their site <ExternalLink className="h-4 w-4" aria-hidden />
+              <span className="sr-only"> (opens in a new tab)</span>
             </a>
           ) : registered ? (
             <span className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-[var(--radius-control)] bg-mint-tint px-4 text-sm font-semibold text-green-deep">
               <Check className="h-4 w-4" aria-hidden /> Registered
             </span>
           ) : canRegister ? (
-            <button onClick={onRegister} className="btn-ink w-full justify-center">
-              Register
+            <button type="button" onClick={onRegister} className="btn-ink w-full justify-center">
+              Register<span className="sr-only"> for {o.name || "this opportunity"}</span>
             </button>
           ) : (
             <Link to="/sign-in" className="btn-ghost w-full justify-center">

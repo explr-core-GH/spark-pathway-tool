@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Briefcase, Compass, Flag, Import, Search, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -32,6 +32,16 @@ function ResumeCenter() {
   const [editing, setEditing] = useState(false);
   const [aboutDraft, setAboutDraft] = useState("");
   const [saving, setSaving] = useState(false);
+  const aboutRef = useRef<HTMLTextAreaElement>(null);
+
+  // "About me" dialog focus management (WCAG 2.4.3 / 2.1.2): focus moves into
+  // the textarea when it opens and back to the opener when it closes.
+  useEffect(() => {
+    if (!editing) return;
+    const opener = document.activeElement as HTMLElement | null;
+    aboutRef.current?.focus();
+    return () => opener?.focus?.();
+  }, [editing]);
 
   if (authLoading || loading) {
     return (
@@ -214,6 +224,10 @@ function ResumeCenter() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="about-title"
+          aria-describedby="about-hint"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setEditing(false);
+          }}
           className="fixed inset-0 z-50 grid place-items-center bg-ink-900/40 p-4"
         >
           <form
@@ -226,10 +240,13 @@ function ResumeCenter() {
             <h2 id="about-title" className="font-display text-2xl font-bold">
               About me
             </h2>
-            <p className="mt-1 text-sm text-ink-700">
+            <p id="about-hint" className="mt-1 text-sm text-ink-700">
               In your own words. Leave it blank to use the draft your passport writes for you.
             </p>
             <textarea
+              ref={aboutRef}
+              aria-labelledby="about-title"
+              aria-describedby="about-hint"
               className="field mt-4 min-h-[140px]"
               value={aboutDraft}
               maxLength={600}

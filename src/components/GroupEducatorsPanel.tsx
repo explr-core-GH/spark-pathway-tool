@@ -91,13 +91,21 @@ export function GroupEducatorsPanel({ kind, id }: { kind: GroupKind; id: string 
     setClassEdu(eduId);
   }
 
-  if (loading) return <p className="text-sm text-ink-500">Loading instructors…</p>;
+  if (loading)
+    return (
+      <p role="status" className="text-sm text-ink-500">
+        Loading instructors…
+      </p>
+    );
 
   if (kind === "classes") {
     return (
       <div className="max-w-md">
-        <label className="label">Teacher for this class</label>
+        <label className="label" htmlFor={`class-teacher-${id}`}>
+          Teacher for this class
+        </label>
         <select
+          id={`class-teacher-${id}`}
           className="field mt-1"
           value={classEdu}
           onChange={(e) => setTeacher(e.target.value)}
@@ -129,17 +137,23 @@ export function GroupEducatorsPanel({ kind, id }: { kind: GroupKind; id: string 
             <li key={eid} className="flex items-center justify-between gap-3 px-4 py-2 text-sm">
               <span>{nameOf(eid)}</span>
               <button
+                type="button"
                 onClick={() => remove(eid)}
                 className="inline-flex min-h-[44px] items-center text-xs text-red-700 hover:underline"
               >
-                Remove
+                Remove<span className="sr-only"> {nameOf(eid)}</span>
               </button>
             </li>
           ))}
         </ul>
       )}
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <select className="field max-w-xs" value={pick} onChange={(e) => setPick(e.target.value)}>
+        <select
+          className="field max-w-xs"
+          aria-label="Add an instructor"
+          value={pick}
+          onChange={(e) => setPick(e.target.value)}
+        >
           <option value="">— Add an instructor —</option>
           {available.map((e) => (
             <option key={e.id} value={e.id}>
@@ -147,7 +161,12 @@ export function GroupEducatorsPanel({ kind, id }: { kind: GroupKind; id: string 
             </option>
           ))}
         </select>
-        <button className="btn-ink text-sm" disabled={!pick} onClick={() => add(pick)}>
+        <button
+          type="button"
+          className="btn-ink text-sm"
+          disabled={!pick}
+          onClick={() => add(pick)}
+        >
           Connect
         </button>
       </div>

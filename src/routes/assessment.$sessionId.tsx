@@ -86,8 +86,18 @@ function AssessmentRunner() {
     })();
   }, [sessionId, navigate]);
 
-  if (error) return <div className="mx-auto max-w-xl px-6 py-24 text-red-700">{error}</div>;
-  if (!session) return <div className="mx-auto max-w-xl px-6 py-24 text-ink-500">Loading…</div>;
+  if (error)
+    return (
+      <main role="alert" className="mx-auto max-w-xl px-6 py-24 text-red-700">
+        {error}
+      </main>
+    );
+  if (!session)
+    return (
+      <main role="status" className="mx-auto max-w-xl px-6 py-24 text-ink-500">
+        Loading…
+      </main>
+    );
 
   const total = session.item_sequence.length;
   const idx = session.current_index;
@@ -257,13 +267,20 @@ function AssessmentRunner() {
           className="mt-10 grid grid-cols-5 gap-2"
           onKeyDown={(e) => {
             if (submitting || finishing) return;
-            if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-              e.preventDefault();
-              answer(5);
-            } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-              e.preventDefault();
-              answer(1);
-            }
+            const dir =
+              e.key === "ArrowRight" || e.key === "ArrowDown"
+                ? 1
+                : e.key === "ArrowLeft" || e.key === "ArrowUp"
+                  ? -1
+                  : 0;
+            if (!dir) return;
+            e.preventDefault();
+            const radios = Array.from(
+              e.currentTarget.querySelectorAll<HTMLButtonElement>("button[role='radio']"),
+            );
+            const i = radios.indexOf(document.activeElement as HTMLButtonElement);
+            const next = radios[(i + dir + radios.length) % radios.length];
+            next?.focus();
           }}
         >
           {([1, 2, 3, 4, 5] as LikertValue[]).map((v) => {

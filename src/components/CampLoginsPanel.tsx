@@ -302,7 +302,12 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
     XLSX.writeFile(wb, `${safeFileName(title)}-roster.xlsx`);
   }
 
-  if (loading) return <p className="text-sm text-ink-500">Loading logins…</p>;
+  if (loading)
+    return (
+      <p role="status" className="text-sm text-ink-500">
+        Loading logins…
+      </p>
+    );
 
   return (
     <div>
@@ -312,6 +317,7 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
           {pending > 0 ? ` · ${pending} pending` : ""}
         </span>
         <button
+          type="button"
           onClick={generate}
           disabled={busy === "gen" || regCount === 0}
           className="btn-ink text-xs disabled:opacity-40"
@@ -319,7 +325,9 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
           {busy === "gen" ? "Generating…" : pending > 0 ? `Generate ${pending}` : "Re-check"}
         </button>
         <button
+          type="button"
           onClick={() => setWalkIn(walkIn ? null : { name: "", age: "" })}
+          aria-expanded={!!walkIn}
           className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
         >
           + Walk-in
@@ -327,18 +335,21 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
         {logins.length > 0 && (
           <>
             <button
+              type="button"
               onClick={printCards}
               className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
             >
               Print cards
             </button>
             <button
+              type="button"
               onClick={printSheet}
               className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
             >
               Roster sheet
             </button>
             <button
+              type="button"
               onClick={exportXlsx}
               className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
             >
@@ -348,6 +359,7 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
         )}
         {reportable > 0 && (
           <button
+            type="button"
             onClick={() => printFamilyReports()}
             className="inline-flex min-h-[44px] items-center text-xs font-medium text-green-deep hover:underline"
           >
@@ -357,7 +369,10 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
       </div>
 
       {status && (
-        <p className="mt-3 rounded-[var(--radius-control)] border border-mint-soft bg-mint-tint px-3 py-2 text-sm text-green-deep">
+        <p
+          role="status"
+          className="mt-3 rounded-[var(--radius-control)] border border-mint-soft bg-mint-tint px-3 py-2 text-sm text-green-deep"
+        >
           {status}
         </p>
       )}
@@ -369,6 +384,7 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
             <input
               autoFocus
               className="field"
+              aria-label="Walk-in camper name (optional)"
               placeholder="Name (optional)"
               value={walkIn.name}
               onChange={(e) => setWalkIn({ ...walkIn, name: e.target.value })}
@@ -378,18 +394,20 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
               type="number"
               min={4}
               max={18}
+              aria-label="Walk-in camper age"
               placeholder="Age"
               value={walkIn.age}
               onChange={(e) => setWalkIn({ ...walkIn, age: e.target.value })}
             />
             <button
+              type="button"
               onClick={submitWalkIn}
               disabled={busy === "walkin"}
               className="btn-ink text-xs disabled:opacity-40"
             >
               {busy === "walkin" ? "Adding…" : "Add login"}
             </button>
-            <button onClick={() => setWalkIn(null)} className="btn-ghost text-xs">
+            <button type="button" onClick={() => setWalkIn(null)} className="btn-ghost text-xs">
               Cancel
             </button>
           </div>
@@ -416,14 +434,26 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
 
           <div className="mt-3 overflow-x-auto rounded-[var(--radius-card)] border border-line">
             <table className="w-full text-sm">
-              <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+              <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-700">
                 <tr>
-                  <th className="px-3 py-2.5 font-medium">Student</th>
-                  <th className="px-3 py-2.5 font-medium">Classroom</th>
-                  <th className="px-3 py-2.5 font-medium">Status</th>
-                  <th className="px-3 py-2.5 font-medium">Username</th>
-                  <th className="px-3 py-2.5 font-medium">Password</th>
-                  <th className="px-3 py-2.5 font-medium">Family report</th>
+                  <th scope="col" className="px-3 py-2.5 font-medium">
+                    Student
+                  </th>
+                  <th scope="col" className="px-3 py-2.5 font-medium">
+                    Classroom
+                  </th>
+                  <th scope="col" className="px-3 py-2.5 font-medium">
+                    Status
+                  </th>
+                  <th scope="col" className="px-3 py-2.5 font-medium">
+                    Username
+                  </th>
+                  <th scope="col" className="px-3 py-2.5 font-medium">
+                    Password
+                  </th>
+                  <th scope="col" className="px-3 py-2.5 font-medium">
+                    Family report
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line bg-paper-raised">
@@ -438,6 +468,7 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
                             <input
                               autoFocus
                               className="field py-1 text-xs"
+                              aria-label="Student name"
                               value={editing!.name}
                               onChange={(e) => setEditing({ ...editing!, name: e.target.value })}
                             />
@@ -446,20 +477,23 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
                               type="number"
                               min={4}
                               max={18}
+                              aria-label="Student age"
                               placeholder="Age"
                               value={editing!.age}
                               onChange={(e) => setEditing({ ...editing!, age: e.target.value })}
                             />
                             <button
+                              type="button"
                               onClick={saveEdit}
                               disabled={busy === `edit-${l.id}`}
-                              className="text-xs font-medium text-green-deep hover:underline disabled:opacity-40"
+                              className="inline-flex min-h-[44px] items-center text-xs font-medium text-green-deep hover:underline disabled:opacity-40"
                             >
-                              {busy === `edit-${l.id}` ? "…" : "Save"}
+                              {busy === `edit-${l.id}` ? "Saving…" : "Save"}
                             </button>
                             <button
+                              type="button"
                               onClick={() => setEditing(null)}
-                              className="text-xs text-ink-500 hover:underline"
+                              className="inline-flex min-h-[44px] items-center text-xs text-ink-500 hover:underline"
                             >
                               Cancel
                             </button>
@@ -468,10 +502,11 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
                           <div className="flex items-center gap-2">
                             <span>{l.child_name}</span>
                             <button
+                              type="button"
                               onClick={() => setEditing({ id: l.id, name: l.child_name, age: "" })}
-                              className="text-[11px] text-ink-500 underline hover:text-ink-900"
+                              className="inline-flex min-h-[44px] items-center px-1 text-[11px] text-ink-500 underline hover:text-ink-900"
                             >
-                              edit
+                              edit<span className="sr-only"> {l.child_name}</span>
                             </button>
                           </div>
                         )}
@@ -502,10 +537,11 @@ export function CampLoginsPanel({ campId, title }: { campId: string; title: stri
                       <td className="px-3 py-2 text-xs">
                         {hasResult ? (
                           <button
+                            type="button"
                             onClick={() => printFamilyReports(l)}
-                            className="text-green-deep hover:underline"
+                            className="inline-flex min-h-[44px] items-center text-green-deep hover:underline"
                           >
-                            Print 1-pager
+                            Print 1-pager<span className="sr-only"> for {l.child_name}</span>
                           </button>
                         ) : (
                           <span className="text-ink-500">Awaiting assessment</span>

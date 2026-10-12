@@ -57,7 +57,7 @@ function CompletePage() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const [{ data: sels }, { data: app }, { data: sess }] = await Promise.all([
+      const [{ data: sels }, { data: app }, { data: sess }, { data: prof }] = await Promise.all([
         sb("internship_selections").select("*").eq("student_id", user.id).eq("status", "approved"),
         supabase
           .from("internship_applications")
@@ -71,6 +71,10 @@ function CompletePage() {
           .not("completed_at", "is", null)
           .order("completed_at", { ascending: false })
           .limit(1)
+          .maybeSingle(),
+        sb("internship_profiles")
+          .select("high_school, grad_year")
+          .eq("student_id", user.id)
           .maybeSingle(),
       ]);
       if (cancelled) return;
@@ -87,10 +91,19 @@ function CompletePage() {
         setOppNames(m);
       }
 
-      // Prefill résumé from a prior application, else from auth email.
+      // Prefill résumé from a prior application, else from auth email plus the
+      // school fields already entered on the internship profile (WCAG 3.3.7).
       const prior = (app?.responses as { resume?: Resume } | null)?.resume;
+      const profile = prof as { high_school: string | null; grad_year: number | null } | null;
       setResume(
-        prior ? { ...EMPTY_RESUME, ...prior } : { ...EMPTY_RESUME, email: user.email ?? "" },
+        prior
+          ? { ...EMPTY_RESUME, ...prior }
+          : {
+              ...EMPTY_RESUME,
+              email: user.email ?? "",
+              schoolName: profile?.high_school ?? "",
+              expectedGraduation: profile?.grad_year ? String(profile.grad_year) : "",
+            },
       );
       setRiasec({
         holland_code: (sess?.holland_code as string) ?? null,
@@ -167,7 +180,11 @@ function CompletePage() {
   }
 
   if (authLoading || loading) {
-    return <main className="mx-auto max-w-3xl px-6 py-24 text-sm text-ink-500">Loading…</main>;
+    return (
+      <main role="status" className="mx-auto max-w-3xl px-6 py-24 text-sm text-ink-500">
+        Loading…
+      </main>
+    );
   }
 
   const orgSelections = selections.filter((s) => s.opportunity_id);
@@ -187,14 +204,21 @@ function CompletePage() {
         <h1 className="display mt-1">Complete your application.</h1>
 
         {done ? (
-          <div className="mt-8 rounded-[var(--radius-card)] border border-mint-soft bg-mint-tint p-6">
+          <div
+            role="status"
+            className="mt-8 rounded-[var(--radius-card)] border border-mint-soft bg-mint-tint p-6"
+          >
             <p className="font-display text-xl font-semibold text-green-deep">
               Application submitted.
             </p>
             <p className="mt-1 text-sm text-ink-700">
               EXPLR staff and the organization can now review it.
             </p>
-            <button onClick={() => navigate({ to: "/student" })} className="btn-ink mt-4">
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/student" })}
+              className="btn-ink mt-4"
+            >
               Back to my passport
             </button>
           </div>

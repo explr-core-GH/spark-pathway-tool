@@ -464,7 +464,9 @@ function SurveyRunner() {
   if (authLoading || loading) {
     return (
       <Frame>
-        <main className="mx-auto max-w-2xl px-6 py-24 text-sm text-ink-500">Loading…</main>
+        <main role="status" className="mx-auto max-w-2xl px-6 py-24 text-sm text-ink-500">
+          Loading…
+        </main>
       </Frame>
     );
   }
@@ -475,7 +477,9 @@ function SurveyRunner() {
         <main className="mx-auto max-w-md px-6 py-24 text-center">
           <p className="eyebrow text-red-700">Error</p>
           <h1 className="mt-3 font-display text-2xl font-bold">Couldn&apos;t start the survey</h1>
-          <p className="mt-3 text-sm text-ink-700">{loadError}</p>
+          <p role="alert" className="mt-3 text-sm text-ink-700">
+            {loadError}
+          </p>
           <Link to="/student" className="btn-ink mt-6">
             Back to my passport
           </Link>
@@ -505,7 +509,7 @@ function SurveyRunner() {
   if (alreadyDone || justFinished) {
     return (
       <Frame>
-        <main className="mx-auto max-w-md px-6 py-24 text-center">
+        <main className="mx-auto max-w-md px-6 py-24 text-center" role="status">
           <span
             className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-mint-soft bg-mint-tint text-green-deep"
             aria-hidden
@@ -530,7 +534,9 @@ function SurveyRunner() {
   if (!assignment || steps.length === 0) {
     return (
       <Frame>
-        <main className="mx-auto max-w-2xl px-6 py-24 text-sm text-ink-500">Loading…</main>
+        <main role="status" className="mx-auto max-w-2xl px-6 py-24 text-sm text-ink-500">
+          Loading…
+        </main>
       </Frame>
     );
   }

@@ -28,7 +28,9 @@ export function RoleGuard({ requires, children }: Props) {
   if (loading) {
     return (
       <Frame>
-        <p className="py-14 text-center text-sm text-ink-500">Loading…</p>
+        <p role="status" className="py-14 text-center text-sm text-ink-500">
+          Loading…
+        </p>
       </Frame>
     );
   }

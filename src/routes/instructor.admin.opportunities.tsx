@@ -91,7 +91,9 @@ function OpportunitiesReview() {
         ).map((f) => (
           <button
             key={f.id}
+            type="button"
             onClick={() => setFilter(f.id)}
+            aria-pressed={filter === f.id}
             className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${filter === f.id ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
           >
             {f.label}
@@ -100,7 +102,9 @@ function OpportunitiesReview() {
       </div>
 
       {loading ? (
-        <p className="mt-8 text-sm text-ink-500">Loading…</p>
+        <p role="status" className="mt-8 text-sm text-ink-500">
+          Loading…
+        </p>
       ) : visible.length === 0 ? (
         <p className="mt-8 text-sm text-ink-500">Nothing here.</p>
       ) : (
@@ -112,11 +116,13 @@ function OpportunitiesReview() {
             return (
               <div key={o.id}>
                 <button
+                  type="button"
                   onClick={() => {
                     setOpen(isOpen ? null : o.id);
                     setNotes(o.review_notes ?? "");
                   }}
                   aria-expanded={isOpen}
+                  aria-controls={`opp-review-${o.id}`}
                   className="flex w-full flex-wrap items-center gap-x-4 gap-y-2 px-4 py-4 text-left hover:bg-paper-sunken"
                 >
                   <div className="min-w-0 flex-1">
@@ -143,7 +149,10 @@ function OpportunitiesReview() {
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-line bg-paper-sunken px-4 py-5">
+                  <div
+                    id={`opp-review-${o.id}`}
+                    className="border-t border-line bg-paper-sunken px-4 py-5"
+                  >
                     <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
                       <div className="space-y-3 text-sm">
                         {o.image_url && (
@@ -184,22 +193,31 @@ function OpportunitiesReview() {
                         <GatePanel o={o} onDone={load} />
                       </div>
                       <div>
-                        <label className="label">Note (sent back on changes)</label>
+                        <label className="label" htmlFor={`opp-note-${o.id}`}>
+                          Note (sent back on changes)
+                        </label>
                         <textarea
+                          id={`opp-note-${o.id}`}
                           className="field mt-1"
                           rows={3}
                           value={notes}
                           onChange={(e) => setNotes(e.target.value)}
                         />
                         <div className="mt-3 flex flex-col gap-2">
-                          <button onClick={() => decide(o, "approved")} className="btn-ink text-sm">
-                            Approve
+                          <button
+                            type="button"
+                            onClick={() => decide(o, "approved")}
+                            className="btn-ink text-sm"
+                          >
+                            Approve<span className="sr-only"> {o.name || "this opportunity"}</span>
                           </button>
                           <button
+                            type="button"
                             onClick={() => decide(o, "rejected")}
                             className="btn-ghost text-sm"
                           >
                             Send back
+                            <span className="sr-only"> {o.name || "this opportunity"}</span>
                           </button>
                         </div>
                       </div>

@@ -59,6 +59,7 @@ export function CareerPathwaysDropdown({ internshipSlug }: Props) {
         onClick={() => setOpen((v) => !v)}
         className="eyebrow flex min-h-[44px] w-full items-center justify-between gap-2 text-left hover:text-ink-900"
         aria-expanded={open}
+        aria-controls={`pathways-${internshipSlug}`}
       >
         <span>Career pathways · {myOccs.length || "—"} occupations</span>
         <ChevronDown
@@ -67,9 +68,11 @@ export function CareerPathwaysDropdown({ internshipSlug }: Props) {
         />
       </button>
       {open && (
-        <div className="mt-3 space-y-4">
+        <div id={`pathways-${internshipSlug}`} className="mt-3 space-y-4">
           {!loaded ? (
-            <p className="text-xs text-ink-500">Loading pathways…</p>
+            <p role="status" className="text-xs text-ink-500">
+              Loading pathways…
+            </p>
           ) : myOccs.length === 0 ? (
             <p className="text-xs text-ink-500">
               No occupations tagged yet. An admin can add them in{" "}
@@ -141,6 +144,7 @@ export function CareerPathwaysDropdown({ internshipSlug }: Props) {
               className="ink-link inline-flex items-center gap-1"
             >
               EXPLR Workforce <ExternalLink className="h-3 w-3" aria-hidden />
+              <span className="sr-only"> (opens in a new tab)</span>
             </a>
           </p>
         </div>

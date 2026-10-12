@@ -51,7 +51,11 @@ export function StudentSurveysPanel({ studentId }: { studentId: string }) {
   }, [studentId]);
 
   if (loading) {
-    return <p className="mt-3 text-sm text-ink-500">Loading surveys…</p>;
+    return (
+      <p role="status" className="mt-3 text-sm text-ink-500">
+        Loading surveys…
+      </p>
+    );
   }
   if (assignments.length === 0) {
     return (
@@ -88,6 +92,7 @@ export function StudentSurveysPanel({ studentId }: { studentId: string }) {
                 className="btn-ink shrink-0"
               >
                 {started ? "Continue →" : "Start survey →"}
+                <span className="sr-only"> {a.title}</span>
               </Link>
             )}
           </li>

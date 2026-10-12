@@ -30,6 +30,9 @@ type PlacementRow = { student_id: string; approved_internship_id: string };
 
 type StudentSummary = {
   student_id: string;
+  name: string | null;
+  grade: number | null;
+  className: string | null;
   latestSession: SessionRow | null;
   application: AppRow | null;
   placement: PlacementRow | null;
@@ -44,7 +47,7 @@ function StudentsRoster() {
 
   useEffect(() => {
     (async () => {
-      const [{ data: sess }, { data: apps }, { data: placs }] = await Promise.all([
+      const [{ data: sess }, { data: apps }, { data: placs }, { data: cls }] = await Promise.all([
         supabase
           .from("assessment_sessions")
           .select("student_id, holland_code, completed_at, started_at")
@@ -55,7 +58,17 @@ function StudentsRoster() {
           .order("submitted_at", { ascending: false }),
         // Placements: educators can't read all by RLS, only admins. Try and fall back silently.
         supabase.from("internship_placements").select("student_id, approved_internship_id"),
+        // Class rosters this instructor teaches (RLS scopes to their classes).
+        supabase.from("class_students").select("student_id, classes(name, educator_id)"),
       ]);
+      const classByStudent = new Map<string, string>();
+      for (const r of (cls ?? []) as Array<{
+        student_id: string;
+        classes: { name: string; educator_id: string | null } | null;
+      }>) {
+        if (r.classes?.name && !classByStudent.has(r.student_id))
+          classByStudent.set(r.student_id, r.classes.name);
+      }
 
       const sessionsByStudent = new Map<string, SessionRow>();
       ((sess as SessionRow[]) ?? []).forEach((s) => {
@@ -72,10 +85,28 @@ function StudentsRoster() {
         ...sessionsByStudent.keys(),
         ...appsByStudent.keys(),
         ...placByStudent.keys(),
+        ...classByStudent.keys(),
       ]);
+      // Names and grades for everyone we can see (RLS: camp staff, class teachers, admins).
+      const nameById = new Map<string, { name: string | null; grade: number | null }>();
+      if (allIds.size > 0) {
+        const { data: studs } = await supabase
+          .from("students")
+          .select("id, first_name, grade")
+          .in("id", [...allIds]);
+        for (const st of (studs ?? []) as Array<{
+          id: string;
+          first_name: string | null;
+          grade: number | null;
+        }>)
+          nameById.set(st.id, { name: st.first_name, grade: st.grade });
+      }
 
       const summaries: StudentSummary[] = Array.from(allIds).map((id) => ({
         student_id: id,
+        name: nameById.get(id)?.name ?? null,
+        grade: nameById.get(id)?.grade ?? null,
+        className: classByStudent.get(id) ?? null,
         latestSession: sessionsByStudent.get(id) ?? null,
         application: appsByStudent.get(id) ?? null,
         placement: placByStudent.get(id) ?? null,
@@ -116,7 +147,10 @@ function StudentsRoster() {
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-[1312px] px-4 py-24 text-sm text-ink-500 sm:px-6 lg:px-8">
+      <main
+        role="status"
+        className="mx-auto max-w-[1312px] px-4 py-24 text-sm text-ink-500 sm:px-6 lg:px-8"
+      >
         Loading roster…
       </main>
     );
@@ -151,6 +185,7 @@ function StudentsRoster() {
         ).map(([k, label]) => (
           <button
             key={k}
+            type="button"
             onClick={() => setFilter(k)}
             className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${filter === k ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
           >
@@ -162,13 +197,23 @@ function StudentsRoster() {
       {/* Roster table */}
       <div className="mt-6 overflow-x-auto rounded-[var(--radius-card)] border border-line">
         <table className="w-full text-sm">
-          <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+          <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-700">
             <tr>
-              <th className="px-4 py-3 font-normal">Student</th>
-              <th className="px-4 py-3 font-normal">Assessment</th>
-              <th className="px-4 py-3 font-normal">Holland</th>
-              <th className="px-4 py-3 font-normal">Application</th>
-              <th className="px-4 py-3 font-normal">Placement</th>
+              <th scope="col" className="px-4 py-3 font-normal">
+                Student
+              </th>
+              <th scope="col" className="px-4 py-3 font-normal">
+                Assessment
+              </th>
+              <th scope="col" className="px-4 py-3 font-normal">
+                Holland
+              </th>
+              <th scope="col" className="px-4 py-3 font-normal">
+                Application
+              </th>
+              <th scope="col" className="px-4 py-3 font-normal">
+                Placement
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
@@ -184,8 +229,15 @@ function StudentsRoster() {
               const top = code ? (code[0] as RIASECCode) : null;
               return (
                 <tr key={r.student_id} className="bg-paper-raised hover:bg-paper-sunken">
-                  <td className="px-4 py-3 font-mono text-xs text-ink-500">
-                    {r.student_id.slice(0, 8)}…
+                  <td className="px-4 py-3">
+                    <span className="font-medium text-ink-900">{r.name ?? "Student"}</span>
+                    <span className="block text-xs text-ink-700">
+                      {r.grade != null ? `Grade ${r.grade}` : ""}
+                      {r.className ? `${r.grade != null ? " · " : ""}${r.className}` : ""}
+                      {r.grade == null && !r.className ? (
+                        <span className="font-mono">{r.student_id.slice(0, 8)}…</span>
+                      ) : null}
+                    </span>
                   </td>
                   <td className="px-4 py-3">
                     {r.latestSession?.completed_at ? (

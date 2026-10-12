@@ -189,7 +189,11 @@ export function CampAssignmentsPanel({ campId, studentIds }: Props) {
   }, [campId, studentKey]);
 
   if (loading) {
-    return <p className="text-sm text-ink-500">Loading assignments…</p>;
+    return (
+      <p role="status" className="text-sm text-ink-500">
+        Loading assignments…
+      </p>
+    );
   }
   if (rows.length === 0) {
     return (

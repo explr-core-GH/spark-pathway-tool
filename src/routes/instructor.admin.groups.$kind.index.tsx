@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { School, Tent } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -79,7 +79,7 @@ function GroupGridInner({ kind }: { kind: GroupKind }) {
           </p>
         </div>
         {meta.newLabel ? (
-          <button className="btn-ink" onClick={() => setCreating(true)}>
+          <button type="button" className="btn-ink" onClick={() => setCreating(true)}>
             + {meta.newLabel}
           </button>
         ) : meta.createHint ? (
@@ -93,6 +93,7 @@ function GroupGridInner({ kind }: { kind: GroupKind }) {
         <div className="mt-8">
           <input
             className="field max-w-sm"
+            aria-label={`Filter ${meta.label.toLowerCase()}`}
             placeholder={`Filter ${meta.label.toLowerCase()}…`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -101,7 +102,9 @@ function GroupGridInner({ kind }: { kind: GroupKind }) {
       )}
 
       {groups === null ? (
-        <p className="mt-10 text-sm text-ink-500">Loading…</p>
+        <p role="status" className="mt-10 text-sm text-ink-500">
+          Loading…
+        </p>
       ) : setupNeeded ? (
         <ClassesSetupNote />
       ) : filtered.length === 0 ? (
@@ -209,6 +212,15 @@ function NewClassModal({ onClose, onSaved }: { onClose: () => void; onSaved: () 
   const [educatorId, setEducatorId] = useState("");
   const [educators, setEducators] = useState<EducatorOpt[]>([]);
   const [saving, setSaving] = useState(false);
+  const firstFieldRef = useRef<HTMLInputElement>(null);
+
+  // Focus management: move focus into the dialog on open and give it back to
+  // whatever opened it on close (WCAG 2.4.3). Escape closes (2.1.2).
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    firstFieldRef.current?.focus();
+    return () => opener?.focus?.();
+  }, []);
 
   useEffect(() => {
     supabase
@@ -239,6 +251,9 @@ function NewClassModal({ onClose, onSaved }: { onClose: () => void; onSaved: () 
       role="dialog"
       aria-modal="true"
       aria-labelledby="new-class-title"
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onClose();
+      }}
       className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink-900/40 p-4 sm:p-6"
     >
       <div className="w-full max-w-md rounded-[var(--radius-card)] bg-paper-raised p-6 shadow-lift sm:p-8">
@@ -247,9 +262,14 @@ function NewClassModal({ onClose, onSaved }: { onClose: () => void; onSaved: () 
         </h2>
         <div className="mt-6 grid gap-4">
           <div>
-            <label className="label">Class name</label>
+            <label className="label" htmlFor="nc-name">
+              Class name
+            </label>
             <input
+              id="nc-name"
+              ref={firstFieldRef}
               className="field mt-1"
+              required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ms. Rivera · Period 3"
@@ -257,8 +277,11 @@ function NewClassModal({ onClose, onSaved }: { onClose: () => void; onSaved: () 
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label">Grade</label>
+              <label className="label" htmlFor="nc-grade">
+                Grade
+              </label>
               <input
+                id="nc-grade"
                 className="field mt-1"
                 type="number"
                 value={grade}
@@ -267,8 +290,11 @@ function NewClassModal({ onClose, onSaved }: { onClose: () => void; onSaved: () 
               />
             </div>
             <div>
-              <label className="label">Period (optional)</label>
+              <label className="label" htmlFor="nc-period">
+                Period (optional)
+              </label>
               <input
+                id="nc-period"
                 className="field mt-1"
                 value={period}
                 onChange={(e) => setPeriod(e.target.value)}
@@ -277,8 +303,11 @@ function NewClassModal({ onClose, onSaved }: { onClose: () => void; onSaved: () 
             </div>
           </div>
           <div>
-            <label className="label">Teacher</label>
+            <label className="label" htmlFor="nc-teacher">
+              Teacher
+            </label>
             <select
+              id="nc-teacher"
               className="field mt-1"
               value={educatorId}
               onChange={(e) => setEducatorId(e.target.value)}
@@ -293,10 +322,15 @@ function NewClassModal({ onClose, onSaved }: { onClose: () => void; onSaved: () 
           </div>
         </div>
         <div className="mt-8 flex justify-end gap-3">
-          <button className="btn-ghost" onClick={onClose}>
+          <button type="button" className="btn-ghost" onClick={onClose}>
             Cancel
           </button>
-          <button className="btn-ink" disabled={saving || !name.trim()} onClick={save}>
+          <button
+            type="button"
+            className="btn-ink"
+            disabled={saving || !name.trim()}
+            onClick={save}
+          >
             {saving ? "Saving…" : "Create class"}
           </button>
         </div>

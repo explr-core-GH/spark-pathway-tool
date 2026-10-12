@@ -256,10 +256,11 @@ function NewExperience() {
         <p className="eyebrow text-green">Add an experience</p>
         <h1 className="display mt-1">{exposure ? "Where did you go?" : "What did you do?"}</h1>
 
-        <div className="mt-6 flex gap-2">
+        <div className="mt-6 flex gap-2" role="group" aria-label="How to add">
           <button
             type="button"
             onClick={() => setMode("library")}
+            aria-pressed={mode === "library"}
             className={mode === "library" ? "btn-ink" : "btn-ghost"}
           >
             From my library
@@ -267,6 +268,7 @@ function NewExperience() {
           <button
             type="button"
             onClick={() => setMode("external")}
+            aria-pressed={mode === "external"}
             className={mode === "external" ? "btn-ink" : "btn-ghost"}
           >
             Something else
@@ -279,7 +281,11 @@ function NewExperience() {
               Camps, internships, and opportunities EXPLR already knows you were part of. Pick one
               and we'll fill in the details.
             </p>
-            {libLoading && <p className="mt-4 text-ink-500">Looking…</p>}
+            {libLoading && (
+              <p role="status" className="mt-4 text-ink-500">
+                Looking…
+              </p>
+            )}
             {!libLoading && library.length === 0 && (
               <p className="mt-4 rounded-[var(--radius-control)] border border-dashed border-line-strong p-4 text-sm text-ink-700">
                 Nothing in your library yet. When you're on a camp roster, placed in an internship,
@@ -308,6 +314,10 @@ function NewExperience() {
 
         {mode === "external" && (
           <form onSubmit={submit} className="mt-6 flex flex-col gap-5">
+            <p className="text-sm text-ink-700">
+              Fields marked <span aria-hidden="true">*</span>
+              <span className="sr-only">with an asterisk</span> are required.
+            </p>
             <div>
               <label className="label" htmlFor="exp-type">
                 What kind of experience?
@@ -317,6 +327,7 @@ function NewExperience() {
                 className="field"
                 value={typeKey}
                 onChange={(e) => setTypeKey(e.target.value)}
+                aria-describedby={type?.hint ? "exp-type-hint" : undefined}
               >
                 {(["awareness", "exploration", "preparation", "participation"] as Stage[]).map(
                   (stage) => (
@@ -333,13 +344,17 @@ function NewExperience() {
                   ),
                 )}
               </select>
-              {type?.hint && <p className="mt-1 text-xs text-ink-500">{type.hint}</p>}
+              {type?.hint && (
+                <p id="exp-type-hint" className="mt-1 text-xs text-ink-500">
+                  {type.hint}
+                </p>
+              )}
             </div>
 
             <div className="grid gap-5 sm:grid-cols-2">
               <div>
                 <label className="label" htmlFor="exp-title">
-                  {exposure ? "What was it?" : "Title"}
+                  {exposure ? "What was it?" : "Title"} <span aria-hidden="true">*</span>
                 </label>
                 <input
                   id="exp-title"
@@ -528,6 +543,7 @@ function NewExperience() {
                     <input
                       id="exp-sup-name"
                       className="field"
+                      autoComplete="off"
                       maxLength={80}
                       value={supervisorName}
                       onChange={(e) => setSupervisorName(e.target.value)}

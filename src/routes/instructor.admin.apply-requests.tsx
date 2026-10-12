@@ -127,7 +127,9 @@ function ApplyRequests() {
       </p>
 
       {loading ? (
-        <p className="mt-8 text-sm text-ink-500">Loading…</p>
+        <p role="status" className="mt-8 text-sm text-ink-500">
+          Loading…
+        </p>
       ) : byStudent.length === 0 ? (
         <p className="mt-8 rounded-[var(--radius-card)] border border-line bg-paper-raised px-5 py-6 text-sm text-ink-700">
           No pending requests.
@@ -151,6 +153,7 @@ function ApplyRequests() {
                     </span>
                   </p>
                   <button
+                    type="button"
                     onClick={() => decide(studentId, rows)}
                     disabled={busy === studentId}
                     className="btn-ink text-sm disabled:opacity-40"
@@ -168,7 +171,7 @@ function ApplyRequests() {
                         <label className="flex min-h-[44px] items-center gap-2 text-sm">
                           <input
                             type="checkbox"
-                            className="h-4 w-4 accent-green"
+                            className="h-5 w-5 shrink-0 accent-green"
                             checked={approveSet.has(s.internship_ref)}
                             onChange={() => toggle(studentId, s.internship_ref)}
                           />

@@ -89,7 +89,9 @@ function OpportunityDetail() {
     return (
       <div className="min-h-screen bg-paper text-ink-900">
         <BrowseHeader signedIn={!!user} isStudent={isStudent} />
-        <main className="mx-auto max-w-3xl px-4 py-16 text-sm text-ink-500 sm:px-6">Loading…</main>
+        <main role="status" className="mx-auto max-w-3xl px-4 py-16 text-sm text-ink-500 sm:px-6">
+          Loading…
+        </main>
       </div>
     );
   }
@@ -187,6 +189,7 @@ function OpportunityDetail() {
               className="mt-1 inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-green-deep hover:underline"
             >
               View larger map <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+              <span className="sr-only"> (opens in a new tab)</span>
             </a>
           </div>
         )}
@@ -221,6 +224,7 @@ function OpportunityDetail() {
                   >
                     {l.label || l.url}
                     <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                    <span className="sr-only"> (opens in a new tab)</span>
                   </a>
                 </li>
               ))}
@@ -242,6 +246,7 @@ function OpportunityDetail() {
                       className="inline-flex min-h-[44px] items-center font-medium text-green-deep hover:underline"
                     >
                       {f.name} — download
+                      <span className="sr-only"> (opens in a new tab)</span>
                     </a>
                   ) : (
                     f.name
@@ -272,13 +277,14 @@ function OpportunityDetail() {
           ) : o.registration_mode === "external" && o.external_url ? (
             <a href={o.external_url} target="_blank" rel="noreferrer" className="btn-ink">
               Register on their site <ExternalLink className="h-4 w-4" aria-hidden />
+              <span className="sr-only"> (opens in a new tab)</span>
             </a>
           ) : registered ? (
             <span className="inline-flex min-h-[44px] items-center gap-2 rounded-[var(--radius-control)] bg-mint-tint px-4 text-sm font-semibold text-green-deep">
               <Check className="h-4 w-4" aria-hidden /> Registered
             </span>
           ) : isStudent ? (
-            <button onClick={register} className="btn-ink">
+            <button type="button" onClick={register} className="btn-ink">
               Register
             </button>
           ) : (

@@ -98,7 +98,11 @@ function ReviewList() {
           {error}
         </p>
       )}
-      {loading && <p className="mt-8 text-sm text-ink-500">Loading…</p>}
+      {loading && (
+        <p role="status" className="mt-8 text-sm text-ink-500">
+          Loading…
+        </p>
+      )}
       {!loading && students.length === 0 && (
         <p className="mt-8 text-sm text-ink-700">
           No students with checkpoints yet. Checkpoints appear once a student opens theirs.
@@ -107,13 +111,23 @@ function ReviewList() {
       {students.length > 0 && (
         <div className="mt-8 overflow-x-auto rounded-[var(--radius-card)] border border-line">
           <table className="w-full text-sm">
-            <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+            <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-700">
               <tr>
-                <th className="px-4 py-3 font-medium">Student</th>
-                <th className="px-4 py-3 font-medium">Grade</th>
-                <th className="px-4 py-3 font-medium">Fall</th>
-                <th className="px-4 py-3 font-medium">Spring</th>
-                <th className="px-4 py-3" />
+                <th scope="col" className="px-4 py-3 font-medium">
+                  Student
+                </th>
+                <th scope="col" className="px-4 py-3 font-medium">
+                  Grade
+                </th>
+                <th scope="col" className="px-4 py-3 font-medium">
+                  Fall
+                </th>
+                <th scope="col" className="px-4 py-3 font-medium">
+                  Spring
+                </th>
+                <th scope="col" className="px-4 py-3">
+                  <span className="sr-only">Actions</span>
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line bg-paper-raised">
@@ -129,7 +143,7 @@ function ReviewList() {
                       params={{ studentId: id }}
                       className="ink-link inline-flex min-h-[44px] items-center"
                     >
-                      Review
+                      Review<span className="sr-only"> {s.name}'s checkpoints</span>
                     </Link>
                   </td>
                 </tr>

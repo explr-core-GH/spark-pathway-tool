@@ -49,6 +49,7 @@ export function RosterLiveMonitor({ studentIds, names }: Props) {
   const [rows, setRows] = useState<Row[]>([]);
   const [loadedOnce, setLoadedOnce] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -126,18 +127,26 @@ export function RosterLiveMonitor({ studentIds, names }: Props) {
     }
 
     tick();
-    const t = setInterval(tick, POLL_MS);
+    const t = paused ? null : setInterval(tick, POLL_MS);
     return () => {
       cancelled = true;
-      clearInterval(t);
+      if (t) clearInterval(t);
     };
-  }, [studentIds.join(","), names]);
+  }, [studentIds.join(","), names, paused]);
 
   if (!loadedOnce) {
-    return <p className="text-sm text-ink-500">Loading…</p>;
+    return (
+      <p role="status" className="text-sm text-ink-500">
+        Loading…
+      </p>
+    );
   }
   if (err) {
-    return <p className="text-sm text-red-700">Couldn&apos;t load monitor: {err}</p>;
+    return (
+      <p role="alert" className="text-sm text-red-700">
+        Couldn&apos;t load monitor: {err}
+      </p>
+    );
   }
   if (rows.length === 0) {
     return <p className="text-sm text-ink-500">No students in this roster yet.</p>;
@@ -147,9 +156,23 @@ export function RosterLiveMonitor({ studentIds, names }: Props) {
 
   return (
     <div>
-      <p className="text-xs text-ink-500">
-        <span className="mr-1 inline-block h-2 w-2 rounded-full bg-green align-middle" />
-        {onlineCount} online · refreshes every {POLL_MS / 1000}s
+      <p className="flex flex-wrap items-center gap-x-3 text-xs text-ink-500">
+        <span>
+          <span
+            className="mr-1 inline-block h-2 w-2 rounded-full bg-green align-middle"
+            aria-hidden="true"
+          />
+          {onlineCount} online ·{" "}
+          {paused ? "auto-refresh paused" : `refreshes every ${POLL_MS / 1000}s`}
+        </span>
+        <button
+          type="button"
+          onClick={() => setPaused((p) => !p)}
+          aria-pressed={paused}
+          className="inline-flex min-h-[44px] items-center font-medium text-green-deep hover:underline"
+        >
+          {paused ? "Resume auto-refresh" : "Pause auto-refresh"}
+        </button>
       </p>
       <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((r) => (

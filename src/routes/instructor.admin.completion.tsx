@@ -201,6 +201,7 @@ function CompletionByRoster() {
       <div className="mt-8 flex flex-wrap items-center gap-3">
         <input
           className="field max-w-sm"
+          aria-label="Filter rosters by name"
           placeholder="Filter rosters…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -209,7 +210,9 @@ function CompletionByRoster() {
           {(["all", "camp", "internship"] as const).map((k) => (
             <button
               key={k}
+              type="button"
               onClick={() => setKindFilter(k)}
+              aria-pressed={kindFilter === k}
               className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${kindFilter === k ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
             >
               {k === "all" ? "All" : k === "camp" ? "Camps" : "Internships"}
@@ -223,9 +226,13 @@ function CompletionByRoster() {
       </div>
 
       {loading ? (
-        <p className="mt-8 text-sm text-ink-500">Loading…</p>
+        <p role="status" className="mt-8 text-sm text-ink-500">
+          Loading…
+        </p>
       ) : err ? (
-        <p className="mt-8 text-sm text-red-700">Error: {err}</p>
+        <p role="alert" className="mt-8 text-sm text-red-700">
+          Error: {err}
+        </p>
       ) : filtered.length === 0 ? (
         <p className="mt-8 text-sm text-ink-500">No rosters with students yet.</p>
       ) : (
@@ -237,8 +244,10 @@ function CompletionByRoster() {
             return (
               <div key={s.key}>
                 <button
+                  type="button"
                   onClick={() => setOpen(isOpen ? null : s.key)}
                   aria-expanded={isOpen}
+                  aria-controls={`roster-${s.key.replace(/[^a-zA-Z0-9_-]/g, "-")}`}
                   className="flex w-full flex-wrap items-baseline gap-x-4 gap-y-1 px-4 py-4 text-left text-sm hover:bg-paper-sunken md:grid md:grid-cols-[1fr_120px_140px_140px_60px]"
                 >
                   <span className="w-full md:w-auto">
@@ -268,7 +277,10 @@ function CompletionByRoster() {
                   </span>
                 </button>
                 {isOpen && (
-                  <div className="border-t border-line bg-paper-sunken px-4 py-4">
+                  <div
+                    id={`roster-${s.key.replace(/[^a-zA-Z0-9_-]/g, "-")}`}
+                    className="border-t border-line bg-paper-sunken px-4 py-4"
+                  >
                     <RosterDataPanel studentIds={s.studentIds} names={s.names} />
                   </div>
                 )}

@@ -93,7 +93,10 @@ function InviteAccept() {
     card = (
       <div className="flex flex-col gap-3">
         <h2 className="font-display text-2xl font-bold">This invite didn&apos;t work.</h2>
-        <p className="rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-sm text-ink-900">
+        <p
+          role="alert"
+          className="rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-sm text-ink-900"
+        >
           {error}
         </p>
         <p className="text-sm text-ink-500">
@@ -151,10 +154,13 @@ function InviteAccept() {
               required
               minLength={8}
               autoComplete="new-password"
+              aria-describedby="inv-password-hint"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <p className="mt-1.5 text-xs text-ink-500">At least 8 characters.</p>
+            <p id="inv-password-hint" className="mt-1.5 text-xs text-ink-500">
+              At least 8 characters.
+            </p>
           </div>
         )}
         {error && (

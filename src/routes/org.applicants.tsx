@@ -121,7 +121,9 @@ function Applicants() {
         </p>
 
         {loading ? (
-          <p className="mt-8 text-sm text-ink-500">Loading…</p>
+          <p role="status" className="mt-8 text-sm text-ink-500">
+            Loading…
+          </p>
         ) : sels.length === 0 ? (
           <p className="mt-8 rounded-[var(--radius-card)] border border-dashed border-line-strong bg-paper-raised px-6 py-10 text-center text-sm text-ink-700">
             No completed applications yet.
@@ -136,8 +138,10 @@ function Applicants() {
               return (
                 <div key={s.id}>
                   <button
+                    type="button"
                     onClick={() => setOpen(isOpen ? null : s.id)}
                     aria-expanded={isOpen}
+                    aria-controls={`applicant-${s.id}`}
                     className="flex min-h-[44px] w-full items-center gap-4 px-4 py-4 text-left hover:bg-mint-tint/40"
                   >
                     <div className="min-w-0 flex-1">
@@ -161,7 +165,10 @@ function Applicants() {
                   </button>
 
                   {isOpen && (
-                    <div className="border-t border-line bg-paper px-4 py-5 text-sm">
+                    <div
+                      id={`applicant-${s.id}`}
+                      className="border-t border-line bg-paper px-4 py-5 text-sm"
+                    >
                       <dl className="grid gap-3 text-xs sm:grid-cols-2">
                         <Detail label="Email" value={r.email} />
                         <Detail label="Phone" value={r.phone} />
@@ -189,9 +196,13 @@ function Applicants() {
                                     href={p.screenshot_url}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="inline-flex items-center gap-1 text-xs font-medium text-green-deep hover:underline"
+                                    className="inline-flex min-h-[44px] items-center gap-1 text-xs font-medium text-green-deep hover:underline"
                                   >
                                     screenshot <ExternalLink className="h-3 w-3" aria-hidden />
+                                    <span className="sr-only">
+                                      {" "}
+                                      for {p.label || p.url} (opens in a new tab)
+                                    </span>
                                   </a>
                                 ) : (
                                   <span className="rounded-full bg-gold-tint px-2 py-0.5 font-mono text-[11px] uppercase tracking-[0.08em] text-gold-deep">
@@ -218,9 +229,13 @@ function Applicants() {
                                       href={c.completed_file_url}
                                       target="_blank"
                                       rel="noreferrer"
-                                      className="inline-flex items-center gap-1 text-xs font-medium text-green-deep hover:underline"
+                                      className="inline-flex min-h-[44px] items-center gap-1 text-xs font-medium text-green-deep hover:underline"
                                     >
                                       uploaded <ExternalLink className="h-3 w-3" aria-hidden />
+                                      <span className="sr-only">
+                                        {" "}
+                                        {f.name} (opens in a new tab)
+                                      </span>
                                     </a>
                                   )}
                                   {c?.signed_name && (

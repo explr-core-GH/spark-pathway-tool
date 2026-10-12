@@ -29,7 +29,10 @@ export function EducatorGate({ children }: Props) {
 
   if (loading) {
     return (
-      <main className="mx-auto w-full max-w-[1312px] px-4 py-24 text-center text-sm text-ink-500 sm:px-6 lg:px-8">
+      <main
+        role="status"
+        className="mx-auto w-full max-w-[1312px] px-4 py-24 text-center text-sm text-ink-500 sm:px-6 lg:px-8"
+      >
         Loading…
       </main>
     );

@@ -220,10 +220,10 @@ export function GatePanel({ o, onDone }: { o: Opportunity; onDone: () => void })
             placeholder="Pharmacy tech → certified tech → lead → pharmacy manager"
           />
         </label>
-        <label className="flex items-start gap-2 text-xs sm:col-span-2">
+        <label className="flex min-h-[44px] items-start gap-2 py-2 text-xs sm:col-span-2">
           <input
             type="checkbox"
-            className="mt-0.5"
+            className="mt-0.5 h-5 w-5 shrink-0 accent-green-deep"
             checked={g.realWorkReviewed}
             onChange={(e) => set("realWorkReviewed", e.target.checked)}
           />
@@ -242,7 +242,10 @@ export function GatePanel({ o, onDone }: { o: Opportunity; onDone: () => void })
         </label>
       </div>
       {!verdict.pass && (
-        <ul className="mt-2 list-disc rounded-[var(--radius-control)] bg-gold-tint py-2 pl-8 pr-3 text-xs text-ink-900">
+        <ul
+          aria-live="polite"
+          className="mt-2 list-disc rounded-[var(--radius-control)] bg-gold-tint py-2 pl-8 pr-3 text-xs text-ink-900"
+        >
           {verdict.why.map((w2) => (
             <li key={w2}>{w2}</li>
           ))}

@@ -99,6 +99,7 @@ function OrgSignUp() {
             id="org-name"
             className="field"
             required
+            autoComplete="organization"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -136,6 +137,8 @@ function OrgSignUp() {
           <input
             id="org-website"
             className="field"
+            type="url"
+            autoComplete="url"
             value={website}
             onChange={(e) => setWebsite(e.target.value)}
             placeholder="https://"
@@ -152,10 +155,13 @@ function OrgSignUp() {
             required
             minLength={8}
             autoComplete="new-password"
+            aria-describedby="org-password-hint"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <p className="mt-1.5 text-xs text-ink-500">At least 8 characters.</p>
+          <p id="org-password-hint" className="mt-1.5 text-xs text-ink-500">
+            At least 8 characters.
+          </p>
         </div>
         {error && (
           <p

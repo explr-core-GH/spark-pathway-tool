@@ -12,7 +12,11 @@ export function AssignedAssessmentsPanel({ studentId }: { studentId: string }) {
   const { loading, pending } = useStudentAssignments(studentId);
 
   if (loading) {
-    return <p className="mt-3 text-sm text-ink-500">Loading…</p>;
+    return (
+      <p role="status" className="mt-3 text-sm text-ink-500">
+        Loading…
+      </p>
+    );
   }
   if (pending.length === 0) {
     return (
@@ -35,7 +39,7 @@ export function AssignedAssessmentsPanel({ studentId }: { studentId: string }) {
             <p className="truncate text-xs text-ink-700">{subline(t)}</p>
           </div>
           <Link to={t.to as never} params={t.params as never} className="btn-ink shrink-0">
-            Start →
+            Start →<span className="sr-only"> {t.label}</span>
           </Link>
         </li>
       ))}

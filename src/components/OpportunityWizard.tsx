@@ -447,7 +447,9 @@ export function OpportunityWizard({
     return (
       <div className="bg-paper text-ink-900">
         <PortalHeader role="Partner" links={PARTNER_LINKS} signedIn />
-        <main className="mx-auto max-w-3xl px-4 py-16 text-sm text-ink-500 sm:px-6">Loading…</main>
+        <main role="status" className="mx-auto max-w-3xl px-4 py-16 text-sm text-ink-500 sm:px-6">
+          Loading…
+        </main>
       </div>
     );
   }
@@ -463,6 +465,7 @@ export function OpportunityWizard({
             {OPP_TYPES.map((t) => (
               <button
                 key={t.key}
+                type="button"
                 onClick={() => pickType(t.key)}
                 className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 text-left shadow-card transition-colors hover:border-emerald"
               >
@@ -473,6 +476,7 @@ export function OpportunityWizard({
           </div>
           <p className="mt-8 text-sm">
             <button
+              type="button"
               onClick={() => navigate({ to: "/org" })}
               className="inline-flex min-h-[44px] items-center font-medium text-green-deep hover:underline"
             >
@@ -490,7 +494,9 @@ export function OpportunityWizard({
     return (
       <div className="bg-paper text-ink-900">
         <PortalHeader role="Partner" links={PARTNER_LINKS} signedIn />
-        <main className="mx-auto max-w-3xl px-4 py-16 text-sm text-ink-500 sm:px-6">Loading…</main>
+        <main role="status" className="mx-auto max-w-3xl px-4 py-16 text-sm text-ink-500 sm:px-6">
+          Loading…
+        </main>
       </div>
     );
   }
@@ -512,6 +518,7 @@ export function OpportunityWizard({
           </div>
           {!opportunityId && (
             <button
+              type="button"
               onClick={() => setType(null)}
               className="inline-flex min-h-[44px] items-center text-sm text-ink-500 hover:text-ink-900"
             >
@@ -521,7 +528,10 @@ export function OpportunityWizard({
         </div>
 
         {/* Step rail */}
-        <ol className="mt-6 flex flex-wrap items-center gap-2">
+        <p className="sr-only" aria-live="polite">
+          Step {step + 1} of {steps.length}: {current.title}
+        </p>
+        <ol className="mt-6 flex flex-wrap items-center gap-2" aria-label="Steps">
           {steps.map((s, i) => (
             <li key={s.id} className="flex items-center gap-2">
               <span
@@ -531,7 +541,7 @@ export function OpportunityWizard({
                     ? "bg-ink-900 text-paper"
                     : i < step
                       ? "bg-mint-tint text-green-deep"
-                      : "bg-paper-sunken text-ink-500"
+                      : "bg-paper-sunken text-ink-700"
                 }`}
               >
                 {i < step ? <Check className="h-3 w-3" aria-hidden /> : `${i + 1}.`} {s.title}
@@ -548,12 +558,16 @@ export function OpportunityWizard({
             <Section title="The basics">
               {enabled("name") && (
                 <Field
+                  id="opp-name"
                   label={nameLabel()}
                   help={helpOf("name")}
                   required={cfg.get("name")?.required}
                 >
                   <input
+                    id="opp-name"
                     className="field"
+                    required={cfg.get("name")?.required}
+                    autoComplete="off"
                     value={form.name}
                     onChange={(e) => set("name", e.target.value)}
                   />
@@ -561,11 +575,13 @@ export function OpportunityWizard({
               )}
               {enabled("description") && (
                 <Field
+                  id="opp-description"
                   label={labelOf("description", "Description")}
                   help={helpOf("description")}
                   required={cfg.get("description")?.required}
                 >
                   <textarea
+                    id="opp-description"
                     className="field"
                     rows={5}
                     value={form.description}
@@ -580,6 +596,7 @@ export function OpportunityWizard({
             <Section title="When">
               {enabled("dates") && (
                 <Field
+                  group
                   label={labelOf("dates", "Dates")}
                   help={helpOf("dates")}
                   required={cfg.get("dates")?.required}
@@ -587,6 +604,7 @@ export function OpportunityWizard({
                   <div className="flex flex-wrap items-center gap-3">
                     <input
                       type="date"
+                      aria-label="Start date"
                       className="field w-44"
                       value={form.start_date}
                       onChange={(e) => set("start_date", e.target.value)}
@@ -596,6 +614,7 @@ export function OpportunityWizard({
                         <span className="text-sm text-ink-500">to</span>
                         <input
                           type="date"
+                          aria-label="End date"
                           className="field w-44"
                           value={form.end_date}
                           onChange={(e) => set("end_date", e.target.value)}
@@ -606,7 +625,7 @@ export function OpportunityWizard({
                 </Field>
               )}
               {enabled("schedule") && (
-                <Field label={labelOf("schedule", "Days & times")} help={helpOf("schedule")}>
+                <Field group label={labelOf("schedule", "Days & times")} help={helpOf("schedule")}>
                   <WeekdayPicker days={form.days} onChange={(v) => set("days", v)} />
                   <div className="mt-3 flex flex-wrap items-end gap-4">
                     <label className="text-xs text-ink-500">
@@ -642,6 +661,7 @@ export function OpportunityWizard({
             <Section title="Where & registration">
               {enabled("location") && (
                 <Field
+                  id="opp-location"
                   label={labelOf("location", "Location")}
                   help={
                     helpOf("location") ??
@@ -650,6 +670,7 @@ export function OpportunityWizard({
                   required={cfg.get("location")?.required}
                 >
                   <AddressAutocomplete
+                    id="opp-location"
                     value={form.location}
                     onPick={(addr, lat, lng) => {
                       set("location", addr);
@@ -658,13 +679,17 @@ export function OpportunityWizard({
                     }}
                   />
                   {form.lat != null && form.lng != null && (
-                    <p className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-green-deep">
+                    <p
+                      role="status"
+                      className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-green-deep"
+                    >
                       <Check className="h-3.5 w-3.5" aria-hidden /> Pinned on the map
                     </p>
                   )}
                 </Field>
               )}
               <Field
+                group
                 label={labelOf("registration", "How students register")}
                 help={helpOf("registration")}
               >
@@ -694,7 +719,9 @@ export function OpportunityWizard({
                     </div>
                     {form.registration_mode === "external" && (
                       <input
+                        type="url"
                         className="field mt-3"
+                        aria-label="External registration link"
                         value={form.external_url}
                         onChange={(e) => set("external_url", e.target.value)}
                         placeholder="https://your-registration-link"
@@ -709,12 +736,13 @@ export function OpportunityWizard({
           {current.id === "who" && (
             <Section title="Who & cost">
               {enabled("grades") && (
-                <Field label={labelOf("grades", "Grade range")} help={helpOf("grades")}>
+                <Field group label={labelOf("grades", "Grade range")} help={helpOf("grades")}>
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
                       min={0}
                       max={12}
+                      aria-label="Minimum grade"
                       className="field w-24"
                       value={form.grade_min}
                       onChange={(e) => set("grade_min", e.target.value)}
@@ -725,6 +753,7 @@ export function OpportunityWizard({
                       type="number"
                       min={0}
                       max={12}
+                      aria-label="Maximum grade"
                       className="field w-24"
                       value={form.grade_max}
                       onChange={(e) => set("grade_max", e.target.value)}
@@ -734,8 +763,13 @@ export function OpportunityWizard({
                 </Field>
               )}
               {enabled("capacity") && (
-                <Field label={labelOf("capacity", "Students accepted")} help={helpOf("capacity")}>
+                <Field
+                  id="opp-capacity"
+                  label={labelOf("capacity", "Students accepted")}
+                  help={helpOf("capacity")}
+                >
                   <input
+                    id="opp-capacity"
                     type="number"
                     min={0}
                     className="field w-32"
@@ -745,10 +779,11 @@ export function OpportunityWizard({
                 </Field>
               )}
               {enabled("cost") && (
-                <Field label={labelOf("cost", "Cost")} help={helpOf("cost")}>
-                  <label className="flex items-center gap-2 text-sm">
+                <Field group label={labelOf("cost", "Cost")} help={helpOf("cost")}>
+                  <label className="flex min-h-[44px] items-center gap-2 text-sm">
                     <input
                       type="checkbox"
+                      className="h-5 w-5 accent-green-deep"
                       checked={form.is_free}
                       onChange={(e) => set("is_free", e.target.checked)}
                     />
@@ -762,6 +797,7 @@ export function OpportunityWizard({
                           type="number"
                           min={0}
                           step="0.01"
+                          aria-label="Cost in dollars"
                           className="field w-32"
                           value={form.cost}
                           onChange={(e) => set("cost", e.target.value)}
@@ -809,6 +845,8 @@ export function OpportunityWizard({
                       min={0}
                       max={100}
                       step={5}
+                      aria-label={`${a.label} share of time`}
+                      aria-valuetext={`${form.weights[a.key] ?? 0}%`}
                       value={form.weights[a.key] ?? 0}
                       onChange={(e) =>
                         set("weights", { ...form.weights, [a.key]: Number(e.target.value) })
@@ -819,7 +857,10 @@ export function OpportunityWizard({
                 ))}
               </div>
               <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4 text-sm">
-                <span className={weightTotal === 100 ? "text-green-deep" : "text-gold-deep"}>
+                <span
+                  aria-live="polite"
+                  className={weightTotal === 100 ? "text-green-deep" : "text-gold-deep"}
+                >
                   Total {weightTotal}%
                   {weightTotal !== 100 ? " — aim for about 100% (we normalize either way)" : ""}
                 </span>
@@ -843,14 +884,16 @@ export function OpportunityWizard({
                 extra to require.
               </p>
               <Field
+                group
                 label="Requirements"
                 help="Dress code, lunch, transportation, field trips — check whatever students or families should know."
               >
                 <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                   {REQUIREMENT_PRESETS.map((r) => (
-                    <label key={r} className="flex items-center gap-2 text-sm">
+                    <label key={r} className="flex min-h-[44px] items-center gap-2 text-sm">
                       <input
                         type="checkbox"
+                        className="h-5 w-5 shrink-0 accent-green-deep"
                         checked={form.requirements.includes(r)}
                         onChange={(e) =>
                           set(
@@ -866,8 +909,11 @@ export function OpportunityWizard({
                   ))}
                 </div>
                 <div className="mt-3">
-                  <label className="label">Certifications included (optional)</label>
+                  <label className="label" htmlFor="opp-certs">
+                    Certifications included (optional)
+                  </label>
                   <input
+                    id="opp-certs"
                     className="field mt-1"
                     placeholder="e.g. OSHA 10, Forklift, First Aid — leave blank if none"
                     value={(form.requirements.find((r) => r.startsWith(CERT_PREFIX)) ?? "").slice(
@@ -895,6 +941,7 @@ export function OpportunityWizard({
               </Field>
 
               <Field
+                group
                 label="Links to complete"
                 help="Links students open / complete (waivers, surveys, registration forms). Leave empty if there are none."
               >
@@ -905,6 +952,7 @@ export function OpportunityWizard({
               </Field>
 
               <Field
+                group
                 label="Forms / paperwork"
                 help="Upload blank forms students download, fill out, and/or sign. Leave empty if there are none."
               >
@@ -930,12 +978,16 @@ export function OpportunityWizard({
           {current.id === "media" && (
             <Section title="Photo & logo">
               {enabled("image") && (
-                <Field label={labelOf("image", "Photo")} help={helpOf("image")}>
-                  <Uploader current={form.image_url} onFile={onImage} />
+                <Field group label={labelOf("image", "Photo")} help={helpOf("image")}>
+                  <Uploader
+                    label={labelOf("image", "Photo")}
+                    current={form.image_url}
+                    onFile={onImage}
+                  />
                 </Field>
               )}
-              <Field label="Organization logo" help="Shown on every opportunity you post.">
-                <Uploader current={orgLogo} onFile={onLogo} rounded />
+              <Field group label="Organization logo" help="Shown on every opportunity you post.">
+                <Uploader label="Organization logo" current={orgLogo} onFile={onLogo} rounded />
               </Field>
             </Section>
           )}
@@ -943,8 +995,16 @@ export function OpportunityWizard({
           {current.id === "custom" && (
             <Section title="More details">
               {customFields.map((f) => (
-                <Field key={f.id} label={f.label} help={f.help_text} required={f.required}>
+                <Field
+                  key={f.id}
+                  id={`custom-${f.field_key}`}
+                  group={f.field_type === "checkbox"}
+                  label={f.label}
+                  help={f.help_text}
+                  required={f.required}
+                >
                   <CustomInput
+                    id={`custom-${f.field_key}`}
                     field={f}
                     value={form.custom[f.field_key]}
                     onChange={(v) => set("custom", { ...form.custom, [f.field_key]: v })}
@@ -996,19 +1056,34 @@ export function OpportunityWizard({
         )}
 
         <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
-          <button onClick={back} disabled={step === 0} className="btn-ghost disabled:opacity-40">
+          <button
+            type="button"
+            onClick={back}
+            disabled={step === 0}
+            className="btn-ghost disabled:opacity-40"
+          >
             ← Back
           </button>
           <div className="flex flex-wrap gap-3">
-            <button onClick={() => persist("draft")} disabled={busy} className="btn-ghost">
+            <button
+              type="button"
+              onClick={() => persist("draft")}
+              disabled={busy}
+              className="btn-ghost"
+            >
               Save draft
             </button>
             {current.id === "review" ? (
-              <button onClick={() => persist("submitted")} disabled={busy} className="btn-ink">
+              <button
+                type="button"
+                onClick={() => persist("submitted")}
+                disabled={busy}
+                className="btn-ink"
+              >
                 {busy ? "Submitting…" : "Submit for review"}
               </button>
             ) : (
-              <button onClick={next} className="btn-ink">
+              <button type="button" onClick={next} className="btn-ink">
                 Next →
               </button>
             )}
@@ -1029,23 +1104,54 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function Field({
+  id,
+  group,
   label,
   help,
   required,
   children,
 }: {
+  /** id of the single control this label describes (WCAG 1.3.1 / 4.1.2). */
+  id?: string;
+  /** Render as fieldset/legend when the field holds several controls. */
+  group?: boolean;
   label: string;
   help?: string | null;
   required?: boolean;
   children: React.ReactNode;
 }) {
+  const text = (
+    <>
+      {label}
+      {required && (
+        <>
+          <span className="ml-1 text-red-700" aria-hidden="true">
+            *
+          </span>
+          <span className="sr-only"> (required)</span>
+        </>
+      )}
+    </>
+  );
+  if (group) {
+    return (
+      <fieldset>
+        <legend className="label">{text}</legend>
+        {help && <p className="mb-1 text-xs text-ink-500">{help}</p>}
+        <div className="mt-1">{children}</div>
+      </fieldset>
+    );
+  }
   return (
     <div>
-      <label className="label">
-        {label}
-        {required && <span className="ml-1 text-red-700">*</span>}
+      <label className="label" htmlFor={id}>
+        {text}
       </label>
-      {help && <p className="mb-1 text-xs text-ink-500">{help}</p>}
+      {help && (
+        <p id={id ? `${id}-help` : undefined} className="mb-1 text-xs text-ink-500">
+          {help}
+        </p>
+      )}
       <div className="mt-1">{children}</div>
     </div>
   );
@@ -1061,10 +1167,13 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 function Uploader({
+  label,
   current,
   onFile,
   rounded,
 }: {
+  /** What is being uploaded, for the file input's accessible name. */
+  label: string;
   current: string | null;
   onFile: (f: File) => void;
   rounded?: boolean;
@@ -1078,13 +1187,14 @@ function Uploader({
           className={`h-16 w-16 border border-line object-cover ${rounded ? "rounded-full" : "rounded-[var(--radius-control)]"}`}
         />
       )}
-      <label className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-[var(--radius-control)] border border-dashed border-line-strong bg-paper-raised px-4 text-sm text-ink-700 hover:border-ink-900">
+      <label className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-[var(--radius-control)] border border-dashed border-line-strong bg-paper-raised px-4 text-sm text-ink-700 hover:border-ink-900 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2">
         <Upload className="h-4 w-4 text-ink-500" aria-hidden />
         {current ? "Replace" : "Upload"}
         <input
           type="file"
           accept="image/*"
-          className="hidden"
+          aria-label={`${current ? "Replace" : "Upload"} ${label.toLowerCase()}`}
+          className="sr-only"
           onChange={(e) => {
             const f = e.target.files?.[0];
             if (f) onFile(f);
@@ -1097,10 +1207,12 @@ function Uploader({
 }
 
 function CustomInput({
+  id,
   field,
   value,
   onChange,
 }: {
+  id: string;
   field: FieldConfig;
   value: unknown;
   onChange: (v: unknown) => void;
@@ -1110,6 +1222,7 @@ function CustomInput({
     case "textarea":
       return (
         <textarea
+          id={id}
           className="field"
           rows={4}
           value={String(v)}
@@ -1119,6 +1232,7 @@ function CustomInput({
     case "number":
       return (
         <input
+          id={id}
           type="number"
           className="field w-40"
           value={String(v)}
@@ -1128,6 +1242,7 @@ function CustomInput({
     case "date":
       return (
         <input
+          id={id}
           type="date"
           className="field w-48"
           value={String(v)}
@@ -1136,14 +1251,25 @@ function CustomInput({
       );
     case "checkbox":
       return (
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} />
+        <label className="flex min-h-[44px] items-center gap-2 text-sm">
+          <input
+            id={id}
+            type="checkbox"
+            className="h-5 w-5 accent-green-deep"
+            checked={!!value}
+            onChange={(e) => onChange(e.target.checked)}
+          />
           Yes
         </label>
       );
     case "select":
       return (
-        <select className="field" value={String(v)} onChange={(e) => onChange(e.target.value)}>
+        <select
+          id={id}
+          className="field"
+          value={String(v)}
+          onChange={(e) => onChange(e.target.value)}
+        >
           <option value="">Choose…</option>
           {(field.options ?? []).map((o) => (
             <option key={o} value={o}>
@@ -1154,7 +1280,12 @@ function CustomInput({
       );
     default:
       return (
-        <input className="field" value={String(v)} onChange={(e) => onChange(e.target.value)} />
+        <input
+          id={id}
+          className="field"
+          value={String(v)}
+          onChange={(e) => onChange(e.target.value)}
+        />
       );
   }
 }
@@ -1177,6 +1308,7 @@ function CustomReqAdder({
       <div className="flex gap-2">
         <input
           className="field"
+          aria-label="Add another requirement"
           placeholder="Add another requirement…"
           value={val}
           onChange={(e) => setVal(e.target.value)}
@@ -1205,8 +1337,8 @@ function CustomReqAdder({
               <button
                 type="button"
                 onClick={() => onRemove(r)}
-                className="grid h-6 w-6 place-items-center rounded-full text-ink-500 hover:bg-paper-sunken hover:text-red-700"
-                aria-label="Remove"
+                className="grid h-7 w-7 place-items-center rounded-full text-ink-500 hover:bg-paper-sunken hover:text-red-700"
+                aria-label={`Remove requirement: ${r}`}
               >
                 <X className="h-3.5 w-3.5" aria-hidden />
               </button>
@@ -1225,6 +1357,7 @@ function LinksEditor({ links, onChange }: { links: AppLink[]; onChange: (v: AppL
         <div key={i} className="flex gap-2">
           <input
             className="field w-40"
+            aria-label={`Link ${i + 1} label`}
             placeholder="Label"
             value={l.label}
             onChange={(e) =>
@@ -1232,7 +1365,9 @@ function LinksEditor({ links, onChange }: { links: AppLink[]; onChange: (v: AppL
             }
           />
           <input
+            type="url"
             className="field flex-1"
+            aria-label={`Link ${i + 1} URL`}
             placeholder="https://"
             value={l.url}
             onChange={(e) =>
@@ -1243,7 +1378,7 @@ function LinksEditor({ links, onChange }: { links: AppLink[]; onChange: (v: AppL
             type="button"
             onClick={() => onChange(links.filter((_, j) => j !== i))}
             className="grid h-11 w-11 shrink-0 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-ink-900"
-            aria-label="Remove"
+            aria-label={`Remove link ${i + 1}${l.label ? ` (${l.label})` : ""}`}
           >
             <X className="h-4 w-4" aria-hidden />
           </button>
@@ -1290,7 +1425,7 @@ function FormsEditor({
                   rel="noreferrer"
                   className="inline-flex min-h-[44px] items-center text-sm font-medium text-green-deep hover:underline"
                 >
-                  View
+                  View<span className="sr-only"> {f.name} (opens in a new tab)</span>
                 </a>
               )}
               <button
@@ -1298,7 +1433,7 @@ function FormsEditor({
                 onClick={() => onDelete(f.id)}
                 className="inline-flex min-h-[44px] items-center text-sm text-red-700 hover:underline"
               >
-                Delete
+                Delete<span className="sr-only"> {f.name}</span>
               </button>
             </li>
           ))}
@@ -1307,6 +1442,7 @@ function FormsEditor({
       <div className="flex flex-wrap items-center gap-2">
         <input
           className="field w-48"
+          aria-label="Form name"
           placeholder="Form name (e.g. Waiver)"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -1320,12 +1456,13 @@ function FormsEditor({
           />
           Needs signature
         </label>
-        <label className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-[var(--radius-control)] border border-dashed border-line-strong bg-paper-raised px-3 text-sm hover:border-ink-900">
+        <label className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-[var(--radius-control)] border border-dashed border-line-strong bg-paper-raised px-3 text-sm hover:border-ink-900 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2">
           <Upload className="h-4 w-4 text-ink-500" aria-hidden />
           Upload form
           <input
             type="file"
-            className="hidden"
+            aria-label="Upload form file"
+            className="sr-only"
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) {
@@ -1344,7 +1481,7 @@ function FormsEditor({
 
 function WeekdayPicker({ days, onChange }: { days: string[]; onChange: (v: string[]) => void }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2" role="group" aria-label="Days of the week">
       {WEEKDAYS.map((d) => {
         const on = days.includes(d);
         return (
@@ -1370,9 +1507,11 @@ function WeekdayPicker({ days, onChange }: { days: string[]; onChange: (v: strin
 type NominatimResult = { display_name: string; lat: string; lon: string };
 
 function AddressAutocomplete({
+  id,
   value,
   onPick,
 }: {
+  id?: string;
   value: string;
   onPick: (addr: string, lat: number | null, lng: number | null) => void;
 }) {
@@ -1401,17 +1540,30 @@ function AddressAutocomplete({
   return (
     <div className="relative">
       <input
+        id={id}
         className="field"
         value={q}
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded={open && results.length > 0}
+        aria-controls={id ? `${id}-options` : undefined}
+        autoComplete="off"
         placeholder="Start typing an address…"
         onChange={(e) => {
           setQ(e.target.value);
           setOpen(true);
           onPick(e.target.value, null, null);
         }}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setOpen(false);
+        }}
       />
       {open && results.length > 0 && (
-        <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-[var(--radius-control)] border border-line-strong bg-paper-raised text-sm shadow-card">
+        <ul
+          id={id ? `${id}-options` : undefined}
+          aria-label="Address suggestions"
+          className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-[var(--radius-control)] border border-line-strong bg-paper-raised text-sm shadow-card"
+        >
           {results.map((r, i) => (
             <li key={i}>
               <button

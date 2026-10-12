@@ -65,10 +65,7 @@ function Skills() {
                   return (
                     <li key={skill} className="flex flex-wrap items-center gap-4">
                       <span className="w-[260px] text-[15px] font-medium">{skill}</span>
-                      <span
-                        className="flex items-center gap-1.5"
-                        aria-label={best ? RATING_LEVELS[best - 1] : "Not rated yet"}
-                      >
+                      <span className="flex items-center gap-1.5" aria-hidden="true">
                         {[1, 2, 3, 4].map((i) => (
                           <span
                             key={i}

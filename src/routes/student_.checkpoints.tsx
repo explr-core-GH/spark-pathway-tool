@@ -316,7 +316,9 @@ function Checkpoints() {
           </p>
         )}
         {(pLoading || !ready) && !error && (
-          <p className="mt-8 text-ink-500">Loading your checkpoints…</p>
+          <p role="status" className="mt-8 text-ink-500">
+            Loading your checkpoints…
+          </p>
         )}
 
         {ready && p && ctx && (
@@ -466,15 +468,22 @@ function CheckpointCard({
       </ol>
 
       {cp.status === "open" && (
-        <button
-          type="button"
-          disabled={!requiredDone}
-          onClick={onSubmit}
-          className="btn-ink disabled:opacity-50"
-          title={requiredDone ? "" : "Finish every required task first"}
-        >
-          Submit {cp.term} checkpoint
-        </button>
+        <div>
+          <button
+            type="button"
+            disabled={!requiredDone}
+            onClick={onSubmit}
+            className="btn-ink disabled:opacity-50"
+            aria-describedby={requiredDone ? undefined : `submit-hint-${cp.id}`}
+          >
+            Submit {cp.term} checkpoint
+          </button>
+          {!requiredDone && (
+            <p id={`submit-hint-${cp.id}`} className="mt-2 text-xs text-ink-500">
+              Finish every required task first.
+            </p>
+          )}
+        </div>
       )}
       {cp.advisor_notes && (
         <div className="rounded-[var(--radius-control)] bg-gold-tint p-3 text-sm">
@@ -510,9 +519,9 @@ function FormTask({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-1 text-sm text-green-deep hover:underline"
+        className="mt-1 inline-flex min-h-[44px] items-center text-sm text-green-deep hover:underline"
       >
-        Edit
+        Edit<span className="sr-only"> {t.label}</span>
       </button>
     );
   }
@@ -576,7 +585,7 @@ function GoalTask({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-1 text-sm text-green-deep hover:underline"
+        className="mt-1 inline-flex min-h-[44px] items-center text-sm text-green-deep hover:underline"
       >
         Edit goal
       </button>
@@ -612,7 +621,8 @@ function GoalTask({
       )}
       <div className="sm:col-span-2">
         <label className="label" htmlFor={`goal-${cp.id}`}>
-          My career goal (a job, a field, or "still exploring")
+          My career goal (a job, a field, or "still exploring") <span aria-hidden="true">*</span>
+          <span className="sr-only">(required)</span>
         </label>
         <input
           id={`goal-${cp.id}`}
@@ -665,19 +675,21 @@ function GoalTask({
         <fieldset className="sm:col-span-2">
           <legend className="label">Did your goal change since last time?</legend>
           <div className="flex gap-4 text-sm">
-            <label className="flex items-center gap-1.5">
+            <label className="flex min-h-[44px] items-center gap-1.5">
               <input
                 type="radio"
                 name={`chg-${cp.id}`}
+                className="h-5 w-5 accent-green-deep"
                 checked={changed === true}
                 onChange={() => setChanged(true)}
               />{" "}
               Yes
             </label>
-            <label className="flex items-center gap-1.5">
+            <label className="flex min-h-[44px] items-center gap-1.5">
               <input
                 type="radio"
                 name={`chg-${cp.id}`}
+                className="h-5 w-5 accent-green-deep"
                 checked={changed === false}
                 onChange={() => setChanged(false)}
               />{" "}
@@ -732,10 +744,12 @@ function ChecklistTask({
               checked={on}
               disabled={c.auto}
               onChange={(e) => onToggle(c.no, e.target.checked)}
-              className="mt-1"
-              title={c.auto ? "Checked automatically from your passport" : ""}
+              className="mt-0.5 h-5 w-5 shrink-0 accent-green-deep"
             />
-            <label htmlFor={`ck-${c.no}`} className={on ? "text-ink-900" : "text-ink-700"}>
+            <label
+              htmlFor={`ck-${c.no}`}
+              className={`min-h-[24px] py-0.5 ${on ? "text-ink-900" : "text-ink-700"}`}
+            >
               {c.no}. {c.text}
               {c.auto && <span className="text-ink-500"> (from your passport)</span>}
             </label>

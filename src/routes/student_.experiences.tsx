@@ -67,7 +67,11 @@ function Experiences() {
           </div>
         </div>
 
-        {loading && <p className="mt-8 text-ink-500">Loading…</p>}
+        {loading && (
+          <p role="status" className="mt-8 text-ink-500">
+            Loading…
+          </p>
+        )}
         {p && p.experiences.length === 0 && (
           <p className="mt-8 max-w-xl text-ink-700">
             Nothing yet. Start with anything real: a camp, a job shadow, a summer job, an
@@ -107,6 +111,7 @@ function ExperienceItem({
     emailError: string | null;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const exposure = isExposure(e.stage);
   const canAsk =
     !exposure &&
@@ -179,18 +184,20 @@ function ExperienceItem({
               <button
                 type="button"
                 onClick={() => setAsking(true)}
-                className="text-xs font-semibold text-green-deep hover:underline"
+                aria-expanded={asking}
+                className="inline-flex min-h-[44px] items-center text-xs font-semibold text-green-deep hover:underline"
               >
                 {e.status === "pending_supervisor" ? "Send again" : "Ask for a stamp"}
+                <span className="sr-only"> for {e.title}</span>
               </button>
             )}
             {e.status !== "verified" && (
               <button
                 type="button"
                 onClick={onRemove}
-                className="text-xs text-ink-500 hover:text-ink-900"
+                className="inline-flex min-h-[44px] items-center text-xs text-ink-500 hover:text-ink-900"
               >
-                Remove
+                Remove<span className="sr-only"> {e.title}</span>
               </button>
             )}
           </div>
@@ -250,7 +257,10 @@ function ExperienceItem({
       )}
 
       {result && (
-        <div className="mt-4 rounded-[var(--radius-control)] bg-mint-tint p-4 text-sm">
+        <div
+          role="status"
+          className="mt-4 rounded-[var(--radius-control)] bg-mint-tint p-4 text-sm"
+        >
           <p className="font-medium">
             {result.emailed ? `Sent to ${name}.` : "Email didn't go out, but the link works."}
             {result.emailError && !result.emailed ? ` (${result.emailError})` : ""}
@@ -263,9 +273,12 @@ function ExperienceItem({
             <button
               type="button"
               className="btn-ghost text-xs"
-              onClick={() => navigator.clipboard?.writeText(result.link)}
+              onClick={() => {
+                navigator.clipboard?.writeText(result.link);
+                setCopied(true);
+              }}
             >
-              Copy link
+              {copied ? "Copied" : "Copy link"}
             </button>
           </div>
         </div>

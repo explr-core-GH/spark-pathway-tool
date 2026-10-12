@@ -143,7 +143,10 @@ function ProgramRiasecPage() {
 
   if (!hydrated) {
     return (
-      <main className="mx-auto max-w-[1312px] px-4 py-24 text-sm text-ink-500 sm:px-6 lg:px-8">
+      <main
+        role="status"
+        className="mx-auto max-w-[1312px] px-4 py-24 text-sm text-ink-500 sm:px-6 lg:px-8"
+      >
         Loading…
       </main>
     );
@@ -197,7 +200,7 @@ function ProgramRiasecPage() {
       {tab === "programs" && (
         <div className="mt-8 grid gap-8 lg:grid-cols-[240px_1fr]">
           <aside>
-            <button onClick={addProgram} className="btn-mint w-full justify-center">
+            <button type="button" onClick={addProgram} className="btn-mint w-full justify-center">
               + New program
             </button>
             <ul className="mt-4 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
@@ -207,6 +210,7 @@ function ProgramRiasecPage() {
               {programs.map((p) => (
                 <li key={p.id}>
                   <button
+                    type="button"
                     onClick={() => setSelectedId(p.id)}
                     aria-pressed={selectedId === p.id}
                     className={`block min-h-[44px] w-full px-4 py-3 text-left first:rounded-t-[var(--radius-card)] last:rounded-b-[var(--radius-card)] ${
@@ -235,7 +239,7 @@ function ProgramRiasecPage() {
           ) : (
             <div className="rounded-[var(--radius-card)] border border-dashed border-line-strong bg-paper-raised p-10 text-center">
               <p className="text-sm text-ink-700">No program selected.</p>
-              <button onClick={addProgram} className="btn-ink mt-4">
+              <button type="button" onClick={addProgram} className="btn-ink mt-4">
                 + New program
               </button>
             </div>
@@ -310,7 +314,7 @@ function ProgramEditor({
             />
           </Field>
           <Field label="Program ID">
-            <input className="field bg-paper-sunken text-ink-500" value={program.id} readOnly />
+            <input className="field bg-paper-sunken text-ink-700" value={program.id} readOnly />
           </Field>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -361,7 +365,7 @@ function ProgramEditor({
           <label className="flex min-h-[44px] items-end gap-2 pb-2 text-sm">
             <input
               type="checkbox"
-              className="h-4 w-4 accent-green"
+              className="h-5 w-5 accent-green"
               checked={program.branchingPaths}
               onChange={(e) => set("branchingPaths", e.target.checked)}
             />
@@ -398,6 +402,7 @@ function ProgramEditor({
                         <span
                           className="mr-1.5 inline-block h-2 w-2 rounded-full align-middle"
                           style={{ background: d.color }}
+                          aria-hidden="true"
                         />
                         {l} · {d.name}
                       </span>
@@ -427,7 +432,7 @@ function ProgramEditor({
       <section className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="font-display text-lg font-semibold text-ink-900">Activities</h3>
-          <button onClick={addActivity} className="btn-mint">
+          <button type="button" onClick={addActivity} className="btn-mint">
             + Add activity
           </button>
         </div>
@@ -439,21 +444,32 @@ function ProgramEditor({
         ) : (
           <div className="mt-4 overflow-x-auto rounded-[var(--radius-control)] border border-line">
             <table className="w-full min-w-[720px] text-sm">
-              <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+              <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-700">
                 <tr>
-                  <th className="py-2 pl-3 pr-3 font-medium">Activity</th>
-                  <th className="px-2 py-2 font-medium">Time %</th>
+                  <th scope="col" className="py-2 pl-3 pr-3 font-medium">
+                    Activity
+                  </th>
+                  <th scope="col" className="px-2 py-2 font-medium">
+                    Time %
+                  </th>
                   {RIASEC_LETTERS.map((l) => (
                     <th
                       key={l}
+                      scope="col"
                       title={RIASEC[l].name}
                       className="px-1 py-2 text-center font-medium"
                     >
-                      {l}
+                      <abbr title={RIASEC[l].name} className="no-underline">
+                        {l}
+                      </abbr>
                     </th>
                   ))}
-                  <th className="px-2 py-2 text-center font-medium">Sum</th>
-                  <th className="pl-2 pr-3" aria-label="Actions" />
+                  <th scope="col" className="px-2 py-2 text-center font-medium">
+                    Sum
+                  </th>
+                  <th scope="col" className="pl-2 pr-3">
+                    <span className="sr-only">Actions</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -465,6 +481,7 @@ function ProgramEditor({
                         <input
                           className="field h-8"
                           value={a.name}
+                          aria-label="Activity name"
                           placeholder="Activity name"
                           onChange={(e) =>
                             updateActivity(a.id, (x) => ({ ...x, name: e.target.value }))
@@ -476,6 +493,7 @@ function ProgramEditor({
                           type="number"
                           min={0}
                           max={100}
+                          aria-label={`Time % for ${a.name || "activity"}`}
                           value={a.timePct}
                           onChange={(e) =>
                             updateActivity(a.id, (x) => ({
@@ -493,6 +511,7 @@ function ProgramEditor({
                             min={0}
                             max={3}
                             step={1}
+                            aria-label={`${RIASEC[l].name} score (0-3) for ${a.name || "activity"}`}
                             value={a.scores[l]}
                             onChange={(e) =>
                               updateActivity(a.id, (x) => ({
@@ -513,6 +532,7 @@ function ProgramEditor({
                       <td className="px-2 py-2 text-center tabular-nums text-ink-500">{sum}</td>
                       <td className="pl-2 pr-2 text-right">
                         <button
+                          type="button"
                           onClick={() => removeActivity(a.id)}
                           aria-label={`Delete ${a.name || a.id}`}
                           className="grid h-8 w-8 place-items-center rounded-[6px] text-ink-500 hover:bg-paper-sunken hover:text-red-700"
@@ -588,7 +608,7 @@ function ProgramEditor({
                     type="checkbox"
                     checked={on}
                     onChange={() => toggleSecondaryCluster(c)}
-                    className="mt-0.5 h-4 w-4 accent-green"
+                    className="mt-0.5 h-5 w-5 shrink-0 accent-green"
                   />
                   <span className="text-ink-700">{c}</span>
                 </label>
@@ -606,6 +626,7 @@ function ProgramEditor({
           need it back.
         </p>
         <button
+          type="button"
           onClick={() => {
             if (confirm(`Delete program "${program.name}"?`)) onDelete();
           }}
@@ -659,6 +680,7 @@ function CompareTab({ programs }: { programs: Program[] }) {
                     <span
                       className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full align-middle"
                       style={{ background: RIASEC[l].color }}
+                      aria-hidden="true"
                     />
                     {RIASEC[l].name}
                   </span>
@@ -705,7 +727,11 @@ function ReferenceTab() {
                 className="rounded-[var(--radius-control)] border border-line bg-paper p-3"
               >
                 <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: d.color }} />
+                  <span
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{ background: d.color }}
+                    aria-hidden="true"
+                  />
                   <span className="text-sm font-semibold">
                     {l} — {d.name}
                   </span>

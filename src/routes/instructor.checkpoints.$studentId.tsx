@@ -63,6 +63,16 @@ type ApprovalRow = {
   advisor_ack_at: string | null;
 };
 
+/** "✓" or "·" with a text equivalent for screen readers (WCAG 1.3.1). */
+function AckMark({ on }: { on: boolean }) {
+  return (
+    <>
+      <span aria-hidden="true">{on ? "✓" : "·"}</span>
+      <span className="sr-only">{on ? "(signed)" : "(not yet signed)"}</span>
+    </>
+  );
+}
+
 function Review() {
   const { studentId } = Route.useParams();
   const { user } = useSession();
@@ -200,7 +210,11 @@ function Review() {
           {pError}
         </p>
       )}
-      {pLoading && <p className="mt-6 text-sm text-ink-500">Loading…</p>}
+      {pLoading && (
+        <p role="status" className="mt-6 text-sm text-ink-500">
+          Loading…
+        </p>
+      )}
       {p && ctx && (
         <>
           <p className="eyebrow mt-4 text-green">
@@ -279,7 +293,13 @@ function Review() {
                             <ul className="mt-1 text-ink-700">
                               {CHECKLIST.filter((c) => (t.items ?? []).includes(c.no)).map((c) => (
                                 <li key={c.no}>
-                                  {local.checked.has(c.no) ? "✓" : "·"} {c.no}. {c.text}
+                                  <span aria-hidden="true">
+                                    {local.checked.has(c.no) ? "✓" : "·"}
+                                  </span>
+                                  <span className="sr-only">
+                                    {local.checked.has(c.no) ? "Done:" : "Not done:"}
+                                  </span>{" "}
+                                  {c.no}. {c.text}
                                 </li>
                               ))}
                             </ul>
@@ -328,9 +348,9 @@ function Review() {
           <section className="mt-8 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
             <p className="eyebrow text-green">Annual plan approval · {sy}</p>
             <p className="mt-2 text-sm text-ink-700">
-              Student {approval?.student_ack_at ? "✓" : "·"} · Parent/guardian{" "}
-              {approval?.guardian_ack_at ? "✓" : "·"} · Advisor{" "}
-              {approval?.advisor_ack_at ? "✓" : "·"}
+              Student <AckMark on={!!approval?.student_ack_at} /> · Parent/guardian{" "}
+              <AckMark on={!!approval?.guardian_ack_at} /> · Advisor{" "}
+              <AckMark on={!!approval?.advisor_ack_at} />
             </p>
             {!approval?.advisor_ack_at && (
               <button

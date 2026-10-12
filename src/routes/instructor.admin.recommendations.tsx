@@ -429,8 +429,16 @@ function RecommendationsPage() {
         </div>
       </div>
 
-      {err && <p className="mt-4 text-sm text-red-700">{err}</p>}
-      {status && !err && <p className="mt-4 text-sm text-ink-500">{status}</p>}
+      {err && (
+        <p role="alert" className="mt-4 text-sm text-red-700">
+          {err}
+        </p>
+      )}
+      {status && !err && (
+        <p role="status" className="mt-4 text-sm text-ink-500">
+          {status}
+        </p>
+      )}
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-ink-500">
@@ -440,6 +448,7 @@ function RecommendationsPage() {
             : ""}
         </p>
         <button
+          type="button"
           onClick={onGenerate}
           disabled={busy || selected.size === 0}
           className="btn-ink text-sm disabled:opacity-40"
@@ -449,7 +458,9 @@ function RecommendationsPage() {
       </div>
 
       {sources === null ? (
-        <p className="mt-10 text-sm text-ink-500">Loading…</p>
+        <p role="status" className="mt-10 text-sm text-ink-500">
+          Loading…
+        </p>
       ) : sources.length === 0 ? (
         <div className="mt-10 rounded-[var(--radius-card)] border border-line bg-paper-raised px-6 py-10 text-center text-sm text-ink-500">
           No verified experiences yet. Letters draw on experiences a supervisor has verified.
@@ -463,10 +474,12 @@ function RecommendationsPage() {
                 <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line pb-2">
                   <h2 className="font-display text-xl font-bold text-ink-900">{org}</h2>
                   <button
+                    type="button"
                     onClick={() => toggleAllInGroup(rows, !allSelected)}
                     className="eyebrow inline-flex min-h-[44px] items-center hover:text-ink-900"
                   >
                     {allSelected ? "Clear all" : "Select all"}
+                    <span className="sr-only"> in {org}</span>
                   </button>
                 </div>
                 <ul className="mt-3 divide-y divide-line rounded-[var(--radius-card)] border border-line bg-paper-raised">
@@ -481,7 +494,7 @@ function RecommendationsPage() {
                           type="checkbox"
                           checked={on}
                           onChange={() => toggle(k)}
-                          className="mt-1 h-4 w-4 accent-green"
+                          className="mt-1 h-5 w-5 shrink-0 accent-green"
                           id={k}
                         />
                         <label htmlFor={k} className="flex-1 cursor-pointer">

@@ -65,8 +65,8 @@ function AdminHome() {
               >
                 <span className="font-medium">{e.full_name}</span>
                 <span className="text-ink-500">{e.email}</span>
-                <button className="btn-ink text-xs" onClick={() => approve(e.id)}>
-                  Approve
+                <button type="button" className="btn-ink text-xs" onClick={() => approve(e.id)}>
+                  Approve<span className="sr-only"> {e.full_name}</span>
                 </button>
               </div>
             ))}

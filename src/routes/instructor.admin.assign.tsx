@@ -129,6 +129,7 @@ function AssignAdmin() {
               return (
                 <li key={s.id}>
                   <button
+                    type="button"
                     onClick={() => setSelected(s.id)}
                     aria-pressed={active}
                     className={`flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-left first:rounded-t-[var(--radius-card)] last:rounded-b-[var(--radius-card)] ${
@@ -168,6 +169,7 @@ function AssignAdmin() {
             <>
               <input
                 className="field mt-4"
+                aria-label="Filter instructors by name or email"
                 placeholder="Filter instructors by name or email…"
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
@@ -176,17 +178,19 @@ function AssignAdmin() {
                 {filteredEducators.map((e) => {
                   const checked = assignedSet.has(e.id);
                   return (
-                    <li key={e.id} className="flex min-h-[44px] items-center gap-3 px-4 py-3">
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 accent-green"
-                        checked={checked}
-                        onChange={() => toggle(e.id)}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{e.full_name}</p>
-                        <p className="truncate text-xs text-ink-500">{e.email}</p>
-                      </div>
+                    <li key={e.id}>
+                      <label className="flex min-h-[44px] cursor-pointer items-center gap-3 px-4 py-3">
+                        <input
+                          type="checkbox"
+                          className="h-5 w-5 shrink-0 accent-green"
+                          checked={checked}
+                          onChange={() => toggle(e.id)}
+                        />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium">{e.full_name}</span>
+                          <span className="block truncate text-xs text-ink-500">{e.email}</span>
+                        </span>
+                      </label>
                     </li>
                   );
                 })}

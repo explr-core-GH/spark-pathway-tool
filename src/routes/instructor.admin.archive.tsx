@@ -269,11 +269,13 @@ function ArchivePage() {
             Could not load the table list: {loadError}
           </p>
         ) : !tables ? (
-          <p className="mt-4 text-sm text-ink-500">Counting rows…</p>
+          <p role="status" className="mt-4 text-sm text-ink-500">
+            Counting rows…
+          </p>
         ) : (
           <div className="mt-4 overflow-x-auto rounded-[var(--radius-card)] border border-line">
             <table className="w-full text-sm">
-              <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+              <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-700">
                 <tr>
                   <th scope="col" className="px-4 py-3 font-medium">
                     Table
@@ -292,8 +294,9 @@ function ArchivePage() {
                     </td>
                     <td className="px-4 py-2 text-right tabular-nums text-ink-700">
                       {t.count === null ? (
-                        <span className="text-red-700" title={t.error}>
+                        <span className="text-red-700">
                           unavailable
+                          {t.error ? <span className="sr-only">: {t.error}</span> : null}
                         </span>
                       ) : (
                         fmt(t.count)

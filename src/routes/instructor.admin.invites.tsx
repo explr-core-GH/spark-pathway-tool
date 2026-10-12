@@ -131,8 +131,8 @@ function InvitesAdmin() {
         className="mt-10 grid gap-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 md:grid-cols-[2fr_2fr_auto]"
       >
         {/* Role picker spans the full width on top */}
-        <div className="md:col-span-3">
-          <label className="label">Role</label>
+        <fieldset className="md:col-span-3">
+          <legend className="label">Role</legend>
           <div className="mt-1 flex flex-wrap gap-2">
             {(["educator", "admin"] as InviteRole[]).map((r) => {
               const on = r === role;
@@ -154,13 +154,17 @@ function InvitesAdmin() {
               ? "Instructor accounts auto-approve on activation. Admins assign them to camp sessions afterwards."
               : "Admin accounts have full access to the admin tools."}
           </p>
-        </div>
+        </fieldset>
 
         <div>
-          <label className="label">Email</label>
+          <label className="label" htmlFor="inv-email">
+            Email
+          </label>
           <input
+            id="inv-email"
             className="field mt-1"
             type="email"
+            autoComplete="off"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -169,8 +173,11 @@ function InvitesAdmin() {
         </div>
 
         <div>
-          <label className="label">Organization</label>
+          <label className="label" htmlFor="inv-org">
+            Organization
+          </label>
           <input
+            id="inv-org"
             className="field mt-1"
             value={org}
             onChange={(e) => setOrg(e.target.value)}
@@ -193,7 +200,7 @@ function InvitesAdmin() {
           const statusCls = r.accepted_at
             ? "bg-mint-tint text-green-deep"
             : expired
-              ? "bg-paper-sunken text-ink-500"
+              ? "bg-paper-sunken text-ink-700"
               : "bg-gold-tint text-gold-deep";
           return (
             <li key={r.id} className="px-4 py-3">
@@ -218,19 +225,22 @@ function InvitesAdmin() {
                 </span>
                 {!r.accepted_at && !expired && (
                   <button
+                    type="button"
                     onClick={() => copy(r.id, r.token)}
                     className={`inline-flex min-h-[44px] items-center text-xs underline ${
                       copiedId === r.id ? "text-green-deep" : "text-ink-500 hover:text-ink-900"
                     }`}
                   >
-                    {copiedId === r.id ? "Copied!" : "Copy link"}
+                    <span aria-live="polite">{copiedId === r.id ? "Copied!" : "Copy link"}</span>
+                    <span className="sr-only"> for {r.email}</span>
                   </button>
                 )}
                 <button
+                  type="button"
                   onClick={() => revoke(r.id)}
                   className="inline-flex min-h-[44px] items-center text-xs text-red-700 hover:underline"
                 >
-                  Revoke
+                  Revoke<span className="sr-only"> invite for {r.email}</span>
                 </button>
               </div>
               {/* Fallback: if programmatic copy was blocked, show the link
@@ -238,6 +248,7 @@ function InvitesAdmin() {
               {revealId === r.id && (
                 <input
                   readOnly
+                  aria-label={`Invite link for ${r.email}`}
                   className="field mt-2 text-xs"
                   value={inviteUrl(r.token)}
                   onFocus={(e) => e.currentTarget.select()}

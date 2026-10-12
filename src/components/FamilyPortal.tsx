@@ -63,7 +63,11 @@ export function FamilyPortal({ studentId, grade }: { studentId: string; grade: n
   }, [studentId]);
 
   if (loading || !data) {
-    return <p className="mt-8 text-sm text-ink-500">Loading results…</p>;
+    return (
+      <p role="status" className="mt-8 text-sm text-ink-500">
+        Loading results…
+      </p>
+    );
   }
   return (
     <FamilyResults data={data} grade={grade} stemPanel={<StemPanel studentId={studentId} />} />
@@ -111,8 +115,24 @@ export function FamilyResults({
             key={t.id}
             type="button"
             role="tab"
+            id={`family-tab-${t.id}`}
             aria-selected={current === t.id}
+            aria-controls="family-tabpanel"
+            tabIndex={current === t.id ? 0 : -1}
             onClick={() => setTab(t.id)}
+            onKeyDown={(e) => {
+              const i = tabs.findIndex((x) => x.id === current);
+              let next = -1;
+              if (e.key === "ArrowRight") next = (i + 1) % tabs.length;
+              else if (e.key === "ArrowLeft") next = (i - 1 + tabs.length) % tabs.length;
+              else if (e.key === "Home") next = 0;
+              else if (e.key === "End") next = tabs.length - 1;
+              if (next >= 0) {
+                e.preventDefault();
+                setTab(tabs[next].id);
+                document.getElementById(`family-tab-${tabs[next].id}`)?.focus();
+              }
+            }}
             className={`-mb-px inline-flex min-h-[44px] items-center border-b-2 px-3 text-[15px] transition-colors ${
               current === t.id
                 ? "border-ink-900 font-semibold text-ink-900"
@@ -124,7 +144,12 @@ export function FamilyResults({
         ))}
       </div>
 
-      <div className="mt-6">
+      <div
+        className="mt-6"
+        role="tabpanel"
+        id="family-tabpanel"
+        aria-labelledby={`family-tab-${current}`}
+      >
         {current === "interest" && riasec && <InterestPanel data={riasec} />}
         {current === "stem" && stemPanel}
         {current === "about" && <AboutPanel grade={grade} />}
@@ -161,6 +186,7 @@ function CareersCallout() {
             rel="noreferrer"
           >
             explrpathways.netlify.app
+            <span className="sr-only"> (opens in a new tab)</span>
           </a>
           .
         </li>
@@ -178,7 +204,7 @@ function CareersCallout() {
         rel="noreferrer"
         className="btn-ink mt-4"
       >
-        Search jobs by code →
+        Search jobs by code →<span className="sr-only"> (opens in a new tab)</span>
       </a>
     </div>
   );

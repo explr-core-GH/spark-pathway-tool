@@ -76,7 +76,10 @@ export function FamilyCodePanel() {
       </p>
 
       {fresh && (
-        <div className="mt-4 rounded-[var(--radius-control)] border-2 border-emerald bg-paper-raised p-4">
+        <div
+          role="status"
+          className="mt-4 rounded-[var(--radius-control)] border-2 border-emerald bg-paper-raised p-4"
+        >
           <p className="eyebrow text-green">Your new code · write it down, it only shows once</p>
           <p className="mt-1 font-display text-3xl font-bold tracking-wide">{fresh}</p>
         </div>
@@ -128,6 +131,7 @@ export function FamilyCodePanel() {
                 className="ink-link inline-flex min-h-[44px] items-center"
               >
                 Turn off
+                <span className="sr-only"> code for {r.label || "family"}</span>
               </button>
             </li>
           ))}

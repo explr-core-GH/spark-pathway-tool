@@ -69,7 +69,9 @@ function Inner({ kind, id }: { kind: GroupKind; id: string }) {
   if (group === undefined) {
     return (
       <main className="mx-auto max-w-[1312px] px-4 py-10 sm:px-6 lg:px-8">
-        <p className="text-sm text-ink-500">Loading…</p>
+        <p role="status" className="text-sm text-ink-500">
+          Loading…
+        </p>
       </main>
     );
   }
@@ -114,6 +116,7 @@ function Inner({ kind, id }: { kind: GroupKind; id: string }) {
         {tabs.map((t) => (
           <button
             key={t.id}
+            type="button"
             onClick={() => setTab(t.id)}
             aria-pressed={tab === t.id}
             className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium ${tab === t.id ? "border-ink-900 bg-ink-900 text-paper" : "border-line-strong text-ink-700 hover:border-ink-900 hover:text-ink-900"}`}
@@ -200,6 +203,7 @@ function Overview({
       </section>
 
       <button
+        type="button"
         onClick={onJump}
         className="mt-8 inline-flex min-h-[44px] items-center text-sm font-semibold text-green-deep hover:underline"
       >
@@ -344,6 +348,7 @@ function ClassRoster({
       <div className="relative mt-3 max-w-sm">
         <input
           className="field"
+          aria-label="Add a student by name"
           placeholder="Add a student by name…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -355,6 +360,7 @@ function ClassRoster({
               return (
                 <li key={s.id}>
                   <button
+                    type="button"
                     disabled={already || busy}
                     onClick={() => add(s.id)}
                     className="flex min-h-[44px] w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-paper-sunken disabled:opacity-40"
@@ -419,10 +425,11 @@ function RemovableList({
         >
           {names[id] ?? "…"}
           <button
+            type="button"
             onClick={() => onRemove(id)}
             disabled={busy}
-            aria-label="Remove"
-            className="grid h-6 w-6 place-items-center rounded-full text-ink-500 hover:bg-paper-sunken hover:text-red-700"
+            aria-label={`Remove ${names[id] ?? "student"} from class`}
+            className="grid h-7 w-7 place-items-center rounded-full text-ink-500 hover:bg-paper-sunken hover:text-red-700"
           >
             <X className="h-3.5 w-3.5" aria-hidden />
           </button>

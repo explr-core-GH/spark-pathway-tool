@@ -466,11 +466,15 @@ function CampLoginsAdmin() {
           className="inline-flex min-h-[44px] items-center text-sm font-semibold text-green-deep hover:underline"
         >
           Open the &ldquo;How to log in&rdquo; display page for students &rarr;
+          <span className="sr-only"> (opens in a new tab)</span>
         </a>
       </p>
 
       {status && (
-        <p className="mt-4 rounded-[var(--radius-control)] border border-mint-soft bg-mint-tint px-4 py-2 text-sm text-green-deep">
+        <p
+          role="status"
+          className="mt-4 rounded-[var(--radius-control)] border border-mint-soft bg-mint-tint px-4 py-2 text-sm text-green-deep"
+        >
           {status}
         </p>
       )}
@@ -478,7 +482,7 @@ function CampLoginsAdmin() {
       {/* Bulk action across every camp. */}
       {!loading && logins.length > 0 && (
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <button onClick={printAllFamilyReports} className="btn-ink text-xs">
+          <button type="button" onClick={printAllFamilyReports} className="btn-ink text-xs">
             Print all family reports
           </button>
           <span className="text-xs text-ink-500">
@@ -489,7 +493,9 @@ function CampLoginsAdmin() {
 
       <section className="mt-8">
         {loading ? (
-          <p className="text-sm text-ink-500">Loading…</p>
+          <p role="status" className="text-sm text-ink-500">
+            Loading…
+          </p>
         ) : sessions.length === 0 ? (
           <p className="text-sm text-ink-500">
             No camp sessions synced yet. Run an ExplrMore sync first.
@@ -514,48 +520,58 @@ function CampLoginsAdmin() {
                     </div>
                     {logN > 0 && (
                       <button
+                        type="button"
                         onClick={() => printCards(s.id, s.title)}
                         className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
                       >
-                        Print cards
+                        Print cards<span className="sr-only"> for {s.title}</span>
                       </button>
                     )}
                     {logN > 0 && (
                       <button
+                        type="button"
                         onClick={() => printSheet(s.id, s.title)}
                         className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
                       >
-                        Roster sheet
+                        Roster sheet<span className="sr-only"> for {s.title}</span>
                       </button>
                     )}
                     {reportableCount(s.id) > 0 && (
                       <button
+                        type="button"
                         onClick={() => printFamilyReports(s.id, s.title)}
                         className="inline-flex min-h-[44px] items-center text-xs font-medium text-green-deep hover:underline"
                       >
                         Family reports ({reportableCount(s.id)})
+                        <span className="sr-only"> for {s.title}</span>
                       </button>
                     )}
                     {logN > 0 && (
                       <button
+                        type="button"
                         onClick={() => setExpanded(expanded === s.id ? null : s.id)}
                         aria-expanded={expanded === s.id}
+                        aria-controls={`camp-logins-${s.id}`}
                         className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
                       >
                         {expanded === s.id ? "Hide" : "View"}
+                        <span className="sr-only"> logins for {s.title}</span>
                       </button>
                     )}
                     <button
+                      type="button"
                       onClick={() =>
                         setWalkIn(
                           walkIn?.campId === s.id ? null : { campId: s.id, name: "", age: "" },
                         )
                       }
+                      aria-expanded={walkIn?.campId === s.id}
                       className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
                     >
-                      + Walk-in
+                      + Walk-in<span className="sr-only"> for {s.title}</span>
                     </button>
                     <button
+                      type="button"
                       onClick={() => generate(s.id)}
                       disabled={busy === s.id || regN === 0}
                       className="btn-ink text-xs disabled:opacity-40"
@@ -578,6 +594,7 @@ function CampLoginsAdmin() {
                         <input
                           autoFocus
                           className="field"
+                          aria-label="Walk-in camper name (optional)"
                           placeholder="Name (optional)"
                           value={walkIn.name}
                           onChange={(e) => setWalkIn({ ...walkIn, name: e.target.value })}
@@ -587,18 +604,24 @@ function CampLoginsAdmin() {
                           type="number"
                           min={4}
                           max={18}
+                          aria-label="Walk-in camper age"
                           placeholder="Age"
                           value={walkIn.age}
                           onChange={(e) => setWalkIn({ ...walkIn, age: e.target.value })}
                         />
                         <button
+                          type="button"
                           onClick={submitWalkIn}
                           disabled={busy === `walkin-${s.id}`}
                           className="btn-ink text-xs disabled:opacity-40"
                         >
                           {busy === `walkin-${s.id}` ? "Adding…" : "Add login"}
                         </button>
-                        <button onClick={() => setWalkIn(null)} className="btn-ghost text-xs">
+                        <button
+                          type="button"
+                          onClick={() => setWalkIn(null)}
+                          className="btn-ghost text-xs"
+                        >
                           Cancel
                         </button>
                       </div>
@@ -610,7 +633,7 @@ function CampLoginsAdmin() {
                   )}
 
                   {expanded === s.id && (
-                    <div>
+                    <div id={`camp-logins-${s.id}`}>
                       {/* Assignments — what this roster has been asked to do,
                         including anything cascaded from its instructors. */}
                       <div className="mt-3 rounded-[var(--radius-card)] border border-line bg-paper-sunken p-4">
@@ -631,11 +654,13 @@ function CampLoginsAdmin() {
                         <div className="flex items-center justify-between">
                           <p className="eyebrow">Live monitor</p>
                           <button
+                            type="button"
                             onClick={() => setMonitorOpen(monitorOpen === s.id ? null : s.id)}
                             aria-expanded={monitorOpen === s.id}
                             className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
                           >
                             {monitorOpen === s.id ? "Hide" : "Show"}
+                            <span className="sr-only"> live monitor</span>
                           </button>
                         </div>
                         {monitorOpen === s.id && (
@@ -661,11 +686,13 @@ function CampLoginsAdmin() {
                         <div className="flex items-center justify-between">
                           <p className="eyebrow">Results &amp; timing</p>
                           <button
+                            type="button"
                             onClick={() => setDataOpen(dataOpen === s.id ? null : s.id)}
                             aria-expanded={dataOpen === s.id}
                             className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
                           >
                             {dataOpen === s.id ? "Hide" : "Show"}
+                            <span className="sr-only"> results and timing</span>
                           </button>
                         </div>
                         {dataOpen === s.id && (
@@ -701,6 +728,7 @@ function CampLoginsAdmin() {
                           </select>
                         </label>
                         <button
+                          type="button"
                           onClick={() => exportXlsx(s.id, s.title)}
                           className="inline-flex min-h-[44px] items-center text-xs text-ink-500 underline hover:text-ink-900"
                         >
@@ -722,12 +750,16 @@ function CampLoginsAdmin() {
                       </div>
 
                       {compare?.campId === s.id && (
-                        <div className="mt-3 rounded-[var(--radius-control)] border border-gold bg-gold-tint p-3 text-xs">
+                        <div
+                          role="status"
+                          className="mt-3 rounded-[var(--radius-control)] border border-gold bg-gold-tint p-3 text-xs"
+                        >
                           <div className="flex items-center justify-between">
                             <p className="font-medium">Compared against your list</p>
                             <button
+                              type="button"
                               onClick={() => setCompare(null)}
-                              className="inline-flex min-h-[36px] items-center text-ink-700 underline hover:text-ink-900"
+                              className="inline-flex min-h-[44px] items-center text-ink-700 underline hover:text-ink-900"
                             >
                               Dismiss
                             </button>
@@ -755,14 +787,26 @@ function CampLoginsAdmin() {
 
                       <div className="mt-3 overflow-x-auto rounded-[var(--radius-card)] border border-line">
                         <table className="w-full text-sm">
-                          <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+                          <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-700">
                             <tr>
-                              <th className="px-3 py-2.5 font-medium">Student</th>
-                              <th className="px-3 py-2.5 font-medium">Classroom</th>
-                              <th className="px-3 py-2.5 font-medium">Status</th>
-                              <th className="px-3 py-2.5 font-medium">Username</th>
-                              <th className="px-3 py-2.5 font-medium">Password</th>
-                              <th className="px-3 py-2.5 font-medium">Family report</th>
+                              <th scope="col" className="px-3 py-2.5 font-medium">
+                                Student
+                              </th>
+                              <th scope="col" className="px-3 py-2.5 font-medium">
+                                Classroom
+                              </th>
+                              <th scope="col" className="px-3 py-2.5 font-medium">
+                                Status
+                              </th>
+                              <th scope="col" className="px-3 py-2.5 font-medium">
+                                Username
+                              </th>
+                              <th scope="col" className="px-3 py-2.5 font-medium">
+                                Password
+                              </th>
+                              <th scope="col" className="px-3 py-2.5 font-medium">
+                                Family report
+                              </th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-line bg-paper-raised">
@@ -777,6 +821,7 @@ function CampLoginsAdmin() {
                                         <input
                                           autoFocus
                                           className="field py-1 text-xs"
+                                          aria-label="Student name"
                                           value={editing!.name}
                                           onChange={(e) =>
                                             setEditing({
@@ -790,6 +835,7 @@ function CampLoginsAdmin() {
                                           type="number"
                                           min={4}
                                           max={18}
+                                          aria-label="Student age"
                                           placeholder="Age"
                                           value={editing!.age}
                                           onChange={(e) =>
@@ -800,15 +846,17 @@ function CampLoginsAdmin() {
                                           }
                                         />
                                         <button
+                                          type="button"
                                           onClick={saveEdit}
                                           disabled={busy === `edit-${l.id}`}
-                                          className="text-xs font-medium text-green-deep hover:underline disabled:opacity-40"
+                                          className="inline-flex min-h-[44px] items-center text-xs font-medium text-green-deep hover:underline disabled:opacity-40"
                                         >
-                                          {busy === `edit-${l.id}` ? "…" : "Save"}
+                                          {busy === `edit-${l.id}` ? "Saving…" : "Save"}
                                         </button>
                                         <button
+                                          type="button"
                                           onClick={() => setEditing(null)}
-                                          className="text-xs text-ink-500 hover:underline"
+                                          className="inline-flex min-h-[44px] items-center text-xs text-ink-500 hover:underline"
                                         >
                                           Cancel
                                         </button>
@@ -817,6 +865,7 @@ function CampLoginsAdmin() {
                                       <div className="flex items-center gap-2">
                                         <span>{l.child_name}</span>
                                         <button
+                                          type="button"
                                           onClick={() =>
                                             setEditing({
                                               id: l.id,
@@ -824,9 +873,9 @@ function CampLoginsAdmin() {
                                               age: "",
                                             })
                                           }
-                                          className="text-[11px] text-ink-500 underline hover:text-ink-900"
+                                          className="inline-flex min-h-[44px] items-center px-1 text-[11px] text-ink-500 underline hover:text-ink-900"
                                         >
-                                          edit
+                                          edit<span className="sr-only"> {l.child_name}</span>
                                         </button>
                                       </div>
                                     )}
@@ -861,10 +910,12 @@ function CampLoginsAdmin() {
                                   <td className="px-3 py-2 text-xs">
                                     {hasResult ? (
                                       <button
+                                        type="button"
                                         onClick={() => printFamilyReports(s.id, s.title, l)}
-                                        className="text-green-deep hover:underline"
+                                        className="inline-flex min-h-[44px] items-center text-green-deep hover:underline"
                                       >
                                         Print 1-pager
+                                        <span className="sr-only"> for {l.child_name}</span>
                                       </button>
                                     ) : (
                                       <span className="text-ink-500">Awaiting assessment</span>

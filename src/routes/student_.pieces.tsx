@@ -108,9 +108,13 @@ function Pieces() {
           onSubmit={add}
           className="mt-8 grid gap-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 sm:grid-cols-2"
         >
+          <p className="text-sm text-ink-700 sm:col-span-2">
+            Fields marked <span aria-hidden="true">*</span>
+            <span className="sr-only">with an asterisk</span> are required.
+          </p>
           <div>
             <label className="label" htmlFor="pc-title">
-              What is it?
+              What is it? <span aria-hidden="true">*</span>
             </label>
             <input
               id="pc-title"
@@ -206,7 +210,7 @@ function Pieces() {
                     type="button"
                     aria-pressed={on}
                     onClick={() => setTags(on ? tags.filter((t) => t !== c.key) : [...tags, c.key])}
-                    className={`rounded-full border px-3 py-1.5 text-sm ${on ? "border-emerald bg-mint-tint text-green-deep" : "border-line-strong text-ink-700"}`}
+                    className={`inline-flex min-h-[44px] items-center rounded-full border px-3 text-sm ${on ? "border-emerald bg-mint-tint text-green-deep" : "border-line-strong text-ink-700"}`}
                   >
                     {c.label}
                   </button>
@@ -215,12 +219,12 @@ function Pieces() {
             </div>
           </fieldset>
           {needsConsent && (
-            <label className="flex items-start gap-2 text-sm text-ink-700 sm:col-span-2">
+            <label className="flex min-h-[44px] items-start gap-2 py-2 text-sm text-ink-700 sm:col-span-2">
               <input
                 type="checkbox"
                 checked={consent}
                 onChange={(e) => setConsent(e.target.checked)}
-                className="mt-1"
+                className="mt-0.5 h-5 w-5 shrink-0 accent-green-deep"
               />
               <span>
                 I have permission to share this. If it shows other people, they said yes. If I'm
@@ -257,6 +261,7 @@ function Pieces() {
                 {pc.url ? (
                   <a href={pc.url} target="_blank" rel="noreferrer" className="ink-link">
                     {pc.title}
+                    <span className="sr-only"> (opens in a new tab)</span>
                   </a>
                 ) : (
                   pc.title
@@ -270,9 +275,9 @@ function Pieces() {
                 <button
                   type="button"
                   onClick={() => remove(pc.id)}
-                  className="text-xs text-ink-500 hover:text-ink-900"
+                  className="inline-flex min-h-[44px] items-center px-2 text-xs text-ink-500 hover:text-ink-900"
                 >
-                  Remove
+                  Remove<span className="sr-only"> {pc.title}</span>
                 </button>
               </div>
             </li>

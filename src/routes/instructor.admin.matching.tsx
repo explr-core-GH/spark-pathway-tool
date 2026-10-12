@@ -345,7 +345,11 @@ function Matching() {
         </button>
       </div>
 
-      {loading && <p className="mt-8 text-sm text-ink-500">Loading…</p>}
+      {loading && (
+        <p role="status" className="mt-8 text-sm text-ink-500">
+          Loading…
+        </p>
+      )}
       {!loading && targets.length === 0 && (
         <p className="mt-8 text-sm text-ink-500">No open internship requests yet.</p>
       )}
@@ -361,6 +365,7 @@ function Matching() {
                   type="button"
                   onClick={() => setOpen(isOpen ? null : t.ref)}
                   aria-expanded={isOpen}
+                  aria-controls={`match-${t.ref.replace(/[^a-zA-Z0-9_-]/g, "-")}`}
                   className="flex w-full items-center gap-4 px-4 py-4 text-left hover:bg-paper-sunken"
                 >
                   <span className="min-w-0 flex-1">
@@ -376,7 +381,10 @@ function Matching() {
                   </span>
                 </button>
                 {isOpen && (
-                  <ol className="divide-y divide-line border-t border-line bg-paper-sunken px-4">
+                  <ol
+                    id={`match-${t.ref.replace(/[^a-zA-Z0-9_-]/g, "-")}`}
+                    className="divide-y divide-line border-t border-line bg-paper-sunken px-4"
+                  >
                     {list.map((o) => (
                       <li key={o.studentId} className="py-3">
                         <OutcomeRow
@@ -481,19 +489,17 @@ function OutcomeRow({
       <div className="flex items-center gap-2">
         <span className="text-xs text-ink-500">{status}</span>
         {status !== "approved" && (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={onApprove}
-            className="btn-ink text-xs"
-            title={o.eligible ? "" : "Fails a hard requirement; approve only if you've resolved it"}
-          >
+          <button type="button" disabled={busy} onClick={onApprove} className="btn-ink text-xs">
             Approve
+            {name ? <span className="sr-only"> {name}</span> : null}
+            {!o.eligible && (
+              <span className="sr-only"> (fails a hard requirement; approve only if resolved)</span>
+            )}
           </button>
         )}
         {status !== "denied" && (
           <button type="button" disabled={busy} onClick={onDeny} className="btn-ghost text-xs">
-            Deny
+            Deny{name ? <span className="sr-only"> {name}</span> : null}
           </button>
         )}
       </div>

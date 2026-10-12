@@ -115,11 +115,12 @@ function SignIn() {
             autoCorrect="off"
             spellCheck={false}
             autoComplete="username"
+            aria-describedby="signin-username-hint"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="e.g. maya42"
           />
-          <p className="mt-1.5 text-xs text-ink-500">
+          <p id="signin-username-hint" className="mt-1.5 text-xs text-ink-500">
             Camp kids: type the short username from your card.
           </p>
         </div>
@@ -134,6 +135,7 @@ function SignIn() {
               type={showPw ? "text" : "password"}
               required
               autoComplete="current-password"
+              aria-describedby="signin-password-hint"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -147,7 +149,7 @@ function SignIn() {
               {showPw ? "Hide" : "Show"}
             </button>
           </div>
-          <p className="mt-1.5 text-xs text-ink-500">
+          <p id="signin-password-hint" className="mt-1.5 text-xs text-ink-500">
             Tap &ldquo;Show&rdquo; to check the password if sign-in isn&apos;t working.
           </p>
         </div>

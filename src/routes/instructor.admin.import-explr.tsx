@@ -201,8 +201,16 @@ function ImportExplrPage() {
         >
           {syncing ? "Syncing…" : "Sync now"}
         </button>
-        {msg && <span className="text-sm text-green-deep">{msg}</span>}
-        {err && <span className="text-sm text-red-700">{err}</span>}
+        {msg && (
+          <span role="status" className="text-sm text-green-deep">
+            {msg}
+          </span>
+        )}
+        {err && (
+          <span role="alert" className="text-sm text-red-700">
+            {err}
+          </span>
+        )}
       </div>
 
       <p className="mt-3 text-sm text-ink-700">
@@ -259,13 +267,23 @@ function ImportExplrPage() {
 
       <div className="mt-8 overflow-x-auto rounded-[var(--radius-card)] border border-line">
         <table className="w-full text-sm">
-          <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500">
+          <thead className="bg-paper-sunken text-left font-mono text-[11px] uppercase tracking-[0.08em] text-ink-700">
             <tr>
-              <th className="py-3 pl-4 pr-1 font-medium" />
-              <th className="px-3 py-3 font-medium">Camp</th>
-              <th className="px-3 py-3 font-medium">Date</th>
-              <th className="px-3 py-3 font-medium">Roster</th>
-              <th className="px-3 py-3 font-medium">Instructors</th>
+              <th scope="col" className="py-3 pl-4 pr-1 font-medium">
+                <span className="sr-only">Expand</span>
+              </th>
+              <th scope="col" className="px-3 py-3 font-medium">
+                Camp
+              </th>
+              <th scope="col" className="px-3 py-3 font-medium">
+                Date
+              </th>
+              <th scope="col" className="px-3 py-3 font-medium">
+                Roster
+              </th>
+              <th scope="col" className="px-3 py-3 font-medium">
+                Instructors
+              </th>
             </tr>
           </thead>
           <tbody className="bg-paper-raised">
@@ -288,8 +306,9 @@ function ImportExplrPage() {
                           type="button"
                           onClick={() => setExpandedId(isOpen ? null : c.id)}
                           className="grid h-9 w-9 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-ink-900"
-                          aria-label={isOpen ? "Collapse" : "Expand"}
+                          aria-label={`${isOpen ? "Collapse" : "Expand"} ${c.title}`}
                           aria-expanded={isOpen}
+                          aria-controls={`camp-detail-${c.id}`}
                         >
                           <ChevronDown
                             className={`h-4 w-4 transition-transform ${isOpen ? "" : "-rotate-90"}`}
@@ -330,7 +349,10 @@ function ImportExplrPage() {
                     </tr>
 
                     {isOpen && (
-                      <tr className="border-t border-line bg-paper-sunken">
+                      <tr
+                        id={`camp-detail-${c.id}`}
+                        className="border-t border-line bg-paper-sunken"
+                      >
                         <td className="px-4 py-5" colSpan={5}>
                           {/* Roster health — ExplrMore registrations vs generated
                               logins, so a missing kid is diagnosable at a glance. */}
@@ -356,18 +378,19 @@ function ImportExplrPage() {
                                   {educators.map((e) => {
                                     const on = assignedSet.has(e.id);
                                     return (
-                                      <li
-                                        key={e.id}
-                                        className="flex min-h-[40px] items-center gap-2 px-2 py-1"
-                                      >
-                                        <input
-                                          type="checkbox"
-                                          className="h-4 w-4 accent-green"
-                                          checked={on}
-                                          onChange={() => toggleEducator(c.id, e.id, !on)}
-                                        />
-                                        <span className="text-sm text-ink-900">{e.full_name}</span>
-                                        <span className="text-xs text-ink-500">{e.email}</span>
+                                      <li key={e.id}>
+                                        <label className="flex min-h-[44px] cursor-pointer items-center gap-2 px-2 py-1">
+                                          <input
+                                            type="checkbox"
+                                            className="h-5 w-5 shrink-0 accent-green"
+                                            checked={on}
+                                            onChange={() => toggleEducator(c.id, e.id, !on)}
+                                          />
+                                          <span className="text-sm text-ink-900">
+                                            {e.full_name}
+                                          </span>
+                                          <span className="text-xs text-ink-500">{e.email}</span>
+                                        </label>
                                       </li>
                                     );
                                   })}
@@ -423,7 +446,11 @@ function RosterHealth({ campId }: { campId: string }) {
   }, [campId]);
 
   if (!regs || !logins) {
-    return <p className="mt-2 text-xs text-ink-500">Checking roster health…</p>;
+    return (
+      <p role="status" className="mt-2 text-xs text-ink-500">
+        Checking roster health…
+      </p>
+    );
   }
 
   const regIds = new Set(regs.map((r) => r.id));

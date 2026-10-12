@@ -140,16 +140,26 @@ function StampPage() {
       <PortalHeader role="Supervisor" links={[{ label: "About", to: "/about" }]} />
       <main className="mx-auto w-full max-w-[900px] flex-1 px-4 py-10 sm:px-6 lg:px-8">
         {error && (
-          <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 shadow-card">
+          <div
+            role="alert"
+            className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 shadow-card"
+          >
             <p className="eyebrow">Supervisor verification</p>
             <h1 className="mt-2 font-display text-2xl font-bold">This link didn't work.</h1>
             <p className="mt-2 text-ink-700">{error}</p>
           </div>
         )}
-        {!error && !view && <p className="text-ink-500">Loading…</p>}
+        {!error && !view && (
+          <p role="status" className="text-ink-500">
+            Loading…
+          </p>
+        )}
 
         {done === "stamped" && (
-          <div className="flex flex-col items-center rounded-[var(--radius-card)] border border-line bg-paper-raised p-8 text-center shadow-card">
+          <div
+            role="status"
+            className="flex flex-col items-center rounded-[var(--radius-card)] border border-line bg-paper-raised p-8 text-center shadow-card"
+          >
             <Stamp label="Verified · thank you" />
             <h1 className="mt-4 font-display text-3xl font-bold">Stamped.</h1>
             <p className="mx-auto mt-2 max-w-md text-ink-700">
@@ -166,7 +176,10 @@ function StampPage() {
           </div>
         )}
         {done === "declined" && (
-          <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-8 text-center shadow-card">
+          <div
+            role="status"
+            className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-8 text-center shadow-card"
+          >
             <h1 className="font-display text-3xl font-bold">Thanks for letting us know.</h1>
             <p className="mx-auto mt-2 max-w-md text-ink-700">
               The student will see that this wasn't verified and why.
@@ -212,10 +225,14 @@ function StampPage() {
 
             {!declining ? (
               <form onSubmit={submit} className="mt-6 flex flex-col gap-6">
+                <p className="text-sm text-ink-700">
+                  Fields marked <span aria-hidden="true">*</span>
+                  <span className="sr-only">with an asterisk</span> are required.
+                </p>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div>
                     <label className="label" htmlFor="st-hours">
-                      Hours you can confirm
+                      Hours you can confirm <span aria-hidden="true">*</span>
                     </label>
                     <input
                       id="st-hours"
@@ -226,8 +243,9 @@ function StampPage() {
                       value={hours}
                       onChange={(e) => setHours(e.target.value)}
                       required
+                      aria-describedby="st-hours-hint"
                     />
-                    <p className="mt-1 text-xs text-ink-500">
+                    <p id="st-hours-hint" className="mt-1 text-xs text-ink-500">
                       Adjust if the student's number is off. This is what counts toward Ohio's 250
                       hours.
                     </p>
@@ -286,7 +304,7 @@ function StampPage() {
                                   <span className="font-medium">{skill}</span>
                                   <div
                                     className="flex flex-wrap gap-2"
-                                    role="radiogroup"
+                                    role="group"
                                     aria-label={`${skill} rating`}
                                   >
                                     <button
@@ -314,6 +332,7 @@ function StampPage() {
                                   <input
                                     className="field mt-2"
                                     placeholder="What would move this up a level?"
+                                    aria-label={`${skill}: what would move this up a level? (required for a 1 or 2)`}
                                     value={r.comment}
                                     maxLength={600}
                                     onChange={(e) =>
@@ -349,12 +368,13 @@ function StampPage() {
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div>
                     <label className="label" htmlFor="st-name">
-                      Your name
+                      Your name <span aria-hidden="true">*</span>
                     </label>
                     <input
                       id="st-name"
                       className="field"
                       required
+                      autoComplete="name"
                       maxLength={120}
                       value={name}
                       onChange={(e) => setName(e.target.value)}
@@ -367,6 +387,7 @@ function StampPage() {
                     <input
                       id="st-title"
                       className="field"
+                      autoComplete="organization-title"
                       maxLength={120}
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}

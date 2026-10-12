@@ -90,6 +90,10 @@ function Credentials() {
           onSubmit={add}
           className="mt-8 grid gap-4 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 sm:grid-cols-2"
         >
+          <p className="text-sm text-ink-700 sm:col-span-2">
+            Fields marked <span aria-hidden="true">*</span>
+            <span className="sr-only">with an asterisk</span> are required.
+          </p>
           <div>
             <label className="label" htmlFor="cred-type">
               Type
@@ -109,7 +113,7 @@ function Credentials() {
           </div>
           <div>
             <label className="label" htmlFor="cred-title">
-              Name
+              Name <span aria-hidden="true">*</span>
             </label>
             <input
               id="cred-title"
@@ -213,9 +217,9 @@ function Credentials() {
               <button
                 type="button"
                 onClick={() => remove(c.id)}
-                className="text-xs text-ink-500 hover:text-ink-900"
+                className="inline-flex min-h-[44px] items-center px-2 text-xs text-ink-500 hover:text-ink-900"
               >
-                Remove
+                Remove<span className="sr-only"> {c.title}</span>
               </button>
             </li>
           ))}

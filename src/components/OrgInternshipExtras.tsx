@@ -164,6 +164,7 @@ export function OrgInternshipExtras({
                         >
                           {l.label || l.url}
                           <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                          <span className="sr-only"> (opens in a new tab)</span>
                         </a>
                       </li>
                     ))}
@@ -222,15 +223,16 @@ function FormRow({
             rel="noreferrer"
             className="inline-flex min-h-[44px] items-center text-sm font-medium text-green-deep hover:underline"
           >
-            Download
+            Download<span className="sr-only"> {form.name} (opens in a new tab)</span>
           </a>
         )}
-        <label className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-[var(--radius-control)] border border-dashed border-line-strong bg-paper-raised px-3 text-sm hover:border-ink-900">
+        <label className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-[var(--radius-control)] border border-dashed border-line-strong bg-paper-raised px-3 text-sm hover:border-ink-900 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2">
           <Upload className="h-4 w-4 text-ink-500" aria-hidden />
           {completion?.completed_file_url ? "Replace upload" : "Upload completed"}
           <input
             type="file"
-            className="hidden"
+            aria-label={`${completion?.completed_file_url ? "Replace" : "Upload"} completed ${form.name}`}
+            className="sr-only"
             onChange={(e) => {
               const file = e.target.files?.[0];
               if (file) onUpload(file);
@@ -251,6 +253,8 @@ function FormRow({
               <input
                 className="field w-56"
                 placeholder="Type your full name to sign"
+                aria-label={`Type your full name to sign ${form.name}`}
+                autoComplete="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -268,7 +272,10 @@ function FormRow({
       )}
 
       {completion?.completed_file_url && (
-        <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-green-deep">
+        <p
+          role="status"
+          className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-green-deep"
+        >
           <Check className="h-3.5 w-3.5" aria-hidden /> Uploaded
         </p>
       )}

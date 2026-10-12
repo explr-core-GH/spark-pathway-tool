@@ -45,7 +45,10 @@ function ManageEducator() {
 
   if (!ed)
     return (
-      <main className="mx-auto max-w-[1312px] px-4 py-24 text-sm text-ink-500 sm:px-6 lg:px-8">
+      <main
+        role="status"
+        className="mx-auto max-w-[1312px] px-4 py-24 text-sm text-ink-500 sm:px-6 lg:px-8"
+      >
         Loading…
       </main>
     );
@@ -69,18 +72,34 @@ function ManageEducator() {
             someone an admin, invite them as an admin from
             /educator/admin/invites. */}
         <div>
-          <label className="label">Role</label>
-          <input className="field bg-paper-sunken text-ink-500" value="instructor" readOnly />
+          <label className="label" htmlFor="ed-role">
+            Role
+          </label>
+          <input
+            id="ed-role"
+            className="field bg-paper-sunken text-ink-700"
+            value="instructor"
+            readOnly
+          />
         </div>
         <div>
-          <label className="label">Approved</label>
-          <button onClick={() => update({ approved: !ed.approved })} className="btn-ghost">
+          <p className="label">Approved</p>
+          <button
+            type="button"
+            onClick={() => update({ approved: !ed.approved })}
+            aria-pressed={ed.approved}
+            className="btn-ghost"
+          >
             {ed.approved ? "Approved · revoke" : "Approve"}
           </button>
         </div>
         <div className="sm:col-span-2">
-          <label className="label">Organization</label>
+          <label className="label" htmlFor="ed-org">
+            Organization
+          </label>
           <input
+            id="ed-org"
+            autoComplete="organization"
             className="field"
             value={ed.organization ?? ""}
             onChange={(e) => setEd({ ...ed, organization: e.target.value })}
@@ -97,7 +116,11 @@ function ManageEducator() {
           initialName={ed.school_name}
         />
       </section>
-      {status && <p className="mt-6 text-sm text-ink-700">{status}</p>}
+      {status && (
+        <p role="status" className="mt-6 text-sm text-ink-700">
+          {status}
+        </p>
+      )}
     </main>
   );
 }

@@ -143,9 +143,10 @@ export function SchoolSearch({
         <button
           type="button"
           onClick={clear}
-          className="inline-flex min-h-[36px] items-center font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-green-deep hover:underline"
+          className="inline-flex min-h-[44px] items-center font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-green-deep hover:underline"
         >
           Change
+          <span className="sr-only"> school</span>
         </button>
       </div>
     );
@@ -185,7 +186,7 @@ export function SchoolSearch({
         disabled={missing}
       />
       {missing && (
-        <p className="text-xs text-ink-500">
+        <p role="status" className="text-xs text-ink-500">
           The Ohio school directory is not available right now.
         </p>
       )}

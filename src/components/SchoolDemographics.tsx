@@ -120,13 +120,20 @@ export function SchoolDemographics({ irn }: Props) {
 
   if (missing) {
     return (
-      <div className="rounded-[var(--radius-control)] border border-gold bg-gold-tint px-4 py-3 text-sm text-ink-900">
+      <div
+        role="status"
+        className="rounded-[var(--radius-control)] border border-gold bg-gold-tint px-4 py-3 text-sm text-ink-900"
+      >
         School details not found.
       </div>
     );
   }
   if (!data) {
-    return <div className="text-sm text-ink-500">Loading school details…</div>;
+    return (
+      <div role="status" className="text-sm text-ink-500">
+        Loading school details…
+      </div>
+    );
   }
 
   const r = data.ratings ?? {};

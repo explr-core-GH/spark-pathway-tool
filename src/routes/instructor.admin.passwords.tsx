@@ -179,15 +179,16 @@ function AccountsAdmin() {
             </button>
           </div>
         </div>
-        <div>
-          <label className="label">
+        <fieldset>
+          <legend className="label">
             Connect to internships <span className="text-ink-500">(optional)</span>
-          </label>
+          </legend>
           <div className="mt-1 max-h-40 space-y-1 overflow-y-auto rounded-[var(--radius-control)] border border-line bg-paper-sunken p-2">
             {options.map((o) => (
-              <label key={o.ref} className="flex min-h-[36px] items-center gap-2 px-1 text-sm">
+              <label key={o.ref} className="flex min-h-[44px] items-center gap-2 px-1 text-sm">
                 <input
                   type="checkbox"
+                  className="h-5 w-5 shrink-0 accent-green-deep"
                   checked={cSlugs.includes(o.ref)}
                   onChange={(e) =>
                     setCSlugs((prev) =>
@@ -203,7 +204,7 @@ function AccountsAdmin() {
             They&apos;ll see these rosters on &ldquo;Rate your interns.&rdquo; You can also connect
             later from each internship&apos;s Educators tab.
           </p>
-        </div>
+        </fieldset>
 
         {cErr && (
           <p className="text-sm text-red-700" role="alert">
@@ -219,7 +220,10 @@ function AccountsAdmin() {
         </button>
 
         {createdCreds && (
-          <div className="rounded-[var(--radius-control)] border border-mint-soft bg-mint-tint px-4 py-3 text-sm text-green-deep">
+          <div
+            role="status"
+            className="rounded-[var(--radius-control)] border border-mint-soft bg-mint-tint px-4 py-3 text-sm text-green-deep"
+          >
             <p className="font-medium">Account created — hand them these credentials:</p>
             <p className="mt-1 font-mono text-xs">
               {createdCreds.email} · {createdCreds.password}
@@ -290,7 +294,10 @@ function AccountsAdmin() {
         </div>
 
         {msg && (
-          <div className="rounded-[var(--radius-control)] border border-mint-soft bg-mint-tint px-3 py-2 text-sm text-green-deep">
+          <div
+            role="status"
+            className="rounded-[var(--radius-control)] border border-mint-soft bg-mint-tint px-3 py-2 text-sm text-green-deep"
+          >
             {msg}
             {resetCreds &&
               resetCreds.email.includes("@") &&

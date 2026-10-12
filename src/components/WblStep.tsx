@@ -462,7 +462,10 @@ export function WblStep(p: Props) {
       )}
 
       {issues.length > 0 && (
-        <div className="rounded-[var(--radius-control)] bg-gold-tint p-4 text-sm text-ink-900">
+        <div
+          aria-live="polite"
+          className="rounded-[var(--radius-control)] bg-gold-tint p-4 text-sm text-ink-900"
+        >
           <p className="font-medium">Before this can be submitted:</p>
           <ul className="mt-1 list-disc pl-5">
             {issues.map((i) => (
@@ -498,12 +501,14 @@ function Field({
     <div>
       <label className="label" htmlFor={id}>
         {label}
-        {required ? " *" : ""}
+        {required ? <span aria-hidden="true"> *</span> : null}
+        {required ? <span className="sr-only"> (required)</span> : null}
       </label>
       {textarea ? (
         <textarea
           id={id}
           className="field min-h-[80px]"
+          aria-describedby={hint ? `${id}-hint` : undefined}
           value={value}
           onChange={(e) => onChange(e.target.value)}
         />
@@ -512,11 +517,16 @@ function Field({
           id={id}
           type={type}
           className="field"
+          aria-describedby={hint ? `${id}-hint` : undefined}
           value={value}
           onChange={(e) => onChange(e.target.value)}
         />
       )}
-      {hint && <p className="mt-1 text-xs text-ink-500">{hint}</p>}
+      {hint && (
+        <p id={`${id}-hint`} className="mt-1 text-xs text-ink-500">
+          {hint}
+        </p>
+      )}
     </div>
   );
 }
@@ -534,7 +544,7 @@ function Check({
 }) {
   return (
     <label
-      className={`flex items-start gap-2 ${small ? "py-1 text-xs" : "min-h-[44px] py-2 text-sm"} text-ink-700`}
+      className={`flex items-start gap-2 ${small ? "min-h-[32px] py-1 text-xs" : "min-h-[44px] py-2 text-sm"} text-ink-700`}
     >
       <input
         type="checkbox"

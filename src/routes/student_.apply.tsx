@@ -236,7 +236,11 @@ function SelectPage() {
   }
 
   if (authLoading || loading) {
-    return <main className="mx-auto max-w-3xl px-6 py-24 text-sm text-ink-500">Loading…</main>;
+    return (
+      <main role="status" className="mx-auto max-w-3xl px-6 py-24 text-sm text-ink-500">
+        Loading…
+      </main>
+    );
   }
 
   return (
@@ -298,7 +302,10 @@ function SelectPage() {
         )}
 
         {done ? (
-          <div className="mt-10 rounded-[var(--radius-card)] border border-mint-soft bg-mint-tint p-6">
+          <div
+            role="status"
+            className="mt-10 rounded-[var(--radius-card)] border border-mint-soft bg-mint-tint p-6"
+          >
             <p className="font-display text-xl font-semibold text-green-deep">
               Requests submitted.
             </p>
@@ -306,7 +313,11 @@ function SelectPage() {
               An admin will review them. You&apos;ll be able to complete the application for each
               one that&apos;s approved.
             </p>
-            <button onClick={() => navigate({ to: "/student" })} className="btn-ink mt-4">
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/student" })}
+              className="btn-ink mt-4"
+            >
               Back to my passport
             </button>
           </div>
@@ -322,6 +333,7 @@ function SelectPage() {
                   <h2 className="font-display text-xl font-semibold">Your ranked choices</h2>
                 </div>
                 <span
+                  role="status"
                   className={`inline-flex items-center rounded-full px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] ${
                     selected.length >= MIN_CHOICES
                       ? "bg-mint-tint text-green-deep"
@@ -357,7 +369,7 @@ function SelectPage() {
                           onClick={() => move(ref, -1)}
                           disabled={idx === 0}
                           className="grid h-11 w-11 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-ink-900 disabled:opacity-30"
-                          aria-label="Move up"
+                          aria-label={`Move ${nameByRef(ref)} up`}
                         >
                           <ArrowUp className="h-4 w-4" aria-hidden />
                         </button>
@@ -366,7 +378,7 @@ function SelectPage() {
                           onClick={() => move(ref, 1)}
                           disabled={idx === selected.length - 1}
                           className="grid h-11 w-11 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-ink-900 disabled:opacity-30"
-                          aria-label="Move down"
+                          aria-label={`Move ${nameByRef(ref)} down`}
                         >
                           <ArrowDown className="h-4 w-4" aria-hidden />
                         </button>
@@ -374,7 +386,7 @@ function SelectPage() {
                           type="button"
                           onClick={() => toggle(ref)}
                           className="grid h-11 w-11 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-red-700"
-                          aria-label="Remove"
+                          aria-label={`Remove ${nameByRef(ref)}`}
                         >
                           <X className="h-4 w-4" aria-hidden />
                         </button>

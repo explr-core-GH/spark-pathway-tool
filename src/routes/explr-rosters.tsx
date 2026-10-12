@@ -111,9 +111,13 @@ function ExplrRostersPage() {
           Camp
         </label>
         {campsLoading ? (
-          <p className="text-sm text-ink-500">Loading camps…</p>
+          <p role="status" className="text-sm text-ink-500">
+            Loading camps…
+          </p>
         ) : campsErr ? (
-          <p className="text-sm text-red-700">Failed to load camps: {campsErr}</p>
+          <p role="alert" className="text-sm text-red-700">
+            Failed to load camps: {campsErr}
+          </p>
         ) : (
           <select
             id="camp-select"
@@ -131,7 +135,11 @@ function ExplrRostersPage() {
         )}
       </section>
 
-      {rosterErr && <p className="text-sm text-red-700">Error: {rosterErr}</p>}
+      {rosterErr && (
+        <p role="alert" className="text-sm text-red-700">
+          Error: {rosterErr}
+        </p>
+      )}
 
       <RosterTable
         title={`Roster (${roster.length})`}
@@ -164,7 +172,9 @@ function RosterTable({
     <section className="space-y-3">
       <h2 className="font-display text-2xl font-bold">{title}</h2>
       {loading ? (
-        <p className="text-sm text-ink-500">Loading…</p>
+        <p role="status" className="text-sm text-ink-500">
+          Loading…
+        </p>
       ) : rows.length === 0 ? (
         <p className="text-sm text-ink-500">No entries.</p>
       ) : (
@@ -173,7 +183,9 @@ function RosterTable({
             <TableHeader>
               <TableRow>
                 {columns.map((c) => (
-                  <TableHead key={c}>{c}</TableHead>
+                  <TableHead key={c} scope="col">
+                    {c}
+                  </TableHead>
                 ))}
               </TableRow>
             </TableHeader>

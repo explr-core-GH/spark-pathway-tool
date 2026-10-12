@@ -106,7 +106,11 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 function Loading() {
-  return <p className="text-sm text-ink-500">Loading…</p>;
+  return (
+    <p role="status" className="text-sm text-ink-500">
+      Loading…
+    </p>
+  );
 }
 function Empty({ children }: { children: React.ReactNode }) {
   return <p className="text-sm text-ink-500">{children}</p>;

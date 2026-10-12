@@ -157,7 +157,12 @@ export function SurveyResultsPanel({ studentId }: { studentId: string }) {
     };
   }, [studentId]);
 
-  if (cards === null) return <p className="mt-3 text-sm text-ink-500">Loading survey results…</p>;
+  if (cards === null)
+    return (
+      <p role="status" className="mt-3 text-sm text-ink-500">
+        Loading survey results…
+      </p>
+    );
   if (cards.length === 0) {
     return (
       <p className="mt-3 text-sm text-ink-500">
