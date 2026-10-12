@@ -119,7 +119,8 @@ function DemoPage() {
         navigate({ to: "/family/view", search: { t: r.token } });
         return;
       }
-      await supabase.auth.signOut();
+      // verifyOtp replaces the current session, so no sign-out first — if it
+      // fails, an admin stays signed in and keeps the seed controls.
       const { error: otpErr } = await supabase.auth.verifyOtp({
         token_hash: r.tokenHash,
         type: "magiclink",
@@ -293,6 +294,16 @@ function DemoPage() {
           </div>
         </section>
 
+        {!isAdmin && (
+          <p className="mt-12 text-sm text-ink-500">
+            EXPLR admins:{" "}
+            <Link to="/instructor/sign-in" className="ink-link">
+              sign in
+            </Link>{" "}
+            and come back here to seed or reset the demo data. Entering a demo role replaces your
+            own session, so sign back in as yourself afterwards.
+          </p>
+        )}
         {isAdmin && (
           <section className="mt-16 rounded-[var(--radius-card)] border border-line bg-paper-sunken p-6">
             <p className="eyebrow">Admin</p>
@@ -311,9 +322,10 @@ function DemoPage() {
                 <RefreshCw className="h-4 w-4" aria-hidden />
                 {busy === "seed" ? "Seeding…" : seeded ? "Re-seed demo data" : "Seed demo data"}
               </button>
-              <label className="flex items-center gap-2 text-sm text-ink-700">
+              <label className="flex min-h-[44px] items-center gap-2 text-sm text-ink-700">
                 <input
                   type="checkbox"
+                  className="h-5 w-5 accent-green-deep"
                   checked={reset}
                   onChange={(e) => setReset(e.target.checked)}
                 />
