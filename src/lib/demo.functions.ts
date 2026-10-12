@@ -435,6 +435,7 @@ export const seedDemo = createServerFn({ method: "POST" })
           decided_at: daysAgo(58),
         },
         {
+          id: randomUUID(),
           org_id: partnerId,
           org_name: DEMO.partner.org,
           type: "workshop",
@@ -467,8 +468,11 @@ export const seedDemo = createServerFn({ method: "POST" })
           experience_type: "career_day_speaker_fair",
           wbl: { site: { transportationNotes: "School buses welcome; drop-off at Door C." } },
           target_competencies: [],
+          gate_status: "pending",
+          gate_evidence: null,
           status: "submitted",
           submitted_at: daysAgo(2),
+          decided_at: null,
         },
       ]),
       "opportunities",
@@ -522,6 +526,8 @@ export const seedDemo = createServerFn({ method: "POST" })
     const internshipExpId = randomUUID();
     const campExpId = randomUUID();
     await must(
+      // Multi-row inserts through PostgREST send null for any key missing on a
+      // row, which skips column defaults — so every row carries its own id.
       sb("experiences").insert([
         {
           id: internshipExpId,
@@ -561,6 +567,7 @@ export const seedDemo = createServerFn({ method: "POST" })
           },
         },
         {
+          id: randomUUID(),
           student_id: studentId,
           source: "external",
           title: "Pharmacy job shadow",
@@ -582,6 +589,7 @@ export const seedDemo = createServerFn({ method: "POST" })
           status: "pending_supervisor",
         },
         {
+          id: randomUUID(),
           student_id: studentId,
           source: "external",
           title: "Hospital Career Day",
@@ -631,6 +639,7 @@ export const seedDemo = createServerFn({ method: "POST" })
           },
         },
         {
+          id: randomUUID(),
           student_id: explorerId,
           source: "external",
           title: "Interview with a veterinarian",
@@ -648,6 +657,7 @@ export const seedDemo = createServerFn({ method: "POST" })
           status: "self_reported",
         },
         {
+          id: randomUUID(),
           student_id: explorerId,
           source: "external",
           title: "Zoo career day",
@@ -821,9 +831,30 @@ export const seedDemo = createServerFn({ method: "POST" })
           status: "submitted",
           submitted_at: daysAgo(3),
         },
-        { student_id: studentId, school_year: sy, term: "spring", grade: 11 },
-        { student_id: explorerId, school_year: sy, term: "fall", grade: 6 },
-        { student_id: explorerId, school_year: sy, term: "spring", grade: 6 },
+        {
+          student_id: studentId,
+          school_year: sy,
+          term: "spring",
+          grade: 11,
+          status: "open",
+          submitted_at: null,
+        },
+        {
+          student_id: explorerId,
+          school_year: sy,
+          term: "fall",
+          grade: 6,
+          status: "open",
+          submitted_at: null,
+        },
+        {
+          student_id: explorerId,
+          school_year: sy,
+          term: "spring",
+          grade: 6,
+          status: "open",
+          submitted_at: null,
+        },
       ])
       .select("id, student_id, term");
     if (cpErr) throw new Error(`checkpoints: ${cpErr.message}`);
@@ -933,10 +964,19 @@ export const demoLogin = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ role: z.enum(DEMO_ROLES) }).parse(input))
   .handler(async ({ data }) => {
     if (data.role === "family") {
-      const { data: link } = await sb("family_links")
-        .select("id")
-        .eq("code_hash", familyCodeHash(DEMO.familyCodes.student))
-        .maybeSingle();
+      // Look the link up by the demo student rather than by code hash, so the
+      // one-click family demo works even when the rows were seeded outside
+      // this server (the typed-in code still needs the server's hash).
+      const student = (await listDemoUsers()).find((u) => u.email === DEMO.student.email);
+      const { data: link } = student
+        ? await sb("family_links")
+            .select("id")
+            .eq("student_id", student.id)
+            .is("revoked_at", null)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle()
+        : { data: null };
       if (!link) throw new Error("The demo isn't seeded yet. Ask an EXPLR admin to seed it.");
       const token = randomBytes(32).toString("base64url");
       await must(
