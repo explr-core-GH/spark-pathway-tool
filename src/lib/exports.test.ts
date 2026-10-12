@@ -65,6 +65,8 @@ function passport(over: Partial<Passport> = {}): Passport {
     grade: 11,
     band: "pro",
     aboutMe: null,
+    avatarEmoji: null,
+    photoUrl: null,
     joinedAt: "2025-09-01T00:00:00Z",
     hollandCode: "ICS",
     experiences,

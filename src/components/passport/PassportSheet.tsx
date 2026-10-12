@@ -112,7 +112,15 @@ function ExperienceRow({ e }: { e: Experience }) {
  * spec: 9-12 leads with Readiness Seal progress and hours toward 250; 4-8
  * leads with exploration breadth and interest fit, with no behavior ratings.
  */
-export function PassportSheet({ p, onEditAbout }: { p: Passport; onEditAbout?: () => void }) {
+export function PassportSheet({
+  p,
+  onEditAbout,
+  onEditPicture,
+}: {
+  p: Passport;
+  onEditAbout?: () => void;
+  onEditPicture?: () => void;
+}) {
   const explore = p.band === "explore";
   const topInterests =
     (
@@ -128,21 +136,51 @@ export function PassportSheet({ p, onEditAbout }: { p: Passport; onEditAbout?: (
     >
       {/* Header */}
       <header className="flex flex-wrap items-start justify-between gap-6">
-        <div className="flex min-w-0 flex-col gap-2">
-          <p className="eyebrow text-green">
-            {explore ? "Your passport" : "Student passport"}
-            {p.grade ? ` · Grade ${p.grade}` : ""}
-          </p>
-          <h1 className="font-display text-[44px] font-extrabold leading-none tracking-tight sm:text-[56px]">
-            {explore ? `Hi, ${p.firstName}!` : p.firstName}
-          </h1>
-          <div className="mt-2 flex flex-wrap items-center gap-3">
-            <Stamp label={`Pathways start here · ${MONTH(p.joinedAt)}`} rotate={-4} />
-            <span className="text-sm text-ink-700">
-              {explore
-                ? `${p.exposure.length} place${p.exposure.length === 1 ? "" : "s"} explored · ${stamps.length} stamp${stamps.length === 1 ? "" : "s"} collected`
-                : `${Math.round(p.verifiedHours)} verified hours · ${p.exposure.length} places explored · ${p.credentials.length} credential${p.credentials.length === 1 ? "" : "s"}`}
-            </span>
+        <div className="flex min-w-0 items-start gap-5">
+          {/* Picture: photo, emoji, or the first letter on mint. */}
+          <div className="flex shrink-0 flex-col items-center gap-1.5">
+            <div
+              className="grid h-24 w-24 place-items-center overflow-hidden rounded-full border-[3px] border-mint-soft bg-mint-tint font-display text-4xl font-extrabold text-green-deep sm:h-28 sm:w-28"
+              aria-hidden={!p.photoUrl}
+            >
+              {p.photoUrl ? (
+                <img
+                  src={p.photoUrl}
+                  alt={`${p.firstName}'s photo`}
+                  className="h-full w-full object-cover"
+                />
+              ) : p.avatarEmoji ? (
+                <span className="text-5xl leading-none sm:text-6xl">{p.avatarEmoji}</span>
+              ) : (
+                <span>{p.firstName.slice(0, 1).toUpperCase()}</span>
+              )}
+            </div>
+            {onEditPicture && (
+              <button
+                type="button"
+                onClick={onEditPicture}
+                className="inline-flex min-h-[32px] items-center font-mono text-[11px] uppercase tracking-[0.08em] text-ink-500 hover:text-ink-900"
+              >
+                {p.photoUrl || p.avatarEmoji ? "Change picture" : "Add picture"}
+              </button>
+            )}
+          </div>
+          <div className="flex min-w-0 flex-col gap-2">
+            <p className="eyebrow text-green">
+              {explore ? "Your passport" : "Student passport"}
+              {p.grade ? ` · Grade ${p.grade}` : ""}
+            </p>
+            <h1 className="font-display text-[44px] font-extrabold leading-none tracking-tight sm:text-[56px]">
+              {explore ? `Hi, ${p.firstName}!` : p.firstName}
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+              <Stamp label={`Pathways start here · ${MONTH(p.joinedAt)}`} rotate={-4} />
+              <span className="text-sm text-ink-700">
+                {explore
+                  ? `${p.exposure.length} place${p.exposure.length === 1 ? "" : "s"} explored · ${stamps.length} stamp${stamps.length === 1 ? "" : "s"} collected`
+                  : `${Math.round(p.verifiedHours)} verified hours · ${p.exposure.length} places explored · ${p.credentials.length} credential${p.credentials.length === 1 ? "" : "s"}`}
+              </span>
+            </div>
           </div>
         </div>
         {!explore && (

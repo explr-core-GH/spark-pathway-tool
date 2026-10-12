@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Wordmark } from "@/components/passport";
 import { RailCard } from "@/components/passport/RailCard";
 import { PassportSheet } from "@/components/passport/PassportSheet";
+import { PictureDialog } from "@/components/passport/PictureDialog";
 import { draftAboutMe, usePassport, SEAL_TOTAL } from "@/lib/passport";
 
 /**
@@ -30,6 +31,7 @@ function ResumeCenter() {
   const { user, loading: authLoading } = useSession();
   const { data: p, loading, error, refresh } = usePassport(user?.id ?? null);
   const [editing, setEditing] = useState(false);
+  const [picEditing, setPicEditing] = useState(false);
   const [aboutDraft, setAboutDraft] = useState("");
   const [saving, setSaving] = useState(false);
   const aboutRef = useRef<HTMLTextAreaElement>(null);
@@ -197,6 +199,7 @@ function ResumeCenter() {
                 setAboutDraft(p.aboutMe ?? draftAboutMe(p));
                 setEditing(true);
               }}
+              onEditPicture={() => setPicEditing(true)}
             />
           </div>
 
@@ -227,6 +230,17 @@ function ResumeCenter() {
           </p>
         )}
       </main>
+
+      {picEditing && user && p && (
+        <PictureDialog
+          studentId={user.id}
+          explore={explore}
+          emoji={p.avatarEmoji}
+          photoUrl={p.photoUrl}
+          onClose={() => setPicEditing(false)}
+          onSaved={refresh}
+        />
+      )}
 
       {editing && (
         <div

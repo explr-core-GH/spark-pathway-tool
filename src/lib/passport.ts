@@ -78,6 +78,10 @@ export type Passport = {
   grade: number | null;
   band: "explore" | "pro";
   aboutMe: string | null;
+  /** Emoji chosen for the passport picture (any grade). */
+  avatarEmoji: string | null;
+  /** Uploaded photo (grades 9-12 only). */
+  photoUrl: string | null;
   joinedAt: string;
   hollandCode: string | null;
   experiences: Experience[];
@@ -121,7 +125,7 @@ export function usePassport(studentId: string | null) {
         const [{ data: stud }, { data: sess }, { data: exps }, { data: creds }, { data: pcs }] =
           await Promise.all([
             sb("students")
-              .select("first_name, grade, about_me, created_at")
+              .select("first_name, grade, about_me, avatar_emoji, photo_url, created_at")
               .eq("id", studentId)
               .maybeSingle(),
             supabase
@@ -169,6 +173,8 @@ export function usePassport(studentId: string | null) {
           grade,
           band: bandFor(grade),
           aboutMe: stud?.about_me ?? null,
+          avatarEmoji: stud?.avatar_emoji ?? null,
+          photoUrl: stud?.photo_url ?? null,
           joinedAt: stud?.created_at ?? new Date().toISOString(),
           hollandCode: sess?.holland_code ?? null,
           experiences,
