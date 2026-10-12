@@ -69,7 +69,7 @@ function PrivacyPage() {
         Students under 13 use EXPLR Pathways through their school. The school provides consent on
         the parent's behalf, as the Children's Online Privacy Protection Act (COPPA) allows for
         educational tools. We do not knowingly collect information from a child under 13 outside a
-        school program. If that has happened, email [CONTACT EMAIL] and we will delete it.
+        school program. If that has happened, email support@explr.cc and we will delete it.
       </p>
 
       <H2>How we use student data</H2>
@@ -134,7 +134,7 @@ function PrivacyPage() {
 
       <H2>Your rights</H2>
       <p>
-        Students and parents can see, correct, or delete their data by emailing [CONTACT EMAIL].
+        Students and parents can see, correct, or delete their data by emailing support@explr.cc.
         Parents of students in a district program may also exercise FERPA rights through the school.
         Instructors and organizations can update or close their accounts the same way.
       </p>
@@ -146,7 +146,7 @@ function PrivacyPage() {
       </p>
 
       <H2>Contact</H2>
-      <p>[CONTACT EMAIL] · EXPLR, [MAILING ADDRESS], Cleveland, Ohio</p>
+      <p>support@explr.cc · EXPLR, [MAILING ADDRESS], Cleveland, Ohio</p>
     </LegalPage>
   );
 }
