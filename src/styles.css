@@ -1,46 +1,77 @@
 @import "tailwindcss" source(none);
 @import "tw-animate-css";
-/* Lexend font is loaded via <link> in src/routes/__root.tsx — Lightning CSS
-   cannot resolve remote @import URLs and will 500 the stylesheet. */
+/* Fonts (Outfit, Bricolage Grotesque, DM Mono) are loaded via <link> in
+   src/routes/__root.tsx — Lightning CSS cannot resolve remote @import URLs
+   and will 500 the stylesheet. */
 
 @source "../src";
 
 /* Tailwind v4 theme — mirrors tailwind.config.ts (colors, fonts, font sizes). */
 @theme inline {
-  --font-sans: var(--font-lexend), system-ui, sans-serif;
-  --font-lexend: "Lexend", system-ui, sans-serif;
+  --font-sans: "Outfit", system-ui, sans-serif;
+  /* Legacy alias: older files reference --font-lexend. It now resolves to the
+     Passport UI face so nothing has to change at the call sites. */
+  --font-lexend: "Outfit", system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", "Outfit", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --color-charcoal: #1A1D1F;
-  --color-charcoal-50:  #F4F5F6;
-  --color-charcoal-100: #E6E8EA;
-  --color-charcoal-200: #C8CCD0;
-  --color-charcoal-300: #A0A6AD;
-  --color-charcoal-400: #5C636B; /* darkened for WCAG 1.4.3: ≥4.5:1 on the light bg (was #6E767F ≈ 4.4:1) */
-  --color-charcoal-500: #3F4549;
-  --color-charcoal-600: #2A2E31;
-  --color-charcoal-700: #1A1D1F;
+  /* ---- Passport palette (from the illustration manifest) ----
+     charcoal #19201F · mint #38DBAD · emerald #159D76 · ivory #F8F7F1.
+     Text-sized green uses --color-green (>= 4.5:1 on ivory); emerald itself
+     is for fills, icons and large type. */
+  --color-paper: #f8f7f1;
+  --color-paper-raised: #fdfdf9;
+  --color-paper-sunken: #eeede4;
+  --color-ink-900: #19201f;
+  --color-ink-700: #3c4643;
+  --color-ink-500: #646e6a;
+  --color-line: #d9d9cf;
+  --color-line-strong: #b5b9ae;
+  --color-green: #12805f;
+  --color-green-deep: #0c5a43;
+  --color-emerald: #159d76;
+  --color-mint: #38dbad;
+  --color-mint-soft: #9eebd0;
+  --color-mint-tint: #d9f6ec;
+  --color-gold: #d9a531;
+  --color-gold-deep: #8f6410;
+  --color-gold-tint: #f6e8c3;
+  --color-stamp-self: #7a827e;
+
+  --shadow-card: 0 2px 6px rgba(25, 32, 31, 0.06), 0 12px 28px -8px rgba(25, 32, 31, 0.08);
+  --shadow-lift: 0 20px 40px -12px rgba(25, 32, 31, 0.14);
+
+  --color-charcoal: #1a1d1f;
+  --color-charcoal-50: #f4f5f6;
+  --color-charcoal-100: #e6e8ea;
+  --color-charcoal-200: #c8ccd0;
+  --color-charcoal-300: #a0a6ad;
+  --color-charcoal-400: #5c636b; /* darkened for WCAG 1.4.3: ≥4.5:1 on the light bg (was #6E767F ≈ 4.4:1) */
+  --color-charcoal-500: #3f4549;
+  --color-charcoal-600: #2a2e31;
+  --color-charcoal-700: #1a1d1f;
   --color-charcoal-800: #101214;
-  --color-charcoal-900: #08090A;
+  --color-charcoal-900: #08090a;
 
-  --color-explr: #2BEDA1;
-  --color-explr-50:  #E8FFF6;
-  --color-explr-100: #C6FCE6;
-  --color-explr-200: #8FF7CD;
-  --color-explr-300: #5DF1B7;
-  --color-explr-400: #2BEDA1;
-  --color-explr-500: #15CD86;
-  --color-explr-600: #0FA66C;
-  --color-explr-700: #0B7E52;
+  --color-explr: #2beda1;
+  --color-explr-50: #e8fff6;
+  --color-explr-100: #c6fce6;
+  --color-explr-200: #8ff7cd;
+  --color-explr-300: #5df1b7;
+  --color-explr-400: #2beda1;
+  --color-explr-500: #15cd86;
+  --color-explr-600: #0fa66c;
+  --color-explr-700: #0b7e52;
   --color-explr-800: #085739;
-  --color-explr-900: #042E1E;
+  --color-explr-900: #042e1e;
 
   /* RIASEC palette — must stay in sync with src/lib/riasec.ts (canonical). */
-  --color-riasec-r: #D9523B; /* Realistic — vermillion */
-  --color-riasec-i: #D9952A; /* Investigative — amber-gold */
-  --color-riasec-a: #3D9C56; /* Artistic — forest green */
-  --color-riasec-s: #2E8FB0; /* Social — teal-cyan */
-  --color-riasec-e: #5C56B0; /* Enterprising — indigo-violet */
-  --color-riasec-c: #B14A99; /* Conventional — magenta-orchid */
+  --color-riasec-r: #d9523b; /* Realistic — vermillion */
+  --color-riasec-i: #d9952a; /* Investigative — amber-gold */
+  --color-riasec-a: #3d9c56; /* Artistic — forest green */
+  --color-riasec-s: #2e8fb0; /* Social — teal-cyan */
+  --color-riasec-e: #5c56b0; /* Enterprising — indigo-violet */
+  --color-riasec-c: #b14a99; /* Conventional — magenta-orchid */
 
   --text-base: 1.0625rem;
   --text-base--line-height: 1.65;
@@ -81,14 +112,21 @@
  * ============================================================ */
 
 :root {
-  --bg: #FAFAF8;
-  --bg-elevated: #FFFFFF;
-  --fg: #1A1D1F;
-  --fg-muted: #5C636B; /* WCAG 1.4.3 — muted text now clears 4.5:1 on --bg */
-  --border: #E6E8EA;
-  --explr: #2BEDA1;
-  --focus-ring: #2BEDA1;
-  --ink: #1A1D1F;
+  --bg: #f8f7f1; /* ivory paper */
+  --bg-elevated: #fdfdf9;
+  --fg: #19201f; /* charcoal ink */
+  --fg-muted: #5c6460; /* WCAG 1.4.3 — clears 4.5:1 on --bg */
+  --border: #d9d9cf;
+  --explr: #38dbad; /* manifest mint */
+  --focus-ring: #12805f; /* text-safe green: visible on paper AND on mint */
+  --ink: #19201f;
+
+  /* Density (one token system, two densities). Pro is the default; the
+     Explore band (grades 4-8) sets data-density="explore" on a wrapper. */
+  --radius-card: 16px;
+  --radius-control: 10px;
+  --radius-stamp: 8px;
+  --tap: 44px;
 
   /* Accessibility scale (set by AccessibilityProvider) */
   --a11y-text-scale: 1;
@@ -105,7 +143,11 @@ html {
 }
 
 body {
-  font-family: var(--font-lexend), system-ui, -apple-system, sans-serif;
+  font-family:
+    var(--font-lexend),
+    system-ui,
+    -apple-system,
+    sans-serif;
   font-feature-settings: "ss01", "cv11";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -113,10 +155,10 @@ body {
 
 /* High-contrast mode */
 [data-contrast="high"] {
-  --bg: #FFFFFF;
-  --bg-elevated: #FFFFFF;
+  --bg: #ffffff;
+  --bg-elevated: #ffffff;
   --fg: #000000;
-  --fg-muted: #1A1D1F;
+  --fg-muted: #1a1d1f;
   --border: #000000;
 }
 [data-contrast="high"] body {
@@ -165,7 +207,15 @@ body {
   outline-color: var(--fg);
 }
 
-/* Mode-driven shape language */
+/* Explore density — grades 4-8: rounder, bigger, fewer things per screen */
+[data-density="explore"] {
+  --radius-card: 28px;
+  --radius-control: 20px;
+  --radius-stamp: 14px;
+  --tap: 64px;
+}
+
+/* Mode-driven shape language (legacy) */
 [data-mode="ms"] {
   --radius-sm: 12px;
   --radius-md: 18px;
@@ -179,10 +229,18 @@ body {
   --radius-xl: 20px;
 }
 
-.r-sm { border-radius: var(--radius-sm); }
-.r-md { border-radius: var(--radius-md); }
-.r-lg { border-radius: var(--radius-lg); }
-.r-xl { border-radius: var(--radius-xl); }
+.r-sm {
+  border-radius: var(--radius-sm);
+}
+.r-md {
+  border-radius: var(--radius-md);
+}
+.r-lg {
+  border-radius: var(--radius-lg);
+}
+.r-xl {
+  border-radius: var(--radius-xl);
+}
 
 /* Skip link */
 .skip-link {
@@ -203,15 +261,19 @@ body {
 /* Geometric background utility */
 .bg-grid {
   background-image:
-    linear-gradient(to right, rgba(26,29,31,0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(26,29,31,0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(26, 29, 31, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(26, 29, 31, 0.04) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 
-/* Headings — slightly tighter than body, but still Lexend */
-h1, h2, h3, h4 {
-  font-weight: 600;
-  letter-spacing: -0.01em;
+/* Headings — Bricolage Grotesque display face */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 /* Print styles — used by the unified PDF report */
@@ -223,12 +285,27 @@ h1, h2, h3, h4 {
   [role="dialog"][aria-label="Accessibility settings"] {
     display: none !important;
   }
-  .print\:hidden { display: none !important; }
-  .print\:block { display: block !important; }
-  .print\:break-after-page { break-after: page; page-break-after: always; }
-  body, html { background: white !important; }
-  main { padding-top: 0 !important; }
-  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .print\:hidden {
+    display: none !important;
+  }
+  .print\:block {
+    display: block !important;
+  }
+  .print\:break-after-page {
+    break-after: page;
+    page-break-after: always;
+  }
+  body,
+  html {
+    background: white !important;
+  }
+  main {
+    padding-top: 0 !important;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
 
 /* ============================================================
@@ -236,19 +313,23 @@ h1, h2, h3, h4 {
  * Built on the canonical tokens above — no new colors.
  * ============================================================ */
 @layer components {
-  .rule { border-top: 1px solid var(--border); }
+  .rule {
+    border-top: 1px solid var(--border);
+  }
   .eyebrow {
-    font-size: 0.6875rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 0.18em;
-    font-weight: 600;
+    letter-spacing: 0.08em;
+    font-weight: 500;
     color: var(--fg-muted);
   }
   .display {
-    font-size: clamp(2.5rem, 6vw, 5rem);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 0.98;
   }
   .lead {
     font-size: 1.1875rem;
@@ -258,36 +339,64 @@ h1, h2, h3, h4 {
   .ink-link {
     color: var(--fg);
     text-decoration: underline;
-    text-decoration-color: var(--color-charcoal-400); /* ≥3:1 so the link underline is perceivable (WCAG 1.4.11) */
+    text-decoration-color: var(
+      --color-charcoal-400
+    ); /* ≥3:1 so the link underline is perceivable (WCAG 1.4.11) */
     text-underline-offset: 4px;
     transition: text-decoration-color 0.15s;
   }
-  .ink-link:hover { text-decoration-color: var(--explr); }
+  .ink-link:hover {
+    text-decoration-color: var(--explr);
+  }
 
   .btn-ink {
-    display: inline-flex; align-items: center; gap: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.75rem 1.25rem;
-    background: var(--fg); color: var(--bg);
-    font-weight: 600; font-size: 0.9375rem;
+    min-height: var(--tap);
+    border-radius: var(--radius-control);
+    background: var(--fg);
+    color: var(--bg);
+    font-weight: 600;
+    font-size: 0.9375rem;
   }
-  .btn-ink:hover { background: #2A2E31; }
+  .btn-ink:hover {
+    background: #2a2e31;
+  }
 
   .btn-mint {
-    display: inline-flex; align-items: center; gap: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.75rem 1.25rem;
-    background: var(--explr); color: #08090A;
-    font-weight: 600; font-size: 0.9375rem;
+    min-height: var(--tap);
+    border-radius: var(--radius-control);
+    background: var(--explr);
+    color: #08090a;
+    font-weight: 600;
+    font-size: 0.9375rem;
   }
-  .btn-mint:hover { background: #5DF1B7; }
+  .btn-mint:hover {
+    background: #5fe6bf;
+  }
 
   .btn-ghost {
-    display: inline-flex; align-items: center; gap: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.75rem 1.25rem;
-    background: transparent; color: var(--fg);
+    min-height: var(--tap);
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: var(--fg);
     border: 1px solid var(--border);
-    font-weight: 600; font-size: 0.9375rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
   }
-  .btn-ghost:hover { border-color: var(--fg); }
+  .btn-ghost:hover {
+    border-color: var(--fg);
+  }
 
   .field {
     width: 100%;
@@ -298,7 +407,10 @@ h1, h2, h3, h4 {
     color: var(--fg);
     font-family: inherit;
   }
-  .field:focus { outline: none; border-color: var(--fg); }
+  .field:focus {
+    outline: none;
+    border-color: var(--fg);
+  }
 
   .label {
     display: block;
@@ -317,6 +429,7 @@ h1, h2, h3, h4 {
     border: 1px solid var(--border);
     transition: border-color 0.15s;
   }
-  .tile:hover { border-color: var(--fg); }
+  .tile:hover {
+    border-color: var(--fg);
+  }
 }
-

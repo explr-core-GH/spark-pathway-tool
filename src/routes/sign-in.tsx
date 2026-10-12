@@ -4,11 +4,16 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/sign-in")({
   head: () => ({ meta: [{ title: "Sign in — EXPLR" }] }),
+  // The home page's student door branches by grade band. Until the 4-8
+  // picture/QR sign-in ships, the band only changes the copy below.
+  validateSearch: (search: Record<string, unknown>): { band?: "4-8" | "9-12" } =>
+    search.band === "4-8" || search.band === "9-12" ? { band: search.band } : {},
   component: SignIn,
 });
 
 function SignIn() {
   const navigate = useNavigate();
+  const { band } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -43,12 +48,22 @@ function SignIn() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
-      <Link to="/" className="eyebrow mb-12 inline-block">← EXPLR</Link>
+      <Link to="/" className="eyebrow mb-12 inline-block">
+        ← EXPLR
+      </Link>
       <h1 className="text-3xl font-light">Sign in</h1>
-      <p className="mt-2 text-sm text-charcoal-500">Student account.</p>
+      <p className="mt-2 text-sm text-charcoal-500">
+        {band === "4-8"
+          ? "Grades 4-8: use the username and password your instructor gave you. Picture and QR sign-in are coming soon."
+          : band === "9-12"
+            ? "Grades 9-12: sign in with your email, or the username from your roster."
+            : "Student account."}
+      </p>
       <form onSubmit={submit} className="mt-10 space-y-5">
         <div>
-          <label className="label" htmlFor="signin-username">Username or email</label>
+          <label className="label" htmlFor="signin-username">
+            Username or email
+          </label>
           <input
             id="signin-username"
             className="field"
@@ -67,7 +82,9 @@ function SignIn() {
           </p>
         </div>
         <div>
-          <label className="label" htmlFor="signin-password">Password</label>
+          <label className="label" htmlFor="signin-password">
+            Password
+          </label>
           <div className="relative">
             <input
               id="signin-password"
@@ -92,15 +109,24 @@ function SignIn() {
             Tap &ldquo;Show&rdquo; to check the password if sign-in isn&apos;t working.
           </p>
         </div>
-        {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
+        {error && (
+          <p className="text-sm text-destructive" role="alert">
+            {error}
+          </p>
+        )}
         <button type="submit" disabled={loading} className="btn-ink w-full justify-center">
           {loading ? "Signing in…" : "Sign in"}
         </button>
       </form>
       <p className="mt-6 text-sm text-charcoal-500">
-        New here? <Link to="/sign-up" className="ink-link">Create an account</Link>
+        New here?{" "}
+        <Link to="/sign-up" className="ink-link">
+          Create an account
+        </Link>
         <span className="mx-2 text-charcoal-300">·</span>
-        <Link to="/forgot-password" className="ink-link">Forgot password?</Link>
+        <Link to="/forgot-password" className="ink-link">
+          Forgot password?
+        </Link>
       </p>
     </main>
   );

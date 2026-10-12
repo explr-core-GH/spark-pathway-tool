@@ -1,307 +1,256 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { HollandHexagon } from "@/components/HollandHexagon";
-import { RIASEC, type RIASECCode } from "@/lib/riasec";
+import { Building2, GraduationCap, House, UserCheck } from "lucide-react";
+import { DoorCard, SiteHeader, Stamp, Wordmark } from "@/components/passport";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "EXPLR — Find what you like." },
-      { name: "description", content: "Career-interest assessment for Cleveland K-12 students. Grounded in the RIASEC framework." },
-      { property: "og:title", content: "EXPLR — Find what you like." },
-      { property: "og:description", content: "Career-interest assessment for Cleveland K-12 students." },
+      { title: "EXPLR Pathways — From Classrooms to Careers" },
+      {
+        name: "description",
+        content:
+          "A work-based learning passport for Cleveland students in grades 4 to 12. Add real experiences, get them stamped, and carry verified hours, seals, and a resume anywhere.",
+      },
+      { property: "og:title", content: "EXPLR Pathways — From Classrooms to Careers" },
+      {
+        property: "og:description",
+        content:
+          "From Classrooms to Careers – Pathways Start Here. A work-based learning passport for grades 4 to 12.",
+      },
     ],
   }),
   component: Landing,
 });
 
-function SiteHeader() {
-  return (
-    <header className="border-b border-charcoal-100">
-      {/* Brand-mark animation lives inline so Tailwind v4 can't purge it.
-          Two prior attempts in styles.css (top-level + @layer components)
-          got dropped by the build pipeline. A <style> tag in the JSX
-          always reaches the page. */}
-      <style
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{
-          __html: `
-            /* Yellow specks fall diagonally top-right → bottom-left in a quick
-               shower, staggered so they read as a spray, not a single trail.
-               Each speck has its own keyframe with slightly different start
-               and end offsets for natural variance. */
-            @keyframes explr-speck-a {
-              0%, 92% { opacity: 0; transform: translate(70px, -55px); }
-              93% { opacity: 1; transform: translate(45px, -30px); }
-              97% { opacity: 0.7; transform: translate(-35px, 20px); }
-              98%, 100% { opacity: 0; transform: translate(-65px, 45px); }
-            }
-            @keyframes explr-speck-b {
-              0%, 93% { opacity: 0; transform: translate(80px, -40px); }
-              94% { opacity: 1; transform: translate(50px, -20px); }
-              98% { opacity: 0.6; transform: translate(-50px, 30px); }
-              99%, 100% { opacity: 0; transform: translate(-80px, 50px); }
-            }
-            @keyframes explr-speck-c {
-              0%, 94% { opacity: 0; transform: translate(60px, -65px); }
-              95% { opacity: 1; transform: translate(35px, -35px); }
-              99% { opacity: 0.5; transform: translate(-55px, 35px); }
-              100% { opacity: 0; transform: translate(-70px, 55px); }
-            }
-            .explr-brand { position: relative; display: inline-block; isolation: isolate; }
-            .explr-brand__text { position: relative; z-index: 1; }
-            .explr-brand__shoot {
-              position: absolute;
-              top: -70px;
-              right: -20px;
-              bottom: -70px;
-              left: -20px;
-              z-index: 0;
-              overflow: hidden;
-              pointer-events: none;
-            }
-            .explr-speck {
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              margin-top: -1.5px;
-              margin-left: -1.5px;
-              width: 3px;
-              height: 3px;
-              border-radius: 50%;
-              background: #FACC15;
-              box-shadow: 0 0 4px rgba(250, 204, 21, 0.9);
-              opacity: 0;
-            }
-            .explr-speck--a { animation: explr-speck-a 6s linear infinite; }
-            .explr-speck--b { animation: explr-speck-b 6s linear infinite; animation-delay: 80ms; }
-            .explr-speck--c { animation: explr-speck-c 6s linear infinite; animation-delay: 160ms; }
+const STEPS = [
+  {
+    n: "01",
+    image: "/passport/portfolio.webp",
+    title: "Add an experience",
+    body: "Import one from the library of opportunities you took part in, or add an outside job, camp, or College Credit Plus course.",
+  },
+  {
+    n: "02",
+    image: "/passport/organizations.webp",
+    title: "Your supervisor stamps it",
+    body: "One emailed link. They confirm hours and duties and rate your skills on the Readiness Seal scale. A stamp can't be edited by the student.",
+    stamp: "Stamped · one link",
+  },
+  {
+    n: "03",
+    image: "/passport/grades-9-12.webp",
+    title: "Carry it anywhere",
+    body: "Export a 250-hour log, OhioMeansJobs Readiness Seal evidence, a resume, and badges that verify without calling us.",
+  },
+];
 
-            @media (prefers-reduced-motion: reduce) {
-              .explr-speck { animation: none; opacity: 0; }
-            }
-            [data-motion="reduced"] .explr-speck {
-              animation: none;
-              opacity: 0;
-            }
-          `,
-        }}
-      />
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <Link to="/" className="explr-brand text-xl font-medium tracking-tight">
-          <span className="explr-brand__shoot" aria-hidden>
-            <span className="explr-speck explr-speck--a" />
-            <span className="explr-speck explr-speck--b" />
-            <span className="explr-speck explr-speck--c" />
-          </span>
-          <span className="explr-brand__text">
-            EXPLR <span style={{ color: "var(--explr)" }}>Pathways</span>
-          </span>
-        </Link>
-        <nav className="flex items-center gap-7 text-sm">
-          <Link to="/opportunities" className="text-charcoal-500 hover:text-ink">Opportunities</Link>
-          <Link to="/about" className="text-charcoal-500 hover:text-ink">About</Link>
-          <Link to="/sign-in" className="text-charcoal-500 hover:text-ink">Student sign in</Link>
-          <Link to="/educator/sign-in" className="text-charcoal-500 hover:text-ink">Educator sign in</Link>
-          <Link to="/org/sign-in" className="text-charcoal-500 hover:text-ink">Organizations</Link>
-          <Link to="/start" className="btn-mint">Start</Link>
-        </nav>
-      </div>
-    </header>
-  );
-}
-
-import { SiteFooter } from "@/components/SiteFooter";
+// Figures come from the research spec; each carries its citation so the
+// copy never claims more than the source does.
+const EVIDENCE = [
+  {
+    value: "48.5%",
+    body: "lower odds of being underemployed a year after graduating, from a single internship.",
+    cite: "Strada / Burning Glass, 2024",
+  },
+  {
+    value: "+$3,096",
+    body: "higher first-year wages after a paid internship. Unpaid internships show no gain.",
+    cite: "Strada, 2022",
+  },
+  {
+    value: "0.8%",
+    body: "of Ohio graduates earned the Readiness Seal with 250+ work-based learning hours. That's the gap this passport closes.",
+    cite: "ExcelinEd / Ohio Excels, 2024",
+  },
+];
 
 function Landing() {
-  const [active, setActive] = useState<RIASECCode>("R");
-  const dim = RIASEC[active];
-
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-paper text-ink-900">
       <SiteHeader />
 
       <main>
         {/* Hero */}
-        <section className="mx-auto max-w-6xl px-6 pt-24 pb-32">
-          <div className="grid items-center gap-16 lg:grid-cols-[1.1fr_1fr]">
-            <div>
-              <p className="eyebrow">A career-interest assessment for Cleveland K-12</p>
-              <h1 className="display mt-6">
-                Find what <span style={{ color: "var(--color-explr-600)" }}>you</span> like.
+        <section className="mx-auto max-w-[1312px] px-4 pb-20 pt-16 sm:px-6 lg:px-8 lg:pb-24 lg:pt-20">
+          <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
+            <div className="flex flex-col gap-6">
+              <p className="eyebrow text-green">Work-based learning passport · Cleveland K-12</p>
+              <h1 className="display">
+                From Classrooms to Careers –
+                <span className="block text-green">Pathways Start Here</span>
               </h1>
-              <p className="lead mt-6 max-w-lg">
-                Six dimensions of interest. Forty-five years of research. A fifteen-minute
-                survey that gives you a starting point — not a verdict.
+              <p className="lead max-w-[600px] text-ink-700">
+                A living portfolio for grades 4 to 12. Add real experiences, get them stamped by the
+                people who watched you do the work, and carry verified hours, seals, and a resume
+                wherever you go next.
               </p>
-              <div className="mt-10 flex gap-3">
-                <Link to="/start" className="btn-ink">Take the assessment</Link>
-                <Link to="/about" className="btn-ghost">How it works</Link>
+              <div className="flex flex-wrap gap-3">
+                <a href="#doors" className="btn-ink">
+                  Get started
+                </a>
+                <a href="#how" className="btn-ghost">
+                  How the passport works
+                </a>
               </div>
-            </div>
-            <div className="flex justify-center">
-              <HollandHexagon size={420} active={active} onSelect={setActive} />
-            </div>
-          </div>
-        </section>
-
-        {/* RIASEC color tour */}
-        <section className="border-y border-charcoal-100 bg-white">
-          <div className="mx-auto max-w-6xl px-6 py-20">
-            <div className="grid gap-10 lg:grid-cols-[260px_1fr]">
-              <div>
-                <p className="eyebrow">The framework</p>
-                <h2 className="mt-3 text-3xl font-light tracking-tight">RIASEC</h2>
-                <p className="mt-3 text-sm text-charcoal-500">
-                  Six dimensions, arranged on a hexagon. Adjacent dimensions correlate; opposite ones contrast.
-                </p>
-              </div>
-              <div>
-                <div className="flex flex-wrap gap-2">
-                  {Object.values(RIASEC).map((d) => (
-                    <button
-                      key={d.code}
-                      onClick={() => setActive(d.code)}
-                      className="flex items-center gap-2 border px-3 py-1.5 text-sm transition-colors"
-                      style={{
-                        borderColor: active === d.code ? d.color : "var(--color-charcoal-100)",
-                        background: active === d.code ? d.colorSoft : "transparent",
-                      }}
-                    >
-                      <span
-                        className="h-2.5 w-2.5 rounded-full"
-                        style={{ background: d.color }}
-                      />
-                      <span className="font-medium">{d.code}</span>
-                      <span className="text-charcoal-500">{d.name}</span>
-                    </button>
-                  ))}
-                </div>
-                <div className="mt-8 border-l-2 pl-6" style={{ borderColor: dim.color }}>
-                  <p className="eyebrow" style={{ color: dim.color }}>
-                    {dim.code} · {dim.name}
-                  </p>
-                  <p className="mt-3 text-2xl font-light leading-snug">{dim.hsDescription}</p>
-                  <p className="mt-4 text-sm text-charcoal-500">
-                    Example careers: {dim.examples.join(" · ")}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Pathways — what the assessment opens up, across grade bands.
-            The point: this is a discovery tool for all of K-12, not an
-            internship funnel. Middle schoolers explore through camps and
-            robotics; high schoolers go on to internships. */}
-        <section className="border-b border-charcoal-100 bg-charcoal-50">
-          <div className="mx-auto max-w-6xl px-6 py-24">
-            <div className="grid gap-10 lg:grid-cols-[260px_1fr]">
-              <div>
-                <p className="eyebrow" style={{ color: "var(--explr)" }}>Where it leads</p>
-                <h2 className="mt-3 text-3xl font-light tracking-tight">
-                  Explore, don&apos;t just assess.
-                </h2>
-                <p className="mt-3 text-sm text-charcoal-500">
-                  Your Holland code is a starting point — not a label. EXPLR
-                  connects it to real ways to explore, and the right one
-                  changes with your grade.
-                </p>
-              </div>
-
-              <div>
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <article className="border border-charcoal-100 bg-white p-6">
-                    <p className="eyebrow">Middle school</p>
-                    <h3 className="mt-2 text-lg font-medium">Camps &amp; workshops</h3>
-                    <p className="mt-2 text-sm text-charcoal-500">
-                      Hands-on summer camps and short workshops — design,
-                      environmental science, underwater robotics — to try
-                      interests on for size before committing.
-                    </p>
-                  </article>
-                  <article className="border border-charcoal-100 bg-white p-6">
-                    <p className="eyebrow">Grades 4&ndash;12</p>
-                    <h3 className="mt-2 text-lg font-medium">Robotics programs</h3>
-                    <p className="mt-2 text-sm text-charcoal-500">
-                      FIRST LEGO League, FTC, and FRC teams. Build, code, and
-                      compete — and discover which STEM lanes click.
-                    </p>
-                  </article>
-                  <article className="border border-charcoal-100 bg-white p-6">
-                    <p className="eyebrow">High school</p>
-                    <h3 className="mt-2 text-lg font-medium">Internships</h3>
-                    <p className="mt-2 text-sm text-charcoal-500">
-                      Real workplace internships matched to your top RIASEC
-                      themes — one short application covers the catalog.
-                    </p>
-                  </article>
-                </div>
-
-                <p className="mt-6 text-sm text-charcoal-500">
-                  A 5th grader trying a robotics camp and a junior applying for
-                  a biomedical internship are on the same map — just at
-                  different points on it.
-                </p>
-
-                <div className="mt-8 flex gap-3">
-                  <Link to="/start" className="btn-mint">Start the assessment</Link>
-                  <Link to="/about" className="btn-ghost">How it works</Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* More than an assessment */}
-        <section className="mx-auto max-w-6xl px-6 py-24">
-          <div className="grid gap-10 lg:grid-cols-[260px_1fr]">
-            <div>
-              <p className="eyebrow">Beyond the survey</p>
-              <h2 className="mt-3 text-3xl font-light tracking-tight">More than an assessment.</h2>
-              <p className="mt-3 text-sm text-charcoal-500">
-                EXPLR Pathways connects students, educators, and STEM programs to the next step.
+              <p className="text-sm text-ink-500">
+                Just here for the interest survey?{" "}
+                <Link to="/assessment" className="ink-link">
+                  Take the RIASEC assessment
+                </Link>
+                .
               </p>
             </div>
-            <div className="grid gap-6 md:grid-cols-3">
-              <article className="border border-charcoal-100 p-6">
-                <p className="eyebrow" style={{ color: "var(--explr)" }}>Students</p>
-                <h3 className="mt-3 text-lg font-medium">Discover what fits</h3>
-                <p className="mt-3 text-sm text-charcoal-500">
-                  From middle-school camps and robotics to high-school
-                  internships — see your interests and find programs matched
-                  to them, at any grade.
-                </p>
-                <Link to="/start" className="ink-link mt-5 inline-block text-sm">Start the assessment →</Link>
-              </article>
-
-              <article className="border border-charcoal-100 p-6">
-                <p className="eyebrow" style={{ color: "var(--explr)" }}>Educators</p>
-                <h3 className="mt-3 text-lg font-medium">Curricular materials</h3>
-                <p className="mt-3 text-sm text-charcoal-500">
-                  Approved educators access curriculum and lesson resources tied to
-                  career pathways and student interest profiles.
-                </p>
-                <Link to="/educator/sign-up" className="ink-link mt-5 inline-block text-sm">Request educator access →</Link>
-              </article>
-
-              <article className="border border-charcoal-100 p-6">
-                <p className="eyebrow" style={{ color: "var(--explr)" }}>STEM programs</p>
-                <h3 className="mt-3 text-lg font-medium">Robotics &amp; STEM curriculum</h3>
-                <p className="mt-3 text-sm text-charcoal-500">
-                  Educators and organizations running FLL, FTC, and FRC programs can
-                  access materials, curriculum, and programming resources.
-                </p>
-                <Link to="/educator/sign-up" className="ink-link mt-5 inline-block text-sm">Request program access →</Link>
-              </article>
+            <div className="flex justify-center lg:justify-end">
+              <img
+                src="/passport/students.webp"
+                alt="An open passport with a compass cover, three stamped pages, and a pencil"
+                width={560}
+                height={560}
+                className="w-full max-w-[560px]"
+                fetchPriority="high"
+              />
             </div>
           </div>
         </section>
 
+        {/* Doors */}
+        <section
+          id="doors"
+          className="mx-auto max-w-[1312px] scroll-mt-8 px-4 py-16 sm:px-6 lg:px-8"
+        >
+          <div className="flex flex-col gap-2.5">
+            <p className="eyebrow text-green">Pathways start here</p>
+            <h2 className="font-display text-4xl font-bold tracking-tight sm:text-[44px]">
+              Who are you?
+            </h2>
+            <p className="text-ink-700">
+              Four ways in, one passport. Admins can sign in from any of them.
+            </p>
+          </div>
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            <DoorCard
+              eyebrow="Students"
+              icon={GraduationCap}
+              image="/passport/students.webp"
+              title="I'm a student"
+              body="Build your passport of experiences, take the RIASEC, and find opportunities you qualify for."
+              cta="Choose your grade band"
+              to="/start"
+              pills={[
+                { label: "Grades 4-8", to: "/sign-in", search: { band: "4-8" } },
+                { label: "Grades 9-12", to: "/sign-in", search: { band: "9-12" } },
+              ]}
+            />
+            <DoorCard
+              eyebrow="Instructors"
+              icon={UserCheck}
+              image="/passport/assessments.webp"
+              title="I'm an instructor"
+              body="Teachers, worksite supervisors, camp and program staff. Review experiences, stamp them, recommend."
+              cta="Sign up as an instructor"
+              to="/educator/sign-up"
+            />
+            <DoorCard
+              eyebrow="Partners & orgs"
+              icon={Building2}
+              image="/passport/organizations.webp"
+              title="I'm a partner or org"
+              body="Submit events, camps, and internships through a guided portal so students and families can decide."
+              cta="Open the partner portal"
+              to="/org/sign-in"
+            />
+            <DoorCard
+              eyebrow="Families"
+              icon={House}
+              image="/passport/families.webp"
+              title="I'm a family member"
+              body="See your student's passport, hours, and upcoming opportunities."
+              cta="See how families connect"
+              to="/family"
+            />
+          </div>
+        </section>
+
+        {/* How it works */}
+        <section id="how" className="scroll-mt-8 border-y border-line bg-paper-raised">
+          <div className="mx-auto max-w-[1312px] px-4 py-16 sm:px-6 lg:px-8">
+            <div className="flex flex-col gap-2.5">
+              <p className="eyebrow text-green">How the passport works</p>
+              <h2 className="font-display text-3xl font-bold tracking-tight">
+                Three stamps from classroom to career.
+              </h2>
+            </div>
+            <ol className="mt-10 grid gap-8 md:grid-cols-3">
+              {STEPS.map((s) => (
+                <li key={s.n} className="flex flex-col gap-4">
+                  <img
+                    src={s.image}
+                    alt=""
+                    width={220}
+                    height={220}
+                    loading="lazy"
+                    className="h-[220px] w-[220px] object-contain"
+                  />
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="eyebrow text-green">Step {s.n}</span>
+                    {s.stamp && <Stamp label={s.stamp} />}
+                  </div>
+                  <h3 className="font-display text-xl font-semibold">{s.title}</h3>
+                  <p className="text-sm leading-relaxed text-ink-700">{s.body}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        {/* Evidence */}
+        <section className="bg-ink-900 text-paper">
+          <div className="mx-auto grid max-w-[1312px] gap-10 px-4 py-14 sm:px-6 md:grid-cols-3 lg:px-8">
+            {EVIDENCE.map((e) => (
+              <div key={e.value} className="flex flex-col gap-2.5">
+                <p className="font-display text-[44px] font-bold leading-none tracking-tight text-mint">
+                  {e.value}
+                </p>
+                <p className="text-paper">{e.body}</p>
+                <p className="eyebrow text-mint">{e.cite}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
 
-      <SiteFooter />
+      <footer className="border-t border-line">
+        <div className="mx-auto flex max-w-[1312px] flex-wrap justify-between gap-8 px-4 py-10 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-2.5">
+            <Wordmark />
+            <p className="text-sm text-ink-700">From Classrooms to Careers – Pathways Start Here</p>
+            <p className="text-sm text-ink-500">
+              A Cleveland work-based learning portfolio for grades 4 to 12. ©{" "}
+              {new Date().getFullYear()} EXPLR
+            </p>
+          </div>
+          <nav aria-label="Footer" className="flex flex-wrap gap-6 text-sm text-ink-900">
+            <Link to="/about" className="hover:text-green-deep">
+              About
+            </Link>
+            <Link to="/privacy" className="hover:text-green-deep">
+              Privacy
+            </Link>
+            <Link to="/terms" className="hover:text-green-deep">
+              Terms
+            </Link>
+            <Link to="/student-data" className="hover:text-green-deep">
+              Student data
+            </Link>
+            <Link to="/educator/sign-in" className="hover:text-green-deep">
+              Instructors
+            </Link>
+            <Link to="/org/sign-in" className="hover:text-green-deep">
+              Partners
+            </Link>
+          </nav>
+        </div>
+      </footer>
     </div>
   );
 }

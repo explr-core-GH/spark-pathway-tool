@@ -20,6 +20,7 @@ import AxeBuilder from "@axe-core/playwright";
 
 const ROUTES: Array<{ path: string; name: string }> = [
   { path: "/", name: "home" },
+  { path: "/family", name: "families" },
   { path: "/about", name: "about" },
   { path: "/privacy", name: "privacy" },
   { path: "/start", name: "start (pathway chooser)" },
@@ -36,9 +37,16 @@ const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
 // EXPLR brand foreground colors exempt from the contrast GATE (still reported).
 // Mint accent + the six RIASEC hues (see src/lib/riasec.ts).
-const BRAND_FG = new Set(
-  ["#2beda1", "#d9523b", "#d9952a", "#3d9c56", "#2e8fb0", "#5c56b0", "#b14a99"],
-);
+const BRAND_FG = new Set([
+  "#2beda1",
+  "#38dbad",
+  "#d9523b",
+  "#d9952a",
+  "#3d9c56",
+  "#2e8fb0",
+  "#5c56b0",
+  "#b14a99",
+]);
 
 type Violation = Awaited<ReturnType<AxeBuilder["analyze"]>>["violations"][number];
 
@@ -47,7 +55,9 @@ type Violation = Awaited<ReturnType<AxeBuilder["analyze"]>>["violations"][number
 function isBrandPaletteContrast(v: Violation): boolean {
   if (v.id !== "color-contrast") return false;
   return v.nodes.every((n) =>
-    (n.any ?? []).some((a) => BRAND_FG.has(String((a.data as { fgColor?: string })?.fgColor ?? "").toLowerCase())),
+    (n.any ?? []).some((a) =>
+      BRAND_FG.has(String((a.data as { fgColor?: string })?.fgColor ?? "").toLowerCase()),
+    ),
   );
 }
 
@@ -61,7 +71,9 @@ for (const route of ROUTES) {
     await page.locator("body").waitFor({ state: "visible" });
 
     const { violations } = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
-    const seriousOrCritical = violations.filter((v) => v.impact === "serious" || v.impact === "critical");
+    const seriousOrCritical = violations.filter(
+      (v) => v.impact === "serious" || v.impact === "critical",
+    );
 
     const advisory = seriousOrCritical.filter(isBrandPaletteContrast);
     const blocking = seriousOrCritical.filter((v) => !isBrandPaletteContrast(v));

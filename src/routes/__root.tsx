@@ -6,6 +6,7 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,21 +24,27 @@ function NotFoundComponent() {
       <p className="eyebrow">404</p>
       <h1 className="display mt-3">Not here.</h1>
       <p className="lead mt-4">That page doesn't exist or has moved.</p>
-      <Link to="/" className="ink-link mt-8 inline-block">Back to home</Link>
+      <Link to="/" className="ink-link mt-8 inline-block">
+        Back to home
+      </Link>
     </div>
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
+  const message = error instanceof Error ? error.message : String(error);
   return (
     <div className="mx-auto max-w-xl px-6 py-32 text-center">
       <p className="eyebrow text-destructive">Error</p>
       <h1 className="display mt-3">Something broke.</h1>
-      <p className="lead mt-4">{error.message}</p>
+      <p className="lead mt-4">{message}</p>
       <button
         className="btn-ink mt-8"
-        onClick={() => { router.invalidate(); reset(); }}
+        onClick={() => {
+          router.invalidate();
+          reset();
+        }}
       >
         Try again
       </button>
@@ -50,21 +57,45 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "EXPLR — Find what you like." },
-      { name: "description", content: "Career-interest assessment for Cleveland K-12 students. Grounded in RIASEC." },
-      { property: "og:title", content: "EXPLR — Find what you like." },
-      { name: "twitter:title", content: "EXPLR — Find what you like." },
-      { property: "og:description", content: "Career-interest assessment for Cleveland K-12 students. Grounded in RIASEC." },
-      { name: "twitter:description", content: "Career-interest assessment for Cleveland K-12 students. Grounded in RIASEC." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a1b7375e-d0ec-47ef-9337-7623b3c2139c/id-preview-38f9e1df--65b336d8-01b0-48e4-84e2-927530bc766b.lovable.app-1779081122441.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a1b7375e-d0ec-47ef-9337-7623b3c2139c/id-preview-38f9e1df--65b336d8-01b0-48e4-84e2-927530bc766b.lovable.app-1779081122441.png" },
+      { title: "EXPLR Pathways — From Classrooms to Careers" },
+      {
+        name: "description",
+        content:
+          "A work-based learning passport for Cleveland students in grades 4 to 12. Add real experiences, get them stamped by the people who saw the work, and carry verified hours, seals, and a resume anywhere.",
+      },
+      { property: "og:title", content: "EXPLR Pathways — From Classrooms to Careers" },
+      { name: "twitter:title", content: "EXPLR Pathways — From Classrooms to Careers" },
+      {
+        property: "og:description",
+        content:
+          "A work-based learning passport for Cleveland students in grades 4 to 12. Add real experiences, get them stamped by the people who saw the work, and carry verified hours, seals, and a resume anywhere.",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "A work-based learning passport for Cleveland students in grades 4 to 12. Add real experiences, get them stamped by the people who saw the work, and carry verified hours, seals, and a resume anywhere.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a1b7375e-d0ec-47ef-9337-7623b3c2139c/id-preview-38f9e1df--65b336d8-01b0-48e4-84e2-927530bc766b.lovable.app-1779081122441.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a1b7375e-d0ec-47ef-9337-7623b3c2139c/id-preview-38f9e1df--65b336d8-01b0-48e4-84e2-927530bc766b.lovable.app-1779081122441.png",
+      },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700&display=swap",
+      },
+      { rel: "icon", type: "image/svg+xml", href: "/passport/favicon.svg" },
       { rel: "stylesheet", href: appCss },
     ],
   }),
@@ -77,12 +108,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head><HeadContent /></head>
+      <head>
+        <HeadContent />
+      </head>
       <body>
         {/* Skip link (WCAG 2.4.1 Bypass Blocks) — first focusable element,
             jumps past the header/nav to the page's main content. The CSS
             for .skip-link keeps it offscreen until focused. */}
-        <a href="#main" className="skip-link">Skip to content</a>
+        <a href="#main" className="skip-link">
+          Skip to content
+        </a>
         {children}
         <Scripts />
       </body>
@@ -102,7 +137,9 @@ function RootComponent() {
     // SIGNED_IN / SIGNED_OUT / USER_UPDATED. Invalidating on TOKEN_REFRESHED
     // or INITIAL_SESSION fires refetches every ~hour and on tab focus, which
     // shows up to the user as "the page kicks me out for a second."
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
         router.invalidate();
       }
