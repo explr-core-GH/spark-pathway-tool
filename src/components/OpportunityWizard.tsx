@@ -149,6 +149,8 @@ export function OpportunityWizard({
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [hydrating, setHydrating] = useState(!!opportunityId);
+  // Review status of the row being edited (drafts can be deleted here).
+  const [status, setStatus] = useState<string | null>(null);
 
   const set = useCallback(<K extends keyof FormState>(k: K, v: FormState[K]) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -175,6 +177,7 @@ export function OpportunityWizard({
         return;
       }
       setOppId(data.id);
+      setStatus(data.status ?? null);
       setType(data.type);
       await loadConfig(data.type);
       setForm({
@@ -434,6 +437,36 @@ export function OpportunityWizard({
     setBusy(true);
     setErr(null);
     const { error } = await sb("opportunities").upsert(payloadFor(status));
+    setBusy(false);
+    if (error) {
+      setErr(error.message);
+      return;
+    }
+    navigate({ to: "/org" });
+  }
+
+  /**
+   * Drafts never reached an admin, so the partner can throw one away here.
+   * Submitted or approved listings keep their history and are only changed
+   * by EXPLR staff. The photo and any attached forms go with the row.
+   */
+  async function deleteDraft() {
+    if (!oppId || status !== "draft") return;
+    if (
+      !confirm(`Delete the draft "${form.name || "Untitled opportunity"}"? This can't be undone.`)
+    )
+      return;
+    setBusy(true);
+    setErr(null);
+    const media = supabase.storage.from("org-media");
+    const { data: objects } = await media.list(`opportunity/${oppId}`);
+    const paths = (objects ?? []).filter((o) => o.id).map((o) => `opportunity/${oppId}/${o.name}`);
+    if (paths.length) await media.remove(paths);
+    for (const f of forms) {
+      const m = f.file_url?.match(/\/org-media\/([^?#]+)/);
+      if (m) await media.remove([decodeURIComponent(m[1])]);
+    }
+    const { error } = await sb("opportunities").delete().eq("id", oppId).eq("status", "draft");
     setBusy(false);
     if (error) {
       setErr(error.message);
@@ -1065,6 +1098,16 @@ export function OpportunityWizard({
             ← Back
           </button>
           <div className="flex flex-wrap gap-3">
+            {opportunityId && status === "draft" && (
+              <button
+                type="button"
+                onClick={deleteDraft}
+                disabled={busy}
+                className="btn-ghost text-red-700"
+              >
+                Delete draft
+              </button>
+            )}
             <button
               type="button"
               onClick={() => persist("draft")}

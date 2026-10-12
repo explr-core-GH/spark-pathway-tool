@@ -46,6 +46,15 @@ type Props = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sb = (table: string): any => (supabase.from as unknown as (n: string) => any)(table);
 
+const BUCKET = "student-photos";
+
+/** Object path inside the bucket for a public URL this dialog produced, or null. */
+function photoPathFromUrl(url: string | null): string | null {
+  if (!url) return null;
+  const m = url.match(new RegExp(`/storage/v1/object/public/${BUCKET}/([^?#]+)`));
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
 /**
  * PictureDialog — set the passport picture: pick an emoji (any grade) or
  * upload a photo (grades 9-12, with a consent note). One picture at a time:
@@ -65,11 +74,22 @@ export function PictureDialog({ studentId, explore, emoji, photoUrl, onClose, on
     setBusy(true);
     setError(null);
     const { error: err } = await sb("students").update(patch).eq("id", studentId);
-    setBusy(false);
     if (err) {
+      setBusy(false);
       setError(err.message);
       return;
     }
+    // Removing or replacing a photo must also delete the old object, or the
+    // bucket fills with pictures nobody can see or remove. Best effort: the
+    // URL is already cleared, so a failed delete only leaves an orphan.
+    const old = photoPathFromUrl(photoUrl);
+    if (old && patch.photo_url !== photoUrl) {
+      await supabase.storage
+        .from(BUCKET)
+        .remove([old])
+        .catch(() => undefined);
+    }
+    setBusy(false);
     onSaved();
     onClose();
   }
@@ -88,14 +108,14 @@ export function PictureDialog({ studentId, explore, emoji, photoUrl, onClose, on
     const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
     const path = `${studentId}/${crypto.randomUUID()}.${ext}`;
     const { error: upErr } = await supabase.storage
-      .from("student-photos")
+      .from(BUCKET)
       .upload(path, file, { contentType: file.type, upsert: false });
     if (upErr) {
       setBusy(false);
       setError(upErr.message);
       return;
     }
-    const { data } = supabase.storage.from("student-photos").getPublicUrl(path);
+    const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
     await save({ avatar_emoji: null, photo_url: data.publicUrl });
   }
 

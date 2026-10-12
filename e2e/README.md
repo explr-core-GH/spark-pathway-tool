@@ -47,3 +47,22 @@ survey runners) aren't covered yet. To add them:
 
 Keep test credentials out of git (`.auth/` is already gitignored via
 `/playwright/.cache/` siblings — add `/e2e/.auth/` if you wire this up).
+
+## Functional walkthrough (`e2e/flows.spec.ts`)
+
+Signs in as each `/demo` role and exercises every user-facing flow — forms,
+uploads, stamps, exports, the partner wizard, instructor notes — asserting the
+result landed and deleting everything it created (all test records are
+prefixed `E2E-TEST`). Skipped unless `LIVE_BASE` is set.
+
+```bash
+LIVE_BASE=https://explrpathways.org TARGET_BASE=http://localhost:5173 PW_PORT=5173 \
+  npx playwright test e2e/flows.spec.ts --workers=1 --reporter=list
+```
+
+Sessions come from the live `/demo` page (the demo accounts, magic links,
+family codes, picture sign-in and stamp links need the server's service-role
+key) and are replayed on `TARGET_BASE`, the code under test. Flows that call a
+service-role server function run on `SERVER_BASE` (defaults to `LIVE_BASE`).
+Helpers live in `e2e/helpers/` (`session.ts` for sign-in/replay, `data.ts` for
+RLS-scoped cleanup and a generated PNG).
