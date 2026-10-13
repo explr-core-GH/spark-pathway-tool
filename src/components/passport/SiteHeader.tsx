@@ -18,6 +18,12 @@ export function SiteHeader() {
             Opportunities
           </Link>
           <Link
+            to="/careers"
+            className="hidden min-h-[44px] items-center hover:text-green-deep sm:inline-flex"
+          >
+            Careers
+          </Link>
+          <Link
             to="/about"
             className="hidden min-h-[44px] items-center hover:text-green-deep sm:inline-flex"
           >

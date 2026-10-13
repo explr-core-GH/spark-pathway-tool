@@ -21,6 +21,7 @@ import { acknowledgmentsFor, targetFromOpportunity } from "@/lib/matching/placem
 const STUDENT_LINKS: PortalLink[] = [
   { label: "My passport", to: "/student" },
   { label: "Opportunities", to: "/opportunities" },
+  { label: "Careers", to: "/careers" },
   { label: "Families", to: "/student/pathway", search: { tab: "families" } },
 ];
 

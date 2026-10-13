@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Briefcase, Compass, Flag, Import, Search, Sparkles } from "lucide-react";
+import { Briefcase, Compass, Flag, Import, Map, Search, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
@@ -136,6 +136,20 @@ function ResumeCenter() {
         image="/passport/organizations.webp"
       />
     ),
+    careers: (
+      <RailCard
+        title="Careers in Ohio"
+        hint={
+          explore ? "What jobs are like, and what they pay." : "Pay, growth, and how to get there"
+        }
+        meta={p.hollandCode ? `Matched to ${p.hollandCode}` : "667 Ohio jobs"}
+        icon={Map}
+        to="/careers"
+        search={p.hollandCode ? { traits: p.hollandCode.split("").join(",") } : undefined}
+        big={explore}
+        image="/passport/grades-9-12.webp"
+      />
+    ),
     import: (
       <RailCard
         title="Import"
@@ -162,6 +176,9 @@ function ResumeCenter() {
             </Link>
             <Link to="/opportunities" className="hidden hover:text-green-deep sm:inline">
               Opportunities
+            </Link>
+            <Link to="/careers" className="hidden hover:text-green-deep sm:inline">
+              Careers
             </Link>
             <Link
               to="/student/pathway"
@@ -210,6 +227,7 @@ function ResumeCenter() {
             {!explore && <p className="eyebrow">Grow it</p>}
             {explore ? rails.experience : rails.skills}
             {rails.opportunities}
+            {rails.careers}
             {!explore && rails.import}
             {!explore && (
               <div className="rounded-[var(--radius-card)] bg-gold-tint p-4">

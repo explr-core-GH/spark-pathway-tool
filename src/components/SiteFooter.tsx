@@ -3,6 +3,7 @@ import { Wordmark } from "@/components/passport/Wordmark";
 
 const LINKS: Array<{ to: string; label: string }> = [
   { to: "/about", label: "About" },
+  { to: "/careers", label: "Careers in Ohio" },
   { to: "/privacy", label: "Privacy" },
   { to: "/terms", label: "Terms" },
   { to: "/student-data", label: "Student data" },

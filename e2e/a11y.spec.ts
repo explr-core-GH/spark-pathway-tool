@@ -32,6 +32,9 @@ const ROUTES: Array<{ path: string; name: string }> = [
   { path: "/org/sign-up", name: "partner sign-up" },
   { path: "/demo", name: "demo" },
   { path: "/opportunities", name: "opportunities" },
+  { path: "/careers", name: "careers in Ohio" },
+  { path: "/careers?traits=S,I", name: "careers (traits deep link)" },
+  { path: "/careers/29-1141", name: "career detail (registered nurses)" },
   { path: "/try-riasec", name: "RIASEC demo" },
   { path: "/assessment", name: "assessment intro (signed-out)" },
 ];

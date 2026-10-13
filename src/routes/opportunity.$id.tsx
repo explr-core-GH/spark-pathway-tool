@@ -7,10 +7,13 @@ import { PortalHeader, SiteHeader, type PortalLink } from "@/components/passport
 import { Check, ExternalLink, MapPin } from "lucide-react";
 import { dollars, oppTypeMeta, type Opportunity, type OpportunityForm } from "@/lib/opportunities";
 import { GateBadge, WblPublicSection } from "@/components/WblReview";
+import { CareerRow, CareersLoading } from "@/components/careers/CareerBits";
+import { matchCareers, useOhioCareers } from "@/lib/ohio-careers";
 
 const STUDENT_LINKS: PortalLink[] = [
   { label: "My passport", to: "/student" },
   { label: "Opportunities", to: "/opportunities" },
+  { label: "Careers", to: "/careers" },
   { label: "Families", to: "/student/pathway", search: { tab: "families" } },
 ];
 
@@ -32,6 +35,41 @@ export const Route = createFileRoute("/opportunity/$id")({
 });
 
 const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
+
+/**
+ * Careers this opportunity can lead to. The opportunities table has no
+ * career-cluster column, so the link is made through the listing's RIASEC
+ * code: the three best-fitting Ohio jobs for that code.
+ */
+function CareersFromCode({ code }: { code: string }) {
+  const data = useOhioCareers();
+  const top = data ? matchCareers(data, { code }, { limit: 3 }) : [];
+  if (data && top.length === 0) return null;
+  return (
+    <section className="mt-6" aria-labelledby="opp-careers-h">
+      <p className="eyebrow">Careers this can lead to</p>
+      <h2 id="opp-careers-h" className="mt-1 font-display text-xl font-bold">
+        Ohio jobs that fit {code}.
+      </h2>
+      {!data ? (
+        <CareersLoading className="mt-3" />
+      ) : (
+        <ul className="mt-3 flex flex-col gap-2">
+          {top.map((m) => (
+            <CareerRow key={m.career.soc} career={m.career} data={data} />
+          ))}
+        </ul>
+      )}
+      <Link
+        to="/careers"
+        search={{ traits: code.split("").join(",") }}
+        className="mt-2 inline-flex min-h-[44px] items-center text-sm font-medium text-green-deep hover:underline"
+      >
+        More careers for {code} →
+      </Link>
+    </section>
+  );
+}
 
 function OpportunityDetail() {
   const { id } = useParams({ from: "/opportunity/$id" });
@@ -195,6 +233,8 @@ function OpportunityDetail() {
         )}
 
         <WblPublicSection o={o} />
+
+        {o.riasec_code && <CareersFromCode code={o.riasec_code} />}
 
         {o.requirements && o.requirements.length > 0 && (
           <section className="mt-6">

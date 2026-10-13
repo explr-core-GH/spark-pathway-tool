@@ -30,6 +30,8 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TryRiasecRouteImport } from './routes/try-riasec'
 import { Route as AssessmentIndexRouteImport } from './routes/assessment.index'
 import { Route as AssessmentSessionIdRouteImport } from './routes/assessment.$sessionId'
+import { Route as CareersIndexRouteImport } from './routes/careers.index'
+import { Route as CareersSocRouteImport } from './routes/careers.$soc'
 import { Route as EducatorIndexRouteImport } from './routes/educator.index'
 import { Route as EducatorSplatRouteImport } from './routes/educator.$'
 import { Route as ExploreIndexRouteImport } from './routes/explore.index'
@@ -197,6 +199,16 @@ const AssessmentIndexRoute = AssessmentIndexRouteImport.update({
 const AssessmentSessionIdRoute = AssessmentSessionIdRouteImport.update({
   id: '/assessment/$sessionId',
   path: '/assessment/$sessionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersIndexRoute = CareersIndexRouteImport.update({
+  id: '/careers/',
+  path: '/careers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersSocRoute = CareersSocRouteImport.update({
+  id: '/careers/$soc',
+  path: '/careers/$soc',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EducatorIndexRoute = EducatorIndexRouteImport.update({
@@ -556,6 +568,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/try-riasec': typeof TryRiasecRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
+  '/careers/$soc': typeof CareersSocRoute
   '/educator/$': typeof EducatorSplatRoute
   '/explore/$code': typeof ExploreCodeRoute
   '/explore/scan': typeof ExploreScanRoute
@@ -585,6 +598,7 @@ export interface FileRoutesByFullPath {
   '/student/skills': typeof StudentSkillsRoute
   '/survey/$assignmentId': typeof SurveyAssignmentIdRoute
   '/assessment/': typeof AssessmentIndexRoute
+  '/careers/': typeof CareersIndexRoute
   '/educator/': typeof EducatorIndexRoute
   '/explore/': typeof ExploreIndexRoute
   '/instructor/': typeof InstructorIndexRoute
@@ -641,6 +655,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/try-riasec': typeof TryRiasecRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
+  '/careers/$soc': typeof CareersSocRoute
   '/educator/$': typeof EducatorSplatRoute
   '/explore/$code': typeof ExploreCodeRoute
   '/explore/scan': typeof ExploreScanRoute
@@ -669,6 +684,7 @@ export interface FileRoutesByTo {
   '/student/skills': typeof StudentSkillsRoute
   '/survey/$assignmentId': typeof SurveyAssignmentIdRoute
   '/assessment': typeof AssessmentIndexRoute
+  '/careers': typeof CareersIndexRoute
   '/educator': typeof EducatorIndexRoute
   '/explore': typeof ExploreIndexRoute
   '/instructor': typeof InstructorIndexRoute
@@ -727,6 +743,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/try-riasec': typeof TryRiasecRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
+  '/careers/$soc': typeof CareersSocRoute
   '/educator/$': typeof EducatorSplatRoute
   '/explore/$code': typeof ExploreCodeRoute
   '/explore/scan': typeof ExploreScanRoute
@@ -756,6 +773,7 @@ export interface FileRoutesById {
   '/student_/skills': typeof StudentSkillsRoute
   '/survey/$assignmentId': typeof SurveyAssignmentIdRoute
   '/assessment/': typeof AssessmentIndexRoute
+  '/careers/': typeof CareersIndexRoute
   '/educator/': typeof EducatorIndexRoute
   '/explore/': typeof ExploreIndexRoute
   '/instructor/': typeof InstructorIndexRoute
@@ -815,6 +833,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/try-riasec'
     | '/assessment/$sessionId'
+    | '/careers/$soc'
     | '/educator/$'
     | '/explore/$code'
     | '/explore/scan'
@@ -844,6 +863,7 @@ export interface FileRouteTypes {
     | '/student/skills'
     | '/survey/$assignmentId'
     | '/assessment/'
+    | '/careers/'
     | '/educator/'
     | '/explore/'
     | '/instructor/'
@@ -900,6 +920,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/try-riasec'
     | '/assessment/$sessionId'
+    | '/careers/$soc'
     | '/educator/$'
     | '/explore/$code'
     | '/explore/scan'
@@ -928,6 +949,7 @@ export interface FileRouteTypes {
     | '/student/skills'
     | '/survey/$assignmentId'
     | '/assessment'
+    | '/careers'
     | '/educator'
     | '/explore'
     | '/instructor'
@@ -985,6 +1007,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/try-riasec'
     | '/assessment/$sessionId'
+    | '/careers/$soc'
     | '/educator/$'
     | '/explore/$code'
     | '/explore/scan'
@@ -1014,6 +1037,7 @@ export interface FileRouteTypes {
     | '/student_/skills'
     | '/survey/$assignmentId'
     | '/assessment/'
+    | '/careers/'
     | '/educator/'
     | '/explore/'
     | '/instructor/'
@@ -1072,6 +1096,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TryRiasecRoute: typeof TryRiasecRoute
   AssessmentSessionIdRoute: typeof AssessmentSessionIdRoute
+  CareersSocRoute: typeof CareersSocRoute
   EducatorSplatRoute: typeof EducatorSplatRoute
   ExploreCodeRoute: typeof ExploreCodeRoute
   ExploreScanRoute: typeof ExploreScanRoute
@@ -1095,6 +1120,7 @@ export interface RootRouteChildren {
   StudentSkillsRoute: typeof StudentSkillsRoute
   SurveyAssignmentIdRoute: typeof SurveyAssignmentIdRoute
   AssessmentIndexRoute: typeof AssessmentIndexRoute
+  CareersIndexRoute: typeof CareersIndexRoute
   EducatorIndexRoute: typeof EducatorIndexRoute
   ExploreIndexRoute: typeof ExploreIndexRoute
   OrgIndexRoute: typeof OrgIndexRoute
@@ -1250,6 +1276,20 @@ declare module '@tanstack/react-router' {
       path: '/assessment/$sessionId'
       fullPath: '/assessment/$sessionId'
       preLoaderRoute: typeof AssessmentSessionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/': {
+      id: '/careers/'
+      path: '/careers'
+      fullPath: '/careers/'
+      preLoaderRoute: typeof CareersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/$soc': {
+      id: '/careers/$soc'
+      path: '/careers/$soc'
+      fullPath: '/careers/$soc'
+      preLoaderRoute: typeof CareersSocRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/educator/': {
@@ -1807,6 +1847,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TryRiasecRoute: TryRiasecRoute,
   AssessmentSessionIdRoute: AssessmentSessionIdRoute,
+  CareersSocRoute: CareersSocRoute,
   EducatorSplatRoute: EducatorSplatRoute,
   ExploreCodeRoute: ExploreCodeRoute,
   ExploreScanRoute: ExploreScanRoute,
@@ -1830,6 +1871,7 @@ const rootRouteChildren: RootRouteChildren = {
   StudentSkillsRoute: StudentSkillsRoute,
   SurveyAssignmentIdRoute: SurveyAssignmentIdRoute,
   AssessmentIndexRoute: AssessmentIndexRoute,
+  CareersIndexRoute: CareersIndexRoute,
   EducatorIndexRoute: EducatorIndexRoute,
   ExploreIndexRoute: ExploreIndexRoute,
   OrgIndexRoute: OrgIndexRoute,

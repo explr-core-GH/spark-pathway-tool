@@ -6,10 +6,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { HollandHexagon } from "@/components/HollandHexagon";
 import { RIASEC, RIASEC_ORDER, type RIASECCode } from "@/lib/riasec";
 import { RoleGuard } from "@/components/RoleGuard";
+import { CareerRow, CareersLoading } from "@/components/careers/CareerBits";
+import { matchCareers, useOhioCareers } from "@/lib/ohio-careers";
 
 const STUDENT_LINKS: PortalLink[] = [
   { label: "My passport", to: "/student" },
   { label: "Opportunities", to: "/opportunities" },
+  { label: "Careers", to: "/careers" },
   { label: "Families", to: "/student/pathway", search: { tab: "families" } },
 ];
 
@@ -29,6 +32,35 @@ type SessionRow = {
   flag_uniform: boolean | null;
   flag_speeding: boolean | null;
 };
+
+/** Top five Ohio jobs for the session's six scale scores. */
+function CareersForScores({ code, scores }: { code: string; scores: Record<RIASECCode, number> }) {
+  const data = useOhioCareers();
+  const top = data ? matchCareers(data, { scores }, { limit: 5 }) : [];
+  return (
+    <section className="mt-12 border-t border-line pt-10" aria-labelledby="careers-fit-h">
+      <p className="eyebrow text-green">Careers in Ohio</p>
+      <h2 id="careers-fit-h" className="mt-2 font-display text-2xl font-bold">
+        Ohio careers that fit {code}.
+      </h2>
+      <p className="mt-2 max-w-2xl text-sm text-ink-700">
+        Jobs that fit how you're wired, with what they pay in Ohio and whether they're growing.
+      </p>
+      {!data ? (
+        <CareersLoading className="mt-4" />
+      ) : (
+        <ul className="mt-4 flex flex-col gap-2">
+          {top.map((m) => (
+            <CareerRow key={m.career.soc} career={m.career} data={data} />
+          ))}
+        </ul>
+      )}
+      <Link to="/careers" search={{ traits: code.split("").join(",") }} className="btn-ghost mt-4">
+        See all careers for {code}
+      </Link>
+    </section>
+  );
+}
 
 function Results() {
   const { sessionId } = Route.useParams();
@@ -136,6 +168,8 @@ function Results() {
             </ul>
           </div>
         </div>
+
+        <CareersForScores code={code} scores={row.scale_scores} />
 
         <section className="mt-12 border-t border-line pt-10">
           <p className="eyebrow" style={{ color: primary.ink }}>

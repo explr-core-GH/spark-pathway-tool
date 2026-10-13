@@ -9,6 +9,8 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { usePassport, type Passport } from "@/lib/passport";
 import { downloadStudentSuccessPlanPdf } from "@/lib/exports";
 import { CAREER_CLUSTERS } from "@/lib/wbl-taxonomy";
+import { GrowthChip } from "@/components/careers/CareerBits";
+import { careerByTitle, formatPay, useOhioCareers } from "@/lib/ohio-careers";
 import {
   CHECKLIST,
   POST_HS_PLANS,
@@ -30,6 +32,7 @@ import {
 const STUDENT_LINKS: PortalLink[] = [
   { label: "My passport", to: "/student" },
   { label: "Opportunities", to: "/opportunities" },
+  { label: "Careers", to: "/careers" },
   { label: "Families", to: "/student/pathway", search: { tab: "families" } },
 ];
 
@@ -560,6 +563,22 @@ function FormTask({
   );
 }
 
+/** If the goal names an Ohio job, its pay and growth, inline. */
+function GoalCareerHint({ title }: { title: string }) {
+  const data = useOhioCareers();
+  const c = data ? careerByTitle(data, title) : undefined;
+  if (!c) return null;
+  return (
+    <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-ink-700">
+      <Link to="/careers/$soc" params={{ soc: c.soc }} className="ink-link">
+        {c.title}
+      </Link>
+      <span>{formatPay(c.wageAnnual)}/yr in Ohio</span>
+      <GrowthChip pct={c.changePct} />
+    </p>
+  );
+}
+
 function GoalTask({
   cp,
   goal,
@@ -582,13 +601,16 @@ function GoalTask({
   const [busy, setBusy] = useState(false);
   if (!open) {
     return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="mt-1 inline-flex min-h-[44px] items-center text-sm text-green-deep hover:underline"
-      >
-        Edit goal
-      </button>
+      <>
+        {goal && <GoalCareerHint title={goal.primary_goal} />}
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="mt-1 inline-flex min-h-[44px] items-center text-sm text-green-deep hover:underline"
+        >
+          Edit goal
+        </button>
+      </>
     );
   }
   return (
@@ -632,6 +654,13 @@ function GoalTask({
           value={primary}
           onChange={(e) => setPrimary(e.target.value)}
         />
+        <p className="mt-1 text-sm text-ink-700">
+          Not sure what to put?{" "}
+          <Link to="/careers" className="ink-link">
+            Browse Ohio careers →
+          </Link>
+        </p>
+        <GoalCareerHint title={primary} />
       </div>
       <div>
         <label className="label" htmlFor={`cluster-${cp.id}`}>

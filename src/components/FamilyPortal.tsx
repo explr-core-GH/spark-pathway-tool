@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Search } from "lucide-react";
+import { FamilyCareers } from "@/components/careers/FamilyCareers";
 import { supabase } from "@/integrations/supabase/client";
 import { RIASEC, RIASEC_ORDER, type RIASECCode } from "@/lib/riasec";
 import { SurveyResultsPanel } from "@/components/SurveyResultsPanel";
@@ -84,10 +86,13 @@ export function FamilyResults({
   data,
   grade,
   stemPanel,
+  showCareers = true,
 }: {
   data: FamilyResultsData;
   grade: number | null;
   stemPanel?: React.ReactNode;
+  /** Show the "Where this could lead" block under the interest profile (off when the page has its own). */
+  showCareers?: boolean;
 }) {
   const { riasec, stemDone } = data;
   const tabs: Array<{ id: string; label: string }> = [];
@@ -150,7 +155,9 @@ export function FamilyResults({
         id="family-tabpanel"
         aria-labelledby={`family-tab-${current}`}
       >
-        {current === "interest" && riasec && <InterestPanel data={riasec} />}
+        {current === "interest" && riasec && (
+          <InterestPanel data={riasec} showCareers={showCareers} />
+        )}
         {current === "stem" && stemPanel}
         {current === "about" && <AboutPanel grade={grade} />}
       </div>
@@ -159,7 +166,8 @@ export function FamilyResults({
 }
 
 // ── Career explorer callout ──────────────────────────────────────────────
-function CareersCallout() {
+function CareersCallout({ code }: { code?: string }) {
+  const traits = code ? code.split("").join(",") : "";
   return (
     <div className="mt-6 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card">
       <div className="flex items-center gap-3">
@@ -170,48 +178,21 @@ function CareersCallout() {
       </div>
       <p className="mt-2 max-w-2xl text-sm text-ink-700">
         Your student&rsquo;s <strong>Holland code</strong> (their three interest letters) is the
-        key. The EXPLR career-connected site is wired to real workforce data, so families can search
-        for jobs and careers that match the code —{" "}
+        key. Careers in Ohio is wired to real Ohio workforce data, so you can browse jobs that match
+        the code —{" "}
         <strong>what they pay, where they&rsquo;re growing, and the path to get there</strong>.
         It&rsquo;s the same six-interest (RIASEC) system as the U.S. Department of Labor&rsquo;s
         O*NET.
       </p>
-      <ol className="mt-3 space-y-1 text-sm text-ink-700">
-        <li>
-          1. Go to{" "}
-          <a
-            className="ink-link"
-            href="https://explrpathways.netlify.app/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            explrpathways.netlify.app
-            <span className="sr-only"> (opens in a new tab)</span>
-          </a>
-          .
-        </li>
-        <li>
-          2. Choose <strong>&ldquo;Explore as a family.&rdquo;</strong>
-        </li>
-        <li>
-          3. Search by your student&rsquo;s Holland code (e.g. their letters above) to see matching
-          jobs — with pay and pathways.
-        </li>
-      </ol>
-      <a
-        href="https://explrpathways.netlify.app/"
-        target="_blank"
-        rel="noreferrer"
-        className="btn-ink mt-4"
-      >
-        Search jobs by code →<span className="sr-only"> (opens in a new tab)</span>
-      </a>
+      <Link to="/careers" search={traits ? { traits } : {}} className="btn-ink mt-4">
+        {code ? `Search Ohio jobs for ${code} →` : "Search Ohio jobs by code →"}
+      </Link>
     </div>
   );
 }
 
 // ── Interest profile (RIASEC) ────────────────────────────────────────────
-function InterestPanel({ data }: { data: Riasec }) {
+function InterestPanel({ data, showCareers }: { data: Riasec; showCareers: boolean }) {
   const top = (
     data.hollandCode.split("").filter((c) => RIASEC[c as RIASECCode]) as RIASECCode[]
   ).slice(0, 3);
@@ -271,7 +252,8 @@ function InterestPanel({ data }: { data: Riasec }) {
           );
         })}
       </ul>
-      <CareersCallout />
+      {showCareers && <FamilyCareers code={data.hollandCode} compact headingLevel="h3" />}
+      <CareersCallout code={data.hollandCode} />
     </div>
   );
 }

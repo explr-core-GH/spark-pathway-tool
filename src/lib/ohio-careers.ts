@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import type { RIASECCode } from "@/lib/riasec";
 
 /**
@@ -91,6 +92,24 @@ export function loadOhioCareers(): Promise<OhioCareersData> {
   return cache;
 }
 
+/**
+ * React hook: the Ohio job data once it has loaded, else null. Surfaces
+ * that use it render a `role="status"` line until data arrives.
+ */
+export function useOhioCareers(): OhioCareersData | null {
+  const [data, setData] = useState<OhioCareersData | null>(null);
+  useEffect(() => {
+    let active = true;
+    loadOhioCareers().then((d) => {
+      if (active) setData(d);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+  return data;
+}
+
 // ── Plain-language labels ──────────────────────────────────────────────────
 
 /** Kid- and family-friendly names for the six RIASEC types. */
@@ -129,6 +148,56 @@ export function formatPay(n: number | null | undefined): string {
   if (n == null) return "—";
   if (n >= 1000) return `$${Math.round(n / 1000)}k`;
   return `$${n.toLocaleString()}`;
+}
+
+/** Annual openings for cards: `4,210/yr`. */
+export function formatOpenings(n: number | null | undefined): string {
+  if (n == null) return "—";
+  return `${n.toLocaleString("en-US")}/yr`;
+}
+
+/** Signed growth percent: `+12%`, `-3%`, `0%`. */
+export function formatGrowth(pct: number | null | undefined): string {
+  if (pct == null) return "—";
+  const r = Math.round(pct);
+  return `${r > 0 ? "+" : ""}${r}%`;
+}
+
+/** O*NET job zone in words, for families. */
+export function jobZoneLabel(z: number | null | undefined): string {
+  const m: Record<number, string> = {
+    1: "Little or no preparation",
+    2: "Some preparation",
+    3: "Medium preparation",
+    4: "Considerable preparation",
+    5: "Extensive preparation",
+  };
+  return z != null ? (m[z] ?? "Varies") : "Varies";
+}
+
+/** The letters of a Holland code, in order, dropping anything that isn't RIASEC. */
+export function codeLetters(code: string | null | undefined): RIASECCode[] {
+  if (!code) return [];
+  const out: RIASECCode[] = [];
+  for (const c of code.toUpperCase()) {
+    if ((["R", "I", "A", "S", "E", "C"] as string[]).includes(c) && !out.includes(c as RIASECCode))
+      out.push(c as RIASECCode);
+  }
+  return out.slice(0, 3);
+}
+
+/** Education level bucket for the careers filter. */
+export type EducationBucket = "two_year_or_less" | "four_year" | "graduate";
+export function educationBucket(e: string | null): EducationBucket {
+  switch (e) {
+    case "Bachelor's degree":
+      return "four_year";
+    case "Master's degree":
+    case "Doctoral or professional degree":
+      return "graduate";
+    default:
+      return "two_year_or_less";
+  }
 }
 
 /** Rough starting pay: 70% of the median, like the EXPLR dashboard shows. */
@@ -292,6 +361,25 @@ export function careerBySoc(data: OhioCareersData, soc: string): OhioCareer | un
   return data.occupations.find((c) => c.soc === soc);
 }
 
+/** Case-insensitive title lookup (exact title, or a singular/plural variant). */
+export function careerByTitle(data: OhioCareersData, title: string | null): OhioCareer | undefined {
+  if (!title) return undefined;
+  const norm = (s: string) =>
+    s
+      .toLowerCase()
+      .replace(/[^a-z0-9 ]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  const t = norm(title);
+  if (!t) return undefined;
+  const variants = new Set([t, `${t}s`, t.endsWith("s") ? t.slice(0, -1) : t]);
+  return data.occupations.find((c) => variants.has(norm(c.title)));
+}
+
+export function clusterName(data: OhioCareersData, id: ClusterId): string {
+  return data.clusters.find((c) => c.id === id)?.name ?? id;
+}
+
 export function kidCareerFor(data: OhioCareersData, career: OhioCareer): KidCareer | undefined {
   return career.kid ? data.kidCareers.find((k) => k.slug === career.kid) : undefined;
 }
@@ -327,4 +415,18 @@ export const PATHWAYS_CLUSTER_TO_DATA: Record<string, ClusterId> = {
   marketing: "marketing",
   stem: "stem",
   transportation: "transportation_distribution_logistics",
+};
+
+/**
+ * The reverse: data cluster id → the Pathways cluster slug that
+ * `career_goals.cluster` and the checkpoint form use (wbl-taxonomy
+ * CAREER_CLUSTERS). Four slugs differ from the short keys above, so the
+ * reverse map is corrected to the taxonomy spelling.
+ */
+export const DATA_CLUSTER_TO_PATHWAYS: Record<ClusterId, string> = {
+  ...Object.fromEntries(Object.entries(PATHWAYS_CLUSTER_TO_DATA).map(([slug, id]) => [id, slug])),
+  architecture_construction: "construction",
+  arts_av_communications: "arts",
+  information_technology: "information-technology",
+  law_public_safety: "public-safety",
 };

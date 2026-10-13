@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { FamilyResults, type FamilyResultsData } from "@/components/FamilyPortal";
 import { getFamilyView, guardianAckPlan, type FamilyView } from "@/lib/family.functions";
 import { Stamp } from "@/components/passport";
+import { FamilyCareers } from "@/components/careers/FamilyCareers";
 
 const FAMILY_TOKEN_KEY = "explr.family.token";
 
@@ -200,7 +201,10 @@ function View() {
                 )}
               </div>
             </section>
-            <FamilyResults data={data} grade={view.grade} />
+            {view.riasec?.hollandCode && (
+              <FamilyCareers code={view.riasec.hollandCode} firstName={view.firstName} />
+            )}
+            <FamilyResults data={data} grade={view.grade} showCareers={false} />
           </>
         )}
       </main>

@@ -17,6 +17,8 @@ import {
   type Experience,
   type Passport,
 } from "@/lib/passport";
+import { CareerRow } from "@/components/careers/CareerBits";
+import { kidCareersFor, matchCareers, useOhioCareers } from "@/lib/ohio-careers";
 import {
   downloadHoursLogCsv,
   downloadHoursLogPdf,
@@ -104,6 +106,101 @@ function ExperienceRow({ e }: { e: Experience }) {
         </span>
       </div>
     </li>
+  );
+}
+
+/**
+ * Ohio careers on the sheet. Pro: the top three jobs for the student's
+ * Holland code. Explore: four kid cards they might love. Data loads lazily
+ * the first time the sheet renders.
+ */
+function CareersSection({ p }: { p: Passport }) {
+  const data = useOhioCareers();
+  const explore = p.band === "explore";
+  const code = p.hollandCode ?? null;
+  if (!explore && !code) return null;
+  const letters = (code ?? "").split("").filter((c) => RIASEC[c as RIASECCode]);
+  const seeAll = letters.length ? { traits: letters.join(",") } : {};
+  if (!data) {
+    return (
+      <section className="flex flex-col gap-2">
+        <SectionHead
+          eyebrow={explore ? "Jobs you might love" : "Careers that fit my code"}
+          title={explore ? "Jobs you might love." : "Jobs that fit how I'm wired."}
+        />
+        <p role="status" className="text-sm text-ink-500">
+          Loading Ohio job data…
+        </p>
+      </section>
+    );
+  }
+  if (explore) {
+    const kids = kidCareersFor(data, { code: code ?? "" }, 4);
+    return (
+      <section className="flex flex-col gap-4">
+        <SectionHead
+          eyebrow="Jobs you might love"
+          title="Jobs you might love."
+          action={
+            <Link to="/careers" search={seeAll} className="eyebrow text-green-deep hover:underline">
+              See all
+            </Link>
+          }
+        />
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {kids.map((k) => {
+            const inner = (
+              <>
+                <span className="text-4xl leading-none" aria-hidden>
+                  {k.emoji}
+                </span>
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="font-display text-lg font-semibold leading-tight">{k.name}</span>
+                  <span className="text-sm text-ink-700">{k.tagline}</span>
+                </span>
+              </>
+            );
+            return (
+              <li key={k.slug}>
+                {k.soc ? (
+                  <Link
+                    to="/careers/$soc"
+                    params={{ soc: k.soc }}
+                    className="flex min-h-[44px] items-center gap-4 rounded-[var(--radius-card)] border border-line bg-paper p-4 hover:border-emerald focus-visible:border-emerald"
+                  >
+                    {inner}
+                  </Link>
+                ) : (
+                  <span className="flex min-h-[44px] items-center gap-4 rounded-[var(--radius-card)] border border-line bg-paper p-4">
+                    {inner}
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    );
+  }
+  const top = matchCareers(data, { code: code! }, { limit: 3 });
+  if (!top.length) return null;
+  return (
+    <section className="flex flex-col gap-4">
+      <SectionHead
+        eyebrow={`Careers that fit my code · ${code}`}
+        title="Jobs that fit how I'm wired."
+        action={
+          <Link to="/careers" search={seeAll} className="eyebrow text-green-deep hover:underline">
+            See all →
+          </Link>
+        }
+      />
+      <ul className="flex flex-col gap-2">
+        {top.map((m) => (
+          <CareerRow key={m.career.soc} career={m.career} data={data} />
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -209,6 +306,9 @@ export function PassportSheet({
         </div>
         <p className="max-w-[600px] text-lg leading-relaxed text-ink-700">{about}</p>
       </section>
+
+      {/* Ohio careers that fit */}
+      <CareersSection p={p} />
 
       {/* Explore: stamps collected */}
       {explore && (
