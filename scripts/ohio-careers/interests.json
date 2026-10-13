@@ -1,0 +1,82 @@
+[
+ {
+  "id": "building_fixing",
+  "name": "Building & Fixing",
+  "blurb": "Working with tools, equipment, vehicles, and structures.",
+  "examples": "Construction, mechanics, manufacturing, logistics",
+  "clusters": [
+   "architecture_construction",
+   "manufacturing",
+   "transportation_distribution_logistics"
+  ]
+ },
+ {
+  "id": "helping_people",
+  "name": "Helping People",
+  "blurb": "Caring for, teaching, or supporting others.",
+  "examples": "Nursing, teaching, counseling, social work, childcare",
+  "clusters": [
+   "health_science",
+   "human_services",
+   "education_training"
+  ]
+ },
+ {
+  "id": "solving_puzzles",
+  "name": "Solving Puzzles",
+  "blurb": "Math, code, data, science — figuring out how things work.",
+  "examples": "Software, data science, engineering, finance",
+  "clusters": [
+   "information_technology",
+   "stem",
+   "finance"
+  ]
+ },
+ {
+  "id": "making_creating",
+  "name": "Making & Creating",
+  "blurb": "Telling stories, designing things, making art and media.",
+  "examples": "Graphic design, video, music, writing, marketing",
+  "clusters": [
+   "arts_av_communications",
+   "marketing"
+  ]
+ },
+ {
+  "id": "leading_organizing",
+  "name": "Leading & Organizing",
+  "blurb": "Running teams, projects, organizations, or public services.",
+  "examples": "Business management, HR, government, city planning",
+  "clusters": [
+   "business_management_administration",
+   "government_public_administration"
+  ]
+ },
+ {
+  "id": "nature_animals",
+  "name": "Nature & Animals",
+  "blurb": "Working outdoors, with animals, plants, or the environment.",
+  "examples": "Veterinary, farming, conservation, food science",
+  "clusters": [
+   "agriculture_food_natural_resources"
+  ]
+ },
+ {
+  "id": "keeping_safe",
+  "name": "Keeping People Safe",
+  "blurb": "Protecting communities, enforcing laws, responding to emergencies.",
+  "examples": "Police, fire, EMS, corrections, security, courts",
+  "clusters": [
+   "law_public_safety"
+  ]
+ },
+ {
+  "id": "food_hospitality",
+  "name": "Food & Hospitality",
+  "blurb": "Cooking, serving, hosting — taking care of guests.",
+  "examples": "Chef, restaurant work, hotels, tourism, events",
+  "clusters": [
+   "hospitality_tourism"
+  ]
+ }
+]

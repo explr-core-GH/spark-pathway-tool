@@ -1,0 +1,649 @@
+[
+ {
+  "id": "agriculture_food_natural_resources",
+  "name": "Agriculture, Food & Natural Resources",
+  "short": "Grow food, manage forests, protect ecosystems",
+  "socMajorGroups": [
+   "45"
+  ],
+  "priorityOccupations": [
+   "45-2011",
+   "45-2091",
+   "45-2092",
+   "45-2093",
+   "45-4011",
+   "11-9013",
+   "19-1011",
+   "19-1012",
+   "19-1031",
+   "19-1032",
+   "19-4012",
+   "19-4013"
+  ],
+  "cipFallbackFamilies": [
+   "01",
+   "03"
+  ],
+  "cipFallbackKeywords": [
+   "agriculture",
+   "animal",
+   "horticulture",
+   "natural resource",
+   "forestry",
+   "fishery",
+   "veterinary",
+   "food science",
+   "environmental"
+  ]
+ },
+ {
+  "id": "architecture_construction",
+  "name": "Architecture & Construction",
+  "short": "Design, build, and maintain the world's structures",
+  "socMajorGroups": [
+   "47"
+  ],
+  "priorityOccupations": [
+   "17-1011",
+   "17-1012",
+   "17-3011",
+   "47-1011",
+   "47-2031",
+   "47-2111",
+   "47-2152",
+   "47-2073",
+   "47-2061",
+   "47-2211",
+   "47-2231",
+   "11-9021",
+   "49-9021",
+   "49-2098",
+   "47-4011",
+   "47-9096"
+  ],
+  "cipFallbackFamilies": [
+   "46",
+   "47",
+   "48",
+   "15",
+   "04"
+  ],
+  "cipFallbackKeywords": [
+   "construction",
+   "trade",
+   "carpentry",
+   "plumbing",
+   "electrical",
+   "hvac",
+   "skilled",
+   "building",
+   "architecture",
+   "drafting"
+  ]
+ },
+ {
+  "id": "arts_av_communications",
+  "name": "Arts, A/V Technology & Communications",
+  "short": "Tell stories through design, media, sound, and word",
+  "socMajorGroups": [
+   "27"
+  ],
+  "priorityOccupations": [
+   "27-1024",
+   "27-1025",
+   "27-1023",
+   "27-1014",
+   "27-2011",
+   "27-2012",
+   "27-2042",
+   "27-3023",
+   "27-3031",
+   "27-3042",
+   "27-3043",
+   "27-3091",
+   "27-4011",
+   "27-4014",
+   "27-4021",
+   "27-4031",
+   "27-4032"
+  ],
+  "cipFallbackFamilies": [
+   "09",
+   "10",
+   "50"
+  ],
+  "cipFallbackKeywords": [
+   "communication",
+   "media",
+   "journalism",
+   "broadcasting",
+   "visual",
+   "graphic",
+   "design",
+   "animation",
+   "art",
+   "music",
+   "theater",
+   "audio",
+   "video"
+  ]
+ },
+ {
+  "id": "business_management_administration",
+  "name": "Business Management & Administration",
+  "short": "Lead teams, manage operations, run organizations",
+  "socMajorGroups": [
+   "11",
+   "43"
+  ],
+  "priorityOccupations": [
+   "11-1011",
+   "11-1021",
+   "11-3011",
+   "11-3012",
+   "11-3013",
+   "11-3121",
+   "13-1071",
+   "13-1082",
+   "13-1111",
+   "13-1198",
+   "43-1011",
+   "43-6011",
+   "43-6014",
+   "43-9061"
+  ],
+  "cipFallbackFamilies": [
+   "52"
+  ],
+  "cipFallbackKeywords": [
+   "business",
+   "management",
+   "administration",
+   "human resources",
+   "organizational",
+   "executive",
+   "office"
+  ]
+ },
+ {
+  "id": "education_training",
+  "name": "Education & Training",
+  "short": "Teach, coach, design how people learn",
+  "socMajorGroups": [
+   "25"
+  ],
+  "priorityOccupations": [
+   "25-2021",
+   "25-2022",
+   "25-2031",
+   "25-2011",
+   "25-2012",
+   "25-2052",
+   "25-1011",
+   "25-3011",
+   "25-3041",
+   "25-9045",
+   "25-4022",
+   "25-4031"
+  ],
+  "cipFallbackFamilies": [
+   "13"
+  ],
+  "cipFallbackKeywords": [
+   "education",
+   "teach",
+   "early childhood",
+   "instructional",
+   "curriculum",
+   "library"
+  ]
+ },
+ {
+  "id": "finance",
+  "name": "Finance",
+  "short": "Money, banking, investing, accounting, insurance",
+  "socMajorGroups": [],
+  "priorityOccupations": [
+   "11-3031",
+   "13-2011",
+   "13-2041",
+   "13-2051",
+   "13-2052",
+   "13-2053",
+   "13-2061",
+   "13-2071",
+   "13-2072",
+   "13-2081",
+   "13-2082",
+   "41-3031",
+   "43-3011",
+   "43-3021",
+   "43-3031",
+   "43-3051",
+   "43-3061",
+   "43-3071",
+   "13-1031",
+   "13-1032"
+  ],
+  "cipFallbackFamilies": [
+   "52"
+  ],
+  "cipFallbackKeywords": [
+   "finance",
+   "financial",
+   "accounting",
+   "banking",
+   "insurance",
+   "investment",
+   "tax",
+   "actuarial"
+  ]
+ },
+ {
+  "id": "government_public_administration",
+  "name": "Government & Public Administration",
+  "short": "Public service, policy, regulation, urban planning",
+  "socMajorGroups": [],
+  "priorityOccupations": [
+   "11-1031",
+   "11-3061",
+   "13-1041",
+   "13-1051",
+   "13-1199",
+   "19-3094",
+   "23-1023",
+   "23-1021",
+   "23-1022",
+   "13-1075",
+   "13-1078",
+   "11-9161",
+   "11-9171",
+   "11-9151",
+   "19-3051",
+   "43-4061",
+   "43-4031"
+  ],
+  "cipFallbackFamilies": [
+   "44",
+   "45"
+  ],
+  "cipFallbackKeywords": [
+   "public administration",
+   "public policy",
+   "government",
+   "urban planning",
+   "political science",
+   "international affairs"
+  ]
+ },
+ {
+  "id": "health_science",
+  "name": "Health Science",
+  "short": "Care for people, study disease, run clinics",
+  "socMajorGroups": [
+   "29",
+   "31"
+  ],
+  "priorityOccupations": [
+   "29-1141",
+   "29-1171",
+   "29-1051",
+   "29-2061",
+   "29-1216",
+   "29-2012",
+   "29-2042",
+   "29-1126",
+   "31-1131",
+   "31-1120",
+   "29-1127",
+   "29-1131",
+   "29-2056",
+   "31-9091",
+   "49-9062"
+  ],
+  "cipFallbackFamilies": [
+   "51"
+  ],
+  "cipFallbackKeywords": [
+   "health",
+   "nursing",
+   "medical",
+   "clinical",
+   "therapy",
+   "pharmacy",
+   "dental",
+   "radiologic",
+   "phlebotomy",
+   "veterinary"
+  ]
+ },
+ {
+  "id": "hospitality_tourism",
+  "name": "Hospitality & Tourism",
+  "short": "Run restaurants, hotels, events, travel, recreation",
+  "socMajorGroups": [
+   "35"
+  ],
+  "priorityOccupations": [
+   "35-1011",
+   "35-1012",
+   "35-2012",
+   "35-2014",
+   "35-3023",
+   "35-3031",
+   "35-9031",
+   "11-9051",
+   "11-9081",
+   "39-3011",
+   "39-3031",
+   "39-6011",
+   "39-7011",
+   "53-2031"
+  ],
+  "cipFallbackFamilies": [
+   "12",
+   "52"
+  ],
+  "cipFallbackKeywords": [
+   "culinary",
+   "hospitality",
+   "food",
+   "restaurant",
+   "hotel",
+   "tourism",
+   "recreation"
+  ]
+ },
+ {
+  "id": "human_services",
+  "name": "Human Services",
+  "short": "Social work, counseling, family services, personal care",
+  "socMajorGroups": [
+   "21"
+  ],
+  "priorityOccupations": [
+   "21-1011",
+   "21-1012",
+   "21-1013",
+   "21-1014",
+   "21-1015",
+   "21-1021",
+   "21-1022",
+   "21-1023",
+   "21-1029",
+   "21-1091",
+   "21-1092",
+   "21-1093",
+   "21-2011",
+   "39-9011",
+   "39-5012",
+   "39-5092",
+   "39-9031",
+   "39-9032"
+  ],
+  "cipFallbackFamilies": [
+   "19",
+   "44",
+   "12"
+  ],
+  "cipFallbackKeywords": [
+   "human services",
+   "social work",
+   "counseling",
+   "family",
+   "child",
+   "cosmetology",
+   "personal services",
+   "psychology"
+  ]
+ },
+ {
+  "id": "information_technology",
+  "name": "Information Technology",
+  "short": "Build software, networks, and AI tools",
+  "socMajorGroups": [
+   "15"
+  ],
+  "priorityOccupations": [
+   "15-1252",
+   "15-1212",
+   "15-2051",
+   "15-1232",
+   "15-1244",
+   "15-1211",
+   "15-1221",
+   "15-1241",
+   "15-1242",
+   "15-1243",
+   "15-1251",
+   "15-1253",
+   "15-1254",
+   "15-1255",
+   "15-1299",
+   "49-2011",
+   "49-2022",
+   "49-9052"
+  ],
+  "cipFallbackFamilies": [
+   "11"
+  ],
+  "cipFallbackKeywords": [
+   "computer",
+   "information",
+   "network",
+   "cyber",
+   "data",
+   "programming",
+   "software",
+   "web",
+   "digital"
+  ]
+ },
+ {
+  "id": "law_public_safety",
+  "name": "Law, Public Safety, Corrections & Security",
+  "short": "Police, fire, EMS, courts, corrections, security",
+  "socMajorGroups": [
+   "33",
+   "23"
+  ],
+  "priorityOccupations": [
+   "33-3051",
+   "33-2011",
+   "33-1011",
+   "33-1021",
+   "33-3012",
+   "33-9032",
+   "23-1011",
+   "23-2011",
+   "29-2042",
+   "33-9092"
+  ],
+  "cipFallbackFamilies": [
+   "22",
+   "43"
+  ],
+  "cipFallbackKeywords": [
+   "criminal",
+   "police",
+   "law enforcement",
+   "corrections",
+   "fire",
+   "homeland security",
+   "legal",
+   "paralegal"
+  ]
+ },
+ {
+  "id": "manufacturing",
+  "name": "Manufacturing",
+  "short": "Make things — from chips to airplanes",
+  "socMajorGroups": [
+   "51",
+   "49"
+  ],
+  "priorityOccupations": [
+   "51-4121",
+   "49-9041",
+   "51-9061",
+   "51-9111",
+   "51-4041",
+   "49-9044",
+   "49-9043",
+   "51-1011",
+   "51-2031",
+   "51-2090",
+   "51-2028",
+   "51-9198",
+   "49-9081"
+  ],
+  "cipFallbackFamilies": [
+   "15",
+   "47",
+   "48"
+  ],
+  "cipFallbackKeywords": [
+   "manufacturing",
+   "machinist",
+   "welding",
+   "industrial",
+   "mechatronics",
+   "automation",
+   "engineering technology"
+  ]
+ },
+ {
+  "id": "marketing",
+  "name": "Marketing",
+  "short": "Sales, advertising, retail, market research",
+  "socMajorGroups": [
+   "41"
+  ],
+  "priorityOccupations": [
+   "11-2011",
+   "11-2021",
+   "11-2022",
+   "13-1161",
+   "41-1011",
+   "41-1012",
+   "41-2011",
+   "41-2021",
+   "41-2031",
+   "41-3041",
+   "41-3091",
+   "41-4011",
+   "41-4012",
+   "41-9041"
+  ],
+  "cipFallbackFamilies": [
+   "52"
+  ],
+  "cipFallbackKeywords": [
+   "marketing",
+   "sales",
+   "advertising",
+   "retail",
+   "market research",
+   "public relations"
+  ]
+ },
+ {
+  "id": "stem",
+  "name": "Science, Technology, Engineering & Math",
+  "short": "Research, design, and solve problems with science",
+  "socMajorGroups": [
+   "17",
+   "19"
+  ],
+  "priorityOccupations": [
+   "17-2071",
+   "17-2141",
+   "17-2051",
+   "17-2112",
+   "17-2011",
+   "17-2061",
+   "17-2131",
+   "19-2041",
+   "19-1031",
+   "19-1022",
+   "19-1042",
+   "19-2031",
+   "19-2012",
+   "19-2021",
+   "19-3034",
+   "15-2041",
+   "17-3023"
+  ],
+  "cipFallbackFamilies": [
+   "14",
+   "15",
+   "40",
+   "26",
+   "27",
+   "30"
+  ],
+  "cipFallbackKeywords": [
+   "engineering",
+   "physics",
+   "chemistry",
+   "biology",
+   "biochemistry",
+   "mathematics",
+   "statistics",
+   "data science",
+   "environmental science"
+  ]
+ },
+ {
+  "id": "transportation_distribution_logistics",
+  "name": "Transportation, Distribution & Logistics",
+  "short": "Move people, goods, and ideas across the world",
+  "socMajorGroups": [
+   "53"
+  ],
+  "priorityOccupations": [
+   "53-3032",
+   "53-3031",
+   "53-3033",
+   "53-3054",
+   "53-3052",
+   "53-3051",
+   "53-2011",
+   "53-2012",
+   "53-7062",
+   "53-7065",
+   "53-7064",
+   "53-1047",
+   "43-5011",
+   "43-5021",
+   "43-5032",
+   "43-5052",
+   "43-5071",
+   "13-1081",
+   "11-3071",
+   "49-3011",
+   "49-3023",
+   "49-3031",
+   "49-3042",
+   "49-2091",
+   "49-3092",
+   "49-9051"
+  ],
+  "cipFallbackFamilies": [
+   "47",
+   "49"
+  ],
+  "cipFallbackKeywords": [
+   "transportation",
+   "logistics",
+   "supply chain",
+   "automotive",
+   "aviation",
+   "aircraft",
+   "diesel",
+   "truck",
+   "trucking",
+   "freight"
+  ]
+ }
+]
