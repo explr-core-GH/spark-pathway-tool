@@ -88,6 +88,12 @@ export const OPTIONAL_ARCHIVE_TABLES = [
   "family_sessions",
   "internship_profiles",
   "internship_selections",
+  "application_seasons",
+  "hs_general_applications",
+  "hs_demographics",
+  "opp_application_versions",
+  "hs_partner_applications",
+  "application_status_events",
 ] as const;
 
 export const ALL_ARCHIVE_TABLES = [...ARCHIVE_TABLES, ...OPTIONAL_ARCHIVE_TABLES] as const;
@@ -157,6 +163,11 @@ export const DROP_COLUMNS = [
   "token_hash",
   "lead",
   "phone",
+  // HS internship application: the core answers hold names, emails and
+  // phone numbers, and delivery logs hold addresses. Dropped whole.
+  "core",
+  "delivery",
+  "question_notes",
 ] as const;
 
 /** Date-of-birth columns → `"age 13"` on the export date. */
@@ -173,6 +184,7 @@ export const UNSCRUBBED_FREE_TEXT = [
   "reflection",
   "duties",
   "answers",
+  "data",
 ] as const;
 
 const dropSet = new Set<string>(DROP_COLUMNS);

@@ -306,7 +306,7 @@ function OpportunityDetail() {
         <div className="mt-8 border-t border-line pt-6">
           {o.type === "internship" ? (
             isStudent || user ? (
-              <Link to="/student/apply" search={{ opportunity: o.id }} className="btn-ink">
+              <Link to="/student/apply/$opportunityId" params={{ opportunityId: o.id }} className="btn-ink">
                 Apply for this internship
               </Link>
             ) : (

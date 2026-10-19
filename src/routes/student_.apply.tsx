@@ -1,22 +1,54 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { RoleGuard } from "@/components/RoleGuard";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PortalHeader, type PortalLink } from "@/components/passport";
-import { ArrowDown, ArrowUp, ListOrdered, ShieldCheck, X } from "lucide-react";
-import { HollandLetter, buildWhyFits, type ScaleScores } from "@/lib/holland-fit";
 import {
-  oppSlug,
-  isOppSlug,
-  oppIdFromSlug,
-  type Internship,
-  type Opportunity,
-} from "@/lib/opportunities";
-import { fetchInternshipCatalog } from "@/lib/internship-refs";
-import type { RIASECCode } from "@/lib/riasec";
-import { acknowledgmentsFor, targetFromOpportunity } from "@/lib/matching/placement";
+  AboutStep,
+  DemographicsStep,
+  LogisticsStep,
+  MatchesStep,
+  PlansStep,
+  StoryStep,
+  SupportStep,
+  SurveyStep,
+  validateMatches,
+  type MatchCard,
+} from "@/components/hs-application/GeneralSteps";
+import { ReviewStep } from "@/components/hs-application/ReviewStep";
+import { ApplicationHub } from "@/components/hs-application/ApplicationHub";
+import {
+  ACTIVITY_ITEMS,
+  ENVIRONMENT_DIMS,
+  EXPERIENCE_ITEMS,
+  FORCED_PAIRS,
+  TOP_MATCHES,
+} from "@/lib/hs-application/content";
+import {
+  applicantFrom,
+  isDemoEmail,
+  loadItemResponses,
+  loadOpenListings,
+  loadOrCreateGeneral,
+  loadThisYearsAssessment,
+  loadCurrentSeason,
+  saveGeneral,
+  type AssessmentSnapshot,
+  type ListingRow,
+  type Season,
+} from "@/lib/hs-application/data";
+import { listingFromOpportunity } from "@/lib/hs-application/listings";
+import { rankListings } from "@/lib/hs-application/match";
+import { recordApplicationStatus } from "@/lib/hs-application/notify.functions";
+import type { Demographics, GeneralApplication } from "@/lib/hs-application/types";
+import {
+  GENERAL_STEPS,
+  validateCoreStep,
+  validateExtras,
+  type StepErrors,
+} from "@/lib/hs-application/validate";
 
 const STUDENT_LINKS: PortalLink[] = [
   { label: "My passport", to: "/student" },
@@ -29,217 +61,222 @@ export const Route = createFileRoute("/student_/apply")({
   validateSearch: (s: Record<string, unknown>): { opportunity?: string } => ({
     opportunity: typeof s.opportunity === "string" ? s.opportunity : undefined,
   }),
-  head: () => ({ meta: [{ title: "Apply for internships — EXPLR" }] }),
+  head: () => ({ meta: [{ title: "Internship application — EXPLR" }] }),
   component: () => (
     <RoleGuard requires="student">
-      <SelectPage />
+      <ApplyPage />
     </RoleGuard>
   ),
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
-const MIN_CHOICES = 4;
 
-const STATUS_LABEL: Record<string, string> = {
-  approved: "In progress — finish it",
-  submitted: "Submitted",
-  denied: "Withdrawn",
-};
+const fmt = (d: string | null) =>
+  d
+    ? new Date(`${d}T12:00:00`).toLocaleDateString(undefined, { month: "long", day: "numeric" })
+    : "";
 
-function SelectPage() {
+function ApplyPage() {
   const { user, loading: authLoading } = useSession();
-  const navigate = useNavigate();
   const { opportunity } = Route.useSearch();
-
-  const [internships, setInternships] = useState<Internship[]>([]);
-  const [hollandCode, setHollandCode] = useState<string | null>(null);
-  const [scaleScores, setScaleScores] = useState<ScaleScores>({});
-  // Ordered = rank order (index 0 = #1 choice).
-  const [selected, setSelected] = useState<string[]>([]);
-  const [existing, setExisting] = useState<Record<string, string>>({}); // ref → status
+  const [season, setSeason] = useState<Season | null>(null);
+  const [app, setApp] = useState<GeneralApplication | null>(null);
+  const [assessment, setAssessment] = useState<AssessmentSnapshot | null>(null);
+  const [itemResponses, setItemResponses] = useState<Record<string, number>>({});
+  const [listings, setListings] = useState<ListingRow[]>([]);
+  const [demographics, setDemographics] = useState<Demographics>({});
+  const [errors, setErrors] = useState<StepErrors>({});
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [saving, setSaving] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [done, setDone] = useState(false);
-  const [hasProfile, setHasProfile] = useState(true);
-  const [oppRows, setOppRows] = useState<Opportunity[]>([]);
-  // ref → acknowledgments the student has accepted for that listing.
-  const [acks, setAcks] = useState<Record<string, string[]>>({});
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const isDemo = isDemoEmail(user?.email);
 
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
     (async () => {
-      setLoading(true);
-      const [{ data: sess }, catalog, { data: sels }] = await Promise.all([
-        supabase
-          .from("assessment_sessions")
-          .select("holland_code, scale_scores, completed_at")
-          .eq("student_id", user.id)
-          .not("completed_at", "is", null)
-          .order("completed_at", { ascending: false })
-          .limit(1)
-          .maybeSingle(),
-        fetchInternshipCatalog(),
-        sb("internship_selections")
-          .select("internship_ref, status, rank, acknowledgments")
-          .eq("student_id", user.id),
-      ]);
-      const { data: prof } = await sb("internship_profiles")
-        .select("student_id")
-        .eq("student_id", user.id)
-        .maybeSingle();
-      if (cancelled) return;
-      // Every internship is an approved partner opportunity.
-      const orgList: Internship[] = catalog.cards;
-      setOppRows(catalog.rows);
-      setHasProfile(!!prof);
-      const ackMap: Record<string, string[]> = {};
-      for (const s of (sels as Array<{
-        internship_ref: string;
-        acknowledgments?: string[] | null;
-      }>) ?? []) {
-        if (s.acknowledgments?.length) ackMap[s.internship_ref] = s.acknowledgments;
+      try {
+        const s = await loadCurrentSeason();
+        if (!s) throw new Error("Applications aren't open yet. Check back soon.");
+        const [a, asmt, ls] = await Promise.all([
+          loadOrCreateGeneral(user.id, user.email ?? null, s),
+          loadThisYearsAssessment(user.id),
+          loadOpenListings(isDemoEmail(user.email)),
+        ]);
+        const items = await loadItemResponses(asmt?.session_id ?? null);
+        const { data: demo } = await sb("hs_demographics")
+          .select("data")
+          .eq("application_id", a.id)
+          .maybeSingle();
+        if (cancelled) return;
+        setSeason(s);
+        setApp(a);
+        setAssessment(asmt);
+        setItemResponses(items);
+        setListings(ls);
+        setDemographics((demo?.data as Demographics) ?? {});
+        if (asmt && a.status === "draft" && a.assessment_session_id !== asmt.session_id)
+          await saveGeneral(a.id, { assessment_session_id: asmt.session_id });
+      } catch (e) {
+        if (!cancelled) setLoadError(e instanceof Error ? e.message : String(e));
       }
-      setAcks(ackMap);
-      setInternships(orgList);
-      setHollandCode(sess?.holland_code ?? null);
-      setScaleScores((sess?.scale_scores as ScaleScores) ?? {});
-
-      const existingMap: Record<string, string> = {};
-      const existingRows = (
-        (sels as Array<{ internship_ref: string; status: string; rank: number | null }>) ?? []
-      )
-        .filter((s) => s.status !== "denied")
-        .sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
-      const order: string[] = [];
-      for (const s of (sels as Array<{ internship_ref: string; status: string }>) ?? []) {
-        existingMap[s.internship_ref] = s.status;
-      }
-      for (const s of existingRows) order.push(s.internship_ref);
-      if (opportunity) {
-        const slug = oppSlug(opportunity);
-        if (orgList.some((i) => i.slug === slug) && !order.includes(slug)) order.push(slug);
-      }
-      setExisting(existingMap);
-      setSelected(order);
-      setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [user, opportunity]);
+  }, [user]);
 
-  const ranked = useMemo(() => {
-    const riasecScore = (i: Internship) => {
-      if (Object.keys(scaleScores).length > 0)
-        return i.riasec.reduce((s: number, c: RIASECCode) => s + (scaleScores[c] ?? 0), 0);
-      if (hollandCode) {
-        const codes = hollandCode.split("");
-        return i.riasec.reduce(
-          (s: number, c: RIASECCode) => s + (codes.includes(c) ? 3 - codes.indexOf(c) : 0),
-          0,
-        );
-      }
-      return 0;
-    };
-    return [...internships].sort((a, b) => riasecScore(b) - riasecScore(a));
-  }, [internships, scaleScores, hollandCode]);
-
-  function toggle(ref: string) {
-    setSelected((prev) => (prev.includes(ref) ? prev.filter((r) => r !== ref) : [...prev, ref]));
-  }
-  function move(ref: string, dir: -1 | 1) {
-    setSelected((prev) => {
-      const i = prev.indexOf(ref);
-      const j = i + dir;
-      if (i < 0 || j < 0 || j >= prev.length) return prev;
-      const next = [...prev];
-      [next[i], next[j]] = [next[j], next[i]];
-      return next;
+  // Ranked matches for the General track (age is the only hard filter).
+  const allCards: MatchCard[] = useMemo(() => {
+    if (!app) return [];
+    const applicant = applicantFrom(app, assessment, itemResponses);
+    const byRef = new Map(listings.map((l) => [`opp:${l.id}`, l]));
+    return rankListings(
+      applicant,
+      listings.map((l) => listingFromOpportunity(l, l.version?.builder)),
+    ).map((m) => {
+      const l = byRef.get(m.ref)!;
+      return {
+        ref: m.ref,
+        name: l.version?.builder.profile.title || l.name || "Internship",
+        org: l.org_name ?? "",
+        blurb: l.version?.builder.profile.description || l.description || "",
+        match: m,
+        questionCount: l.version?.builder.questions.length ?? 0,
+      };
     });
-  }
+  }, [app, assessment, itemResponses, listings]);
+  const topCards = useMemo(() => {
+    if (!app) return [];
+    // Keep the matches the student already reacted to stable between visits.
+    if (app.choices.shown.length)
+      return app.choices.shown
+        .map((r) => allCards.find((c) => c.ref === r))
+        .filter((c): c is MatchCard => !!c);
+    return allCards.filter((c) => c.match.eligible).slice(0, TOP_MATCHES);
+  }, [allCards, app]);
 
-  const nameByRef = useMemo(() => {
-    const m = new Map(internships.map((i) => [i.slug, i.name]));
-    return (ref: string) => m.get(ref) ?? ref;
-  }, [internships]);
+  const update = useCallback((patch: Partial<GeneralApplication>) => {
+    setApp((a) => (a ? { ...a, ...patch } : a));
+  }, []);
 
-  // Requirements a student must acknowledge for a partner listing.
-  const requiredAcks = useMemo(() => {
-    const m = new Map<string, string[]>();
-    for (const o of oppRows)
-      m.set(oppSlug(o.id), acknowledgmentsFor(targetFromOpportunity(o as never)));
-    return (ref: string) => m.get(ref) ?? [];
-  }, [oppRows]);
-  function toggleAck(ref: string, a: string) {
-    setAcks((prev) => {
-      const cur = prev[ref] ?? [];
-      return { ...prev, [ref]: cur.includes(a) ? cur.filter((x) => x !== a) : [...cur, a] };
+  async function persist(next: GeneralApplication, extra?: Partial<GeneralApplication>) {
+    setSaving("saving");
+    const err = await saveGeneral(next.id, {
+      core: next.core,
+      extras: next.extras,
+      choices: next.choices,
+      step: next.step,
+      ...extra,
     });
+    setSaving(err ? "error" : "saved");
+    if (err) setErrors({ save: err });
+    return !err;
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    if (!user) return;
-    if (selected.length < MIN_CHOICES) {
-      setError(`Choose and rank at least ${MIN_CHOICES} internships.`);
-      return;
-    }
-    if (!hasProfile) {
-      setError("Fill in your internship profile first.");
-      return;
-    }
-    const unacked = selected.filter((ref) =>
-      requiredAcks(ref).some((a) => !(acks[ref] ?? []).includes(a)),
-    );
-    if (unacked.length) {
-      setError(
-        `Check every requirement for ${unacked.map(nameByRef).join(", ")} before continuing.`,
-      );
-      return;
-    }
-    setSubmitting(true);
-    // Insert fresh choices with their rank (ready to complete); re-rank the ones still in progress.
-    const fresh = selected.filter((ref) => !existing[ref]);
-    const rows = fresh.map((ref) => ({
-      student_id: user.id,
-      internship_ref: ref,
-      opportunity_id: isOppSlug(ref) ? oppIdFromSlug(ref) : null,
-      status: "approved",
-      rank: selected.indexOf(ref) + 1,
-      acknowledgments: acks[ref] ?? [],
-    }));
-    if (rows.length > 0) {
-      const { error: insErr } = await sb("internship_selections").upsert(rows, {
-        onConflict: "student_id,internship_ref",
-        ignoreDuplicates: true,
+  async function saveDemographics(d: Demographics) {
+    if (!app || !user) return;
+    await sb("hs_demographics").upsert({ application_id: app.id, student_id: user.id, data: d });
+  }
+
+  function stepErrors(stepIdx: number, a: GeneralApplication): StepErrors {
+    const key = GENERAL_STEPS[stepIdx].key;
+    if (key === "survey") {
+      const e = validateExtras(a.extras, {
+        activities: ACTIVITY_ITEMS.length,
+        pairs: FORCED_PAIRS.length,
+        environment: ENVIRONMENT_DIMS.length,
+        experience: EXPERIENCE_ITEMS.length,
       });
-      if (insErr) {
-        setSubmitting(false);
-        setError(insErr.message);
+      if (!assessment) e.assessment = "Take the interest survey before you go on.";
+      return e;
+    }
+    if (key === "matches")
+      return validateMatches(
+        a.choices,
+        topCards.map((c) => c.ref),
+      );
+    return validateCoreStep(key, a.core);
+  }
+
+  async function go(delta: number) {
+    if (!app) return;
+    const here = app.step;
+    if (delta > 0) {
+      const e = stepErrors(here, app);
+      setErrors(e);
+      if (Object.keys(e).length) {
+        requestAnimationFrame(() =>
+          document.querySelector<HTMLElement>("[aria-invalid='true'], [role='alert']")?.focus?.(),
+        );
+        return;
+      }
+    } else setErrors({});
+    let next = { ...app, step: Math.max(0, Math.min(GENERAL_STEPS.length - 1, here + delta)) };
+    // Freeze which matches were shown once the student reaches that step.
+    if (GENERAL_STEPS[next.step].key === "matches" && next.choices.shown.length === 0)
+      next = {
+        ...next,
+        choices: {
+          ...next.choices,
+          shown: allCards
+            .filter((c) => c.match.eligible)
+            .slice(0, TOP_MATCHES)
+            .map((c) => c.ref),
+        },
+      };
+    if (GENERAL_STEPS[here].key === "demographics") await saveDemographics(demographics);
+    setApp(next);
+    await persist(next);
+    window.scrollTo({ top: 0 });
+    requestAnimationFrame(() => headingRef.current?.focus());
+  }
+
+  async function submit() {
+    if (!app || !user) return;
+    // Re-check every step before submitting.
+    for (let i = 0; i < GENERAL_STEPS.length - 1; i++) {
+      const e = stepErrors(i, app);
+      if (Object.keys(e).length) {
+        const next = { ...app, step: i };
+        setApp(next);
+        setErrors(e);
+        await persist(next);
         return;
       }
     }
-    // Update rank on choices that are still in progress.
-    for (const ref of selected) {
-      if (existing[ref] === "approved") {
-        await sb("internship_selections")
-          .update({ rank: selected.indexOf(ref) + 1, acknowledgments: acks[ref] ?? [] })
-          .eq("student_id", user.id)
-          .eq("internship_ref", ref);
-      }
+    setSubmitting(true);
+    const ok = await persist(app);
+    if (!ok) {
+      setSubmitting(false);
+      return;
     }
+    const { error } = await sb("hs_general_applications")
+      .update({ status: "received" })
+      .eq("id", app.id);
+    if (error) {
+      setErrors({ save: error.message });
+      setSubmitting(false);
+      return;
+    }
+    try {
+      await recordApplicationStatus({
+        data: { generalId: app.id, status: "received", origin: window.location.origin },
+      });
+    } catch {
+      /* the application is saved even if the email fails */
+    }
+    setApp({ ...app, status: "received", submitted_at: new Date().toISOString() });
     setSubmitting(false);
-    // Straight on to the application itself: resume, proofs, and partner forms.
-    navigate({ to: "/student/apply-complete" });
+    window.scrollTo({ top: 0 });
   }
 
-  if (authLoading || loading) {
+  if (authLoading || (!app && !loadError)) {
     return (
       <main role="status" className="mx-auto max-w-3xl px-6 py-24 text-sm text-ink-500">
-        Loading…
+        Loading your application…
       </main>
     );
   }
@@ -247,286 +284,192 @@ function SelectPage() {
   return (
     <div className="min-h-screen bg-paper text-ink-900">
       <PortalHeader role="Student" links={STUDENT_LINKS} signedIn />
-
-      <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+      <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         <Link
           to="/student"
           className="inline-flex min-h-[44px] items-center text-sm font-medium text-green-deep hover:underline"
         >
           ← My passport
         </Link>
-        <p className="eyebrow text-green">Internships · step 1 of 2</p>
-        <h1 className="display mt-1">Choose &amp; rank internships.</h1>
-        <p className="lead mt-4 max-w-2xl">
-          Pick at least <span className="font-medium text-ink-900">{MIN_CHOICES}</span> internships
-          you&apos;re interested in and put them in order of preference. An EXPLR admin reviews your
-          picks and approves which ones you can apply to — then you complete the application.
-        </p>
-
-        {Object.keys(existing).length > 0 && (
-          <div className="mt-8 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card">
-            <p className="eyebrow">Your requests so far</p>
-            <ul className="mt-3 divide-y divide-line text-sm">
-              {Object.entries(existing).map(([ref, status]) => (
-                <li key={ref} className="flex items-center justify-between gap-3 py-2">
-                  <span className="font-medium">{nameByRef(ref)}</span>
-                  <span className="inline-flex items-center rounded-full bg-paper-sunken px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-700">
-                    {STATUS_LABEL[status] ?? status}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            {Object.values(existing).some((s) => s === "approved") && (
-              <Link to="/student/apply-complete" className="btn-ink mt-4">
-                Finish my application →
-              </Link>
-            )}
-          </div>
+        {loadError && (
+          <p role="alert" className="mt-6 rounded-[var(--radius-card)] bg-gold-tint p-4 text-sm">
+            {loadError}
+          </p>
         )}
-
-        {!hasProfile && !done && (
-          <div className="mt-8 rounded-[var(--radius-card)] bg-gold-tint p-5 text-sm text-ink-900">
-            <p className="eyebrow text-gold-deep">One thing first</p>
-            <p className="mt-1 font-display text-lg font-semibold">Your internship profile.</p>
-            <p className="mt-1 text-ink-700">
-              Coursework, what you like, where you're headed, when you're free, and how you'd get
-              there. It's what EXPLR uses to match you, and you fill it in once.
-            </p>
-            <Link
-              to="/student/profile"
-              search={{ next: "/student/apply" }}
-              className="btn-ink mt-4"
-            >
-              Fill in my profile
-            </Link>
-          </div>
+        {app && season && app.status !== "draft" && (
+          <ApplicationHub
+            app={app}
+            season={season}
+            cards={allCards}
+            listings={listings}
+            highlight={opportunity ?? null}
+          />
         )}
-
-        {done ? (
-          <div
-            role="status"
-            className="mt-10 rounded-[var(--radius-card)] border border-mint-soft bg-mint-tint p-6"
-          >
-            <p className="font-display text-xl font-semibold text-green-deep">Choices saved.</p>
-            <p className="mt-1 text-sm text-ink-700">
-              Finish your application next: resume, proofs, and any forms the partner asks for.
-              Placements are decided at the end of the application window.
+        {app && season && app.status === "draft" && (
+          <>
+            <p className="eyebrow mt-4 text-green">
+              {season.name} internships · general application
             </p>
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/student" })}
-              className="btn-ink mt-4"
+            <h1
+              ref={headingRef}
+              tabIndex={-1}
+              className="mt-1 font-display text-3xl font-bold leading-tight outline-none sm:text-4xl"
             >
-              Back to my passport
-            </button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="mt-10">
-            {/* Ranked choices */}
-            <section className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
-                    <ListOrdered className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
-                  </span>
-                  <h2 className="font-display text-xl font-semibold">Your ranked choices</h2>
-                </div>
-                <span
-                  role="status"
-                  className={`inline-flex items-center rounded-full px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] ${
-                    selected.length >= MIN_CHOICES
-                      ? "bg-mint-tint text-green-deep"
-                      : "bg-gold-tint text-gold-deep"
-                  }`}
-                >
-                  {selected.length} of {MIN_CHOICES}+ chosen
-                </span>
-              </div>
-              {selected.length === 0 ? (
-                <p className="mt-3 text-sm text-ink-700">
-                  Check internships below to add them here, then order them #1 (top) and down.
-                </p>
-              ) : (
-                <ol className="mt-4 space-y-2">
-                  {selected.map((ref, idx) => (
-                    <li
-                      key={ref}
-                      className="flex flex-wrap items-center gap-2 rounded-[var(--radius-control)] border border-line bg-paper px-3 py-2 text-sm sm:gap-3"
-                    >
-                      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink-900 font-mono text-xs font-medium text-paper tabular-nums">
-                        {idx + 1}
-                      </span>
-                      <span className="min-w-0 flex-1 font-medium">{nameByRef(ref)}</span>
-                      {existing[ref] && (
-                        <span className="inline-flex items-center rounded-full bg-paper-sunken px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-700">
-                          {STATUS_LABEL[existing[ref]] ?? existing[ref]}
-                        </span>
-                      )}
-                      <span className="flex items-center">
-                        <button
-                          type="button"
-                          onClick={() => move(ref, -1)}
-                          disabled={idx === 0}
-                          className="grid h-11 w-11 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-ink-900 disabled:opacity-30"
-                          aria-label={`Move ${nameByRef(ref)} up`}
-                        >
-                          <ArrowUp className="h-4 w-4" aria-hidden />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => move(ref, 1)}
-                          disabled={idx === selected.length - 1}
-                          className="grid h-11 w-11 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-ink-900 disabled:opacity-30"
-                          aria-label={`Move ${nameByRef(ref)} down`}
-                        >
-                          <ArrowDown className="h-4 w-4" aria-hidden />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => toggle(ref)}
-                          className="grid h-11 w-11 place-items-center rounded-[var(--radius-control)] text-ink-500 hover:bg-paper-sunken hover:text-red-700"
-                          aria-label={`Remove ${nameByRef(ref)}`}
-                        >
-                          <X className="h-4 w-4" aria-hidden />
-                        </button>
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </section>
-
-            <p className="mt-8 text-sm text-ink-700">
-              {hollandCode ? (
-                <>
-                  Listed by fit with your Holland code{" "}
-                  <span className="font-medium text-ink-900">{hollandCode}</span>.
-                </>
-              ) : (
-                <>Approved partner internships.</>
-              )}{" "}
-              Check the ones you want.
-            </p>
-            <ul className="mt-4 grid gap-3">
-              {ranked.length === 0 && (
-                <li className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-4 text-sm text-ink-700">
-                  No partner internships are open right now. Check back soon.
-                </li>
-              )}
-              {ranked.map((i) => {
-                const checked = selected.includes(i.slug);
-                const status = existing[i.slug];
-                const why = buildWhyFits(i, undefined, scaleScores, hollandCode);
-                return (
-                  <li key={i.slug}>
-                    <label
-                      className={`flex cursor-pointer items-start gap-4 rounded-[var(--radius-card)] border bg-paper-raised p-4 transition-colors ${checked ? "border-emerald bg-mint-tint/40" : "border-line hover:border-emerald"}`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => toggle(i.slug)}
-                        className="mt-1 h-5 w-5 shrink-0 accent-green-deep"
-                      />
-                      <span className="flex-1">
-                        <span className="flex items-baseline justify-between gap-3">
-                          <span className="font-medium">
-                            {i.name}
-                            {i.outsidePartners ? (
-                              <span className="ml-2 text-xs font-normal text-ink-500">
-                                {i.outsidePartners}
-                              </span>
-                            ) : null}
-                          </span>
-                          {status && (
-                            <span className="inline-flex shrink-0 items-center rounded-full bg-paper-sunken px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-700">
-                              {STATUS_LABEL[status] ?? status}
-                            </span>
-                          )}
-                        </span>
-                        <span className="mt-1 block text-sm text-ink-700">{i.deliverables}</span>
-                        <span className="mt-1 block text-xs text-ink-500">
-                          Holland fit:{" "}
-                          {i.riasec.map((c: RIASECCode, idx2: number) => (
-                            <span key={c}>
-                              {idx2 > 0 && " · "}
-                              <HollandLetter code={c} />
-                            </span>
-                          ))}
-                        </span>
-                        {why && (
-                          <span className="mt-2 block text-sm text-green">
-                            Why this fits you: {why}
-                          </span>
-                        )}
-                      </span>
-                    </label>
-                  </li>
-                );
-              })}
-            </ul>
-
-            {selected.some((ref) => requiredAcks(ref).length > 0) && (
-              <section className="mt-8 rounded-[var(--radius-card)] border border-line bg-paper-raised p-5 shadow-card">
-                <div className="flex items-center gap-3">
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
-                    <ShieldCheck className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
-                  </span>
-                  <h2 className="font-display text-xl font-semibold">
-                    Before you request: the fine print
-                  </h2>
-                </div>
-                <p className="mt-3 text-sm text-ink-700">
-                  These listings have special requirements. Check each one to confirm it works for
-                  you. We won't place you somewhere that doesn't.
-                </p>
-                {selected
-                  .filter((ref) => requiredAcks(ref).length > 0)
-                  .map((ref) => (
-                    <div key={ref} className="mt-4">
-                      <p className="text-sm font-medium">{nameByRef(ref)}</p>
-                      <ul className="mt-1 space-y-1">
-                        {requiredAcks(ref).map((a) => (
-                          <li key={a}>
-                            <label className="flex min-h-[44px] items-start gap-2 py-2 text-sm text-ink-700">
-                              <input
-                                type="checkbox"
-                                className="mt-1 h-5 w-5 shrink-0 accent-green-deep"
-                                checked={(acks[ref] ?? []).includes(a)}
-                                onChange={() => toggleAck(ref, a)}
-                              />
-                              <span>{a}</span>
-                            </label>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-              </section>
-            )}
-
-            {error && (
-              <p role="alert" className="mt-4 text-sm text-red-700">
-                {error}
+              {GENERAL_STEPS[app.step].label}
+            </h1>
+            {app.step === 0 && (
+              <p className="lead mt-3">
+                Fill this out once. After you submit, you can apply to any internship by answering
+                just that partner's questions. Your answers save as you go, so you can stop and come
+                back.
               </p>
             )}
-
-            <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-8">
-              <p className="text-sm text-ink-700">
-                {selected.length} selected · need {MIN_CHOICES}+
+            {opportunity && app.step === 0 && (
+              <p className="mt-3 rounded-[var(--radius-control)] bg-mint-tint p-3 text-sm">
+                Finish this general application first. Then you'll answer the questions for the
+                internship you picked.
               </p>
-              <button
-                type="submit"
-                disabled={submitting || selected.length < MIN_CHOICES}
-                className="btn-ink disabled:opacity-50"
-              >
-                {submitting ? "Submitting…" : "Request approval to apply"}
-              </button>
+            )}
+            <StepProgress step={app.step} />
+
+            <div className="mt-6 grid gap-6">
+              {GENERAL_STEPS[app.step].key === "about" && (
+                <AboutStep
+                  core={app.core}
+                  set={(p) => update({ core: { ...app.core, ...p } })}
+                  errors={errors}
+                />
+              )}
+              {GENERAL_STEPS[app.step].key === "logistics" && (
+                <LogisticsStep
+                  core={app.core}
+                  set={(p) => update({ core: { ...app.core, ...p } })}
+                  errors={errors}
+                  programDates={
+                    season.program_start && season.program_end
+                      ? `${fmt(season.program_start)} to ${fmt(season.program_end)}`
+                      : ""
+                  }
+                />
+              )}
+              {GENERAL_STEPS[app.step].key === "story" && (
+                <StoryStep
+                  core={app.core}
+                  set={(p) => update({ core: { ...app.core, ...p } })}
+                  errors={errors}
+                />
+              )}
+              {GENERAL_STEPS[app.step].key === "plans" && (
+                <PlansStep
+                  core={app.core}
+                  set={(p) => update({ core: { ...app.core, ...p } })}
+                  errors={errors}
+                />
+              )}
+              {GENERAL_STEPS[app.step].key === "support" && (
+                <SupportStep
+                  core={app.core}
+                  set={(p) => update({ core: { ...app.core, ...p } })}
+                  errors={errors}
+                />
+              )}
+              {GENERAL_STEPS[app.step].key === "demographics" && (
+                <DemographicsStep value={demographics} onChange={setDemographics} />
+              )}
+              {GENERAL_STEPS[app.step].key === "survey" && (
+                <SurveyStep
+                  extras={app.extras}
+                  setExtras={(x) => update({ extras: x })}
+                  assessment={assessment}
+                  errors={errors}
+                />
+              )}
+              {GENERAL_STEPS[app.step].key === "matches" && (
+                <MatchesStep
+                  cards={topCards}
+                  allCards={allCards}
+                  choices={app.choices}
+                  setChoices={(c) => update({ choices: c })}
+                  errors={errors}
+                />
+              )}
+              {GENERAL_STEPS[app.step].key === "review" && (
+                <ReviewStep
+                  app={app}
+                  cards={allCards}
+                  assessment={assessment}
+                  onEdit={(i) => {
+                    const n = { ...app, step: i };
+                    setApp(n);
+                    void persist(n);
+                  }}
+                />
+              )}
             </div>
-          </form>
+
+            {errors.save && (
+              <p role="alert" className="mt-4 text-sm text-red-700">
+                Couldn't save: {errors.save}
+              </p>
+            )}
+            {Object.keys(errors).length > 0 && !errors.save && (
+              <p role="alert" className="mt-4 text-sm text-red-700">
+                A few answers need attention before you go on.
+              </p>
+            )}
+
+            <div className="sticky bottom-0 mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line bg-paper py-4">
+              <button
+                type="button"
+                className="btn-ghost"
+                onClick={() => go(-1)}
+                disabled={app.step === 0}
+              >
+                Back
+              </button>
+              <span aria-live="polite" className="text-xs text-ink-500">
+                {saving === "saving" ? "Saving…" : saving === "saved" ? "Saved" : ""}
+              </span>
+              {GENERAL_STEPS[app.step].key === "review" ? (
+                <button type="button" className="btn-ink" onClick={submit} disabled={submitting}>
+                  {submitting ? "Submitting…" : "Submit my application"}
+                </button>
+              ) : (
+                <button type="button" className="btn-ink" onClick={() => go(1)}>
+                  {GENERAL_STEPS[app.step].key === "demographics"
+                    ? "Save or skip →"
+                    : "Save and continue →"}
+                </button>
+              )}
+            </div>
+          </>
         )}
       </main>
       <SiteFooter className="mt-16" />
+    </div>
+  );
+}
+
+function StepProgress({ step }: { step: number }) {
+  const total = GENERAL_STEPS.length;
+  return (
+    <div className="mt-5">
+      <p className="text-xs font-medium text-ink-700">
+        Step {step + 1} of {total}
+      </p>
+      <div
+        className="mt-2 h-2 overflow-hidden rounded-full bg-paper-sunken"
+        role="progressbar"
+        aria-label="Application progress"
+        aria-valuemin={1}
+        aria-valuemax={total}
+        aria-valuenow={step + 1}
+      >
+        <div
+          className="h-full rounded-full bg-green-deep transition-all"
+          style={{ width: `${((step + 1) / total) * 100}%` }}
+        />
+      </div>
     </div>
   );
 }

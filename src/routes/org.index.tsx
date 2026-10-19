@@ -3,14 +3,14 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { OrgGuard } from "@/components/OrgGuard";
 import { PortalHeader, type PortalLink } from "@/components/passport";
-import { Briefcase, ChevronRight, Plus, Users } from "lucide-react";
+import { Briefcase, ChevronRight, FileEdit, Plus, Users } from "lucide-react";
 import { useOrg } from "@/lib/auth";
 import { oppTypeMeta, STATUS_LABEL, type Opportunity } from "@/lib/opportunities";
 
 const PARTNER_LINKS: PortalLink[] = [
   { label: "Overview", to: "/org" },
   { label: "New opportunity", to: "/org/new" },
-  { label: "Applicants", to: "/org/applicants" },
+  { label: "Placed with you", to: "/org/applicants" },
 ];
 
 export const Route = createFileRoute("/org/")({
@@ -57,6 +57,11 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
   }, [user]);
 
   const oppName = (id: string) => opps?.find((o) => o.id === id)?.name || "Opportunity";
+  // Internship applications stay with EXPLR staff; partners see placements instead.
+  const internshipIds = new Set(
+    (opps ?? []).filter((o) => o.type === "internship").map((o) => o.id),
+  );
+  const shownRegs = regs?.filter((r) => !internshipIds.has(r.opportunity_id)) ?? null;
 
   return (
     <div className="bg-paper text-ink-900">
@@ -82,7 +87,7 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <Link to="/org/applicants" className="btn-ghost">
-              Applicants
+              Placed with you
             </Link>
             <Link to="/org/new" className="btn-ink">
               <Plus className="h-4 w-4" aria-hidden /> New opportunity
@@ -113,11 +118,11 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
           ) : (
             <ul className="mt-4 divide-y divide-line">
               {opps.map((o) => (
-                <li key={o.id}>
+                <li key={o.id} className="flex flex-wrap items-center gap-2">
                   <Link
                     to="/org/new"
                     search={{ id: o.id }}
-                    className="-mx-2 flex min-h-[44px] items-center gap-4 rounded-[var(--radius-control)] px-2 py-3 hover:bg-mint-tint/50"
+                    className="-mx-2 flex min-h-[44px] min-w-0 flex-1 basis-72 items-center gap-4 rounded-[var(--radius-control)] px-2 py-3 hover:bg-mint-tint/50"
                   >
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium">{o.name || "Untitled opportunity"}</p>
@@ -134,6 +139,19 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
                     </span>
                     <ChevronRight className="h-4 w-4 shrink-0 text-ink-500" aria-hidden />
                   </Link>
+                  {o.type === "internship" && (
+                    <Link
+                      to="/org/application/$opportunityId"
+                      params={{ opportunityId: o.id }}
+                      className="btn-ghost mb-3 ml-auto text-sm"
+                    >
+                      <FileEdit className="h-4 w-4" aria-hidden />
+                      {(o as Opportunity & { application_version_id?: string | null })
+                        .application_version_id
+                        ? "Edit student application"
+                        : "Build student application"}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -145,17 +163,25 @@ function OrgHome({ orgName, logo }: { orgName: string; logo: string | null }) {
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
               <Users className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
             </span>
-            <h2 className="font-display text-xl font-semibold">Registrations &amp; applicants</h2>
+            <h2 className="font-display text-xl font-semibold">Registrations</h2>
           </div>
-          {regs === null ? (
+          <p className="mt-2 text-sm text-ink-700">
+            Camps, workshops and ongoing programs. For internships, EXPLR places students and shows
+            you{" "}
+            <Link to="/org/applicants" className="ink-link">
+              who's placed with you
+            </Link>
+            .
+          </p>
+          {shownRegs === null ? (
             <p role="status" className="mt-4 text-sm text-ink-500">
               Loading…
             </p>
-          ) : regs.length === 0 ? (
+          ) : shownRegs.length === 0 ? (
             <p className="mt-4 text-sm text-ink-700">No one has registered or applied yet.</p>
           ) : (
             <ul className="mt-4 divide-y divide-line">
-              {regs.map((r) => (
+              {shownRegs.map((r) => (
                 <li
                   key={r.id}
                   className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm"

@@ -32,7 +32,7 @@ import type { Stage } from "@/lib/wbl-taxonomy";
 const PARTNER_LINKS: PortalLink[] = [
   { label: "Overview", to: "/org" },
   { label: "New opportunity", to: "/org/new" },
-  { label: "Applicants", to: "/org/applicants" },
+  { label: "Placed with you", to: "/org/applicants" },
 ];
 
 const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);

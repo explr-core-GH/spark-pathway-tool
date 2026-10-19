@@ -5,6 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { schoolYear } from "./checkpoints";
 import { DEMO, DEMO_DOMAIN, DEMO_ROLES } from "./demo";
+import { ensureApplicationDemo } from "./demo-application.functions";
 
 /**
  * Demo accounts and fake data for walkthroughs.
@@ -369,7 +370,7 @@ export const seedDemo = createServerFn({ method: "POST" })
             "Transportation provided",
           ],
           application_links: [],
-          custom: {},
+          custom: { demo: true },
           stage: "participation",
           experience_type: "internship_offsite_placement",
           wbl: WBL_INTERNSHIP,
@@ -417,7 +418,7 @@ export const seedDemo = createServerFn({ method: "POST" })
           },
           requirements: ["Lunch provided", "Closed-toed shoes required"],
           application_links: [],
-          custom: {},
+          custom: { demo: true },
           stage: "exploration",
           experience_type: "camp_or_program",
           wbl: {
@@ -463,7 +464,7 @@ export const seedDemo = createServerFn({ method: "POST" })
           },
           requirements: ["Casual dress"],
           application_links: [],
-          custom: {},
+          custom: { demo: true },
           stage: "awareness",
           experience_type: "career_day_speaker_fair",
           wbl: { site: { transportationNotes: "School buses welcome; drop-off at Door C." } },
@@ -943,6 +944,8 @@ export const seedDemo = createServerFn({ method: "POST" })
       "internship_selections",
     );
 
+    await ensureApplicationDemo();
+
     return {
       ok: true,
       ids: { instructorId, partnerId, studentId, explorerId, internshipId, campId },
@@ -992,6 +995,7 @@ export const demoLogin = createServerFn({ method: "POST" })
       );
       return { kind: "family" as const, token, to: "/family/view" };
     }
+    if (data.role === "applicant") await ensureApplicationDemo();
     const email = DEMO[data.role].email;
     const user = (await listDemoUsers()).find((u) => u.email === email);
     if (!user) throw new Error("The demo isn't seeded yet. Ask an EXPLR admin to seed it.");
@@ -1006,6 +1010,8 @@ export const demoLogin = createServerFn({ method: "POST" })
         ? "/instructor/dashboard"
         : data.role === "partner"
           ? "/org"
-          : "/student";
+          : data.role === "applicant"
+            ? "/student/apply"
+            : "/student";
     return { kind: "magic" as const, tokenHash: linkData.properties.hashed_token, to };
   });

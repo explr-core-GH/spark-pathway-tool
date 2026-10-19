@@ -4,14 +4,14 @@ import { hydrateWbl, type WblDetail } from "@/lib/wbl-gate";
 /**
  * Internship placement matching (pure, unit-tested).
  *
- * Two layers, in this order:
- *   1. Hard checks. A listing's special requirements must be met or the
- *      candidate is out, whatever the score: grade band, age at start,
- *      hazardous work for under-16s, every acknowledgment accepted,
- *      transportation, and day-of-week availability.
+ * Three layers, in this order:
+ *   1. Hard check: age at the start date is the ONLY thing that rules a
+ *      candidate out (docs/internship-application-spec.md).
  *   2. Weighted score, 0..1, over whatever components are available for the
  *      pair (weights renormalize when a component is missing, so a student
  *      without a profile still gets a RIASEC-based score).
+ *   3. Soft checks: grade band, acknowledgments, transportation and
+ *      day-of-week availability lower the score; they never block.
  */
 
 export const MATCH_WEIGHTS = {
@@ -82,6 +82,8 @@ export type MatchOutcome = {
   studentId: string;
   eligible: boolean;
   hardFails: string[];
+  /** Concerns that lowered the score without blocking the match. */
+  softFlags: string[];
   score: number;
   breakdown: Partial<Record<MatchComponent, number>>;
   why: string;
@@ -191,8 +193,29 @@ export function acknowledgmentsFor(t: Target): string[] {
   return [...new Set(out)];
 }
 
+/** Score reductions for soft concerns (never blocking). */
+export const SOFT_REDUCTIONS = {
+  grade: 0.1,
+  acknowledgments: 0.05,
+  transportation: 0.05,
+  availability: 0.1,
+} as const;
+
+/** The only hard check: age at the start date. */
 export function hardChecks(c: Candidate, t: Target): string[] {
   const fails: string[] = [];
+  const start = t.startDate ? new Date(t.startDate) : new Date();
+  const minAge = Number(t.wbl.legal.minAge || 0);
+  if (minAge && c.dateOfBirth && ageOn(c.dateOfBirth, start) < minAge)
+    fails.push(
+      `Student will be ${ageOn(c.dateOfBirth, start)} at start; listing requires ${minAge}+`,
+    );
+  return fails;
+}
+
+/** Concerns that lower the score but never block a match. */
+export function softChecks(c: Candidate, t: Target): Array<{ flag: string; amount: number }> {
+  const out: Array<{ flag: string; amount: number }> = [];
   const start = t.startDate ? new Date(t.startDate) : new Date();
   const year = start.getFullYear();
   if (c.grade !== null) {
@@ -201,42 +224,49 @@ export function hardChecks(c: Candidate, t: Target): string[] {
       const eighthOk =
         c.grade === 8 && t.gradeMin <= 9 && !!c.dateOfBirth && turns14ByJune1(c.dateOfBirth, year);
       if (!eighthOk)
-        fails.push(`Grade ${c.grade} is below the listing's grade ${t.gradeMin} minimum`);
+        out.push({
+          flag: `Grade ${c.grade} is below the listing's grade ${t.gradeMin} minimum`,
+          amount: SOFT_REDUCTIONS.grade,
+        });
     }
     if (t.gradeMax !== null && c.grade > t.gradeMax)
-      fails.push(`Grade ${c.grade} is above the listing's grade ${t.gradeMax} maximum`);
+      out.push({
+        flag: `Grade ${c.grade} is above the listing's grade ${t.gradeMax} maximum`,
+        amount: SOFT_REDUCTIONS.grade,
+      });
   }
   const minAge = Number(t.wbl.legal.minAge || 0);
-  if (minAge) {
-    if (!c.dateOfBirth)
-      fails.push(`Listing requires age ${minAge}+; student's date of birth is missing`);
-    else if (ageOn(c.dateOfBirth, start) < minAge)
-      fails.push(
-        `Student will be ${ageOn(c.dateOfBirth, start)} at start; listing requires ${minAge}+`,
-      );
-  }
-  if (c.dateOfBirth && ageOn(c.dateOfBirth, start) < 16 && t.wbl.legal.hazardous.length > 0) {
-    fails.push("Under 16 and the listing involves a Hazardous Occupations Order");
-  }
+  if (minAge && !c.dateOfBirth)
+    out.push({
+      flag: `Listing requires age ${minAge}+; student's date of birth is missing`,
+      amount: 0,
+    });
   const required = acknowledgmentsFor(t);
   const missing = required.filter((a) => !c.acknowledgments.includes(a));
   if (missing.length)
-    fails.push(`${missing.length} requirement${missing.length === 1 ? "" : "s"} not acknowledged`);
+    out.push({
+      flag: `${missing.length} requirement${missing.length === 1 ? "" : "s"} not acknowledged`,
+      amount: SOFT_REDUCTIONS.acknowledgments,
+    });
   if (c.profile?.transportation === "needs_help") {
     const provides =
       /transportation provided/i.test(t.requirements.join(" ")) ||
       /provided|shuttle|bus pass|pickup/i.test(t.wbl.site.transportationNotes);
     const remote = t.wbl.schedule.modality === "remote";
     if (!provides && !remote)
-      fails.push("Student needs transportation help and the listing doesn't provide it");
+      out.push({
+        flag: "Student needs transportation help and the listing doesn't provide it",
+        amount: SOFT_REDUCTIONS.transportation,
+      });
   }
   const days = c.profile?.availability?.days ?? [];
   if (days.length && t.scheduleDays.length && !t.scheduleDays.some((d) => days.includes(d))) {
-    fails.push(
-      `No overlap between listing days (${t.scheduleDays.join(", ")}) and student availability`,
-    );
+    out.push({
+      flag: `No overlap between listing days (${t.scheduleDays.join(", ")}) and student availability`,
+      amount: SOFT_REDUCTIONS.availability,
+    });
   }
-  return fails;
+  return out;
 }
 
 export function score(
@@ -300,8 +330,18 @@ export function score(
 
 export function match(c: Candidate, t: Target): MatchOutcome {
   const hardFails = hardChecks(c, t);
+  const soft = softChecks(c, t);
   const s = score(c, t);
-  return { ref: t.ref, studentId: c.studentId, eligible: hardFails.length === 0, hardFails, ...s };
+  const reduced = Math.max(0, s.score - soft.reduce((sum, x) => sum + x.amount, 0));
+  return {
+    ref: t.ref,
+    studentId: c.studentId,
+    eligible: hardFails.length === 0,
+    hardFails,
+    softFlags: soft.map((x) => x.flag),
+    ...s,
+    score: Math.round(reduced * 1000) / 1000,
+  };
 }
 
 /** Rank candidates for one listing: eligible first by score, then ineligible by score. */

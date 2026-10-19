@@ -6,6 +6,7 @@ import {
   match,
   rankFor,
   score,
+  softChecks,
   turns14ByJune1,
   type Candidate,
   type Target,
@@ -60,12 +61,28 @@ function candidate(over: Partial<Candidate> = {}): Candidate {
   };
 }
 
-describe("hard checks", () => {
+const flags = (c: Candidate, t: Target) => softChecks(c, t).map((x) => x.flag);
+
+describe("hard checks (age only)", () => {
   it("passes a fully eligible candidate", () => {
     expect(hardChecks(candidate(), target())).toEqual([]);
+    expect(softChecks(candidate(), target())).toEqual([]);
   });
-  it("fails below the grade minimum unless an 8th grader turns 14 by June 1", () => {
-    expect(hardChecks(candidate({ grade: 9 }), target({ gradeMin: 10 }))[0]).toMatch(/below/);
+  it("enforces minimum age at the start date", () => {
+    expect(hardChecks(candidate({ dateOfBirth: "2011-12-01" }), target())[0]).toMatch(
+      /requires 16\+/,
+    );
+  });
+  it("never blocks on grade, acknowledgments, transportation or days", () => {
+    expect(
+      hardChecks(candidate({ grade: 9, acknowledgments: [] }), target({ gradeMin: 10 })),
+    ).toEqual([]);
+  });
+});
+
+describe("soft checks (lower the score)", () => {
+  it("flags below the grade minimum unless an 8th grader turns 14 by June 1", () => {
+    expect(flags(candidate({ grade: 9 }), target({ gradeMin: 10 }))[0]).toMatch(/below/);
     const t = target({
       gradeMin: 9,
       wbl: hydrateWbl({
@@ -75,39 +92,32 @@ describe("hard checks", () => {
     });
     const acks8 = acknowledgmentsFor(t);
     expect(
-      hardChecks(candidate({ grade: 8, dateOfBirth: "2013-02-01", acknowledgments: acks8 }), t),
+      flags(candidate({ grade: 8, dateOfBirth: "2013-02-01", acknowledgments: acks8 }), t),
     ).toEqual([]);
     expect(
-      hardChecks(candidate({ grade: 8, dateOfBirth: "2013-09-01", acknowledgments: acks8 }), t)[0],
+      flags(candidate({ grade: 8, dateOfBirth: "2013-09-01", acknowledgments: acks8 }), t)[0],
     ).toMatch(/below/);
   });
-  it("enforces minimum age at the start date", () => {
-    expect(hardChecks(candidate({ dateOfBirth: "2011-12-01" }), target())[0]).toMatch(
-      /requires 16\+/,
-    );
-  });
-  it("blocks hazardous work for under-16s", () => {
-    const t = target({ wbl: hydrateWbl({ legal: { hazardous: ["HO 7 · forklifts"] } }) });
+  it("flags missing acknowledgments", () => {
     expect(
-      hardChecks(candidate({ dateOfBirth: "2012-01-01" }), t).some((f) => /Hazardous/.test(f)),
+      flags(candidate({ acknowledgments: [] }), target()).some((f) => /not acknowledged/.test(f)),
     ).toBe(true);
   });
-  it("requires every acknowledgment", () => {
-    const fails = hardChecks(candidate({ acknowledgments: [] }), target());
-    expect(fails.some((f) => /not acknowledged/.test(f))).toBe(true);
-  });
-  it("fails when the student needs transportation help the listing doesn't provide", () => {
+  it("flags transportation help the listing doesn't provide", () => {
     const c = candidate({ profile: { ...candidate().profile!, transportation: "needs_help" } });
-    expect(hardChecks(c, target()).some((f) => /transportation/.test(f))).toBe(true);
+    expect(flags(c, target()).some((f) => /transportation/.test(f))).toBe(true);
     expect(
-      hardChecks(c, target({ requirements: ["Transportation provided"] })).some((f) =>
+      flags(c, target({ requirements: ["Transportation provided"] })).some((f) =>
         /transportation/.test(f),
       ),
     ).toBe(false);
   });
-  it("fails when days never overlap", () => {
+  it("flags days that never overlap and lowers the score", () => {
     const c = candidate({ profile: { ...candidate().profile!, availability: { days: ["Sat"] } } });
-    expect(hardChecks(c, target()).some((f) => /overlap/.test(f))).toBe(true);
+    expect(flags(c, target()).some((f) => /overlap/.test(f))).toBe(true);
+    const m = match(c, target());
+    expect(m.eligible).toBe(true);
+    expect(m.score).toBeLessThan(score(c, target()).score);
   });
 });
 

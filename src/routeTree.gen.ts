@@ -68,6 +68,8 @@ import { Route as AssessmentSessionIdRouteImport } from './routes/assessment.$se
 import { Route as InstructorCheckpointsIndexRouteImport } from './routes/instructor.checkpoints.index'
 import { Route as InstructorAdminIndexRouteImport } from './routes/instructor.admin.index'
 import { Route as StudentExperiencesNewRouteImport } from './routes/student_.experiences_.new'
+import { Route as StudentApplyOpportunityIdRouteImport } from './routes/student_.apply_.$opportunityId'
+import { Route as OrgApplicationOpportunityIdRouteImport } from './routes/org.application.$opportunityId'
 import { Route as InstructorSessionsSessionIdRouteImport } from './routes/instructor.sessions.$sessionId'
 import { Route as InstructorInviteTokenRouteImport } from './routes/instructor.invite.$token'
 import { Route as InstructorCheckpointsStudentIdRouteImport } from './routes/instructor.checkpoints.$studentId'
@@ -83,6 +85,7 @@ import { Route as InstructorAdminOpportunitiesRouteImport } from './routes/instr
 import { Route as InstructorAdminMatchingRouteImport } from './routes/instructor.admin.matching'
 import { Route as InstructorAdminInvitesRouteImport } from './routes/instructor.admin.invites'
 import { Route as InstructorAdminImportExplrRouteImport } from './routes/instructor.admin.import-explr'
+import { Route as InstructorAdminHsApplicationsRouteImport } from './routes/instructor.admin.hs-applications'
 import { Route as InstructorAdminDemographicsRouteImport } from './routes/instructor.admin.demographics'
 import { Route as InstructorAdminCompletionRouteImport } from './routes/instructor.admin.completion'
 import { Route as InstructorAdminCampLoginsRouteImport } from './routes/instructor.admin.camp-logins'
@@ -392,6 +395,18 @@ const StudentExperiencesNewRoute = StudentExperiencesNewRouteImport.update({
   path: '/student/experiences/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StudentApplyOpportunityIdRoute =
+  StudentApplyOpportunityIdRouteImport.update({
+    id: '/student_/apply_/$opportunityId',
+    path: '/student/apply/$opportunityId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const OrgApplicationOpportunityIdRoute =
+  OrgApplicationOpportunityIdRouteImport.update({
+    id: '/org/application/$opportunityId',
+    path: '/org/application/$opportunityId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const InstructorSessionsSessionIdRoute =
   InstructorSessionsSessionIdRouteImport.update({
     id: '/sessions/$sessionId',
@@ -474,6 +489,12 @@ const InstructorAdminImportExplrRoute =
   InstructorAdminImportExplrRouteImport.update({
     id: '/import-explr',
     path: '/import-explr',
+    getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const InstructorAdminHsApplicationsRoute =
+  InstructorAdminHsApplicationsRouteImport.update({
+    id: '/hs-applications',
+    path: '/hs-applications',
     getParentRoute: () => InstructorAdminRoute,
   } as any)
 const InstructorAdminDemographicsRoute =
@@ -612,6 +633,7 @@ export interface FileRoutesByFullPath {
   '/instructor/admin/camp-logins': typeof InstructorAdminCampLoginsRoute
   '/instructor/admin/completion': typeof InstructorAdminCompletionRoute
   '/instructor/admin/demographics': typeof InstructorAdminDemographicsRoute
+  '/instructor/admin/hs-applications': typeof InstructorAdminHsApplicationsRoute
   '/instructor/admin/import-explr': typeof InstructorAdminImportExplrRoute
   '/instructor/admin/invites': typeof InstructorAdminInvitesRoute
   '/instructor/admin/matching': typeof InstructorAdminMatchingRoute
@@ -627,6 +649,8 @@ export interface FileRoutesByFullPath {
   '/instructor/checkpoints/$studentId': typeof InstructorCheckpointsStudentIdRoute
   '/instructor/invite/$token': typeof InstructorInviteTokenRoute
   '/instructor/sessions/$sessionId': typeof InstructorSessionsSessionIdRoute
+  '/org/application/$opportunityId': typeof OrgApplicationOpportunityIdRoute
+  '/student/apply/$opportunityId': typeof StudentApplyOpportunityIdRoute
   '/student/experiences/new': typeof StudentExperiencesNewRoute
   '/instructor/admin/': typeof InstructorAdminIndexRoute
   '/instructor/checkpoints/': typeof InstructorCheckpointsIndexRoute
@@ -698,6 +722,7 @@ export interface FileRoutesByTo {
   '/instructor/admin/camp-logins': typeof InstructorAdminCampLoginsRoute
   '/instructor/admin/completion': typeof InstructorAdminCompletionRoute
   '/instructor/admin/demographics': typeof InstructorAdminDemographicsRoute
+  '/instructor/admin/hs-applications': typeof InstructorAdminHsApplicationsRoute
   '/instructor/admin/import-explr': typeof InstructorAdminImportExplrRoute
   '/instructor/admin/invites': typeof InstructorAdminInvitesRoute
   '/instructor/admin/matching': typeof InstructorAdminMatchingRoute
@@ -713,6 +738,8 @@ export interface FileRoutesByTo {
   '/instructor/checkpoints/$studentId': typeof InstructorCheckpointsStudentIdRoute
   '/instructor/invite/$token': typeof InstructorInviteTokenRoute
   '/instructor/sessions/$sessionId': typeof InstructorSessionsSessionIdRoute
+  '/org/application/$opportunityId': typeof OrgApplicationOpportunityIdRoute
+  '/student/apply/$opportunityId': typeof StudentApplyOpportunityIdRoute
   '/student/experiences/new': typeof StudentExperiencesNewRoute
   '/instructor/admin': typeof InstructorAdminIndexRoute
   '/instructor/checkpoints': typeof InstructorCheckpointsIndexRoute
@@ -787,6 +814,7 @@ export interface FileRoutesById {
   '/instructor/admin/camp-logins': typeof InstructorAdminCampLoginsRoute
   '/instructor/admin/completion': typeof InstructorAdminCompletionRoute
   '/instructor/admin/demographics': typeof InstructorAdminDemographicsRoute
+  '/instructor/admin/hs-applications': typeof InstructorAdminHsApplicationsRoute
   '/instructor/admin/import-explr': typeof InstructorAdminImportExplrRoute
   '/instructor/admin/invites': typeof InstructorAdminInvitesRoute
   '/instructor/admin/matching': typeof InstructorAdminMatchingRoute
@@ -802,6 +830,8 @@ export interface FileRoutesById {
   '/instructor/checkpoints/$studentId': typeof InstructorCheckpointsStudentIdRoute
   '/instructor/invite/$token': typeof InstructorInviteTokenRoute
   '/instructor/sessions/$sessionId': typeof InstructorSessionsSessionIdRoute
+  '/org/application/$opportunityId': typeof OrgApplicationOpportunityIdRoute
+  '/student_/apply_/$opportunityId': typeof StudentApplyOpportunityIdRoute
   '/student_/experiences_/new': typeof StudentExperiencesNewRoute
   '/instructor/admin/': typeof InstructorAdminIndexRoute
   '/instructor/checkpoints/': typeof InstructorCheckpointsIndexRoute
@@ -877,6 +907,7 @@ export interface FileRouteTypes {
     | '/instructor/admin/camp-logins'
     | '/instructor/admin/completion'
     | '/instructor/admin/demographics'
+    | '/instructor/admin/hs-applications'
     | '/instructor/admin/import-explr'
     | '/instructor/admin/invites'
     | '/instructor/admin/matching'
@@ -892,6 +923,8 @@ export interface FileRouteTypes {
     | '/instructor/checkpoints/$studentId'
     | '/instructor/invite/$token'
     | '/instructor/sessions/$sessionId'
+    | '/org/application/$opportunityId'
+    | '/student/apply/$opportunityId'
     | '/student/experiences/new'
     | '/instructor/admin/'
     | '/instructor/checkpoints/'
@@ -963,6 +996,7 @@ export interface FileRouteTypes {
     | '/instructor/admin/camp-logins'
     | '/instructor/admin/completion'
     | '/instructor/admin/demographics'
+    | '/instructor/admin/hs-applications'
     | '/instructor/admin/import-explr'
     | '/instructor/admin/invites'
     | '/instructor/admin/matching'
@@ -978,6 +1012,8 @@ export interface FileRouteTypes {
     | '/instructor/checkpoints/$studentId'
     | '/instructor/invite/$token'
     | '/instructor/sessions/$sessionId'
+    | '/org/application/$opportunityId'
+    | '/student/apply/$opportunityId'
     | '/student/experiences/new'
     | '/instructor/admin'
     | '/instructor/checkpoints'
@@ -1051,6 +1087,7 @@ export interface FileRouteTypes {
     | '/instructor/admin/camp-logins'
     | '/instructor/admin/completion'
     | '/instructor/admin/demographics'
+    | '/instructor/admin/hs-applications'
     | '/instructor/admin/import-explr'
     | '/instructor/admin/invites'
     | '/instructor/admin/matching'
@@ -1066,6 +1103,8 @@ export interface FileRouteTypes {
     | '/instructor/checkpoints/$studentId'
     | '/instructor/invite/$token'
     | '/instructor/sessions/$sessionId'
+    | '/org/application/$opportunityId'
+    | '/student_/apply_/$opportunityId'
     | '/student_/experiences_/new'
     | '/instructor/admin/'
     | '/instructor/checkpoints/'
@@ -1126,6 +1165,8 @@ export interface RootRouteChildren {
   OrgIndexRoute: typeof OrgIndexRoute
   PartnerIndexRoute: typeof PartnerIndexRoute
   AssessmentSessionIdResultsRoute: typeof AssessmentSessionIdResultsRoute
+  OrgApplicationOpportunityIdRoute: typeof OrgApplicationOpportunityIdRoute
+  StudentApplyOpportunityIdRoute: typeof StudentApplyOpportunityIdRoute
   StudentExperiencesNewRoute: typeof StudentExperiencesNewRoute
 }
 
@@ -1544,6 +1585,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentExperiencesNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/student_/apply_/$opportunityId': {
+      id: '/student_/apply_/$opportunityId'
+      path: '/student/apply/$opportunityId'
+      fullPath: '/student/apply/$opportunityId'
+      preLoaderRoute: typeof StudentApplyOpportunityIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/org/application/$opportunityId': {
+      id: '/org/application/$opportunityId'
+      path: '/org/application/$opportunityId'
+      fullPath: '/org/application/$opportunityId'
+      preLoaderRoute: typeof OrgApplicationOpportunityIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/instructor/sessions/$sessionId': {
       id: '/instructor/sessions/$sessionId'
       path: '/sessions/$sessionId'
@@ -1649,6 +1704,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InstructorAdminImportExplrRouteImport
       parentRoute: typeof InstructorAdminRoute
     }
+    '/instructor/admin/hs-applications': {
+      id: '/instructor/admin/hs-applications'
+      path: '/hs-applications'
+      fullPath: '/instructor/admin/hs-applications'
+      preLoaderRoute: typeof InstructorAdminHsApplicationsRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
     '/instructor/admin/demographics': {
       id: '/instructor/admin/demographics'
       path: '/demographics'
@@ -1744,6 +1806,7 @@ interface InstructorAdminRouteChildren {
   InstructorAdminCampLoginsRoute: typeof InstructorAdminCampLoginsRoute
   InstructorAdminCompletionRoute: typeof InstructorAdminCompletionRoute
   InstructorAdminDemographicsRoute: typeof InstructorAdminDemographicsRoute
+  InstructorAdminHsApplicationsRoute: typeof InstructorAdminHsApplicationsRoute
   InstructorAdminImportExplrRoute: typeof InstructorAdminImportExplrRoute
   InstructorAdminInvitesRoute: typeof InstructorAdminInvitesRoute
   InstructorAdminMatchingRoute: typeof InstructorAdminMatchingRoute
@@ -1770,6 +1833,7 @@ const InstructorAdminRouteChildren: InstructorAdminRouteChildren = {
   InstructorAdminCampLoginsRoute: InstructorAdminCampLoginsRoute,
   InstructorAdminCompletionRoute: InstructorAdminCompletionRoute,
   InstructorAdminDemographicsRoute: InstructorAdminDemographicsRoute,
+  InstructorAdminHsApplicationsRoute: InstructorAdminHsApplicationsRoute,
   InstructorAdminImportExplrRoute: InstructorAdminImportExplrRoute,
   InstructorAdminInvitesRoute: InstructorAdminInvitesRoute,
   InstructorAdminMatchingRoute: InstructorAdminMatchingRoute,
@@ -1877,6 +1941,8 @@ const rootRouteChildren: RootRouteChildren = {
   OrgIndexRoute: OrgIndexRoute,
   PartnerIndexRoute: PartnerIndexRoute,
   AssessmentSessionIdResultsRoute: AssessmentSessionIdResultsRoute,
+  OrgApplicationOpportunityIdRoute: OrgApplicationOpportunityIdRoute,
+  StudentApplyOpportunityIdRoute: StudentApplyOpportunityIdRoute,
   StudentExperiencesNewRoute: StudentExperiencesNewRoute,
 }
 export const routeTree = rootRouteImport

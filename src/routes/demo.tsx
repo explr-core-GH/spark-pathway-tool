@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   Backpack,
   Briefcase,
+  ClipboardList,
   GraduationCap,
   Heart,
   Leaf,
@@ -16,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEducator } from "@/lib/auth";
 import { DEMO, type DemoRole } from "@/lib/demo";
 import { demoLogin, demoStatus, seedDemo } from "@/lib/demo.functions";
+import { resetApplicationDemo } from "@/lib/demo-application.functions";
 import { PortalHeader } from "@/components/passport/PortalHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 
@@ -98,6 +100,23 @@ function DemoPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [reset, setReset] = useState(false);
+  const [walkMsg, setWalkMsg] = useState<string | null>(null);
+
+  async function resetWalkthrough() {
+    setBusy("walkthrough");
+    setError(null);
+    setWalkMsg(null);
+    try {
+      await resetApplicationDemo();
+      setWalkMsg(
+        "Reset. Theo has a blank application and Lakeshore Health's internship has no application yet.",
+      );
+    } catch (e) {
+      setError(e instanceof Error ? e.message.replace(/^Error:\s*/, "") : String(e));
+    } finally {
+      setBusy(null);
+    }
+  }
 
   useEffect(() => {
     demoStatus()
@@ -176,6 +195,96 @@ function DemoPage() {
             {error}
           </p>
         )}
+
+        <section
+          aria-labelledby="walkthrough-title"
+          className="mt-10 rounded-[var(--radius-card)] border border-mint-soft bg-mint-tint/50 p-6 sm:p-8"
+        >
+          <div className="flex items-center gap-3">
+            <span className="grid h-12 w-12 place-items-center rounded-[14px] border border-mint-soft bg-paper-raised text-green-deep">
+              <ClipboardList className="h-6 w-6" strokeWidth={2} aria-hidden />
+            </span>
+            <p className="font-mono text-[12px] font-medium uppercase tracking-[0.08em] text-green">
+              Internship application walkthrough
+            </p>
+          </div>
+          <h2 id="walkthrough-title" className="mt-3 font-display text-3xl font-bold leading-tight">
+            One general application, then each partner's questions.
+          </h2>
+          <div className="mt-6 grid gap-6 lg:grid-cols-2">
+            <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
+              <p className="eyebrow">For partners</p>
+              <h3 className="mt-1 font-display text-xl font-semibold">Build an application</h3>
+              <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm text-ink-700">
+                <li>Enter as {DEMO.partner.org}.</li>
+                <li>
+                  On their internship, choose <strong>Build student application</strong>.
+                </li>
+                <li>
+                  Describe the internship, pick a few questions, check site requirements, and watch
+                  the phone preview.
+                </li>
+                <li>
+                  Try writing a question about GPA or religion to see the guardrails, then publish.
+                </li>
+              </ol>
+              <button
+                type="button"
+                onClick={() => enter("partner")}
+                disabled={busy !== null || seeded === false}
+                className="btn-mint mt-4 disabled:opacity-50"
+              >
+                {busy === "partner" ? "Opening…" : `Enter as ${DEMO.partner.org}`}
+              </button>
+            </div>
+            <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-5">
+              <p className="eyebrow">For students</p>
+              <h3 className="mt-1 font-display text-xl font-semibold">
+                Apply as {DEMO.applicant.firstName}, grade 10 this fall
+              </h3>
+              <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm text-ink-700">
+                <li>
+                  Fill out the general application. {DEMO.applicant.firstName}'s interest survey is
+                  already done.
+                </li>
+                <li>See the top matches and why they matched, react, and rank.</li>
+                <li>
+                  Submit, then apply to a partner internship with only its questions and site
+                  requirements.
+                </li>
+                <li>If you published an application as the partner, it shows up here too.</li>
+              </ol>
+              <button
+                type="button"
+                onClick={() => enter("applicant")}
+                disabled={busy !== null}
+                className="btn-mint mt-4 disabled:opacity-50"
+              >
+                {busy === "applicant" ? "Opening…" : `Enter as ${DEMO.applicant.firstName}`}
+              </button>
+            </div>
+          </div>
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={resetWalkthrough}
+              disabled={busy !== null}
+              className="btn-ghost bg-paper-raised disabled:opacity-50"
+            >
+              <RefreshCw className="h-4 w-4" aria-hidden />
+              {busy === "walkthrough" ? "Resetting…" : "Reset the walkthrough"}
+            </button>
+            <p className="text-sm text-ink-700">
+              Run before each demo. Demo internships only appear to demo accounts, never to real
+              students.
+            </p>
+          </div>
+          {walkMsg && (
+            <p role="status" className="mt-3 text-sm text-green-deep">
+              {walkMsg}
+            </p>
+          )}
+        </section>
 
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {CARDS.map((c) => (

@@ -1,4 +1,5 @@
 import { PortalHeader, type PortalLink } from "@/components/passport/PortalHeader";
+import { ReturnToApplication } from "@/components/hs-application/ReturnToApplication";
 import { SiteFooter } from "@/components/SiteFooter";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -122,6 +123,7 @@ function Results() {
         >
           ← My passport
         </Link>
+        <ReturnToApplication />
         <p className="eyebrow text-green">Your Holland code</p>
         <h1 className="display mt-2">
           <span style={{ color: primary.ink }}>{code}</span>

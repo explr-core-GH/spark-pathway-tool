@@ -54,6 +54,11 @@ const SECTIONS: Section[] = [
     items: [
       {
         label: "Applications",
+        to: "/instructor/admin/hs-applications",
+        match: "/instructor/admin/hs-applications",
+      },
+      {
+        label: "Legacy applications",
         to: "/instructor/admin/applications",
         match: "/instructor/admin/applications",
       },
