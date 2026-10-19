@@ -43,6 +43,8 @@ import { listingFromOpportunity } from "@/lib/hs-application/listings";
 import { rankListings } from "@/lib/hs-application/match";
 import { recordApplicationStatus } from "@/lib/hs-application/notify.functions";
 import type { Demographics, GeneralApplication } from "@/lib/hs-application/types";
+import { DEMO_CORE, DEMO_EXTRAS, demoChoices } from "@/lib/hs-application/demo-fill";
+import { DemoBar } from "@/components/hs-application/DemoBar";
 import {
   GENERAL_STEPS,
   validateCoreStep,
@@ -234,6 +236,44 @@ function ApplyPage() {
     requestAnimationFrame(() => headingRef.current?.focus());
   }
 
+  // ── Demo accounts only: fill with sample answers and skip ahead ─────────
+  const shownFor = (a: GeneralApplication) =>
+    a.choices.shown.length
+      ? a.choices.shown
+      : allCards
+          .filter((c) => c.match.eligible)
+          .slice(0, TOP_MATCHES)
+          .map((c) => c.ref);
+
+  /** Sample answers for every step up to and including `upTo`. */
+  function filled(a: GeneralApplication, upTo: number): GeneralApplication {
+    const surveyIdx = GENERAL_STEPS.findIndex((s) => s.key === "survey");
+    const matchesIdx = GENERAL_STEPS.findIndex((s) => s.key === "matches");
+    let next = { ...a, core: { ...DEMO_CORE } };
+    if (upTo >= surveyIdx) next = { ...next, extras: structuredClone(DEMO_EXTRAS) };
+    if (upTo >= matchesIdx) next = { ...next, choices: demoChoices(shownFor(next), next.choices) };
+    return next;
+  }
+
+  async function demoFillHere() {
+    if (!app) return;
+    const next = filled(app, app.step);
+    setErrors({});
+    setApp(next);
+    await persist(next);
+  }
+
+  /** Fill every step through `key` and land on it, ready to click Continue (or Submit). */
+  async function demoJump(key: (typeof GENERAL_STEPS)[number]["key"]) {
+    if (!app) return;
+    const target = GENERAL_STEPS.findIndex((s) => s.key === key);
+    const next = { ...filled(app, target), step: target };
+    setErrors({});
+    setApp(next);
+    await persist(next);
+    window.scrollTo({ top: 0 });
+  }
+
   async function submit() {
     if (!app || !user) return;
     // Re-check every step before submitting.
@@ -331,6 +371,17 @@ function ApplyPage() {
               </p>
             )}
             <StepProgress step={app.step} />
+            {isDemo && (
+              <DemoBar
+                onFill={demoFillHere}
+                fillLabel="Fill this page with sample answers"
+                jumps={[
+                  { label: "Interest survey", onClick: () => demoJump("survey") },
+                  { label: "Matches", onClick: () => demoJump("matches") },
+                  { label: "Review and submit", onClick: () => demoJump("review") },
+                ]}
+              />
+            )}
 
             <div className="mt-6 grid gap-6">
               {GENERAL_STEPS[app.step].key === "about" && (

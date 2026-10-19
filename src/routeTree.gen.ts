@@ -9,179 +9,99 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as AccessibilityRouteImport } from './routes/accessibility'
-import { Route as DemoRouteImport } from './routes/demo'
-import { Route as ExplrRostersRouteImport } from './routes/explr-rosters'
-import { Route as FamilyRouteImport } from './routes/family'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
-import { Route as InstructorRouteImport } from './routes/instructor'
-import { Route as OpportunitiesRouteImport } from './routes/opportunities'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as SignInRouteImport } from './routes/sign-in'
-import { Route as SignOutRouteImport } from './routes/sign-out'
-import { Route as SignUpRouteImport } from './routes/sign-up'
-import { Route as StartRouteImport } from './routes/start'
-import { Route as StudentRouteImport } from './routes/student'
-import { Route as StudentDataRouteImport } from './routes/student-data'
-import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TryRiasecRouteImport } from './routes/try-riasec'
-import { Route as AssessmentIndexRouteImport } from './routes/assessment.index'
-import { Route as AssessmentSessionIdRouteImport } from './routes/assessment.$sessionId'
-import { Route as CareersIndexRouteImport } from './routes/careers.index'
-import { Route as CareersSocRouteImport } from './routes/careers.$soc'
-import { Route as EducatorIndexRouteImport } from './routes/educator.index'
-import { Route as EducatorSplatRouteImport } from './routes/educator.$'
-import { Route as ExploreIndexRouteImport } from './routes/explore.index'
-import { Route as ExploreCodeRouteImport } from './routes/explore.$code'
-import { Route as ExploreScanRouteImport } from './routes/explore.scan'
-import { Route as FamilyViewRouteImport } from './routes/family_.view'
-import { Route as GoTokenRouteImport } from './routes/go.$token'
-import { Route as InstructorIndexRouteImport } from './routes/instructor.index'
-import { Route as InstructorAdminRouteImport } from './routes/instructor.admin'
-import { Route as InstructorDashboardRouteImport } from './routes/instructor.dashboard'
-import { Route as InstructorLoginDisplayRouteImport } from './routes/instructor.login-display'
-import { Route as InstructorSignInRouteImport } from './routes/instructor.sign-in'
-import { Route as InstructorSignUpRouteImport } from './routes/instructor.sign-up'
-import { Route as InstructorStudentsRouteImport } from './routes/instructor.students'
-import { Route as OpportunityIdRouteImport } from './routes/opportunity.$id'
-import { Route as OrgIndexRouteImport } from './routes/org.index'
-import { Route as OrgApplicantsRouteImport } from './routes/org.applicants'
-import { Route as OrgNewRouteImport } from './routes/org.new'
-import { Route as OrgSignInRouteImport } from './routes/org.sign-in'
-import { Route as OrgSignUpRouteImport } from './routes/org.sign-up'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as StudentDataRouteImport } from './routes/student-data'
+import { Route as StudentRouteImport } from './routes/student'
+import { Route as StartRouteImport } from './routes/start'
+import { Route as SignUpRouteImport } from './routes/sign-up'
+import { Route as SignOutRouteImport } from './routes/sign-out'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as OpportunitiesRouteImport } from './routes/opportunities'
+import { Route as InstructorRouteImport } from './routes/instructor'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as FamilyRouteImport } from './routes/family'
+import { Route as ExplrRostersRouteImport } from './routes/explr-rosters'
+import { Route as DemoRouteImport } from './routes/demo'
+import { Route as AccessibilityRouteImport } from './routes/accessibility'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as PartnerIndexRouteImport } from './routes/partner.index'
-import { Route as PartnerSplatRouteImport } from './routes/partner.$'
-import { Route as StampTokenRouteImport } from './routes/stamp.$token'
-import { Route as StudentApplyRouteImport } from './routes/student_.apply'
-import { Route as StudentApplyCompleteRouteImport } from './routes/student_.apply-complete'
-import { Route as StudentCheckpointsRouteImport } from './routes/student_.checkpoints'
-import { Route as StudentCredentialsRouteImport } from './routes/student_.credentials'
-import { Route as StudentExperiencesRouteImport } from './routes/student_.experiences'
-import { Route as StudentPathwayRouteImport } from './routes/student_.pathway'
-import { Route as StudentPiecesRouteImport } from './routes/student_.pieces'
-import { Route as StudentProfileRouteImport } from './routes/student_.profile'
-import { Route as StudentSkillsRouteImport } from './routes/student_.skills'
+import { Route as OrgIndexRouteImport } from './routes/org.index'
+import { Route as InstructorIndexRouteImport } from './routes/instructor.index'
+import { Route as ExploreIndexRouteImport } from './routes/explore.index'
+import { Route as EducatorIndexRouteImport } from './routes/educator.index'
+import { Route as CareersIndexRouteImport } from './routes/careers.index'
+import { Route as AssessmentIndexRouteImport } from './routes/assessment.index'
 import { Route as SurveyAssignmentIdRouteImport } from './routes/survey.$assignmentId'
-import { Route as AssessmentSessionIdResultsRouteImport } from './routes/assessment.$sessionId_.results'
-import { Route as InstructorAdminIndexRouteImport } from './routes/instructor.admin.index'
-import { Route as InstructorAdminApplicationsRouteImport } from './routes/instructor.admin.applications'
-import { Route as InstructorAdminArchiveRouteImport } from './routes/instructor.admin.archive'
-import { Route as InstructorAdminAssessmentsRouteImport } from './routes/instructor.admin.assessments'
-import { Route as InstructorAdminAssignRouteImport } from './routes/instructor.admin.assign'
-import { Route as InstructorAdminCampLoginsRouteImport } from './routes/instructor.admin.camp-logins'
-import { Route as InstructorAdminCompletionRouteImport } from './routes/instructor.admin.completion'
-import { Route as InstructorAdminDemographicsRouteImport } from './routes/instructor.admin.demographics'
-import { Route as InstructorAdminHsApplicationsRouteImport } from './routes/instructor.admin.hs-applications'
-import { Route as InstructorAdminImportExplrRouteImport } from './routes/instructor.admin.import-explr'
-import { Route as InstructorAdminInvitesRouteImport } from './routes/instructor.admin.invites'
-import { Route as InstructorAdminMatchingRouteImport } from './routes/instructor.admin.matching'
-import { Route as InstructorAdminOpportunitiesRouteImport } from './routes/instructor.admin.opportunities'
-import { Route as InstructorAdminOpportunityFieldsRouteImport } from './routes/instructor.admin.opportunity-fields'
-import { Route as InstructorAdminPasswordsRouteImport } from './routes/instructor.admin.passwords'
-import { Route as InstructorAdminPlacementsRouteImport } from './routes/instructor.admin.placements'
-import { Route as InstructorAdminProgramRiasecRouteImport } from './routes/instructor.admin.program-riasec'
-import { Route as InstructorAdminProgramsRouteImport } from './routes/instructor.admin.programs'
-import { Route as InstructorAdminRecommendationsRouteImport } from './routes/instructor.admin.recommendations'
-import { Route as InstructorAdminResultsRouteImport } from './routes/instructor.admin.results'
-import { Route as InstructorAdminSurveysRouteImport } from './routes/instructor.admin.surveys'
+import { Route as StudentSkillsRouteImport } from './routes/student_.skills'
+import { Route as StudentProfileRouteImport } from './routes/student_.profile'
+import { Route as StudentPiecesRouteImport } from './routes/student_.pieces'
+import { Route as StudentPathwayRouteImport } from './routes/student_.pathway'
+import { Route as StudentExperiencesRouteImport } from './routes/student_.experiences'
+import { Route as StudentCredentialsRouteImport } from './routes/student_.credentials'
+import { Route as StudentCheckpointsRouteImport } from './routes/student_.checkpoints'
+import { Route as StudentApplyCompleteRouteImport } from './routes/student_.apply-complete'
+import { Route as StudentApplyRouteImport } from './routes/student_.apply'
+import { Route as StampTokenRouteImport } from './routes/stamp.$token'
+import { Route as PartnerSplatRouteImport } from './routes/partner.$'
+import { Route as OrgSignUpRouteImport } from './routes/org.sign-up'
+import { Route as OrgSignInRouteImport } from './routes/org.sign-in'
+import { Route as OrgNewRouteImport } from './routes/org.new'
+import { Route as OrgApplicantsRouteImport } from './routes/org.applicants'
+import { Route as OpportunityIdRouteImport } from './routes/opportunity.$id'
+import { Route as InstructorStudentsRouteImport } from './routes/instructor.students'
+import { Route as InstructorSignUpRouteImport } from './routes/instructor.sign-up'
+import { Route as InstructorSignInRouteImport } from './routes/instructor.sign-in'
+import { Route as InstructorLoginDisplayRouteImport } from './routes/instructor.login-display'
+import { Route as InstructorDashboardRouteImport } from './routes/instructor.dashboard'
+import { Route as InstructorAdminRouteImport } from './routes/instructor.admin'
+import { Route as GoTokenRouteImport } from './routes/go.$token'
+import { Route as FamilyViewRouteImport } from './routes/family_.view'
+import { Route as ExploreScanRouteImport } from './routes/explore.scan'
+import { Route as ExploreCodeRouteImport } from './routes/explore.$code'
+import { Route as EducatorSplatRouteImport } from './routes/educator.$'
+import { Route as CareersSocRouteImport } from './routes/careers.$soc'
+import { Route as AssessmentSessionIdRouteImport } from './routes/assessment.$sessionId'
 import { Route as InstructorCheckpointsIndexRouteImport } from './routes/instructor.checkpoints.index'
-import { Route as InstructorCheckpointsStudentIdRouteImport } from './routes/instructor.checkpoints.$studentId'
-import { Route as InstructorInviteTokenRouteImport } from './routes/instructor.invite.$token'
-import { Route as InstructorSessionsSessionIdRouteImport } from './routes/instructor.sessions.$sessionId'
-import { Route as OrgApplicationOpportunityIdRouteImport } from './routes/org.application.$opportunityId'
-import { Route as StudentApplyOpportunityIdRouteImport } from './routes/student_.apply_.$opportunityId'
+import { Route as InstructorAdminIndexRouteImport } from './routes/instructor.admin.index'
 import { Route as StudentExperiencesNewRouteImport } from './routes/student_.experiences_.new'
-import { Route as InstructorAdminEducatorsIdRouteImport } from './routes/instructor.admin.educators.$id'
+import { Route as StudentApplyOpportunityIdRouteImport } from './routes/student_.apply_.$opportunityId'
+import { Route as OrgApplicationOpportunityIdRouteImport } from './routes/org.application.$opportunityId'
+import { Route as InstructorSessionsSessionIdRouteImport } from './routes/instructor.sessions.$sessionId'
+import { Route as InstructorInviteTokenRouteImport } from './routes/instructor.invite.$token'
+import { Route as InstructorCheckpointsStudentIdRouteImport } from './routes/instructor.checkpoints.$studentId'
+import { Route as InstructorAdminSurveysRouteImport } from './routes/instructor.admin.surveys'
+import { Route as InstructorAdminResultsRouteImport } from './routes/instructor.admin.results'
+import { Route as InstructorAdminRecommendationsRouteImport } from './routes/instructor.admin.recommendations'
+import { Route as InstructorAdminProgramsRouteImport } from './routes/instructor.admin.programs'
+import { Route as InstructorAdminProgramRiasecRouteImport } from './routes/instructor.admin.program-riasec'
+import { Route as InstructorAdminPlacementsRouteImport } from './routes/instructor.admin.placements'
+import { Route as InstructorAdminPasswordsRouteImport } from './routes/instructor.admin.passwords'
+import { Route as InstructorAdminOpportunityFieldsRouteImport } from './routes/instructor.admin.opportunity-fields'
+import { Route as InstructorAdminOpportunitiesRouteImport } from './routes/instructor.admin.opportunities'
+import { Route as InstructorAdminMatchingRouteImport } from './routes/instructor.admin.matching'
+import { Route as InstructorAdminInvitesRouteImport } from './routes/instructor.admin.invites'
+import { Route as InstructorAdminImportExplrRouteImport } from './routes/instructor.admin.import-explr'
+import { Route as InstructorAdminHsApplicationsRouteImport } from './routes/instructor.admin.hs-applications'
+import { Route as InstructorAdminDemographicsRouteImport } from './routes/instructor.admin.demographics'
+import { Route as InstructorAdminCompletionRouteImport } from './routes/instructor.admin.completion'
+import { Route as InstructorAdminCampLoginsRouteImport } from './routes/instructor.admin.camp-logins'
+import { Route as InstructorAdminAssignRouteImport } from './routes/instructor.admin.assign'
+import { Route as InstructorAdminAssessmentsRouteImport } from './routes/instructor.admin.assessments'
+import { Route as InstructorAdminArchiveRouteImport } from './routes/instructor.admin.archive'
+import { Route as InstructorAdminApplicationsRouteImport } from './routes/instructor.admin.applications'
+import { Route as AssessmentSessionIdResultsRouteImport } from './routes/assessment.$sessionId_.results'
 import { Route as InstructorExploreCardsKindIdRouteImport } from './routes/instructor.explore-cards.$kind.$id'
+import { Route as InstructorAdminEducatorsIdRouteImport } from './routes/instructor.admin.educators.$id'
 import { Route as InstructorAdminGroupsKindIndexRouteImport } from './routes/instructor.admin.groups.$kind.index'
 import { Route as InstructorAdminGroupsKindIdRouteImport } from './routes/instructor.admin.groups.$kind.$id'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AccessibilityRoute = AccessibilityRouteImport.update({
-  id: '/accessibility',
-  path: '/accessibility',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoRoute = DemoRouteImport.update({
-  id: '/demo',
-  path: '/demo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExplrRostersRoute = ExplrRostersRouteImport.update({
-  id: '/explr-rosters',
-  path: '/explr-rosters',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FamilyRoute = FamilyRouteImport.update({
-  id: '/family',
-  path: '/family',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InstructorRoute = InstructorRouteImport.update({
-  id: '/instructor',
-  path: '/instructor',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OpportunitiesRoute = OpportunitiesRouteImport.update({
-  id: '/opportunities',
-  path: '/opportunities',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignInRoute = SignInRouteImport.update({
-  id: '/sign-in',
-  path: '/sign-in',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignOutRoute = SignOutRouteImport.update({
-  id: '/sign-out',
-  path: '/sign-out',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignUpRoute = SignUpRouteImport.update({
-  id: '/sign-up',
-  path: '/sign-up',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StartRoute = StartRouteImport.update({
-  id: '/start',
-  path: '/start',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StudentRoute = StudentRouteImport.update({
-  id: '/student',
-  path: '/student',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StudentDataRoute = StudentDataRouteImport.update({
-  id: '/student-data',
-  path: '/student-data',
+const TryRiasecRoute = TryRiasecRouteImport.update({
+  id: '/try-riasec',
+  path: '/try-riasec',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -189,129 +109,89 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TryRiasecRoute = TryRiasecRouteImport.update({
-  id: '/try-riasec',
-  path: '/try-riasec',
+const StudentDataRoute = StudentDataRouteImport.update({
+  id: '/student-data',
+  path: '/student-data',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AssessmentIndexRoute = AssessmentIndexRouteImport.update({
-  id: '/assessment/',
-  path: '/assessment/',
+const StudentRoute = StudentRouteImport.update({
+  id: '/student',
+  path: '/student',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AssessmentSessionIdRoute = AssessmentSessionIdRouteImport.update({
-  id: '/assessment/$sessionId',
-  path: '/assessment/$sessionId',
+const StartRoute = StartRouteImport.update({
+  id: '/start',
+  path: '/start',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CareersIndexRoute = CareersIndexRouteImport.update({
-  id: '/careers/',
-  path: '/careers/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CareersSocRoute = CareersSocRouteImport.update({
-  id: '/careers/$soc',
-  path: '/careers/$soc',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EducatorIndexRoute = EducatorIndexRouteImport.update({
-  id: '/educator/',
-  path: '/educator/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EducatorSplatRoute = EducatorSplatRouteImport.update({
-  id: '/educator/$',
-  path: '/educator/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExploreIndexRoute = ExploreIndexRouteImport.update({
-  id: '/explore/',
-  path: '/explore/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExploreCodeRoute = ExploreCodeRouteImport.update({
-  id: '/explore/$code',
-  path: '/explore/$code',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExploreScanRoute = ExploreScanRouteImport.update({
-  id: '/explore/scan',
-  path: '/explore/scan',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FamilyViewRoute = FamilyViewRouteImport.update({
-  id: '/family_/view',
-  path: '/family/view',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GoTokenRoute = GoTokenRouteImport.update({
-  id: '/go/$token',
-  path: '/go/$token',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InstructorIndexRoute = InstructorIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => InstructorRoute,
-} as any)
-const InstructorAdminRoute = InstructorAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => InstructorRoute,
-} as any)
-const InstructorDashboardRoute = InstructorDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => InstructorRoute,
-} as any)
-const InstructorLoginDisplayRoute = InstructorLoginDisplayRouteImport.update({
-  id: '/login-display',
-  path: '/login-display',
-  getParentRoute: () => InstructorRoute,
-} as any)
-const InstructorSignInRoute = InstructorSignInRouteImport.update({
-  id: '/sign-in',
-  path: '/sign-in',
-  getParentRoute: () => InstructorRoute,
-} as any)
-const InstructorSignUpRoute = InstructorSignUpRouteImport.update({
+const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
-  getParentRoute: () => InstructorRoute,
-} as any)
-const InstructorStudentsRoute = InstructorStudentsRouteImport.update({
-  id: '/students',
-  path: '/students',
-  getParentRoute: () => InstructorRoute,
-} as any)
-const OpportunityIdRoute = OpportunityIdRouteImport.update({
-  id: '/opportunity/$id',
-  path: '/opportunity/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrgIndexRoute = OrgIndexRouteImport.update({
-  id: '/org/',
-  path: '/org/',
+const SignOutRoute = SignOutRouteImport.update({
+  id: '/sign-out',
+  path: '/sign-out',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrgApplicantsRoute = OrgApplicantsRouteImport.update({
-  id: '/org/applicants',
-  path: '/org/applicants',
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrgNewRoute = OrgNewRouteImport.update({
-  id: '/org/new',
-  path: '/org/new',
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrgSignInRoute = OrgSignInRouteImport.update({
-  id: '/org/sign-in',
-  path: '/org/sign-in',
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrgSignUpRoute = OrgSignUpRouteImport.update({
-  id: '/org/sign-up',
-  path: '/org/sign-up',
+const OpportunitiesRoute = OpportunitiesRouteImport.update({
+  id: '/opportunities',
+  path: '/opportunities',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstructorRoute = InstructorRouteImport.update({
+  id: '/instructor',
+  path: '/instructor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FamilyRoute = FamilyRouteImport.update({
+  id: '/family',
+  path: '/family',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExplrRostersRoute = ExplrRostersRouteImport.update({
+  id: '/explr-rosters',
+  path: '/explr-rosters',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccessibilityRoute = AccessibilityRouteImport.update({
+  id: '/accessibility',
+  path: '/accessibility',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PartnerIndexRoute = PartnerIndexRouteImport.update({
@@ -319,59 +199,34 @@ const PartnerIndexRoute = PartnerIndexRouteImport.update({
   path: '/partner/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PartnerSplatRoute = PartnerSplatRouteImport.update({
-  id: '/partner/$',
-  path: '/partner/$',
+const OrgIndexRoute = OrgIndexRouteImport.update({
+  id: '/org/',
+  path: '/org/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StampTokenRoute = StampTokenRouteImport.update({
-  id: '/stamp/$token',
-  path: '/stamp/$token',
+const InstructorIndexRoute = InstructorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => InstructorRoute,
+} as any)
+const ExploreIndexRoute = ExploreIndexRouteImport.update({
+  id: '/explore/',
+  path: '/explore/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StudentApplyRoute = StudentApplyRouteImport.update({
-  id: '/student_/apply',
-  path: '/student/apply',
+const EducatorIndexRoute = EducatorIndexRouteImport.update({
+  id: '/educator/',
+  path: '/educator/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StudentApplyCompleteRoute = StudentApplyCompleteRouteImport.update({
-  id: '/student_/apply-complete',
-  path: '/student/apply-complete',
+const CareersIndexRoute = CareersIndexRouteImport.update({
+  id: '/careers/',
+  path: '/careers/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StudentCheckpointsRoute = StudentCheckpointsRouteImport.update({
-  id: '/student_/checkpoints',
-  path: '/student/checkpoints',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StudentCredentialsRoute = StudentCredentialsRouteImport.update({
-  id: '/student_/credentials',
-  path: '/student/credentials',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StudentExperiencesRoute = StudentExperiencesRouteImport.update({
-  id: '/student_/experiences',
-  path: '/student/experiences',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StudentPathwayRoute = StudentPathwayRouteImport.update({
-  id: '/student_/pathway',
-  path: '/student/pathway',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StudentPiecesRoute = StudentPiecesRouteImport.update({
-  id: '/student_/pieces',
-  path: '/student/pieces',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StudentProfileRoute = StudentProfileRouteImport.update({
-  id: '/student_/profile',
-  path: '/student/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StudentSkillsRoute = StudentSkillsRouteImport.update({
-  id: '/student_/skills',
-  path: '/student/skills',
+const AssessmentIndexRoute = AssessmentIndexRouteImport.update({
+  id: '/assessment/',
+  path: '/assessment/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SurveyAssignmentIdRoute = SurveyAssignmentIdRouteImport.update({
@@ -379,112 +234,204 @@ const SurveyAssignmentIdRoute = SurveyAssignmentIdRouteImport.update({
   path: '/survey/$assignmentId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AssessmentSessionIdResultsRoute =
-  AssessmentSessionIdResultsRouteImport.update({
-    id: '/assessment/$sessionId_/results',
-    path: '/assessment/$sessionId/results',
-    getParentRoute: () => rootRouteImport,
+const StudentSkillsRoute = StudentSkillsRouteImport.update({
+  id: '/student_/skills',
+  path: '/student/skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentProfileRoute = StudentProfileRouteImport.update({
+  id: '/student_/profile',
+  path: '/student/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentPiecesRoute = StudentPiecesRouteImport.update({
+  id: '/student_/pieces',
+  path: '/student/pieces',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentPathwayRoute = StudentPathwayRouteImport.update({
+  id: '/student_/pathway',
+  path: '/student/pathway',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentExperiencesRoute = StudentExperiencesRouteImport.update({
+  id: '/student_/experiences',
+  path: '/student/experiences',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentCredentialsRoute = StudentCredentialsRouteImport.update({
+  id: '/student_/credentials',
+  path: '/student/credentials',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentCheckpointsRoute = StudentCheckpointsRouteImport.update({
+  id: '/student_/checkpoints',
+  path: '/student/checkpoints',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentApplyCompleteRoute = StudentApplyCompleteRouteImport.update({
+  id: '/student_/apply-complete',
+  path: '/student/apply-complete',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentApplyRoute = StudentApplyRouteImport.update({
+  id: '/student_/apply',
+  path: '/student/apply',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StampTokenRoute = StampTokenRouteImport.update({
+  id: '/stamp/$token',
+  path: '/stamp/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnerSplatRoute = PartnerSplatRouteImport.update({
+  id: '/partner/$',
+  path: '/partner/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrgSignUpRoute = OrgSignUpRouteImport.update({
+  id: '/org/sign-up',
+  path: '/org/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrgSignInRoute = OrgSignInRouteImport.update({
+  id: '/org/sign-in',
+  path: '/org/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrgNewRoute = OrgNewRouteImport.update({
+  id: '/org/new',
+  path: '/org/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrgApplicantsRoute = OrgApplicantsRouteImport.update({
+  id: '/org/applicants',
+  path: '/org/applicants',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OpportunityIdRoute = OpportunityIdRouteImport.update({
+  id: '/opportunity/$id',
+  path: '/opportunity/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstructorStudentsRoute = InstructorStudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => InstructorRoute,
+} as any)
+const InstructorSignUpRoute = InstructorSignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => InstructorRoute,
+} as any)
+const InstructorSignInRoute = InstructorSignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => InstructorRoute,
+} as any)
+const InstructorLoginDisplayRoute = InstructorLoginDisplayRouteImport.update({
+  id: '/login-display',
+  path: '/login-display',
+  getParentRoute: () => InstructorRoute,
+} as any)
+const InstructorDashboardRoute = InstructorDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => InstructorRoute,
+} as any)
+const InstructorAdminRoute = InstructorAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => InstructorRoute,
+} as any)
+const GoTokenRoute = GoTokenRouteImport.update({
+  id: '/go/$token',
+  path: '/go/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FamilyViewRoute = FamilyViewRouteImport.update({
+  id: '/family_/view',
+  path: '/family/view',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreScanRoute = ExploreScanRouteImport.update({
+  id: '/explore/scan',
+  path: '/explore/scan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreCodeRoute = ExploreCodeRouteImport.update({
+  id: '/explore/$code',
+  path: '/explore/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EducatorSplatRoute = EducatorSplatRouteImport.update({
+  id: '/educator/$',
+  path: '/educator/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersSocRoute = CareersSocRouteImport.update({
+  id: '/careers/$soc',
+  path: '/careers/$soc',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssessmentSessionIdRoute = AssessmentSessionIdRouteImport.update({
+  id: '/assessment/$sessionId',
+  path: '/assessment/$sessionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstructorCheckpointsIndexRoute =
+  InstructorCheckpointsIndexRouteImport.update({
+    id: '/checkpoints/',
+    path: '/checkpoints/',
+    getParentRoute: () => InstructorRoute,
   } as any)
 const InstructorAdminIndexRoute = InstructorAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => InstructorAdminRoute,
 } as any)
-const InstructorAdminApplicationsRoute =
-  InstructorAdminApplicationsRouteImport.update({
-    id: '/applications',
-    path: '/applications',
-    getParentRoute: () => InstructorAdminRoute,
+const StudentExperiencesNewRoute = StudentExperiencesNewRouteImport.update({
+  id: '/student_/experiences_/new',
+  path: '/student/experiences/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentApplyOpportunityIdRoute =
+  StudentApplyOpportunityIdRouteImport.update({
+    id: '/student_/apply_/$opportunityId',
+    path: '/student/apply/$opportunityId',
+    getParentRoute: () => rootRouteImport,
   } as any)
-const InstructorAdminArchiveRoute = InstructorAdminArchiveRouteImport.update({
-  id: '/archive',
-  path: '/archive',
+const OrgApplicationOpportunityIdRoute =
+  OrgApplicationOpportunityIdRouteImport.update({
+    id: '/org/application/$opportunityId',
+    path: '/org/application/$opportunityId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const InstructorSessionsSessionIdRoute =
+  InstructorSessionsSessionIdRouteImport.update({
+    id: '/sessions/$sessionId',
+    path: '/sessions/$sessionId',
+    getParentRoute: () => InstructorRoute,
+  } as any)
+const InstructorInviteTokenRoute = InstructorInviteTokenRouteImport.update({
+  id: '/invite/$token',
+  path: '/invite/$token',
+  getParentRoute: () => InstructorRoute,
+} as any)
+const InstructorCheckpointsStudentIdRoute =
+  InstructorCheckpointsStudentIdRouteImport.update({
+    id: '/checkpoints/$studentId',
+    path: '/checkpoints/$studentId',
+    getParentRoute: () => InstructorRoute,
+  } as any)
+const InstructorAdminSurveysRoute = InstructorAdminSurveysRouteImport.update({
+  id: '/surveys',
+  path: '/surveys',
   getParentRoute: () => InstructorAdminRoute,
 } as any)
-const InstructorAdminAssessmentsRoute =
-  InstructorAdminAssessmentsRouteImport.update({
-    id: '/assessments',
-    path: '/assessments',
-    getParentRoute: () => InstructorAdminRoute,
-  } as any)
-const InstructorAdminAssignRoute = InstructorAdminAssignRouteImport.update({
-  id: '/assign',
-  path: '/assign',
-  getParentRoute: () => InstructorAdminRoute,
-} as any)
-const InstructorAdminCampLoginsRoute =
-  InstructorAdminCampLoginsRouteImport.update({
-    id: '/camp-logins',
-    path: '/camp-logins',
-    getParentRoute: () => InstructorAdminRoute,
-  } as any)
-const InstructorAdminCompletionRoute =
-  InstructorAdminCompletionRouteImport.update({
-    id: '/completion',
-    path: '/completion',
-    getParentRoute: () => InstructorAdminRoute,
-  } as any)
-const InstructorAdminDemographicsRoute =
-  InstructorAdminDemographicsRouteImport.update({
-    id: '/demographics',
-    path: '/demographics',
-    getParentRoute: () => InstructorAdminRoute,
-  } as any)
-const InstructorAdminHsApplicationsRoute =
-  InstructorAdminHsApplicationsRouteImport.update({
-    id: '/hs-applications',
-    path: '/hs-applications',
-    getParentRoute: () => InstructorAdminRoute,
-  } as any)
-const InstructorAdminImportExplrRoute =
-  InstructorAdminImportExplrRouteImport.update({
-    id: '/import-explr',
-    path: '/import-explr',
-    getParentRoute: () => InstructorAdminRoute,
-  } as any)
-const InstructorAdminInvitesRoute = InstructorAdminInvitesRouteImport.update({
-  id: '/invites',
-  path: '/invites',
-  getParentRoute: () => InstructorAdminRoute,
-} as any)
-const InstructorAdminMatchingRoute = InstructorAdminMatchingRouteImport.update({
-  id: '/matching',
-  path: '/matching',
-  getParentRoute: () => InstructorAdminRoute,
-} as any)
-const InstructorAdminOpportunitiesRoute =
-  InstructorAdminOpportunitiesRouteImport.update({
-    id: '/opportunities',
-    path: '/opportunities',
-    getParentRoute: () => InstructorAdminRoute,
-  } as any)
-const InstructorAdminOpportunityFieldsRoute =
-  InstructorAdminOpportunityFieldsRouteImport.update({
-    id: '/opportunity-fields',
-    path: '/opportunity-fields',
-    getParentRoute: () => InstructorAdminRoute,
-  } as any)
-const InstructorAdminPasswordsRoute =
-  InstructorAdminPasswordsRouteImport.update({
-    id: '/passwords',
-    path: '/passwords',
-    getParentRoute: () => InstructorAdminRoute,
-  } as any)
-const InstructorAdminPlacementsRoute =
-  InstructorAdminPlacementsRouteImport.update({
-    id: '/placements',
-    path: '/placements',
-    getParentRoute: () => InstructorAdminRoute,
-  } as any)
-const InstructorAdminProgramRiasecRoute =
-  InstructorAdminProgramRiasecRouteImport.update({
-    id: '/program-riasec',
-    path: '/program-riasec',
-    getParentRoute: () => InstructorAdminRoute,
-  } as any)
-const InstructorAdminProgramsRoute = InstructorAdminProgramsRouteImport.update({
-  id: '/programs',
-  path: '/programs',
+const InstructorAdminResultsRoute = InstructorAdminResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
   getParentRoute: () => InstructorAdminRoute,
 } as any)
 const InstructorAdminRecommendationsRoute =
@@ -493,67 +440,120 @@ const InstructorAdminRecommendationsRoute =
     path: '/recommendations',
     getParentRoute: () => InstructorAdminRoute,
   } as any)
-const InstructorAdminResultsRoute = InstructorAdminResultsRouteImport.update({
-  id: '/results',
-  path: '/results',
+const InstructorAdminProgramsRoute = InstructorAdminProgramsRouteImport.update({
+  id: '/programs',
+  path: '/programs',
   getParentRoute: () => InstructorAdminRoute,
 } as any)
-const InstructorAdminSurveysRoute = InstructorAdminSurveysRouteImport.update({
-  id: '/surveys',
-  path: '/surveys',
-  getParentRoute: () => InstructorAdminRoute,
-} as any)
-const InstructorCheckpointsIndexRoute =
-  InstructorCheckpointsIndexRouteImport.update({
-    id: '/checkpoints/',
-    path: '/checkpoints/',
-    getParentRoute: () => InstructorRoute,
-  } as any)
-const InstructorCheckpointsStudentIdRoute =
-  InstructorCheckpointsStudentIdRouteImport.update({
-    id: '/checkpoints/$studentId',
-    path: '/checkpoints/$studentId',
-    getParentRoute: () => InstructorRoute,
-  } as any)
-const InstructorInviteTokenRoute = InstructorInviteTokenRouteImport.update({
-  id: '/invite/$token',
-  path: '/invite/$token',
-  getParentRoute: () => InstructorRoute,
-} as any)
-const InstructorSessionsSessionIdRoute =
-  InstructorSessionsSessionIdRouteImport.update({
-    id: '/sessions/$sessionId',
-    path: '/sessions/$sessionId',
-    getParentRoute: () => InstructorRoute,
-  } as any)
-const OrgApplicationOpportunityIdRoute =
-  OrgApplicationOpportunityIdRouteImport.update({
-    id: '/org/application/$opportunityId',
-    path: '/org/application/$opportunityId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const StudentApplyOpportunityIdRoute =
-  StudentApplyOpportunityIdRouteImport.update({
-    id: '/student_/apply_/$opportunityId',
-    path: '/student/apply/$opportunityId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const StudentExperiencesNewRoute = StudentExperiencesNewRouteImport.update({
-  id: '/student_/experiences_/new',
-  path: '/student/experiences/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InstructorAdminEducatorsIdRoute =
-  InstructorAdminEducatorsIdRouteImport.update({
-    id: '/educators/$id',
-    path: '/educators/$id',
+const InstructorAdminProgramRiasecRoute =
+  InstructorAdminProgramRiasecRouteImport.update({
+    id: '/program-riasec',
+    path: '/program-riasec',
     getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const InstructorAdminPlacementsRoute =
+  InstructorAdminPlacementsRouteImport.update({
+    id: '/placements',
+    path: '/placements',
+    getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const InstructorAdminPasswordsRoute =
+  InstructorAdminPasswordsRouteImport.update({
+    id: '/passwords',
+    path: '/passwords',
+    getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const InstructorAdminOpportunityFieldsRoute =
+  InstructorAdminOpportunityFieldsRouteImport.update({
+    id: '/opportunity-fields',
+    path: '/opportunity-fields',
+    getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const InstructorAdminOpportunitiesRoute =
+  InstructorAdminOpportunitiesRouteImport.update({
+    id: '/opportunities',
+    path: '/opportunities',
+    getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const InstructorAdminMatchingRoute = InstructorAdminMatchingRouteImport.update({
+  id: '/matching',
+  path: '/matching',
+  getParentRoute: () => InstructorAdminRoute,
+} as any)
+const InstructorAdminInvitesRoute = InstructorAdminInvitesRouteImport.update({
+  id: '/invites',
+  path: '/invites',
+  getParentRoute: () => InstructorAdminRoute,
+} as any)
+const InstructorAdminImportExplrRoute =
+  InstructorAdminImportExplrRouteImport.update({
+    id: '/import-explr',
+    path: '/import-explr',
+    getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const InstructorAdminHsApplicationsRoute =
+  InstructorAdminHsApplicationsRouteImport.update({
+    id: '/hs-applications',
+    path: '/hs-applications',
+    getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const InstructorAdminDemographicsRoute =
+  InstructorAdminDemographicsRouteImport.update({
+    id: '/demographics',
+    path: '/demographics',
+    getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const InstructorAdminCompletionRoute =
+  InstructorAdminCompletionRouteImport.update({
+    id: '/completion',
+    path: '/completion',
+    getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const InstructorAdminCampLoginsRoute =
+  InstructorAdminCampLoginsRouteImport.update({
+    id: '/camp-logins',
+    path: '/camp-logins',
+    getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const InstructorAdminAssignRoute = InstructorAdminAssignRouteImport.update({
+  id: '/assign',
+  path: '/assign',
+  getParentRoute: () => InstructorAdminRoute,
+} as any)
+const InstructorAdminAssessmentsRoute =
+  InstructorAdminAssessmentsRouteImport.update({
+    id: '/assessments',
+    path: '/assessments',
+    getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const InstructorAdminArchiveRoute = InstructorAdminArchiveRouteImport.update({
+  id: '/archive',
+  path: '/archive',
+  getParentRoute: () => InstructorAdminRoute,
+} as any)
+const InstructorAdminApplicationsRoute =
+  InstructorAdminApplicationsRouteImport.update({
+    id: '/applications',
+    path: '/applications',
+    getParentRoute: () => InstructorAdminRoute,
+  } as any)
+const AssessmentSessionIdResultsRoute =
+  AssessmentSessionIdResultsRouteImport.update({
+    id: '/assessment/$sessionId_/results',
+    path: '/assessment/$sessionId/results',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const InstructorExploreCardsKindIdRoute =
   InstructorExploreCardsKindIdRouteImport.update({
     id: '/explore-cards/$kind/$id',
     path: '/explore-cards/$kind/$id',
     getParentRoute: () => InstructorRoute,
+  } as any)
+const InstructorAdminEducatorsIdRoute =
+  InstructorAdminEducatorsIdRouteImport.update({
+    id: '/educators/$id',
+    path: '/educators/$id',
+    getParentRoute: () => InstructorAdminRoute,
   } as any)
 const InstructorAdminGroupsKindIndexRoute =
   InstructorAdminGroupsKindIndexRouteImport.update({
@@ -1172,123 +1172,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/accessibility': {
-      id: '/accessibility'
-      path: '/accessibility'
-      fullPath: '/accessibility'
-      preLoaderRoute: typeof AccessibilityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo': {
-      id: '/demo'
-      path: '/demo'
-      fullPath: '/demo'
-      preLoaderRoute: typeof DemoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/explr-rosters': {
-      id: '/explr-rosters'
-      path: '/explr-rosters'
-      fullPath: '/explr-rosters'
-      preLoaderRoute: typeof ExplrRostersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/family': {
-      id: '/family'
-      path: '/family'
-      fullPath: '/family'
-      preLoaderRoute: typeof FamilyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/instructor': {
-      id: '/instructor'
-      path: '/instructor'
-      fullPath: '/instructor'
-      preLoaderRoute: typeof InstructorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/opportunities': {
-      id: '/opportunities'
-      path: '/opportunities'
-      fullPath: '/opportunities'
-      preLoaderRoute: typeof OpportunitiesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sign-in': {
-      id: '/sign-in'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof SignInRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sign-out': {
-      id: '/sign-out'
-      path: '/sign-out'
-      fullPath: '/sign-out'
-      preLoaderRoute: typeof SignOutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sign-up': {
-      id: '/sign-up'
-      path: '/sign-up'
-      fullPath: '/sign-up'
-      preLoaderRoute: typeof SignUpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/start': {
-      id: '/start'
-      path: '/start'
-      fullPath: '/start'
-      preLoaderRoute: typeof StartRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/student': {
-      id: '/student'
-      path: '/student'
-      fullPath: '/student'
-      preLoaderRoute: typeof StudentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/student-data': {
-      id: '/student-data'
-      path: '/student-data'
-      fullPath: '/student-data'
-      preLoaderRoute: typeof StudentDataRouteImport
+    '/try-riasec': {
+      id: '/try-riasec'
+      path: '/try-riasec'
+      fullPath: '/try-riasec'
+      preLoaderRoute: typeof TryRiasecRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -1298,179 +1186,123 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/try-riasec': {
-      id: '/try-riasec'
-      path: '/try-riasec'
-      fullPath: '/try-riasec'
-      preLoaderRoute: typeof TryRiasecRouteImport
+    '/student-data': {
+      id: '/student-data'
+      path: '/student-data'
+      fullPath: '/student-data'
+      preLoaderRoute: typeof StudentDataRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/assessment/': {
-      id: '/assessment/'
-      path: '/assessment'
-      fullPath: '/assessment/'
-      preLoaderRoute: typeof AssessmentIndexRouteImport
+    '/student': {
+      id: '/student'
+      path: '/student'
+      fullPath: '/student'
+      preLoaderRoute: typeof StudentRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/assessment/$sessionId': {
-      id: '/assessment/$sessionId'
-      path: '/assessment/$sessionId'
-      fullPath: '/assessment/$sessionId'
-      preLoaderRoute: typeof AssessmentSessionIdRouteImport
+    '/start': {
+      id: '/start'
+      path: '/start'
+      fullPath: '/start'
+      preLoaderRoute: typeof StartRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/careers/': {
-      id: '/careers/'
-      path: '/careers'
-      fullPath: '/careers/'
-      preLoaderRoute: typeof CareersIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/careers/$soc': {
-      id: '/careers/$soc'
-      path: '/careers/$soc'
-      fullPath: '/careers/$soc'
-      preLoaderRoute: typeof CareersSocRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/educator/': {
-      id: '/educator/'
-      path: '/educator'
-      fullPath: '/educator/'
-      preLoaderRoute: typeof EducatorIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/educator/$': {
-      id: '/educator/$'
-      path: '/educator/$'
-      fullPath: '/educator/$'
-      preLoaderRoute: typeof EducatorSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/explore/': {
-      id: '/explore/'
-      path: '/explore'
-      fullPath: '/explore/'
-      preLoaderRoute: typeof ExploreIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/explore/$code': {
-      id: '/explore/$code'
-      path: '/explore/$code'
-      fullPath: '/explore/$code'
-      preLoaderRoute: typeof ExploreCodeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/explore/scan': {
-      id: '/explore/scan'
-      path: '/explore/scan'
-      fullPath: '/explore/scan'
-      preLoaderRoute: typeof ExploreScanRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/family_/view': {
-      id: '/family_/view'
-      path: '/family/view'
-      fullPath: '/family/view'
-      preLoaderRoute: typeof FamilyViewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/go/$token': {
-      id: '/go/$token'
-      path: '/go/$token'
-      fullPath: '/go/$token'
-      preLoaderRoute: typeof GoTokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/instructor/': {
-      id: '/instructor/'
-      path: '/'
-      fullPath: '/instructor/'
-      preLoaderRoute: typeof InstructorIndexRouteImport
-      parentRoute: typeof InstructorRoute
-    }
-    '/instructor/admin': {
-      id: '/instructor/admin'
-      path: '/admin'
-      fullPath: '/instructor/admin'
-      preLoaderRoute: typeof InstructorAdminRouteImport
-      parentRoute: typeof InstructorRoute
-    }
-    '/instructor/dashboard': {
-      id: '/instructor/dashboard'
-      path: '/dashboard'
-      fullPath: '/instructor/dashboard'
-      preLoaderRoute: typeof InstructorDashboardRouteImport
-      parentRoute: typeof InstructorRoute
-    }
-    '/instructor/login-display': {
-      id: '/instructor/login-display'
-      path: '/login-display'
-      fullPath: '/instructor/login-display'
-      preLoaderRoute: typeof InstructorLoginDisplayRouteImport
-      parentRoute: typeof InstructorRoute
-    }
-    '/instructor/sign-in': {
-      id: '/instructor/sign-in'
-      path: '/sign-in'
-      fullPath: '/instructor/sign-in'
-      preLoaderRoute: typeof InstructorSignInRouteImport
-      parentRoute: typeof InstructorRoute
-    }
-    '/instructor/sign-up': {
-      id: '/instructor/sign-up'
+    '/sign-up': {
+      id: '/sign-up'
       path: '/sign-up'
-      fullPath: '/instructor/sign-up'
-      preLoaderRoute: typeof InstructorSignUpRouteImport
-      parentRoute: typeof InstructorRoute
-    }
-    '/instructor/students': {
-      id: '/instructor/students'
-      path: '/students'
-      fullPath: '/instructor/students'
-      preLoaderRoute: typeof InstructorStudentsRouteImport
-      parentRoute: typeof InstructorRoute
-    }
-    '/opportunity/$id': {
-      id: '/opportunity/$id'
-      path: '/opportunity/$id'
-      fullPath: '/opportunity/$id'
-      preLoaderRoute: typeof OpportunityIdRouteImport
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/org/': {
-      id: '/org/'
-      path: '/org'
-      fullPath: '/org/'
-      preLoaderRoute: typeof OrgIndexRouteImport
+    '/sign-out': {
+      id: '/sign-out'
+      path: '/sign-out'
+      fullPath: '/sign-out'
+      preLoaderRoute: typeof SignOutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/org/applicants': {
-      id: '/org/applicants'
-      path: '/org/applicants'
-      fullPath: '/org/applicants'
-      preLoaderRoute: typeof OrgApplicantsRouteImport
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/org/new': {
-      id: '/org/new'
-      path: '/org/new'
-      fullPath: '/org/new'
-      preLoaderRoute: typeof OrgNewRouteImport
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/org/sign-in': {
-      id: '/org/sign-in'
-      path: '/org/sign-in'
-      fullPath: '/org/sign-in'
-      preLoaderRoute: typeof OrgSignInRouteImport
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/org/sign-up': {
-      id: '/org/sign-up'
-      path: '/org/sign-up'
-      fullPath: '/org/sign-up'
-      preLoaderRoute: typeof OrgSignUpRouteImport
+    '/opportunities': {
+      id: '/opportunities'
+      path: '/opportunities'
+      fullPath: '/opportunities'
+      preLoaderRoute: typeof OpportunitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/instructor': {
+      id: '/instructor'
+      path: '/instructor'
+      fullPath: '/instructor'
+      preLoaderRoute: typeof InstructorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/family': {
+      id: '/family'
+      path: '/family'
+      fullPath: '/family'
+      preLoaderRoute: typeof FamilyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explr-rosters': {
+      id: '/explr-rosters'
+      path: '/explr-rosters'
+      fullPath: '/explr-rosters'
+      preLoaderRoute: typeof ExplrRostersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accessibility': {
+      id: '/accessibility'
+      path: '/accessibility'
+      fullPath: '/accessibility'
+      preLoaderRoute: typeof AccessibilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/partner/': {
@@ -1480,81 +1312,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PartnerIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/partner/$': {
-      id: '/partner/$'
-      path: '/partner/$'
-      fullPath: '/partner/$'
-      preLoaderRoute: typeof PartnerSplatRouteImport
+    '/org/': {
+      id: '/org/'
+      path: '/org'
+      fullPath: '/org/'
+      preLoaderRoute: typeof OrgIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/stamp/$token': {
-      id: '/stamp/$token'
-      path: '/stamp/$token'
-      fullPath: '/stamp/$token'
-      preLoaderRoute: typeof StampTokenRouteImport
+    '/instructor/': {
+      id: '/instructor/'
+      path: '/'
+      fullPath: '/instructor/'
+      preLoaderRoute: typeof InstructorIndexRouteImport
+      parentRoute: typeof InstructorRoute
+    }
+    '/explore/': {
+      id: '/explore/'
+      path: '/explore'
+      fullPath: '/explore/'
+      preLoaderRoute: typeof ExploreIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/student_/apply': {
-      id: '/student_/apply'
-      path: '/student/apply'
-      fullPath: '/student/apply'
-      preLoaderRoute: typeof StudentApplyRouteImport
+    '/educator/': {
+      id: '/educator/'
+      path: '/educator'
+      fullPath: '/educator/'
+      preLoaderRoute: typeof EducatorIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/student_/apply-complete': {
-      id: '/student_/apply-complete'
-      path: '/student/apply-complete'
-      fullPath: '/student/apply-complete'
-      preLoaderRoute: typeof StudentApplyCompleteRouteImport
+    '/careers/': {
+      id: '/careers/'
+      path: '/careers'
+      fullPath: '/careers/'
+      preLoaderRoute: typeof CareersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/student_/checkpoints': {
-      id: '/student_/checkpoints'
-      path: '/student/checkpoints'
-      fullPath: '/student/checkpoints'
-      preLoaderRoute: typeof StudentCheckpointsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/student_/credentials': {
-      id: '/student_/credentials'
-      path: '/student/credentials'
-      fullPath: '/student/credentials'
-      preLoaderRoute: typeof StudentCredentialsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/student_/experiences': {
-      id: '/student_/experiences'
-      path: '/student/experiences'
-      fullPath: '/student/experiences'
-      preLoaderRoute: typeof StudentExperiencesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/student_/pathway': {
-      id: '/student_/pathway'
-      path: '/student/pathway'
-      fullPath: '/student/pathway'
-      preLoaderRoute: typeof StudentPathwayRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/student_/pieces': {
-      id: '/student_/pieces'
-      path: '/student/pieces'
-      fullPath: '/student/pieces'
-      preLoaderRoute: typeof StudentPiecesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/student_/profile': {
-      id: '/student_/profile'
-      path: '/student/profile'
-      fullPath: '/student/profile'
-      preLoaderRoute: typeof StudentProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/student_/skills': {
-      id: '/student_/skills'
-      path: '/student/skills'
-      fullPath: '/student/skills'
-      preLoaderRoute: typeof StudentSkillsRouteImport
+    '/assessment/': {
+      id: '/assessment/'
+      path: '/assessment'
+      fullPath: '/assessment/'
+      preLoaderRoute: typeof AssessmentIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/survey/$assignmentId': {
@@ -1564,159 +1361,208 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SurveyAssignmentIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/assessment/$sessionId_/results': {
-      id: '/assessment/$sessionId_/results'
-      path: '/assessment/$sessionId/results'
-      fullPath: '/assessment/$sessionId/results'
-      preLoaderRoute: typeof AssessmentSessionIdResultsRouteImport
+    '/student_/skills': {
+      id: '/student_/skills'
+      path: '/student/skills'
+      fullPath: '/student/skills'
+      preLoaderRoute: typeof StudentSkillsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/': {
-      id: '/instructor/admin/'
-      path: '/'
-      fullPath: '/instructor/admin/'
-      preLoaderRoute: typeof InstructorAdminIndexRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/student_/profile': {
+      id: '/student_/profile'
+      path: '/student/profile'
+      fullPath: '/student/profile'
+      preLoaderRoute: typeof StudentProfileRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/applications': {
-      id: '/instructor/admin/applications'
-      path: '/applications'
-      fullPath: '/instructor/admin/applications'
-      preLoaderRoute: typeof InstructorAdminApplicationsRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/student_/pieces': {
+      id: '/student_/pieces'
+      path: '/student/pieces'
+      fullPath: '/student/pieces'
+      preLoaderRoute: typeof StudentPiecesRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/archive': {
-      id: '/instructor/admin/archive'
-      path: '/archive'
-      fullPath: '/instructor/admin/archive'
-      preLoaderRoute: typeof InstructorAdminArchiveRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/student_/pathway': {
+      id: '/student_/pathway'
+      path: '/student/pathway'
+      fullPath: '/student/pathway'
+      preLoaderRoute: typeof StudentPathwayRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/assessments': {
-      id: '/instructor/admin/assessments'
-      path: '/assessments'
-      fullPath: '/instructor/admin/assessments'
-      preLoaderRoute: typeof InstructorAdminAssessmentsRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/student_/experiences': {
+      id: '/student_/experiences'
+      path: '/student/experiences'
+      fullPath: '/student/experiences'
+      preLoaderRoute: typeof StudentExperiencesRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/assign': {
-      id: '/instructor/admin/assign'
-      path: '/assign'
-      fullPath: '/instructor/admin/assign'
-      preLoaderRoute: typeof InstructorAdminAssignRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/student_/credentials': {
+      id: '/student_/credentials'
+      path: '/student/credentials'
+      fullPath: '/student/credentials'
+      preLoaderRoute: typeof StudentCredentialsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/camp-logins': {
-      id: '/instructor/admin/camp-logins'
-      path: '/camp-logins'
-      fullPath: '/instructor/admin/camp-logins'
-      preLoaderRoute: typeof InstructorAdminCampLoginsRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/student_/checkpoints': {
+      id: '/student_/checkpoints'
+      path: '/student/checkpoints'
+      fullPath: '/student/checkpoints'
+      preLoaderRoute: typeof StudentCheckpointsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/completion': {
-      id: '/instructor/admin/completion'
-      path: '/completion'
-      fullPath: '/instructor/admin/completion'
-      preLoaderRoute: typeof InstructorAdminCompletionRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/student_/apply-complete': {
+      id: '/student_/apply-complete'
+      path: '/student/apply-complete'
+      fullPath: '/student/apply-complete'
+      preLoaderRoute: typeof StudentApplyCompleteRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/demographics': {
-      id: '/instructor/admin/demographics'
-      path: '/demographics'
-      fullPath: '/instructor/admin/demographics'
-      preLoaderRoute: typeof InstructorAdminDemographicsRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/student_/apply': {
+      id: '/student_/apply'
+      path: '/student/apply'
+      fullPath: '/student/apply'
+      preLoaderRoute: typeof StudentApplyRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/hs-applications': {
-      id: '/instructor/admin/hs-applications'
-      path: '/hs-applications'
-      fullPath: '/instructor/admin/hs-applications'
-      preLoaderRoute: typeof InstructorAdminHsApplicationsRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/stamp/$token': {
+      id: '/stamp/$token'
+      path: '/stamp/$token'
+      fullPath: '/stamp/$token'
+      preLoaderRoute: typeof StampTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/import-explr': {
-      id: '/instructor/admin/import-explr'
-      path: '/import-explr'
-      fullPath: '/instructor/admin/import-explr'
-      preLoaderRoute: typeof InstructorAdminImportExplrRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/partner/$': {
+      id: '/partner/$'
+      path: '/partner/$'
+      fullPath: '/partner/$'
+      preLoaderRoute: typeof PartnerSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/invites': {
-      id: '/instructor/admin/invites'
-      path: '/invites'
-      fullPath: '/instructor/admin/invites'
-      preLoaderRoute: typeof InstructorAdminInvitesRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/org/sign-up': {
+      id: '/org/sign-up'
+      path: '/org/sign-up'
+      fullPath: '/org/sign-up'
+      preLoaderRoute: typeof OrgSignUpRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/matching': {
-      id: '/instructor/admin/matching'
-      path: '/matching'
-      fullPath: '/instructor/admin/matching'
-      preLoaderRoute: typeof InstructorAdminMatchingRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/org/sign-in': {
+      id: '/org/sign-in'
+      path: '/org/sign-in'
+      fullPath: '/org/sign-in'
+      preLoaderRoute: typeof OrgSignInRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/opportunities': {
-      id: '/instructor/admin/opportunities'
-      path: '/opportunities'
-      fullPath: '/instructor/admin/opportunities'
-      preLoaderRoute: typeof InstructorAdminOpportunitiesRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/org/new': {
+      id: '/org/new'
+      path: '/org/new'
+      fullPath: '/org/new'
+      preLoaderRoute: typeof OrgNewRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/opportunity-fields': {
-      id: '/instructor/admin/opportunity-fields'
-      path: '/opportunity-fields'
-      fullPath: '/instructor/admin/opportunity-fields'
-      preLoaderRoute: typeof InstructorAdminOpportunityFieldsRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/org/applicants': {
+      id: '/org/applicants'
+      path: '/org/applicants'
+      fullPath: '/org/applicants'
+      preLoaderRoute: typeof OrgApplicantsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/passwords': {
-      id: '/instructor/admin/passwords'
-      path: '/passwords'
-      fullPath: '/instructor/admin/passwords'
-      preLoaderRoute: typeof InstructorAdminPasswordsRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/opportunity/$id': {
+      id: '/opportunity/$id'
+      path: '/opportunity/$id'
+      fullPath: '/opportunity/$id'
+      preLoaderRoute: typeof OpportunityIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/placements': {
-      id: '/instructor/admin/placements'
-      path: '/placements'
-      fullPath: '/instructor/admin/placements'
-      preLoaderRoute: typeof InstructorAdminPlacementsRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/instructor/students': {
+      id: '/instructor/students'
+      path: '/students'
+      fullPath: '/instructor/students'
+      preLoaderRoute: typeof InstructorStudentsRouteImport
+      parentRoute: typeof InstructorRoute
     }
-    '/instructor/admin/program-riasec': {
-      id: '/instructor/admin/program-riasec'
-      path: '/program-riasec'
-      fullPath: '/instructor/admin/program-riasec'
-      preLoaderRoute: typeof InstructorAdminProgramRiasecRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/instructor/sign-up': {
+      id: '/instructor/sign-up'
+      path: '/sign-up'
+      fullPath: '/instructor/sign-up'
+      preLoaderRoute: typeof InstructorSignUpRouteImport
+      parentRoute: typeof InstructorRoute
     }
-    '/instructor/admin/programs': {
-      id: '/instructor/admin/programs'
-      path: '/programs'
-      fullPath: '/instructor/admin/programs'
-      preLoaderRoute: typeof InstructorAdminProgramsRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/instructor/sign-in': {
+      id: '/instructor/sign-in'
+      path: '/sign-in'
+      fullPath: '/instructor/sign-in'
+      preLoaderRoute: typeof InstructorSignInRouteImport
+      parentRoute: typeof InstructorRoute
     }
-    '/instructor/admin/recommendations': {
-      id: '/instructor/admin/recommendations'
-      path: '/recommendations'
-      fullPath: '/instructor/admin/recommendations'
-      preLoaderRoute: typeof InstructorAdminRecommendationsRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/instructor/login-display': {
+      id: '/instructor/login-display'
+      path: '/login-display'
+      fullPath: '/instructor/login-display'
+      preLoaderRoute: typeof InstructorLoginDisplayRouteImport
+      parentRoute: typeof InstructorRoute
     }
-    '/instructor/admin/results': {
-      id: '/instructor/admin/results'
-      path: '/results'
-      fullPath: '/instructor/admin/results'
-      preLoaderRoute: typeof InstructorAdminResultsRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/instructor/dashboard': {
+      id: '/instructor/dashboard'
+      path: '/dashboard'
+      fullPath: '/instructor/dashboard'
+      preLoaderRoute: typeof InstructorDashboardRouteImport
+      parentRoute: typeof InstructorRoute
     }
-    '/instructor/admin/surveys': {
-      id: '/instructor/admin/surveys'
-      path: '/surveys'
-      fullPath: '/instructor/admin/surveys'
-      preLoaderRoute: typeof InstructorAdminSurveysRouteImport
-      parentRoute: typeof InstructorAdminRoute
+    '/instructor/admin': {
+      id: '/instructor/admin'
+      path: '/admin'
+      fullPath: '/instructor/admin'
+      preLoaderRoute: typeof InstructorAdminRouteImport
+      parentRoute: typeof InstructorRoute
+    }
+    '/go/$token': {
+      id: '/go/$token'
+      path: '/go/$token'
+      fullPath: '/go/$token'
+      preLoaderRoute: typeof GoTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/family_/view': {
+      id: '/family_/view'
+      path: '/family/view'
+      fullPath: '/family/view'
+      preLoaderRoute: typeof FamilyViewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/scan': {
+      id: '/explore/scan'
+      path: '/explore/scan'
+      fullPath: '/explore/scan'
+      preLoaderRoute: typeof ExploreScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/$code': {
+      id: '/explore/$code'
+      path: '/explore/$code'
+      fullPath: '/explore/$code'
+      preLoaderRoute: typeof ExploreCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/educator/$': {
+      id: '/educator/$'
+      path: '/educator/$'
+      fullPath: '/educator/$'
+      preLoaderRoute: typeof EducatorSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/$soc': {
+      id: '/careers/$soc'
+      path: '/careers/$soc'
+      fullPath: '/careers/$soc'
+      preLoaderRoute: typeof CareersSocRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assessment/$sessionId': {
+      id: '/assessment/$sessionId'
+      path: '/assessment/$sessionId'
+      fullPath: '/assessment/$sessionId'
+      preLoaderRoute: typeof AssessmentSessionIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/instructor/checkpoints/': {
       id: '/instructor/checkpoints/'
@@ -1725,32 +1571,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InstructorCheckpointsIndexRouteImport
       parentRoute: typeof InstructorRoute
     }
-    '/instructor/checkpoints/$studentId': {
-      id: '/instructor/checkpoints/$studentId'
-      path: '/checkpoints/$studentId'
-      fullPath: '/instructor/checkpoints/$studentId'
-      preLoaderRoute: typeof InstructorCheckpointsStudentIdRouteImport
-      parentRoute: typeof InstructorRoute
+    '/instructor/admin/': {
+      id: '/instructor/admin/'
+      path: '/'
+      fullPath: '/instructor/admin/'
+      preLoaderRoute: typeof InstructorAdminIndexRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
-    '/instructor/invite/$token': {
-      id: '/instructor/invite/$token'
-      path: '/invite/$token'
-      fullPath: '/instructor/invite/$token'
-      preLoaderRoute: typeof InstructorInviteTokenRouteImport
-      parentRoute: typeof InstructorRoute
-    }
-    '/instructor/sessions/$sessionId': {
-      id: '/instructor/sessions/$sessionId'
-      path: '/sessions/$sessionId'
-      fullPath: '/instructor/sessions/$sessionId'
-      preLoaderRoute: typeof InstructorSessionsSessionIdRouteImport
-      parentRoute: typeof InstructorRoute
-    }
-    '/org/application/$opportunityId': {
-      id: '/org/application/$opportunityId'
-      path: '/org/application/$opportunityId'
-      fullPath: '/org/application/$opportunityId'
-      preLoaderRoute: typeof OrgApplicationOpportunityIdRouteImport
+    '/student_/experiences_/new': {
+      id: '/student_/experiences_/new'
+      path: '/student/experiences/new'
+      fullPath: '/student/experiences/new'
+      preLoaderRoute: typeof StudentExperiencesNewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/student_/apply_/$opportunityId': {
@@ -1760,19 +1592,180 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentApplyOpportunityIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/student_/experiences_/new': {
-      id: '/student_/experiences_/new'
-      path: '/student/experiences/new'
-      fullPath: '/student/experiences/new'
-      preLoaderRoute: typeof StudentExperiencesNewRouteImport
+    '/org/application/$opportunityId': {
+      id: '/org/application/$opportunityId'
+      path: '/org/application/$opportunityId'
+      fullPath: '/org/application/$opportunityId'
+      preLoaderRoute: typeof OrgApplicationOpportunityIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/instructor/admin/educators/$id': {
-      id: '/instructor/admin/educators/$id'
-      path: '/educators/$id'
-      fullPath: '/instructor/admin/educators/$id'
-      preLoaderRoute: typeof InstructorAdminEducatorsIdRouteImport
+    '/instructor/sessions/$sessionId': {
+      id: '/instructor/sessions/$sessionId'
+      path: '/sessions/$sessionId'
+      fullPath: '/instructor/sessions/$sessionId'
+      preLoaderRoute: typeof InstructorSessionsSessionIdRouteImport
+      parentRoute: typeof InstructorRoute
+    }
+    '/instructor/invite/$token': {
+      id: '/instructor/invite/$token'
+      path: '/invite/$token'
+      fullPath: '/instructor/invite/$token'
+      preLoaderRoute: typeof InstructorInviteTokenRouteImport
+      parentRoute: typeof InstructorRoute
+    }
+    '/instructor/checkpoints/$studentId': {
+      id: '/instructor/checkpoints/$studentId'
+      path: '/checkpoints/$studentId'
+      fullPath: '/instructor/checkpoints/$studentId'
+      preLoaderRoute: typeof InstructorCheckpointsStudentIdRouteImport
+      parentRoute: typeof InstructorRoute
+    }
+    '/instructor/admin/surveys': {
+      id: '/instructor/admin/surveys'
+      path: '/surveys'
+      fullPath: '/instructor/admin/surveys'
+      preLoaderRoute: typeof InstructorAdminSurveysRouteImport
       parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/results': {
+      id: '/instructor/admin/results'
+      path: '/results'
+      fullPath: '/instructor/admin/results'
+      preLoaderRoute: typeof InstructorAdminResultsRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/recommendations': {
+      id: '/instructor/admin/recommendations'
+      path: '/recommendations'
+      fullPath: '/instructor/admin/recommendations'
+      preLoaderRoute: typeof InstructorAdminRecommendationsRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/programs': {
+      id: '/instructor/admin/programs'
+      path: '/programs'
+      fullPath: '/instructor/admin/programs'
+      preLoaderRoute: typeof InstructorAdminProgramsRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/program-riasec': {
+      id: '/instructor/admin/program-riasec'
+      path: '/program-riasec'
+      fullPath: '/instructor/admin/program-riasec'
+      preLoaderRoute: typeof InstructorAdminProgramRiasecRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/placements': {
+      id: '/instructor/admin/placements'
+      path: '/placements'
+      fullPath: '/instructor/admin/placements'
+      preLoaderRoute: typeof InstructorAdminPlacementsRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/passwords': {
+      id: '/instructor/admin/passwords'
+      path: '/passwords'
+      fullPath: '/instructor/admin/passwords'
+      preLoaderRoute: typeof InstructorAdminPasswordsRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/opportunity-fields': {
+      id: '/instructor/admin/opportunity-fields'
+      path: '/opportunity-fields'
+      fullPath: '/instructor/admin/opportunity-fields'
+      preLoaderRoute: typeof InstructorAdminOpportunityFieldsRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/opportunities': {
+      id: '/instructor/admin/opportunities'
+      path: '/opportunities'
+      fullPath: '/instructor/admin/opportunities'
+      preLoaderRoute: typeof InstructorAdminOpportunitiesRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/matching': {
+      id: '/instructor/admin/matching'
+      path: '/matching'
+      fullPath: '/instructor/admin/matching'
+      preLoaderRoute: typeof InstructorAdminMatchingRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/invites': {
+      id: '/instructor/admin/invites'
+      path: '/invites'
+      fullPath: '/instructor/admin/invites'
+      preLoaderRoute: typeof InstructorAdminInvitesRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/import-explr': {
+      id: '/instructor/admin/import-explr'
+      path: '/import-explr'
+      fullPath: '/instructor/admin/import-explr'
+      preLoaderRoute: typeof InstructorAdminImportExplrRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/hs-applications': {
+      id: '/instructor/admin/hs-applications'
+      path: '/hs-applications'
+      fullPath: '/instructor/admin/hs-applications'
+      preLoaderRoute: typeof InstructorAdminHsApplicationsRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/demographics': {
+      id: '/instructor/admin/demographics'
+      path: '/demographics'
+      fullPath: '/instructor/admin/demographics'
+      preLoaderRoute: typeof InstructorAdminDemographicsRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/completion': {
+      id: '/instructor/admin/completion'
+      path: '/completion'
+      fullPath: '/instructor/admin/completion'
+      preLoaderRoute: typeof InstructorAdminCompletionRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/camp-logins': {
+      id: '/instructor/admin/camp-logins'
+      path: '/camp-logins'
+      fullPath: '/instructor/admin/camp-logins'
+      preLoaderRoute: typeof InstructorAdminCampLoginsRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/assign': {
+      id: '/instructor/admin/assign'
+      path: '/assign'
+      fullPath: '/instructor/admin/assign'
+      preLoaderRoute: typeof InstructorAdminAssignRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/assessments': {
+      id: '/instructor/admin/assessments'
+      path: '/assessments'
+      fullPath: '/instructor/admin/assessments'
+      preLoaderRoute: typeof InstructorAdminAssessmentsRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/archive': {
+      id: '/instructor/admin/archive'
+      path: '/archive'
+      fullPath: '/instructor/admin/archive'
+      preLoaderRoute: typeof InstructorAdminArchiveRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/instructor/admin/applications': {
+      id: '/instructor/admin/applications'
+      path: '/applications'
+      fullPath: '/instructor/admin/applications'
+      preLoaderRoute: typeof InstructorAdminApplicationsRouteImport
+      parentRoute: typeof InstructorAdminRoute
+    }
+    '/assessment/$sessionId_/results': {
+      id: '/assessment/$sessionId_/results'
+      path: '/assessment/$sessionId/results'
+      fullPath: '/assessment/$sessionId/results'
+      preLoaderRoute: typeof AssessmentSessionIdResultsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/instructor/explore-cards/$kind/$id': {
       id: '/instructor/explore-cards/$kind/$id'
@@ -1780,6 +1773,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/instructor/explore-cards/$kind/$id'
       preLoaderRoute: typeof InstructorExploreCardsKindIdRouteImport
       parentRoute: typeof InstructorRoute
+    }
+    '/instructor/admin/educators/$id': {
+      id: '/instructor/admin/educators/$id'
+      path: '/educators/$id'
+      fullPath: '/instructor/admin/educators/$id'
+      preLoaderRoute: typeof InstructorAdminEducatorsIdRouteImport
+      parentRoute: typeof InstructorAdminRoute
     }
     '/instructor/admin/groups/$kind/': {
       id: '/instructor/admin/groups/$kind/'

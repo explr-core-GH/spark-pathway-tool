@@ -24,6 +24,9 @@ import {
   type PartnerAnswers,
 } from "@/lib/hs-application/types";
 import { ageOn, wordCount } from "@/lib/hs-application/validate";
+import { isDemoEmail } from "@/lib/hs-application/data";
+import { demoPartnerAnswers } from "@/lib/hs-application/demo-fill";
+import { DemoBar } from "@/components/hs-application/DemoBar";
 
 const STUDENT_LINKS: PortalLink[] = [
   { label: "My passport", to: "/student" },
@@ -271,6 +274,15 @@ function PartnerApplyPage() {
                 )}
                 {!tooYoung && !tooOld && (
                   <>
+                    {isDemoEmail(user?.email) && !submitted && (
+                      <DemoBar
+                        onFill={() => {
+                          setErrors({});
+                          setAnswers(demoPartnerAnswers(builder));
+                        }}
+                        fillLabel="Fill with sample answers"
+                      />
+                    )}
                     <p className="text-sm text-ink-700">
                       Your general application is already done, so this only takes a few minutes.
                     </p>

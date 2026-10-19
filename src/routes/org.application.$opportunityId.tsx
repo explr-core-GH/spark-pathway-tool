@@ -32,6 +32,10 @@ import {
   WHO_PAYS,
 } from "@/lib/hs-application/content";
 import { checkBuilder, studentPaysItems } from "@/lib/hs-application/guardrails";
+import { useSession } from "@/lib/auth";
+import { isDemoEmail } from "@/lib/hs-application/data";
+import { demoPartnerBuilder } from "@/lib/hs-application/demo-fill";
+import { DemoBar } from "@/components/hs-application/DemoBar";
 import {
   EMPTY_BUILDER,
   EMPTY_PARTNER_ANSWERS,
@@ -74,6 +78,7 @@ function Builder({ orgName }: { orgName: string }) {
   const { opportunityId } = Route.useParams();
   const [opp, setOpp] = useState<Opp | null>(null);
   const [b, setB] = useState<ApplicationBuilder>(EMPTY_BUILDER);
+  const { user } = useSession();
   const [versions, setVersions] = useState<Version[]>([]);
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -217,6 +222,25 @@ function Builder({ orgName }: { orgName: string }) {
           here: a few questions and anything they need to know about your site. EXPLR staff review
           every application and place students; you'll see who's placed with you.
         </p>
+        {isDemoEmail(user?.email) && (
+          <DemoBar
+            onFill={() => {
+              setShowIssues(false);
+              setB(
+                demoPartnerBuilder(
+                  b.profile.startDate || opp.start_date || "",
+                  b.profile.endDate || opp.end_date || "",
+                  b.profile.address || opp.location || "Lakeshore Health Partners, Cleveland, OH",
+                ),
+              );
+              setMsg({
+                kind: "ok",
+                text: "Sample application filled in. Review it, then publish.",
+              });
+            }}
+            fillLabel="Fill with a sample application"
+          />
+        )}
         <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
           {live ? (
             <span className="inline-flex items-center gap-2 rounded-full bg-mint-tint px-3 py-1.5 text-green-deep">

@@ -2,7 +2,13 @@ import { describe, expect, it } from "vitest";
 import { checkBuilder, estimateMinutes, studentPaysItems } from "./guardrails";
 import { listingFromOpportunity, riasecFromOpportunity } from "./listings";
 import { matchListing, rankListings, type Applicant, type Listing } from "./match";
-import { EMPTY_BUILDER, EMPTY_CORE, EMPTY_EXTRAS, type ApplicationBuilder } from "./types";
+import {
+  EMPTY_BUILDER,
+  EMPTY_CHOICES,
+  EMPTY_CORE,
+  EMPTY_EXTRAS,
+  type ApplicationBuilder,
+} from "./types";
 import { ageOn, isUnder18, validateCoreStep, wordCount, youEmailFlags } from "./validate";
 
 const NOW = new Date(2026, 9, 19);
@@ -252,5 +258,35 @@ describe("matching", () => {
     expect(l.name).toBe("New title");
     expect(l.careerFields).toEqual(["health"]);
     expect(l.ageMin).toBe(16);
+  });
+});
+
+describe("demo sample answers", async () => {
+  const { DEMO_CORE, DEMO_EXTRAS, demoChoices, demoPartnerAnswers, demoPartnerBuilder } =
+    await import("./demo-fill");
+  const { GENERAL_STEPS, validateExtras } = await import("./validate");
+  const content = await import("./content");
+  it("pass every general-application step", () => {
+    for (const s of GENERAL_STEPS)
+      if (!["demographics", "survey", "matches", "review"].includes(s.key))
+        expect(validateCoreStep(s.key, DEMO_CORE, NOW)).toEqual({});
+    expect(
+      validateExtras(DEMO_EXTRAS, {
+        activities: content.ACTIVITY_ITEMS.length,
+        pairs: content.FORCED_PAIRS.length,
+        environment: content.ENVIRONMENT_DIMS.length,
+        experience: content.EXPERIENCE_ITEMS.length,
+      }),
+    ).toEqual({});
+    expect(
+      demoChoices(["opp:a", "opp:b", "opp:c"], structuredClone(EMPTY_CHOICES)).ranked,
+    ).toHaveLength(2);
+  });
+  it("produce a publishable partner application and complete answers", () => {
+    const b = demoPartnerBuilder("2027-06-14", "2027-08-06", "1 Main St");
+    expect(checkBuilder(b).errors).toEqual([]);
+    const a = demoPartnerAnswers(b);
+    expect(Object.keys(a.requirements)).toHaveLength(b.requirements.length);
+    expect(Object.values(a.requirements)).toContain("help");
   });
 });
