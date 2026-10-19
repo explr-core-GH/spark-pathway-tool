@@ -5,7 +5,6 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { schoolYear } from "./checkpoints";
 import { DEMO, DEMO_DOMAIN, DEMO_ROLES } from "./demo";
-import { ensureApplicationDemo } from "./demo-application.functions";
 
 /**
  * Demo accounts and fake data for walkthroughs.
@@ -944,6 +943,7 @@ export const seedDemo = createServerFn({ method: "POST" })
       "internship_selections",
     );
 
+    const { ensureApplicationDemo } = await import("./demo-application.server");
     await ensureApplicationDemo();
 
     return {
@@ -995,7 +995,10 @@ export const demoLogin = createServerFn({ method: "POST" })
       );
       return { kind: "family" as const, token, to: "/family/view" };
     }
-    if (data.role === "applicant") await ensureApplicationDemo();
+    if (data.role === "applicant") {
+      const { ensureApplicationDemo } = await import("./demo-application.server");
+      await ensureApplicationDemo();
+    }
     const email = DEMO[data.role].email;
     const user = (await listDemoUsers()).find((u) => u.email === email);
     if (!user) throw new Error("The demo isn't seeded yet. Ask an EXPLR admin to seed it.");

@@ -1,4 +1,3 @@
-import { createServerFn } from "@tanstack/react-start";
 import { randomBytes, randomUUID } from "node:crypto";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { DEMO, DEMO_DOMAIN } from "./demo";
@@ -488,7 +487,7 @@ async function publishVersion(opportunityId: string, builder: ApplicationBuilder
  * listings get a fresh unlocked version 1, and the demo partner's own
  * internship goes back to having no application, ready to be built live.
  */
-export const resetApplicationDemo = createServerFn({ method: "POST" }).handler(async () => {
+export async function resetApplicationDemo() {
   const { applicantId } = await ensureApplicationDemo();
   await sb("hs_general_applications").delete().eq("student_id", applicantId);
   const ownerId = await findDemoUser(DEMO.listingsOwner.email);
@@ -514,4 +513,4 @@ export const resetApplicationDemo = createServerFn({ method: "POST" }).handler(a
     }
   }
   return { ok: true };
-});
+}
