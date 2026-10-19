@@ -35,6 +35,80 @@ export type Database = {
         }
         Relationships: []
       }
+      application_seasons: {
+        Row: {
+          closes_at: string | null
+          created_at: string
+          id: string
+          is_current: boolean
+          name: string
+          opens_at: string | null
+          program_end: string | null
+          program_start: string | null
+          retention_days: number
+        }
+        Insert: {
+          closes_at?: string | null
+          created_at?: string
+          id?: string
+          is_current?: boolean
+          name: string
+          opens_at?: string | null
+          program_end?: string | null
+          program_start?: string | null
+          retention_days?: number
+        }
+        Update: {
+          closes_at?: string | null
+          created_at?: string
+          id?: string
+          is_current?: boolean
+          name?: string
+          opens_at?: string | null
+          program_end?: string | null
+          program_start?: string | null
+          retention_days?: number
+        }
+        Relationships: []
+      }
+      application_status_events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          delivery: Json
+          general_id: string
+          id: string
+          note: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          delivery?: Json
+          general_id: string
+          id?: string
+          note?: string | null
+          status: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          delivery?: Json
+          general_id?: string
+          id?: string
+          note?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_status_events_general_id_fkey"
+            columns: ["general_id"]
+            isOneToOne: false
+            referencedRelation: "hs_general_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aptitude_results: {
         Row: {
           band: string
@@ -1439,6 +1513,205 @@ export type Database = {
           },
         ]
       }
+      hs_demographics: {
+        Row: {
+          application_id: string
+          data: Json
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          application_id: string
+          data?: Json
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string
+          data?: Json
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hs_demographics_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: true
+            referencedRelation: "hs_general_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hs_demographics_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hs_general_applications: {
+        Row: {
+          assessment_session_id: string | null
+          choices: Json
+          core: Json
+          created_at: string
+          extras: Json
+          id: string
+          missing_note: string | null
+          placed_opportunity_id: string | null
+          pseudo_id: string | null
+          season_id: string
+          staff_notes: string | null
+          status: string
+          step: number
+          student_id: string
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          assessment_session_id?: string | null
+          choices?: Json
+          core?: Json
+          created_at?: string
+          extras?: Json
+          id?: string
+          missing_note?: string | null
+          placed_opportunity_id?: string | null
+          pseudo_id?: string | null
+          season_id: string
+          staff_notes?: string | null
+          status?: string
+          step?: number
+          student_id: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assessment_session_id?: string | null
+          choices?: Json
+          core?: Json
+          created_at?: string
+          extras?: Json
+          id?: string
+          missing_note?: string | null
+          placed_opportunity_id?: string | null
+          pseudo_id?: string | null
+          season_id?: string
+          staff_notes?: string | null
+          status?: string
+          step?: number
+          student_id?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hs_general_applications_assessment_session_id_fkey"
+            columns: ["assessment_session_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_sessions"
+            referencedColumns: ["session_id"]
+          },
+          {
+            foreignKeyName: "hs_general_applications_placed_opportunity_id_fkey"
+            columns: ["placed_opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hs_general_applications_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "application_seasons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hs_general_applications_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hs_partner_applications: {
+        Row: {
+          answers: Json
+          cleared_help: string[]
+          created_at: string
+          general_id: string
+          id: string
+          opportunity_id: string
+          question_notes: Json
+          requirements: Json
+          status: string
+          student_id: string
+          submitted_at: string | null
+          updated_at: string
+          version_id: string | null
+        }
+        Insert: {
+          answers?: Json
+          cleared_help?: string[]
+          created_at?: string
+          general_id: string
+          id?: string
+          opportunity_id: string
+          question_notes?: Json
+          requirements?: Json
+          status?: string
+          student_id: string
+          submitted_at?: string | null
+          updated_at?: string
+          version_id?: string | null
+        }
+        Update: {
+          answers?: Json
+          cleared_help?: string[]
+          created_at?: string
+          general_id?: string
+          id?: string
+          opportunity_id?: string
+          question_notes?: Json
+          requirements?: Json
+          status?: string
+          student_id?: string
+          submitted_at?: string | null
+          updated_at?: string
+          version_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hs_partner_applications_general_id_fkey"
+            columns: ["general_id"]
+            isOneToOne: false
+            referencedRelation: "hs_general_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hs_partner_applications_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hs_partner_applications_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hs_partner_applications_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "opp_application_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       internship_applications: {
         Row: {
           decided_at: string | null
@@ -1639,28 +1912,31 @@ export type Database = {
       }
       internship_placements: {
         Row: {
-          application_id: string
+          application_id: string | null
           approved_at: string
           approved_by: string | null
           approved_internship_id: string
+          hs_general_id: string | null
           id: string
           staff_notes: string | null
           student_id: string
         }
         Insert: {
-          application_id: string
+          application_id?: string | null
           approved_at?: string
           approved_by?: string | null
           approved_internship_id: string
+          hs_general_id?: string | null
           id?: string
           staff_notes?: string | null
           student_id: string
         }
         Update: {
-          application_id?: string
+          application_id?: string | null
           approved_at?: string
           approved_by?: string | null
           approved_internship_id?: string
+          hs_general_id?: string | null
           id?: string
           staff_notes?: string | null
           student_id?: string
@@ -1678,6 +1954,13 @@ export type Database = {
             columns: ["approved_by"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "internship_placements_hs_general_id_fkey"
+            columns: ["hs_general_id"]
+            isOneToOne: false
+            referencedRelation: "hs_general_applications"
             referencedColumns: ["id"]
           },
           {
@@ -2168,9 +2451,49 @@ export type Database = {
           },
         ]
       }
+      opp_application_versions: {
+        Row: {
+          builder: Json
+          id: string
+          locked_at: string | null
+          opportunity_id: string
+          published_at: string
+          published_by: string | null
+          version: number
+        }
+        Insert: {
+          builder: Json
+          id?: string
+          locked_at?: string | null
+          opportunity_id: string
+          published_at?: string
+          published_by?: string | null
+          version: number
+        }
+        Update: {
+          builder?: Json
+          id?: string
+          locked_at?: string | null
+          opportunity_id?: string
+          published_at?: string
+          published_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opp_application_versions_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       opportunities: {
         Row: {
+          application_builder: Json | null
           application_links: Json
+          application_version_id: string | null
           capacity: number | null
           cost_cents: number | null
           created_at: string
@@ -2213,7 +2536,9 @@ export type Database = {
           wbl: Json
         }
         Insert: {
+          application_builder?: Json | null
           application_links?: Json
+          application_version_id?: string | null
           capacity?: number | null
           cost_cents?: number | null
           created_at?: string
@@ -2256,7 +2581,9 @@ export type Database = {
           wbl?: Json
         }
         Update: {
+          application_builder?: Json | null
           application_links?: Json
+          application_version_id?: string | null
           capacity?: number | null
           cost_cents?: number | null
           created_at?: string
@@ -2299,6 +2626,13 @@ export type Database = {
           wbl?: Json
         }
         Relationships: [
+          {
+            foreignKeyName: "opportunities_application_version_id_fkey"
+            columns: ["application_version_id"]
+            isOneToOne: false
+            referencedRelation: "opp_application_versions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "opportunities_org_id_fkey"
             columns: ["org_id"]
@@ -3025,6 +3359,18 @@ export type Database = {
       is_admin: { Args: { uid: string }; Returns: boolean }
       is_educator: { Args: { uid: string }; Returns: boolean }
       is_organization: { Args: { uid: string }; Returns: boolean }
+      org_placed_students: {
+        Args: never
+        Returns: {
+          internship_name: string
+          opportunity_id: string
+          placed_at: string
+          placement_id: string
+          start_date: string
+          student_name: string
+        }[]
+      }
+      purge_unplaced_applications: { Args: never; Returns: number }
       set_daily_explr_sync: { Args: { _enabled: boolean }; Returns: boolean }
       staff_can_see_student: {
         Args: { _student_id: string; _uid: string }
