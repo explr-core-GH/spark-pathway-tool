@@ -2746,6 +2746,7 @@ export type Database = {
       students: {
         Row: {
           about_me: string | null
+          avatar_emoji: string | null
           created_at: string
           date_of_birth: string | null
           first_name: string | null
@@ -2753,10 +2754,12 @@ export type Database = {
           grade_band: string | null
           headline: string | null
           id: string
+          photo_url: string | null
           scheduled_deletion_at: string | null
         }
         Insert: {
           about_me?: string | null
+          avatar_emoji?: string | null
           created_at?: string
           date_of_birth?: string | null
           first_name?: string | null
@@ -2764,10 +2767,12 @@ export type Database = {
           grade_band?: string | null
           headline?: string | null
           id: string
+          photo_url?: string | null
           scheduled_deletion_at?: string | null
         }
         Update: {
           about_me?: string | null
+          avatar_emoji?: string | null
           created_at?: string
           date_of_birth?: string | null
           first_name?: string | null
@@ -2775,6 +2780,7 @@ export type Database = {
           grade_band?: string | null
           headline?: string | null
           id?: string
+          photo_url?: string | null
           scheduled_deletion_at?: string | null
         }
         Relationships: []
