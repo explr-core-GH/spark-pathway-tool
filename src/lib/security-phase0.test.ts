@@ -1,8 +1,9 @@
 import { createHash } from "node:crypto";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { lockMinutesFor } from "./explore-lockout";
 import { storagePath } from "./storage-paths";
 import { publicOriginFromHost } from "./server/origin.server";
+import { RATE_LIMIT_MESSAGE, rateLimit } from "./server/rate-limit.server";
 import {
   attestationTokenHash,
   exploreSecretHash,
@@ -10,6 +11,11 @@ import {
   familyCodeHash,
   familySessionHash,
 } from "./server/hash.server";
+
+const mockRpc = vi.hoisted(() => ({ fn: vi.fn() }));
+vi.mock("@/integrations/supabase/client.server", () => ({
+  supabaseAdmin: { rpc: mockRpc.fn },
+}));
 
 const sha = (s: string) => createHash("sha256").update(s).digest("hex");
 
@@ -79,5 +85,21 @@ describe("private file paths", () => {
     ).toBe("u1/a.jpg");
     expect(storagePath("student-photos", "u1/a.jpg")).toBe("u1/a.jpg");
     expect(storagePath("student-photos", "https://elsewhere.com/a.jpg")).toBeNull();
+  });
+});
+
+describe("rate limit", () => {
+  afterEach(() => {
+    mockRpc.fn.mockReset();
+  });
+  it("fails open when the rpc call throws a TypeError", async () => {
+    mockRpc.fn.mockRejectedValueOnce(
+      new TypeError("Cannot read properties of undefined (reading 'rest')"),
+    );
+    await expect(rateLimit("demoStatus", 30, 600)).resolves.toBeUndefined();
+  });
+  it("throws RATE_LIMIT_MESSAGE when the limit is exceeded", async () => {
+    mockRpc.fn.mockResolvedValueOnce({ data: false, error: null });
+    await expect(rateLimit("demoStatus", 30, 600)).rejects.toThrow(RATE_LIMIT_MESSAGE);
   });
 });

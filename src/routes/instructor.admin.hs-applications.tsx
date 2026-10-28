@@ -222,11 +222,12 @@ function HsApplicationsPage() {
       )
     )
       return;
+    // Call rpc as a method on the client so `this` stays bound.
     const { data, error } = await (
-      supabase.rpc as unknown as (
-        f: string,
-      ) => Promise<{ data: number; error: { message: string } | null }>
-    )("purge_unplaced_applications");
+      supabase as unknown as {
+        rpc: (f: string) => Promise<{ data: number; error: { message: string } | null }>;
+      }
+    ).rpc("purge_unplaced_applications");
     setMsg(error ? error.message : `Deleted ${data} expired application${data === 1 ? "" : "s"}.`);
     setReload((n) => n + 1);
   }

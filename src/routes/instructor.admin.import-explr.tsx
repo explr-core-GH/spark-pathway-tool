@@ -103,9 +103,9 @@ function ImportExplrPage() {
   }
   useEffect(() => {
     load();
-    (supabase.rpc as unknown as (fn: string) => Promise<{ data: boolean | null }>)(
-      "daily_explr_sync_enabled",
-    )
+    // Call rpc as a method on the client so `this` stays bound.
+    (supabase as unknown as { rpc: (fn: string) => Promise<{ data: boolean | null }> })
+      .rpc("daily_explr_sync_enabled")
       .then(({ data }) => setDailyOn(!!data))
       .catch(() => setDailyOn(null));
   }, []);
@@ -115,12 +115,15 @@ function ImportExplrPage() {
     setDailyBusy(true);
     setErr(null);
     const next = !dailyOn;
+    // Call rpc as a method on the client so `this` stays bound.
     const { error } = await (
-      supabase.rpc as unknown as (
-        fn: string,
-        args: Record<string, unknown>,
-      ) => Promise<{ error: { message: string } | null }>
-    )("set_daily_explr_sync", { _enabled: next });
+      supabase as unknown as {
+        rpc: (
+          fn: string,
+          args: Record<string, unknown>,
+        ) => Promise<{ error: { message: string } | null }>;
+      }
+    ).rpc("set_daily_explr_sync", { _enabled: next });
     setDailyBusy(false);
     if (error) {
       setErr(error.message);
