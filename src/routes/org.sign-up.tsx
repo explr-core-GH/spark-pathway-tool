@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthShell } from "@/components/passport/AuthShell";
+import { CONFIRM_EMAIL_NOTICE } from "@/lib/profile-completion";
 
 export const Route = createFileRoute("/org/sign-up")({
   head: () => ({ meta: [{ title: "Register as a partner — EXPLR" }] }),
@@ -19,6 +20,7 @@ function OrgSignUp() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,32 +30,29 @@ function OrgSignUp() {
     const { data, error: suErr } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin },
+      options: {
+        emailRedirectTo: `${window.location.origin}/org/sign-in`,
+        // Saved so the organizations row can be created on first sign-in when
+        // email confirmation is on.
+        data: {
+          account: "organization",
+          name: name.trim(),
+          contact_name: contactName.trim() || null,
+          website: website.trim() || null,
+        },
+      },
     });
     if (suErr) {
       setError(suErr.message);
       setLoading(false);
       return;
     }
-    let session = data.session;
-    if (!session) {
-      const { data: si, error: siErr } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (siErr) {
-        setError(siErr.message);
-        setLoading(false);
-        return;
-      }
-      session = si.session;
-    }
-    const uid = data.user?.id ?? session?.user.id;
-    if (!uid || !session) {
-      setError("Could not create account.");
+    if (!data.session || !data.user) {
       setLoading(false);
+      setNotice(CONFIRM_EMAIL_NOTICE);
       return;
     }
+    const uid = data.user.id;
     const { error: oErr } = await sb("organizations").insert({
       id: uid,
       name: name.trim(),
@@ -90,6 +89,14 @@ function OrgSignUp() {
         </p>
       }
     >
+      {notice && (
+        <p
+          role="status"
+          className="mb-5 rounded-[var(--radius-control)] bg-mint-tint px-3 py-3 text-sm"
+        >
+          {notice}
+        </p>
+      )}
       <form onSubmit={submit} className="space-y-5">
         <div>
           <label className="label" htmlFor="org-name">

@@ -51,7 +51,7 @@ export type AvatarColor = (typeof AVATAR_COLORS)[number];
 export const SECRET_LENGTH = 3;
 const EXPLORE_DOMAIN = "@explore.explr.local";
 
-// Join codes read aloud and typed by an instructor: ANIMAL-NN.
+// Join codes read aloud and typed by an instructor: ANIMAL-NNNN (older ANIMAL-NN codes still resolve).
 const CODE_ANIMALS = [
   "OTTER",
   "FALCON",
@@ -308,7 +308,7 @@ export const ensureJoinCode = createServerFn({ method: "POST" })
     const existing = (cur as { join_code: string | null } | null)?.join_code;
     if (existing) return { code: existing, name: await groupName(data) };
     for (let i = 0; i < 20; i++) {
-      const code = `${pick(CODE_ANIMALS)}-${randomInt(10, 100)}`;
+      const code = `${pick(CODE_ANIMALS)}-${randomInt(1000, 10000)}`;
       if (await groupByCode(code)) continue;
       const { error } = await sb(table).update({ join_code: code }).eq("id", data.id);
       if (!error) return { code, name: await groupName(data) };

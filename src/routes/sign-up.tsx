@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthShell } from "@/components/passport/AuthShell";
+import { CONFIRM_EMAIL_NOTICE } from "@/lib/profile-completion";
 
 export const Route = createFileRoute("/sign-up")({
   head: () => ({ meta: [{ title: "Sign up — EXPLR" }] }),
@@ -17,6 +18,7 @@ function SignUp() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,32 +27,40 @@ function SignUp() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin },
+      options: {
+        emailRedirectTo: `${window.location.origin}/sign-in`,
+        // Kept so the students row can be created on first sign-in when email
+        // confirmation is on (there is no session yet at sign-up).
+        data: { account: "student", first_name: firstName.trim(), grade },
+      },
     });
     if (error) {
       setError(error.message);
       setLoading(false);
       return;
     }
-    if (data.user) {
-      const { error: studErr } = await supabase
-        .from("students")
-        .insert({ id: data.user.id, first_name: firstName, grade });
-      if (studErr) {
-        setError(studErr.message);
-        setLoading(false);
-        return;
-      }
+    if (!data.session || !data.user) {
+      setLoading(false);
+      setNotice(CONFIRM_EMAIL_NOTICE);
+      return;
+    }
+    const { error: studErr } = await supabase
+      .from("students")
+      .insert({ id: data.user.id, first_name: firstName.trim(), grade });
+    if (studErr) {
+      setError(studErr.message);
+      setLoading(false);
+      return;
     }
     setLoading(false);
-    navigate({ to: "/" });
+    navigate({ to: "/student" });
   }
 
   return (
     <AuthShell
       eyebrow="Students"
       title="Create your account"
-      intro="For students in grades 5-12. Start your passport, take the interest assessment, and add experiences as you go."
+      intro="For students in grades 5-12 with an email address; grades 4-8 can also sign in with pictures through their class. Start your passport, take the interest assessment, and add experiences as you go."
       illustration={{ src: "/passport/students.webp" }}
       role="Student"
       links={[
@@ -66,6 +76,14 @@ function SignUp() {
         </p>
       }
     >
+      {notice && (
+        <p
+          role="status"
+          className="mb-5 rounded-[var(--radius-control)] bg-mint-tint px-3 py-3 text-sm"
+        >
+          {notice}
+        </p>
+      )}
       <form onSubmit={submit} className="space-y-5">
         <div className="grid grid-cols-[1fr_120px] gap-3">
           <div>

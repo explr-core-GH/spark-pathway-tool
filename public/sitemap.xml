@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://explrpathways.org/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://explrpathways.org/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://explrpathways.org/careers</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://explrpathways.org/opportunities</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://explrpathways.org/try-riasec</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://explrpathways.org/instructor</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://explrpathways.org/family</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://explrpathways.org/accessibility</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://explrpathways.org/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://explrpathways.org/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://explrpathways.org/student-data</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+</urlset>

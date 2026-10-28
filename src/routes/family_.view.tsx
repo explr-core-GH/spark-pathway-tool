@@ -1,9 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PortalHeader } from "@/components/passport";
 import { SiteFooter } from "@/components/SiteFooter";
 import { FamilyViewBody } from "@/components/FamilyViewBody";
-import { getFamilyView, guardianAckPlan, type FamilyView } from "@/lib/family.functions";
+import {
+  getFamilyView,
+  guardianAckPlan,
+  type FamilyView,
+  endFamilySession,
+} from "@/lib/family.functions";
 
 const FAMILY_TOKEN_KEY = "explr.family.token";
 
@@ -19,9 +24,20 @@ export const Route = createFileRoute("/family_/view")({
 
 function View() {
   const { t } = Route.useSearch();
+  const navigate = useNavigate();
   const [view, setView] = useState<FamilyView | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
+
+  async function closeView() {
+    try {
+      localStorage.removeItem(FAMILY_TOKEN_KEY);
+    } catch {
+      // ignore
+    }
+    if (token) await endFamilySession({ data: { token } }).catch(() => undefined);
+    navigate({ to: "/family" });
+  }
 
   async function signPlan(name: string) {
     if (!token) return;
@@ -58,6 +74,9 @@ function View() {
         } catch {
           // ignore
         }
+        // Keep the session token out of the address bar, history and referrers.
+        if (t && typeof window !== "undefined")
+          window.history.replaceState(null, "", "/family/view");
       })
       .catch(
         (e) =>
@@ -112,7 +131,10 @@ function View() {
                 </>
               }
             />
-            <p className="mt-10 text-sm text-ink-700">
+            <button type="button" onClick={closeView} className="btn-ghost mt-8">
+              Close this family view on this device
+            </button>
+            <p className="mt-6 text-sm text-ink-700">
               Want to keep this without a code?{" "}
               <Link to="/family/sign-up" className="ink-link">
                 Create a family account.

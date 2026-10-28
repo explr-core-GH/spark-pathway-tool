@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SocialSignInButton, OrDivider } from "@/components/passport/SocialSignIn";
+import { completeProfileFromMetadata } from "@/lib/profile-completion";
 
 export const Route = createFileRoute("/instructor/sign-in")({
   head: () => ({ meta: [{ title: "Instructor sign in — EXPLR" }] }),
@@ -37,6 +38,15 @@ function EducatorSignIn() {
     // public.admins for this user; if they're an admin, land in admin tools,
     // otherwise the instructor dashboard.
     const uid = auth.user?.id;
+    if (auth.user) {
+      try {
+        await completeProfileFromMetadata(auth.user);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e));
+        setLoading(false);
+        return;
+      }
+    }
     if (uid) {
       const { data: adminRow } = await (supabase as any)
         .from("admins")
@@ -57,6 +67,7 @@ function EducatorSignIn() {
       setError("Could not confirm your Microsoft account. Please try again.");
       return;
     }
+    await completeProfileFromMetadata(data.user);
     // Instructors and admins live in separate tables (no overlap) — same
     // routing as the password flow above.
     const { data: adminRow } = await (supabase as any)

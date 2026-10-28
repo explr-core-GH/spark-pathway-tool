@@ -16,45 +16,25 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 // Admin check against public.admins (the post-split admin table).
 async function assertAdmin(userId: string) {
-  const { data } = await supabaseAdmin
-    .from("admins")
-    .select("id")
-    .eq("id", userId)
-    .maybeSingle();
+  const { data } = await supabaseAdmin.from("admins").select("id").eq("id", userId).maybeSingle();
   if (!data) throw new Error("Admin access required");
 }
 
 // ── Credential generators ───────────────────────────────────────────────────
 
-const ADJECTIVES = [
-  "brave", "bright", "calm", "clever", "cosmic", "eager", "fair", "gentle",
-  "happy", "jolly", "keen", "kind", "lucky", "merry", "noble", "proud",
-  "quick", "smart", "sunny", "swift", "warm", "wise",
-];
-const ANIMALS = [
-  "otter", "falcon", "panda", "tiger", "robin", "lynx", "moose", "heron",
-  "koala", "gecko", "raven", "puma", "bison", "crane", "finch", "shark",
-  "wolf", "hawk", "seal", "fox",
-];
-
-function randItem<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-function randSuffix(len = 4): string {
-  // no ambiguous chars (0/o/1/l) — these get read off a printed sheet.
-  const chars = "23456789abcdefghjkmnpqrstuvwxyz";
-  let s = "";
-  for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * chars.length)];
-  return s;
-}
+import {
+  makeCampPassword as makePassword,
+  randomDigits as randDigits,
+} from "./server/credentials.server";
 
 function slugName(raw: string): string {
-  return raw
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[^a-z0-9]+/g, "")
-    .slice(0, 14) || "camper";
+  return (
+    raw
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[^a-z0-9]+/g, "")
+      .slice(0, 14) || "camper"
+  );
 }
 
 /**
@@ -67,12 +47,6 @@ function slugFirst(raw: string): string {
 }
 
 /** A few random digits. Used as the unique suffix on a camp username. */
-function randDigits(n: number): string {
-  let s = "";
-  for (let i = 0; i < n; i++) s += String(Math.floor(Math.random() * 10));
-  return s;
-}
-
 const CAMP_DOMAIN = "@camp.explr.local";
 
 /**
@@ -107,13 +81,6 @@ async function mintCampAuthUser(
     // collision → loop with a fresh suffix
   }
   return { ok: false, error: "Could not find an unused username after several tries" };
-}
-
-/** A simple, readable password kids can type: "brave-otter-7". */
-function makePassword(): string {
-  return `${randItem(ADJECTIVES)}-${randItem(ANIMALS)}-${
-    Math.floor(Math.random() * 9) + 1
-  }`;
 }
 
 /** ExplrMore stores age; the students table wants a grade 5-12. Clamp. */
@@ -158,10 +125,7 @@ export const generateCampLogins = createServerFn({ method: "POST" })
             `Apply the camp-logins migration first.`,
         );
       }
-      const logProbe = await supabaseAdmin
-        .from("camp_student_logins")
-        .select("id")
-        .limit(1);
+      const logProbe = await supabaseAdmin.from("camp_student_logins").select("id").limit(1);
       if (logProbe.error) {
         throw new Error(
           `camp_student_logins unreachable — ${logProbe.error.message}. ` +
@@ -204,12 +168,7 @@ export const generateCampLogins = createServerFn({ method: "POST" })
         const password = makePassword();
 
         // 2a. Create the auth account (retries on username collision).
-        const mint = await mintCampAuthUser(
-          first,
-          reg.child_name,
-          password,
-          "camp_login",
-        );
+        const mint = await mintCampAuthUser(first, reg.child_name, password, "camp_login");
         if (!mint.ok) {
           errors.push(`${reg.child_name}: ${mint.error}`);
           continue;
@@ -218,13 +177,11 @@ export const generateCampLogins = createServerFn({ method: "POST" })
         const username = mint.username;
 
         // 2b. students row.
-        const { error: stuErr } = await supabaseAdmin
-          .from("students")
-          .upsert({
-            id: uid,
-            first_name: (parts[0] ?? reg.child_name).slice(0, 60),
-            grade: ageToGrade(reg.child_age),
-          });
+        const { error: stuErr } = await supabaseAdmin.from("students").upsert({
+          id: uid,
+          first_name: (parts[0] ?? reg.child_name).slice(0, 60),
+          grade: ageToGrade(reg.child_age),
+        });
         if (stuErr) {
           const rb = await rollback(uid);
           errors.push(`${reg.child_name}: students row — ${stuErr.message}${rb}`);
@@ -260,9 +217,7 @@ export const generateCampLogins = createServerFn({ method: "POST" })
         }
         created++;
       } catch (e) {
-        errors.push(
-          `${reg.child_name}: ${e instanceof Error ? e.message : String(e)}`,
-        );
+        errors.push(`${reg.child_name}: ${e instanceof Error ? e.message : String(e)}`);
       }
     }
 
@@ -288,11 +243,7 @@ export const generateCampLogins = createServerFn({ method: "POST" })
 export const generateWalkInCampLogin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (input: {
-      explrCampId: string;
-      childName?: string;
-      childAge?: number | null;
-    }) => input,
+    (input: { explrCampId: string; childName?: string; childAge?: number | null }) => input,
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
@@ -308,10 +259,7 @@ export const generateWalkInCampLogin = createServerFn({ method: "POST" })
         throw new Error(
           `student_camp_links unreachable — ${linkProbe.error.message}. Apply the camp-logins migration first.`,
         );
-      const logProbe = await supabaseAdmin
-        .from("camp_student_logins")
-        .select("id")
-        .limit(1);
+      const logProbe = await supabaseAdmin.from("camp_student_logins").select("id").limit(1);
       if (logProbe.error)
         throw new Error(
           `camp_student_logins unreachable — ${logProbe.error.message}. Apply the camp-logins migration first.`,
@@ -323,12 +271,7 @@ export const generateWalkInCampLogin = createServerFn({ method: "POST" })
     const first = slugFirst(parts[0] ?? "camper");
     const password = makePassword();
 
-    const mint = await mintCampAuthUser(
-      first,
-      name,
-      password,
-      "camp_login_walkin",
-    );
+    const mint = await mintCampAuthUser(first, name, password, "camp_login_walkin");
     if (!mint.ok) throw new Error(mint.error);
     const uid = mint.uid;
     const username = mint.username;
@@ -349,8 +292,7 @@ export const generateWalkInCampLogin = createServerFn({ method: "POST" })
       student_id: uid,
       explr_camp_id: data.explrCampId,
     } as never);
-    if (linkRes.error)
-      throw new Error(`link row — ${linkRes.error.message}${await rollback()}`);
+    if (linkRes.error) throw new Error(`link row — ${linkRes.error.message}${await rollback()}`);
 
     const { error: logErr } = await supabaseAdmin.from("camp_student_logins").insert({
       explr_camp_id: data.explrCampId,
@@ -361,8 +303,7 @@ export const generateWalkInCampLogin = createServerFn({ method: "POST" })
       password_plain: password,
       generated_by: context.userId,
     } as never);
-    if (logErr)
-      throw new Error(`credentials row — ${logErr.message}${await rollback()}`);
+    if (logErr) throw new Error(`credentials row — ${logErr.message}${await rollback()}`);
 
     return { ok: true, username, password, childName: name };
   });
@@ -376,11 +317,7 @@ export const generateWalkInCampLogin = createServerFn({ method: "POST" })
 export const updateCampLoginName = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (input: {
-      loginId: string;
-      childName: string;
-      childAge?: number | null;
-    }) => input,
+    (input: { loginId: string; childName: string; childAge?: number | null }) => input,
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);

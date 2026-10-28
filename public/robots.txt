@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Disallow: /student
+Disallow: /instructor/
+Disallow: /org
+Disallow: /family/
+Disallow: /stamp/
+Disallow: /go/
+Disallow: /explore
+Disallow: /assessment
+Disallow: /survey/
+Disallow: /demo
+Disallow: /sign-out
+Disallow: /reset-password
+
+Sitemap: https://explrpathways.org/sitemap.xml

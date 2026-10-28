@@ -10,11 +10,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
  */
 
 async function assertAdmin(userId: string) {
-  const { data } = await supabaseAdmin
-    .from("admins")
-    .select("id")
-    .eq("id", userId)
-    .maybeSingle();
+  const { data } = await supabaseAdmin.from("admins").select("id").eq("id", userId).maybeSingle();
   if (!data) throw new Error("Admin access required");
 }
 
@@ -31,11 +27,7 @@ async function findUserIdByEmail(email: string): Promise<string | null> {
   return null;
 }
 
-const WORDS = ["river", "maple", "comet", "harbor", "willow", "summit", "pine", "delta", "aspen", "cedar"];
-function makePassword(): string {
-  const w = () => WORDS[Math.floor(Math.random() * WORDS.length)];
-  return `${w()}-${w()}-${Math.floor(Math.random() * 90) + 10}`;
-}
+import { makeStaffPassword as makePassword } from "./server/credentials.server";
 
 /**
  * Admin-only: manually create an instructor/educator account (pre-approved)
@@ -45,12 +37,8 @@ function makePassword(): string {
 export const adminCreateEducator = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (input: {
-      fullName: string;
-      email: string;
-      password?: string;
-      internshipSlugs?: string[];
-    }) => input,
+    (input: { fullName: string; email: string; password?: string; internshipSlugs?: string[] }) =>
+      input,
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
@@ -111,9 +99,7 @@ export const adminCreateEducator = createServerFn({ method: "POST" })
 
 export const adminResetPassword = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (input: { email?: string; userId?: string; newPassword: string }) => input,
-  )
+  .inputValidator((input: { email?: string; userId?: string; newPassword: string }) => input)
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
 

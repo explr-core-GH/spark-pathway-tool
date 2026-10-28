@@ -3,6 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthShell } from "@/components/passport/AuthShell";
 import { SocialSignInButton, OrDivider } from "@/components/passport/SocialSignIn";
+import { completeProfileFromMetadata } from "@/lib/profile-completion";
 
 export const Route = createFileRoute("/org/sign-in")({
   head: () => ({ meta: [{ title: "Partner sign in — EXPLR" }] }),
@@ -21,12 +22,26 @@ function OrgSignIn() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const { error: siErr } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
+    const { data, error: siErr } = await supabase.auth.signInWithPassword({ email, password });
     if (siErr) {
+      setLoading(false);
       setError(siErr.message);
       return;
     }
+    try {
+      if (data.user) await completeProfileFromMetadata(data.user);
+    } catch (e) {
+      setLoading(false);
+      setError(e instanceof Error ? e.message : String(e));
+      return;
+    }
+    setLoading(false);
+    navigate({ to: "/org" });
+  }
+
+  async function landOrg() {
+    const { data } = await supabase.auth.getUser();
+    if (data.user) await completeProfileFromMetadata(data.user);
     navigate({ to: "/org" });
   }
 
@@ -107,16 +122,12 @@ function OrgSignIn() {
         </button>
       </form>
       <OrDivider />
-      <SocialSignInButton
-        provider="microsoft"
-        onError={setError}
-        onSignedIn={() => navigate({ to: "/org" })}
-      />
+      <SocialSignInButton provider="microsoft" onError={setError} onSignedIn={landOrg} />
       <SocialSignInButton
         provider="google"
         className="mt-2"
         onError={setError}
-        onSignedIn={() => navigate({ to: "/org" })}
+        onSignedIn={landOrg}
       />
     </AuthShell>
   );

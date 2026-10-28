@@ -30,25 +30,27 @@ function PrivacyPage() {
 
       <H2>What we collect</H2>
       <p>
-        <strong>Students.</strong> Your first name, grade level, date of birth, your answers to
-        the assessment, and the Holland code we calculate from them. If you create an account, your
-        email address. We do not ask for your last name, home address, or phone number. If your
-        instructor assigns one, we also keep your answers to the STEM efficacy survey (including
-        written answers and optional background questions such as grade, gender, and race or
-        ethnicity). If you are in a camp or internship, we keep which program you are in, the
-        username and password your program gave you, and your program progress. If you apply for an
-        internship, we keep your application answers, the internships you picked, and the decision.
-        If you complete an internship, we keep your supervisor's ratings, comments, whether they
-        recommend you, and any recommendation letter we prepare for you. While you are signed in,
-        we record which page you are on and when you were last active so your instructor can help
-        you in real time.
+        <strong>Students.</strong> Your first name, grade level, date of birth, your answers to the
+        assessment, and the Holland code we calculate from them. If you create an account, your
+        email address. We do not ask for your last name, home address, or phone number to use the
+        passport. Students in grades 9-12 who apply for an internship also give us their legal name,
+        cell phone, home ZIP code, school, and a parent or guardian's email, which we use only to
+        review and place that application. If your instructor assigns one, we also keep your answers
+        to the STEM efficacy survey (including written answers and optional background questions
+        such as grade, gender, and race or ethnicity). If you are in a camp or internship, we keep
+        which program you are in, the username and password your program gave you, and your program
+        progress. If you apply for an internship, we keep your application answers, the internships
+        you picked, and the decision. If you complete an internship, we keep your supervisor's
+        ratings, comments, whether they recommend you, and any recommendation letter we prepare for
+        you. While you are signed in, we record which page you are on and when you were last active
+        so your instructor can help you in real time.
       </p>
       <p>
         <strong>Parents and guardians.</strong> When you register a child for an EXPLR camp, we
         receive your child's name and age and your name, email, and phone number so we can set up
-        the camp roster and student sign-in. A parent or guardian may also create a family
-        account; it stores only their name, email, optional phone, which students they linked to,
-        and when they confirmed consent.
+        the camp roster and student sign-in. A parent or guardian may also create a family account;
+        it stores only their name, email, optional phone, which students they linked to, and when
+        they confirmed consent.
       </p>
       <p>
         <strong>Instructors and program leaders.</strong> Your name, email, school or organization,

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SchoolSearch, type SchoolPick } from "@/components/SchoolSearch";
 import { GradeLevelPicker } from "@/components/GradeLevelPicker";
+import { CONFIRM_EMAIL_NOTICE } from "@/lib/profile-completion";
 
 export const Route = createFileRoute("/instructor/sign-up")({
   head: () => ({ meta: [{ title: "Instructor sign up — EXPLR" }] }),
@@ -25,45 +26,43 @@ function EducatorSignUp() {
   const [gradeLevels, setGradeLevels] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    // Sign up + ensure we have an authenticated session before the instructors insert
-    // (RLS: instructors self insert requires auth.uid() = id).
+    const sc = studentCount.trim() === "" ? null : Math.max(0, parseInt(studentCount, 10) || 0);
+    // Everything the educators row needs is also saved in the auth metadata,
+    // so a sign-up that must wait for email confirmation can finish on first sign-in.
     const { data, error: suErr } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin },
+      options: {
+        emailRedirectTo: `${window.location.origin}/instructor/sign-in`,
+        data: {
+          account: "educator",
+          full_name: fullName.trim(),
+          organization: organization.trim() || null,
+          school_irn: school?.irn ?? null,
+          school_name: school?.name ?? null,
+          student_count: sc,
+          grade_levels: gradeLevels.length > 0 ? gradeLevels : null,
+        },
+      },
     });
     if (suErr) {
       setError(suErr.message);
       setLoading(false);
       return;
     }
-    let session = data.session;
-    if (!session) {
-      const { data: signIn, error: siErr } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (siErr) {
-        setError(siErr.message);
-        setLoading(false);
-        return;
-      }
-      session = signIn.session;
-    }
-    const uid = data.user?.id ?? session?.user.id;
-    if (!uid || !session) {
-      setError("Could not create account.");
+    if (!data.session || !data.user) {
       setLoading(false);
+      setNotice(CONFIRM_EMAIL_NOTICE);
       return;
     }
-
-    const sc = studentCount.trim() === "" ? null : Math.max(0, parseInt(studentCount, 10) || 0);
+    const uid = data.user.id;
     const { error: eErr } = await supabase.from("educators").insert({
       id: uid,
       full_name: fullName,
@@ -107,6 +106,14 @@ function EducatorSignUp() {
         </section>
         <section className="order-1 lg:order-2">
           <div className="rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 shadow-[0_1px_0_rgba(25,32,31,0.04)] sm:p-8">
+            {notice && (
+              <p
+                role="status"
+                className="mb-5 rounded-[var(--radius-control)] bg-mint-tint px-3 py-3 text-sm"
+              >
+                {notice}
+              </p>
+            )}
             <form onSubmit={submit} className="space-y-5">
               <div>
                 <label className="label" htmlFor="edu-fullname">

@@ -196,3 +196,11 @@ export const getFamilyView = createServerFn({ method: "POST" })
     await sb("family_sessions").update({ last_seen_at: new Date().toISOString() }).eq("id", s.id);
     return view;
   });
+
+/** Caregiver: end this device's family session (the code itself keeps working). */
+export const endFamilySession = createServerFn({ method: "POST" })
+  .inputValidator((input) => z.object({ token: z.string().min(16).max(128) }).parse(input))
+  .handler(async ({ data }) => {
+    await sb("family_sessions").delete().eq("token_hash", hashToken(data.token));
+    return { ok: true };
+  });

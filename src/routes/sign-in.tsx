@@ -3,6 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthShell } from "@/components/passport/AuthShell";
 import { SocialSignInButton, OrDivider } from "@/components/passport/SocialSignIn";
+import { completeProfileFromMetadata } from "@/lib/profile-completion";
 
 export const Route = createFileRoute("/sign-in")({
   head: () => ({ meta: [{ title: "Sign in — EXPLR" }] }),
@@ -31,7 +32,7 @@ function SignIn() {
     // as a camp username and append the camp domain before authenticating.
     const v = email.trim();
     const fullEmail = v.includes("@") ? v : `${v}@camp.explr.local`;
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: fullEmail,
       password,
     });
@@ -40,11 +41,26 @@ function SignIn() {
       setError(error.message);
       return;
     }
+    if (data.user) {
+      try {
+        await completeProfileFromMetadata(data.user);
+      } catch (e) {
+        setLoading(false);
+        setError(e instanceof Error ? e.message : String(e));
+        return;
+      }
+    }
     // Always land on the dashboard. Returning students see their results;
     // new students get a clear "Take the assessment" prompt there (and any
     // assigned assessment shows at the top) — nobody is force-redirected into
     // the RIASEC assessment.
     setLoading(false);
+    navigate({ to: "/student" });
+  }
+
+  async function landStudent() {
+    const { data } = await supabase.auth.getUser();
+    if (data.user) await completeProfileFromMetadata(data.user);
     navigate({ to: "/student" });
   }
 
@@ -167,16 +183,12 @@ function SignIn() {
         </button>
       </form>
       <OrDivider />
-      <SocialSignInButton
-        provider="microsoft"
-        onError={setError}
-        onSignedIn={() => navigate({ to: "/student" })}
-      />
+      <SocialSignInButton provider="microsoft" onError={setError} onSignedIn={landStudent} />
       <SocialSignInButton
         provider="google"
         className="mt-2"
         onError={setError}
-        onSignedIn={() => navigate({ to: "/student" })}
+        onSignedIn={landStudent}
       />
     </AuthShell>
   );
