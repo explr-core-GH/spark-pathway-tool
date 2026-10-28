@@ -146,33 +146,7 @@ export const redeemFamilyCode = createServerFn({ method: "POST" })
     return { token };
   });
 
-export type FamilyView = {
-  firstName: string;
-  grade: number | null;
-  riasec: { hollandCode: string; scaleScores: Record<string, number> } | null;
-  stemDone: boolean;
-  expiresAt: string;
-  /** This school year's advising plan: checkpoint statuses and the three sign-offs. */
-  plan: {
-    schoolYear: string;
-    checkpoints: Array<{ term: string; status: string; submittedAt: string | null }>;
-    studentAckAt: string | null;
-    guardianAckAt: string | null;
-    advisorAckAt: string | null;
-  };
-  /** Verified work experiences, for the family to see what was stamped. */
-  verified: Array<{
-    title: string;
-    organization: string | null;
-    hours: number | null;
-    verifiedAt: string | null;
-  }>;
-};
-
-function currentSchoolYear(d = new Date()): string {
-  const y = d.getMonth() >= 7 ? d.getFullYear() : d.getFullYear() - 1;
-  return `${y}-${String(y + 1).slice(2)}`;
-}
+export type { FamilyView } from "./server/family-view.server";
 
 async function sessionFor(token: string) {
   const { data: sess } = await sb("family_sessions")
@@ -201,6 +175,7 @@ export const guardianAckPlan = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const s = await sessionFor(data.token);
+    const { currentSchoolYear } = await import("./server/family-view.server");
     const sy = currentSchoolYear();
     const { error } = await sb("plan_approvals").upsert(
       {
@@ -220,84 +195,8 @@ export const getFamilyView = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ token: z.string().min(16).max(128) }).parse(input))
   .handler(async ({ data }) => {
     const s = await sessionFor(data.token);
-    const studentId = s.family_links.student_id;
-    const sy = currentSchoolYear();
-    const [
-      { data: student },
-      { data: session },
-      { data: stem },
-      { data: cps },
-      { data: appr },
-      { data: ver },
-    ] = await Promise.all([
-      sb("students").select("first_name, grade").eq("id", studentId).maybeSingle(),
-      sb("assessment_sessions")
-        .select("holland_code, scale_scores, completed_at")
-        .eq("student_id", studentId)
-        .not("completed_at", "is", null)
-        .order("completed_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      sb("survey_responses")
-        .select("id")
-        .eq("student_id", studentId)
-        .not("completed_at", "is", null)
-        .limit(1),
-      sb("checkpoints")
-        .select("term, status, submitted_at")
-        .eq("student_id", studentId)
-        .eq("school_year", sy),
-      sb("plan_approvals")
-        .select("student_ack_at, guardian_ack_at, advisor_ack_at")
-        .eq("student_id", studentId)
-        .eq("school_year", sy)
-        .maybeSingle(),
-      sb("experiences")
-        .select("title, organization, verified_hours, verified_at")
-        .eq("student_id", studentId)
-        .eq("status", "verified")
-        .order("verified_at", { ascending: false }),
-    ]);
-    const approval = appr as {
-      student_ack_at: string | null;
-      guardian_ack_at: string | null;
-      advisor_ack_at: string | null;
-    } | null;
+    const { buildFamilyView } = await import("./server/family-view.server");
+    const view = await buildFamilyView(supabaseAdmin, s.family_links.student_id, s.expires_at);
     await sb("family_sessions").update({ last_seen_at: new Date().toISOString() }).eq("id", s.id);
-    const st = student as { first_name: string | null; grade: number | null } | null;
-    const view: FamilyView = {
-      firstName: st?.first_name ?? "Your student",
-      grade: st?.grade ?? null,
-      riasec: session?.holland_code
-        ? {
-            hollandCode: session.holland_code,
-            scaleScores: (session.scale_scores as Record<string, number>) ?? {},
-          }
-        : null,
-      stemDone: ((stem ?? []) as unknown[]).length > 0,
-      expiresAt: s.expires_at,
-      plan: {
-        schoolYear: sy,
-        checkpoints: (
-          (cps ?? []) as { term: string; status: string; submitted_at: string | null }[]
-        ).map((c) => ({ term: c.term, status: c.status, submittedAt: c.submitted_at })),
-        studentAckAt: approval?.student_ack_at ?? null,
-        guardianAckAt: approval?.guardian_ack_at ?? null,
-        advisorAckAt: approval?.advisor_ack_at ?? null,
-      },
-      verified: (
-        (ver ?? []) as {
-          title: string;
-          organization: string | null;
-          verified_hours: number | string | null;
-          verified_at: string | null;
-        }[]
-      ).map((v) => ({
-        title: v.title,
-        organization: v.organization,
-        hours: v.verified_hours === null ? null : Number(v.verified_hours),
-        verifiedAt: v.verified_at,
-      })),
-    };
     return view;
   });
