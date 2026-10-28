@@ -1,5 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
+import {
+  exploreSecretHash,
+  exploreTokenHash,
+  familyCodeHash as familyCodeHashRaw,
+  familySessionHash,
+} from "./server/hash.server";
+import { rateLimit } from "./server/rate-limit.server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -20,23 +27,14 @@ import { DEMO, DEMO_DOMAIN, DEMO_ROLES } from "./demo";
 const sb = (table: string): any => (supabaseAdmin.from as unknown as (n: string) => any)(table);
 
 // Same hash formulas as explore-logins.functions.ts and family.functions.ts
-// (kept private there so Node crypto never reaches the browser bundle).
-const sha = (s: string) => createHash("sha256").update(s).digest("hex");
-const explorePepper = () =>
-  process.env.EXPLORE_LOGIN_PEPPER ?? process.env.SUPABASE_SERVICE_ROLE_KEY ?? "explr";
-const familyPepper = () =>
-  process.env.FAMILY_CODE_PEPPER ?? process.env.SUPABASE_SERVICE_ROLE_KEY ?? "explr";
-const hashSecret = (loginId: string, seq: readonly string[]) =>
-  sha(`secret:${loginId}:${seq.join(",")}:${explorePepper()}`);
-const exploreTokenHash = (token: string) => sha(`token:${token}:${explorePepper()}`);
+// (shared in ./server/hash.server).
+const hashSecret = exploreSecretHash;
 const normalizeFamilyCode = (code: string) =>
   code
     .toUpperCase()
     .replace(/^EXPLR[-\s]*/, "")
     .replace(/[^A-Z0-9]/g, "");
-const familyCodeHash = (code: string) =>
-  sha(`family-code:${normalizeFamilyCode(code)}:${familyPepper()}`);
-const familySessionHash = (t: string) => sha(`family-session:${t}:${familyPepper()}`);
+const familyCodeHash = (code: string) => familyCodeHashRaw(normalizeFamilyCode(code));
 
 export { DEMO, DEMO_DOMAIN, DEMO_ROLES, type DemoRole } from "./demo";
 
@@ -954,6 +952,7 @@ export const seedDemo = createServerFn({ method: "POST" })
 
 /** Public: is the demo seeded? */
 export const demoStatus = createServerFn({ method: "POST" }).handler(async () => {
+  await rateLimit("demo", 30, 600);
   try {
     const users = await listDemoUsers();
     return { seeded: users.length >= 4 };
@@ -970,6 +969,7 @@ export const demoStatus = createServerFn({ method: "POST" }).handler(async () =>
 export const demoLogin = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ role: z.enum(DEMO_ROLES) }).parse(input))
   .handler(async ({ data }) => {
+    await rateLimit("demo", 30, 600);
     if (data.role === "family") {
       // Look the link up by the demo student rather than by code hash, so the
       // one-click family demo works even when the rows were seeded outside

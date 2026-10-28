@@ -8,6 +8,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const getInviteByToken = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ token: z.string().min(8).max(128) }).parse(input))
   .handler(async ({ data }) => {
+    const { rateLimit } = await import("./server/rate-limit.server");
+    await rateLimit("getInviteByToken", 20, 600);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: invite, error } = await supabaseAdmin
       .from("educator_invites")
@@ -25,30 +27,6 @@ export const getInviteByToken = createServerFn({ method: "POST" })
       expires_at: string;
       accepted_at: string | null;
     };
-  });
-
-// Mark an invite as accepted. Validates token + user id server-side.
-export const markInviteAccepted = createServerFn({ method: "POST" })
-  .inputValidator((input) =>
-    z
-      .object({
-        token: z.string().min(8).max(128),
-        acceptedBy: z.string().uuid(),
-      })
-      .parse(input),
-  )
-  .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
-      .from("educator_invites")
-      .update({
-        accepted_at: new Date().toISOString(),
-        accepted_by: data.acceptedBy,
-      })
-      .eq("token", data.token)
-      .is("accepted_at", null);
-    if (error) throw new Error(error.message);
-    return { ok: true };
   });
 
 /**
