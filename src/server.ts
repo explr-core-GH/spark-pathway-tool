@@ -12,7 +12,7 @@ let serverEntryPromise: Promise<ServerEntry> | undefined;
 async function getServerEntry(): Promise<ServerEntry> {
   if (!serverEntryPromise) {
     serverEntryPromise = import("@tanstack/react-start/server-entry").then(
-      (m) => ((m as { default?: ServerEntry }).default ?? (m as unknown as ServerEntry)),
+      (m) => (m as { default?: ServerEntry }).default ?? (m as unknown as ServerEntry),
     );
   }
   return serverEntryPromise;
@@ -81,7 +81,8 @@ export const CONTENT_SECURITY_POLICY = [
   "object-src 'none'",
 ].join("; ");
 
-export const PERMISSIONS_POLICY = "camera=(self), microphone=(), geolocation=(), payment=(), usb=()";
+export const PERMISSIONS_POLICY =
+  "camera=(self), microphone=(), geolocation=(), payment=(), usb=()";
 
 /** Add CSP and Permissions-Policy to HTML responses; everything else is left as is. */
 function withSecurityHeaders(response: Response): Response {

@@ -72,7 +72,10 @@ describe("hash peppers", () => {
 describe("private file paths", () => {
   it("unwraps legacy public URLs and keeps bare paths", () => {
     expect(
-      storagePath("student-photos", "https://x.supabase.co/storage/v1/object/public/student-photos/u1/a.jpg"),
+      storagePath(
+        "student-photos",
+        "https://x.supabase.co/storage/v1/object/public/student-photos/u1/a.jpg",
+      ),
     ).toBe("u1/a.jpg");
     expect(storagePath("student-photos", "u1/a.jpg")).toBe("u1/a.jpg");
     expect(storagePath("student-photos", "https://elsewhere.com/a.jpg")).toBeNull();

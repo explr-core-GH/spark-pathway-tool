@@ -21,9 +21,7 @@ export function publicOriginFromHost(rawHost: string | null | undefined): string
 export function getPublicOrigin(): string {
   try {
     const req = getRequest();
-    return publicOriginFromHost(
-      req.headers.get("x-forwarded-host") ?? req.headers.get("host"),
-    );
+    return publicOriginFromHost(req.headers.get("x-forwarded-host") ?? req.headers.get("host"));
   } catch {
     return FALLBACK;
   }

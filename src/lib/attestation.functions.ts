@@ -161,7 +161,9 @@ export const requestAttestation = createServerFn({ method: "POST" })
         email_error: mail.error ?? null,
       })
       .eq("id", (req as { id: string }).id);
-    return mail.error ? { ok: true, sent: mail.sent, error: mail.error } : { ok: true, sent: mail.sent };
+    return mail.error
+      ? { ok: true, sent: mail.sent, error: mail.error }
+      : { ok: true, sent: mail.sent };
   });
 
 export type AttestationView = {

@@ -106,9 +106,7 @@ function ExperienceItem({
   const [name, setName] = useState(e.supervisor_name ?? "");
   const [email, setEmail] = useState(e.supervisor_email ?? "");
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<{ ok: true; sent: boolean; error?: string } | null>(
-    null,
-  );
+  const [result, setResult] = useState<{ ok: true; sent: boolean; error?: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const exposure = isExposure(e.stage);
   const canAsk =

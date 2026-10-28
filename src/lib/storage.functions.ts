@@ -67,10 +67,7 @@ export const signedFileUrl = createServerFn({ method: "POST" })
         }
       }
     } else {
-      const { data: edu } = await sb("educators")
-        .select("approved")
-        .eq("id", uid)
-        .maybeSingle();
+      const { data: edu } = await sb("educators").select("approved").eq("id", uid).maybeSingle();
       allowed = (edu as { approved: boolean } | null)?.approved === true || (await isAdmin());
     }
     if (!allowed) throw new Error("You don't have access to that file.");
