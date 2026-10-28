@@ -87,3 +87,19 @@ describe("private file paths", () => {
     expect(storagePath("student-photos", "https://elsewhere.com/a.jpg")).toBeNull();
   });
 });
+
+describe("rate limit", () => {
+  afterEach(() => {
+    mockRpc.fn.mockReset();
+  });
+  it("fails open when the rpc call throws a TypeError", async () => {
+    mockRpc.fn.mockRejectedValueOnce(
+      new TypeError("Cannot read properties of undefined (reading 'rest')"),
+    );
+    await expect(rateLimit("demoStatus", 30, 600)).resolves.toBeUndefined();
+  });
+  it("throws RATE_LIMIT_MESSAGE when the limit is exceeded", async () => {
+    mockRpc.fn.mockResolvedValueOnce({ data: false, error: null });
+    await expect(rateLimit("demoStatus", 30, 600)).rejects.toThrow(RATE_LIMIT_MESSAGE);
+  });
+});
