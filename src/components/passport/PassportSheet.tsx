@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useSignedFileUrl } from "@/lib/use-signed-file-url";
 import { Seal } from "./Seal";
 import { Stamp } from "./Stamp";
 import { Sticker } from "./Sticker";
@@ -240,9 +241,9 @@ export function PassportSheet({
               className="grid h-24 w-24 place-items-center overflow-hidden rounded-full border-[3px] border-mint-soft bg-mint-tint font-display text-4xl font-extrabold text-green-deep sm:h-28 sm:w-28"
               aria-hidden={!p.photoUrl}
             >
-              {p.photoUrl ? (
+              {p.photoUrl && photoSrc ? (
                 <img
-                  src={p.photoUrl}
+                  src={photoSrc}
                   alt={`${p.firstName}'s photo`}
                   className="h-full w-full object-cover"
                 />

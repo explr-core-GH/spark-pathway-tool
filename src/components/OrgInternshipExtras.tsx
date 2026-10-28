@@ -77,9 +77,9 @@ export function OrgInternshipExtras({
       alert(upErr.message);
       return;
     }
-    const url = supabase.storage.from("form-uploads").getPublicUrl(path).data.publicUrl;
+    // Private bucket: store the object path; it's opened through a signed URL.
     const { error } = await sb("form_completions").upsert(
-      { form_id: form.id, student_id: studentId, completed_file_url: url },
+      { form_id: form.id, student_id: studentId, completed_file_url: path },
       { onConflict: "form_id,student_id" },
     );
     if (error) {
@@ -277,6 +277,13 @@ function FormRow({
           className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-green-deep"
         >
           <Check className="h-3.5 w-3.5" aria-hidden /> Uploaded
+          <button
+            type="button"
+            className="ml-2 underline"
+            onClick={() => openFormUpload(completion.completed_file_url)}
+          >
+            View
+          </button>
         </p>
       )}
     </li>
