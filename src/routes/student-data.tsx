@@ -30,12 +30,12 @@ function StudentDataPage() {
         items={[
           <>
             <strong>The district owns the records it creates with us.</strong> Student names, grade
-            levels, class rosters, assessment responses, and Holland codes created under the
-            contract are the district's educational records, not EXPLR's. The same goes for survey
-            answers (including written answers and optional background questions), checkpoints and
-            Student Success Plans, experiences and supervisor ratings logged through a district
-            program, internship applications, recommendation letters, and records of when students
-            were active in the tool.
+            levels, dates of birth, class rosters, assessment responses, and Holland codes created
+            under the contract are the district's educational records, not EXPLR's. The same goes
+            for survey answers (including written answers and optional background questions),
+            checkpoints and Student Success Plans, experiences and supervisor ratings logged through
+            a district program, internship applications, recommendation letters, and records of when
+            students were active in the tool.
           </>,
           <>
             <strong>Camp records are EXPLR's, not the district's.</strong> Camp registrations,
