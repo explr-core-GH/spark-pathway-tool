@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { House } from "lucide-react";
+import { House, UserRound } from "lucide-react";
 import { SiteHeader } from "@/components/passport";
 import { SiteFooter } from "@/components/SiteFooter";
 import { redeemFamilyCode } from "@/lib/family.functions";
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/family")({
       {
         name: "description",
         content:
-          "Enter your student's family code to see their EXPLR passport: results, matches, and next steps.",
+          "Use your student's family code or a family account to see their EXPLR passport: results, matches, and next steps.",
       },
     ],
   }),
@@ -60,7 +60,8 @@ function Family() {
             <h1 className="display">Your student's passport, in your hands.</h1>
             <p className="lead max-w-[600px] text-ink-700">
               See completed interest results, verified experiences, and what your student has
-              explored. You don't need an account, just the code your student made for you.
+              explored. Use the code your student made for you, or create a family account to keep
+              all your children in one place.
             </p>
 
             <form
@@ -107,6 +108,27 @@ function Family() {
                 It lasts 90 days, and they can turn it off any time.
               </p>
             </form>
+
+            <div className="flex flex-col gap-3 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6 shadow-card">
+              <div className="flex items-center gap-3">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-mint-soft bg-mint-tint text-green-deep">
+                  <UserRound className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden />
+                </span>
+                <h2 className="font-display text-xl font-semibold">Create a family account</h2>
+              </div>
+              <p className="text-sm text-ink-700">
+                Have more than one child, or don't want to keep track of codes? Make an account with
+                your email, then add each child with their family code once.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link to="/family/sign-up" className="btn-ink">
+                  Create a family account
+                </Link>
+                <Link to="/family/sign-in" className="btn-ghost">
+                  Sign in
+                </Link>
+              </div>
+            </div>
           </div>
           <div className="flex justify-center lg:justify-end">
             <img

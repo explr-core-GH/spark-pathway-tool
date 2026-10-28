@@ -16,6 +16,8 @@ export const DEMO = {
   student: { email: `amara${DEMO_DOMAIN}`, firstName: "Amara", grade: 11, dob: "2009-03-10" },
   instructor: { email: `instructor${DEMO_DOMAIN}`, name: "Dana Okafor" },
   partner: { email: `partner${DEMO_DOMAIN}`, org: "Lakeshore Health Partners" },
+  /** Guardian account linked to both Amara and Mia. */
+  family: { email: `family${DEMO_DOMAIN}`, name: "Jordan Lee" },
   /** A brand-new applicant for the internship application walkthrough (resettable). */
   applicant: { email: `theo${DEMO_DOMAIN}`, firstName: "Theo", grade: 9, dob: "2010-08-21" },
   /** Owner of the other demo internship listings (various partner names). */

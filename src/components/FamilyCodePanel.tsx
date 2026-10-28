@@ -6,6 +6,12 @@ import {
   revokeFamilyCode,
   type FamilyCodeRow,
 } from "@/lib/family.functions";
+import {
+  listMyGuardians,
+  removeMyGuardian,
+  type ConnectedGuardian,
+} from "@/lib/family-account.functions";
+import { RELATIONSHIP_LABEL } from "@/lib/family-account.schemas";
 
 /**
  * Student-side family codes. Lives at the top of the "For families" tab.
@@ -14,6 +20,7 @@ import {
  */
 export function FamilyCodePanel() {
   const [rows, setRows] = useState<FamilyCodeRow[]>([]);
+  const [guardians, setGuardians] = useState<ConnectedGuardian[]>([]);
   const [fresh, setFresh] = useState<string | null>(null);
   const [label, setLabel] = useState("");
   const [busy, setBusy] = useState(false);
@@ -21,7 +28,9 @@ export function FamilyCodePanel() {
 
   async function refresh() {
     try {
-      setRows(await listFamilyCodes());
+      const [codes, people] = await Promise.all([listFamilyCodes(), listMyGuardians()]);
+      setRows(codes);
+      setGuardians(people);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
@@ -50,6 +59,16 @@ export function FamilyCodePanel() {
     setBusy(true);
     try {
       await revokeFamilyCode({ data: { id } });
+      await refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeGuardian(guardianId: string) {
+    setBusy(true);
+    try {
+      await removeMyGuardian({ data: { guardianId } });
       await refresh();
     } finally {
       setBusy(false);
@@ -132,6 +151,40 @@ export function FamilyCodePanel() {
               >
                 Turn off
                 <span className="sr-only"> code for {r.label || "family"}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <h3 className="mt-6 font-display text-lg font-semibold">Who's connected</h3>
+      {guardians.length === 0 ? (
+        <p className="mt-1 text-sm text-ink-700">
+          No family accounts are linked to your passport yet.
+        </p>
+      ) : (
+        <ul className="mt-2 divide-y divide-line text-sm">
+          {guardians.map((g) => (
+            <li
+              key={g.guardianId}
+              className="flex flex-wrap items-center justify-between gap-2 py-2"
+            >
+              <span>
+                <span className="font-medium">{g.fullName}</span>
+                <span className="text-ink-500">
+                  {" "}
+                  · {RELATIONSHIP_LABEL[g.relationship]} · linked{" "}
+                  {new Date(g.linkedAt).toLocaleDateString()}
+                </span>
+              </span>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => removeGuardian(g.guardianId)}
+                className="ink-link inline-flex min-h-[44px] items-center"
+              >
+                Remove
+                <span className="sr-only"> {g.fullName}</span>
               </button>
             </li>
           ))}

@@ -10,6 +10,7 @@ const LINKS: Array<{ to: string; label: string }> = [
   { to: "/accessibility", label: "WCAG 2.2 compliance" },
   { to: "/instructor/sign-in", label: "Instructors" },
   { to: "/org/sign-in", label: "Partners" },
+  { to: "/family/sign-in", label: "Families" },
   { to: "/demo", label: "Demo" },
 ];
 

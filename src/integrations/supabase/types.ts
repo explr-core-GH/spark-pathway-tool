@@ -1513,6 +1513,127 @@ export type Database = {
           },
         ]
       }
+      guardian_consents: {
+        Row: {
+          consent_type: string
+          consented_at: string
+          guardian_id: string
+          id: string
+          ip: string | null
+          student_id: string
+          text_version: string
+        }
+        Insert: {
+          consent_type?: string
+          consented_at?: string
+          guardian_id: string
+          id?: string
+          ip?: string | null
+          student_id: string
+          text_version: string
+        }
+        Update: {
+          consent_type?: string
+          consented_at?: string
+          guardian_id?: string
+          id?: string
+          ip?: string | null
+          student_id?: string
+          text_version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guardian_consents_guardian_id_fkey"
+            columns: ["guardian_id"]
+            isOneToOne: false
+            referencedRelation: "guardians"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guardian_consents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guardian_students: {
+        Row: {
+          guardian_id: string
+          linked_at: string
+          linked_via_family_link_id: string | null
+          relationship: string
+          revoked_at: string | null
+          revoked_by: string | null
+          student_id: string
+        }
+        Insert: {
+          guardian_id: string
+          linked_at?: string
+          linked_via_family_link_id?: string | null
+          relationship: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          student_id: string
+        }
+        Update: {
+          guardian_id?: string
+          linked_at?: string
+          linked_via_family_link_id?: string | null
+          relationship?: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guardian_students_guardian_id_fkey"
+            columns: ["guardian_id"]
+            isOneToOne: false
+            referencedRelation: "guardians"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guardian_students_linked_via_family_link_id_fkey"
+            columns: ["linked_via_family_link_id"]
+            isOneToOne: false
+            referencedRelation: "family_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guardian_students_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guardians: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id: string
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
       hs_demographics: {
         Row: {
           application_id: string
@@ -2808,6 +2929,7 @@ export type Database = {
           advisor_ack_at: string | null
           advisor_id: string | null
           guardian_ack_at: string | null
+          guardian_id: string | null
           id: string
           method: string | null
           school_year: string
@@ -2818,6 +2940,7 @@ export type Database = {
           advisor_ack_at?: string | null
           advisor_id?: string | null
           guardian_ack_at?: string | null
+          guardian_id?: string | null
           id?: string
           method?: string | null
           school_year: string
@@ -2828,6 +2951,7 @@ export type Database = {
           advisor_ack_at?: string | null
           advisor_id?: string | null
           guardian_ack_at?: string | null
+          guardian_id?: string | null
           id?: string
           method?: string | null
           school_year?: string
@@ -2835,6 +2959,13 @@ export type Database = {
           student_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "plan_approvals_guardian_id_fkey"
+            columns: ["guardian_id"]
+            isOneToOne: false
+            referencedRelation: "guardians"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "plan_approvals_student_id_fkey"
             columns: ["student_id"]
@@ -3378,8 +3509,13 @@ export type Database = {
         Args: { _educator_id: string; _student_id: string }
         Returns: boolean
       }
+      guardian_of: {
+        Args: { _student_id: string; _uid: string }
+        Returns: boolean
+      }
       is_admin: { Args: { uid: string }; Returns: boolean }
       is_educator: { Args: { uid: string }; Returns: boolean }
+      is_guardian: { Args: { uid: string }; Returns: boolean }
       is_organization: { Args: { uid: string }; Returns: boolean }
       org_placed_students: {
         Args: never

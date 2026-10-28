@@ -1,10 +1,20 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Clock, GraduationCap, Lock, ShieldCheck, UserCheck, type LucideIcon } from "lucide-react";
-import { useEducator } from "@/lib/auth";
+import {
+  Building2,
+  Clock,
+  GraduationCap,
+  House,
+  Lock,
+  ShieldCheck,
+  UserCheck,
+  type LucideIcon,
+} from "lucide-react";
+import { useAccountKinds, useEducator } from "@/lib/auth";
+import { resolveRole, type RequiredRole } from "@/lib/role-resolution";
 import { PortalHeader } from "@/components/passport/PortalHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 
-type Role = "student" | "educator" | "admin";
+type Role = RequiredRole;
 
 type Props = {
   requires: Role;
@@ -23,7 +33,9 @@ type Props = {
  *               (admins are allowed through so they can preview)
  */
 export function RoleGuard({ requires, children }: Props) {
-  const { user, educator, isAdmin, loading } = useEducator();
+  const { user, educator, isAdmin, loading: roleLoading } = useEducator();
+  const kinds = useAccountKinds();
+  const loading = roleLoading || kinds.loading;
 
   if (loading) {
     return (
@@ -32,6 +44,28 @@ export function RoleGuard({ requires, children }: Props) {
           Loading…
         </p>
       </Frame>
+    );
+  }
+
+  const outcome = resolveRole(requires, {
+    signedIn: !!user,
+    isAdmin,
+    educator: educator ? { approved: educator.approved } : null,
+    isStudent: kinds.isStudent,
+    isGuardian: kinds.isGuardian,
+    isOrg: kinds.isOrg,
+  });
+
+  if (!user && requires === "guardian") {
+    return (
+      <Mismatch
+        icon={Lock}
+        eyebrow="Families"
+        title="Sign in to your family account"
+        body="Sign in to see the children linked to your account."
+        primary={{ to: "/family/sign-in", label: "Family sign in" }}
+        secondary={{ to: "/family/sign-up", label: "Create a family account" }}
+      />
     );
   }
 
@@ -61,13 +95,49 @@ export function RoleGuard({ requires, children }: Props) {
     );
   }
 
-  const isEducator = !!educator;
   // An instructor is approved once an admin sets approved=true. Program-type
   // tagging (STEM / FTC / etc.) was removed — we no longer require it.
   const isApprovedEducator = !!educator && educator.approved;
 
   // Student-only pages — admins allowed (view-as-student); plain instructors not.
-  if (requires === "student" && isEducator && !isAdmin) {
+  if (outcome === "guardian-on-student") {
+    return (
+      <Mismatch
+        icon={House}
+        eyebrow="Families"
+        title="This area is for students"
+        body="You're signed in with a family account. Your children's passports are on your family home page."
+        primary={{ to: "/family/home", label: "Go to family home" }}
+        secondary={{ to: "/", label: "Back to home" }}
+      />
+    );
+  }
+  if (outcome === "org-on-student") {
+    return (
+      <Mismatch
+        icon={Building2}
+        eyebrow="Partners"
+        title="This area is for students"
+        body="You're signed in with a partner account. Head to your partner dashboard to manage your opportunities."
+        primary={{ to: "/org", label: "Go to partner dashboard" }}
+        secondary={{ to: "/", label: "Back to home" }}
+      />
+    );
+  }
+  if (outcome === "not-guardian") {
+    return (
+      <Mismatch
+        icon={House}
+        eyebrow="Families"
+        title="This area is for families"
+        body="Your account isn't a family account. Families can create one with their own email, then add each child with the child's family code."
+        primary={{ to: "/", label: "Back to home" }}
+        secondary={{ to: "/family", label: "Family options" }}
+      />
+    );
+  }
+
+  if (outcome === "educator-on-student") {
     return (
       <Mismatch
         icon={UserCheck}
@@ -82,7 +152,7 @@ export function RoleGuard({ requires, children }: Props) {
 
   // Instructor pages — admins are allowed through for preview; otherwise
   // require an approved educator row.
-  if (requires === "educator" && !isEducator && !isAdmin) {
+  if (outcome === "not-educator") {
     return (
       <Mismatch
         icon={GraduationCap}
@@ -94,7 +164,7 @@ export function RoleGuard({ requires, children }: Props) {
       />
     );
   }
-  if (requires === "educator" && !isAdmin && !isApprovedEducator) {
+  if (outcome === "pending-educator") {
     return (
       <Mismatch
         icon={Clock}
@@ -107,7 +177,7 @@ export function RoleGuard({ requires, children }: Props) {
   }
 
   // Admin pages
-  if (requires === "admin" && !isAdmin) {
+  if (outcome === "not-admin") {
     return (
       <Mismatch
         icon={ShieldCheck}
@@ -123,6 +193,7 @@ export function RoleGuard({ requires, children }: Props) {
     );
   }
 
+  if (outcome !== "allow") return null;
   return <>{children}</>;
 }
 

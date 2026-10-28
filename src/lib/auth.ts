@@ -67,20 +67,23 @@ export function useSession() {
       apply(session.user ?? null);
     });
 
-    supabase.auth.getSession().then(({ data }) => {
-      // Initial bootstrap: this is the only legitimate place we may
-      // transition from "unknown" → null (the page loaded and there's no
-      // session). After this call, `apply` will only ever go null on a
-      // genuine SIGNED_OUT event.
-      apply(data.session?.user ?? null);
-    }).catch(() => {
-      // Network/CORS error fetching the session — only clear loading
-      // if we haven't already resolved. Don't overwrite a known user.
-      if (!resolved) {
-        resolved = true;
-        setLoading(false);
-      }
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        // Initial bootstrap: this is the only legitimate place we may
+        // transition from "unknown" → null (the page loaded and there's no
+        // session). After this call, `apply` will only ever go null on a
+        // genuine SIGNED_OUT event.
+        apply(data.session?.user ?? null);
+      })
+      .catch(() => {
+        // Network/CORS error fetching the session — only clear loading
+        // if we haven't already resolved. Don't overwrite a known user.
+        if (!resolved) {
+          resolved = true;
+          setLoading(false);
+        }
+      });
 
     // Hard timeout — never leave the UI spinning forever. Only kicks in
     // if neither the listener nor getSession() has resolved by now;
@@ -130,15 +133,11 @@ export function useEducator() {
       supabase.from("educators").select("*").eq("id", userId).maybeSingle(),
       // public.admins is added in migration 20260518053900. Cast for typings
       // until the Database type regenerates.
-      supabase
-        .from("admins")
-        .select("*")
-        .eq("id", userId)
-        .maybeSingle(),
+      supabase.from("admins").select("*").eq("id", userId).maybeSingle(),
     ]).then(([ed, ad]) => {
       if (cancelled) return;
       setEducator((ed.data as EducatorRow) ?? null);
-      setAdmin(((ad.data as unknown) as AdminRow) ?? null);
+      setAdmin((ad.data as unknown as AdminRow) ?? null);
       setLoading(false);
     });
     return () => {
@@ -161,8 +160,7 @@ export type OrgRow = {
 };
 
 // organizations is newer than the generated Database types.
-const orgTable = (): any =>
-  (supabase.from as unknown as (n: string) => any)("organizations");
+const orgTable = (): any => (supabase.from as unknown as (n: string) => any)("organizations");
 
 /**
  * useOrg — resolves the signed-in user's organization row (the org portal's
@@ -197,4 +195,76 @@ export function useOrg() {
   }, [userId, authLoading]);
 
   return { user, org, loading };
+}
+
+export type GuardianRow = {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string | null;
+};
+
+/** useGuardian — the signed-in user's guardians row (family account), or null. */
+export function useGuardian() {
+  const { user, loading: authLoading } = useSession();
+  const [guardian, setGuardian] = useState<GuardianRow | null>(null);
+  const [loading, setLoading] = useState(true);
+  const userId = user?.id ?? null;
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!userId) {
+      setGuardian(null);
+      setLoading(authLoading);
+      return;
+    }
+    setLoading(true);
+    supabase
+      .from("guardians")
+      .select("id, full_name, email, phone")
+      .eq("id", userId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled) return;
+        setGuardian(data ?? null);
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, authLoading]);
+
+  return { user, guardian, loading };
+}
+
+/** Which non-staff account rows the signed-in user has (student / guardian / organization). */
+export function useAccountKinds() {
+  const { user, loading: authLoading } = useSession();
+  const [kinds, setKinds] = useState({ isStudent: false, isGuardian: false, isOrg: false });
+  const [loading, setLoading] = useState(true);
+  const userId = user?.id ?? null;
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!userId) {
+      setKinds({ isStudent: false, isGuardian: false, isOrg: false });
+      setLoading(authLoading);
+      return;
+    }
+    setLoading(true);
+    Promise.all([
+      supabase.from("students").select("id").eq("id", userId).maybeSingle(),
+      supabase.from("guardians").select("id").eq("id", userId).maybeSingle(),
+      supabase.from("organizations").select("id").eq("id", userId).maybeSingle(),
+    ]).then(([s, g, o]) => {
+      if (cancelled) return;
+      setKinds({ isStudent: !!s.data, isGuardian: !!g.data, isOrg: !!o.data });
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, authLoading]);
+
+  return { ...kinds, loading };
 }

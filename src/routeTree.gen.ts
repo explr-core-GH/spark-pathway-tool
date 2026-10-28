@@ -37,6 +37,9 @@ import { Route as EducatorSplatRouteImport } from './routes/educator.$'
 import { Route as ExploreIndexRouteImport } from './routes/explore.index'
 import { Route as ExploreCodeRouteImport } from './routes/explore.$code'
 import { Route as ExploreScanRouteImport } from './routes/explore.scan'
+import { Route as FamilyHomeRouteImport } from './routes/family_.home'
+import { Route as FamilySignInRouteImport } from './routes/family_.sign-in'
+import { Route as FamilySignUpRouteImport } from './routes/family_.sign-up'
 import { Route as FamilyViewRouteImport } from './routes/family_.view'
 import { Route as GoTokenRouteImport } from './routes/go.$token'
 import { Route as InstructorIndexRouteImport } from './routes/instructor.index'
@@ -66,6 +69,7 @@ import { Route as StudentProfileRouteImport } from './routes/student_.profile'
 import { Route as StudentSkillsRouteImport } from './routes/student_.skills'
 import { Route as SurveyAssignmentIdRouteImport } from './routes/survey.$assignmentId'
 import { Route as AssessmentSessionIdResultsRouteImport } from './routes/assessment.$sessionId_.results'
+import { Route as FamilyStudentStudentIdRouteImport } from './routes/family_.student.$studentId'
 import { Route as InstructorAdminIndexRouteImport } from './routes/instructor.admin.index'
 import { Route as InstructorAdminApplicationsRouteImport } from './routes/instructor.admin.applications'
 import { Route as InstructorAdminArchiveRouteImport } from './routes/instructor.admin.archive'
@@ -239,6 +243,21 @@ const ExploreScanRoute = ExploreScanRouteImport.update({
   path: '/explore/scan',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FamilyHomeRoute = FamilyHomeRouteImport.update({
+  id: '/family_/home',
+  path: '/family/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FamilySignInRoute = FamilySignInRouteImport.update({
+  id: '/family_/sign-in',
+  path: '/family/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FamilySignUpRoute = FamilySignUpRouteImport.update({
+  id: '/family_/sign-up',
+  path: '/family/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FamilyViewRoute = FamilyViewRouteImport.update({
   id: '/family_/view',
   path: '/family/view',
@@ -385,6 +404,11 @@ const AssessmentSessionIdResultsRoute =
     path: '/assessment/$sessionId/results',
     getParentRoute: () => rootRouteImport,
   } as any)
+const FamilyStudentStudentIdRoute = FamilyStudentStudentIdRouteImport.update({
+  id: '/family_/student/$studentId',
+  path: '/family/student/$studentId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InstructorAdminIndexRoute = InstructorAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -593,6 +617,9 @@ export interface FileRoutesByFullPath {
   '/educator/$': typeof EducatorSplatRoute
   '/explore/$code': typeof ExploreCodeRoute
   '/explore/scan': typeof ExploreScanRoute
+  '/family/home': typeof FamilyHomeRoute
+  '/family/sign-in': typeof FamilySignInRoute
+  '/family/sign-up': typeof FamilySignUpRoute
   '/family/view': typeof FamilyViewRoute
   '/go/$token': typeof GoTokenRoute
   '/instructor/admin': typeof InstructorAdminRouteWithChildren
@@ -626,6 +653,7 @@ export interface FileRoutesByFullPath {
   '/org/': typeof OrgIndexRoute
   '/partner/': typeof PartnerIndexRoute
   '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
+  '/family/student/$studentId': typeof FamilyStudentStudentIdRoute
   '/instructor/admin/applications': typeof InstructorAdminApplicationsRoute
   '/instructor/admin/archive': typeof InstructorAdminArchiveRoute
   '/instructor/admin/assessments': typeof InstructorAdminAssessmentsRoute
@@ -683,6 +711,9 @@ export interface FileRoutesByTo {
   '/educator/$': typeof EducatorSplatRoute
   '/explore/$code': typeof ExploreCodeRoute
   '/explore/scan': typeof ExploreScanRoute
+  '/family/home': typeof FamilyHomeRoute
+  '/family/sign-in': typeof FamilySignInRoute
+  '/family/sign-up': typeof FamilySignUpRoute
   '/family/view': typeof FamilyViewRoute
   '/go/$token': typeof GoTokenRoute
   '/instructor/dashboard': typeof InstructorDashboardRoute
@@ -715,6 +746,7 @@ export interface FileRoutesByTo {
   '/org': typeof OrgIndexRoute
   '/partner': typeof PartnerIndexRoute
   '/assessment/$sessionId/results': typeof AssessmentSessionIdResultsRoute
+  '/family/student/$studentId': typeof FamilyStudentStudentIdRoute
   '/instructor/admin/applications': typeof InstructorAdminApplicationsRoute
   '/instructor/admin/archive': typeof InstructorAdminArchiveRoute
   '/instructor/admin/assessments': typeof InstructorAdminAssessmentsRoute
@@ -774,6 +806,9 @@ export interface FileRoutesById {
   '/educator/$': typeof EducatorSplatRoute
   '/explore/$code': typeof ExploreCodeRoute
   '/explore/scan': typeof ExploreScanRoute
+  '/family_/home': typeof FamilyHomeRoute
+  '/family_/sign-in': typeof FamilySignInRoute
+  '/family_/sign-up': typeof FamilySignUpRoute
   '/family_/view': typeof FamilyViewRoute
   '/go/$token': typeof GoTokenRoute
   '/instructor/admin': typeof InstructorAdminRouteWithChildren
@@ -807,6 +842,7 @@ export interface FileRoutesById {
   '/org/': typeof OrgIndexRoute
   '/partner/': typeof PartnerIndexRoute
   '/assessment/$sessionId_/results': typeof AssessmentSessionIdResultsRoute
+  '/family_/student/$studentId': typeof FamilyStudentStudentIdRoute
   '/instructor/admin/applications': typeof InstructorAdminApplicationsRoute
   '/instructor/admin/archive': typeof InstructorAdminArchiveRoute
   '/instructor/admin/assessments': typeof InstructorAdminAssessmentsRoute
@@ -867,6 +903,9 @@ export interface FileRouteTypes {
     | '/educator/$'
     | '/explore/$code'
     | '/explore/scan'
+    | '/family/home'
+    | '/family/sign-in'
+    | '/family/sign-up'
     | '/family/view'
     | '/go/$token'
     | '/instructor/admin'
@@ -900,6 +939,7 @@ export interface FileRouteTypes {
     | '/org/'
     | '/partner/'
     | '/assessment/$sessionId/results'
+    | '/family/student/$studentId'
     | '/instructor/admin/applications'
     | '/instructor/admin/archive'
     | '/instructor/admin/assessments'
@@ -957,6 +997,9 @@ export interface FileRouteTypes {
     | '/educator/$'
     | '/explore/$code'
     | '/explore/scan'
+    | '/family/home'
+    | '/family/sign-in'
+    | '/family/sign-up'
     | '/family/view'
     | '/go/$token'
     | '/instructor/dashboard'
@@ -989,6 +1032,7 @@ export interface FileRouteTypes {
     | '/org'
     | '/partner'
     | '/assessment/$sessionId/results'
+    | '/family/student/$studentId'
     | '/instructor/admin/applications'
     | '/instructor/admin/archive'
     | '/instructor/admin/assessments'
@@ -1047,6 +1091,9 @@ export interface FileRouteTypes {
     | '/educator/$'
     | '/explore/$code'
     | '/explore/scan'
+    | '/family_/home'
+    | '/family_/sign-in'
+    | '/family_/sign-up'
     | '/family_/view'
     | '/go/$token'
     | '/instructor/admin'
@@ -1080,6 +1127,7 @@ export interface FileRouteTypes {
     | '/org/'
     | '/partner/'
     | '/assessment/$sessionId_/results'
+    | '/family_/student/$studentId'
     | '/instructor/admin/applications'
     | '/instructor/admin/archive'
     | '/instructor/admin/assessments'
@@ -1139,6 +1187,9 @@ export interface RootRouteChildren {
   EducatorSplatRoute: typeof EducatorSplatRoute
   ExploreCodeRoute: typeof ExploreCodeRoute
   ExploreScanRoute: typeof ExploreScanRoute
+  FamilyHomeRoute: typeof FamilyHomeRoute
+  FamilySignInRoute: typeof FamilySignInRoute
+  FamilySignUpRoute: typeof FamilySignUpRoute
   FamilyViewRoute: typeof FamilyViewRoute
   GoTokenRoute: typeof GoTokenRoute
   OpportunityIdRoute: typeof OpportunityIdRoute
@@ -1165,6 +1216,7 @@ export interface RootRouteChildren {
   OrgIndexRoute: typeof OrgIndexRoute
   PartnerIndexRoute: typeof PartnerIndexRoute
   AssessmentSessionIdResultsRoute: typeof AssessmentSessionIdResultsRoute
+  FamilyStudentStudentIdRoute: typeof FamilyStudentStudentIdRoute
   OrgApplicationOpportunityIdRoute: typeof OrgApplicationOpportunityIdRoute
   StudentApplyOpportunityIdRoute: typeof StudentApplyOpportunityIdRoute
   StudentExperiencesNewRoute: typeof StudentExperiencesNewRoute
@@ -1368,6 +1420,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExploreScanRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/family_/home': {
+      id: '/family_/home'
+      path: '/family/home'
+      fullPath: '/family/home'
+      preLoaderRoute: typeof FamilyHomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/family_/sign-in': {
+      id: '/family_/sign-in'
+      path: '/family/sign-in'
+      fullPath: '/family/sign-in'
+      preLoaderRoute: typeof FamilySignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/family_/sign-up': {
+      id: '/family_/sign-up'
+      path: '/family/sign-up'
+      fullPath: '/family/sign-up'
+      preLoaderRoute: typeof FamilySignUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/family_/view': {
       id: '/family_/view'
       path: '/family/view'
@@ -1569,6 +1642,13 @@ declare module '@tanstack/react-router' {
       path: '/assessment/$sessionId/results'
       fullPath: '/assessment/$sessionId/results'
       preLoaderRoute: typeof AssessmentSessionIdResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/family_/student/$studentId': {
+      id: '/family_/student/$studentId'
+      path: '/family/student/$studentId'
+      fullPath: '/family/student/$studentId'
+      preLoaderRoute: typeof FamilyStudentStudentIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/instructor/admin/': {
@@ -1915,6 +1995,9 @@ const rootRouteChildren: RootRouteChildren = {
   EducatorSplatRoute: EducatorSplatRoute,
   ExploreCodeRoute: ExploreCodeRoute,
   ExploreScanRoute: ExploreScanRoute,
+  FamilyHomeRoute: FamilyHomeRoute,
+  FamilySignInRoute: FamilySignInRoute,
+  FamilySignUpRoute: FamilySignUpRoute,
   FamilyViewRoute: FamilyViewRoute,
   GoTokenRoute: GoTokenRoute,
   OpportunityIdRoute: OpportunityIdRoute,
@@ -1941,6 +2024,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrgIndexRoute: OrgIndexRoute,
   PartnerIndexRoute: PartnerIndexRoute,
   AssessmentSessionIdResultsRoute: AssessmentSessionIdResultsRoute,
+  FamilyStudentStudentIdRoute: FamilyStudentStudentIdRoute,
   OrgApplicationOpportunityIdRoute: OrgApplicationOpportunityIdRoute,
   StudentApplyOpportunityIdRoute: StudentApplyOpportunityIdRoute,
   StudentExperiencesNewRoute: StudentExperiencesNewRoute,

@@ -35,8 +35,6 @@ export const Route = createFileRoute("/demo")({
   component: DemoPage,
 });
 
-const FAMILY_TOKEN_KEY = "explr.family.token";
-
 type Card = {
   role: DemoRole;
   eyebrow: string;
@@ -68,8 +66,8 @@ const CARDS: Card[] = [
   {
     role: "family",
     eyebrow: "Families",
-    title: `${DEMO.student.firstName}'s family`,
-    body: "The read-only family view: results, verified experiences, and the yearly plan waiting for a guardian sign-off.",
+    title: DEMO.family.name,
+    body: `${DEMO.family.name}, ${DEMO.student.firstName} and ${DEMO.explorer.firstName}'s parent: one account, two children`,
     icon: Heart,
     image: "/passport/families.webp",
   },
@@ -129,15 +127,6 @@ function DemoPage() {
     setError(null);
     try {
       const r = await demoLogin({ data: { role } });
-      if (r.kind === "family") {
-        try {
-          localStorage.setItem(FAMILY_TOKEN_KEY, r.token);
-        } catch {
-          // private mode: the view also reads the token from the URL
-        }
-        navigate({ to: "/family/view", search: { t: r.token } });
-        return;
-      }
       // verifyOtp replaces the current session, so no sign-out first — if it
       // fails, an admin stays signed in and keeps the seed controls.
       const { error: otpErr } = await supabase.auth.verifyOtp({

@@ -46,10 +46,12 @@ function Start() {
       }
       setAuthed(true);
       // Look up roles in parallel; first match wins.
-      const [{ data: ad }, { data: ed }] = await Promise.all([
+      const [{ data: ad }, { data: ed }, { data: gu }, { data: st }] = await Promise.all([
         // admins table — cast because the generated Database type may lag.
         (supabase as any).from("admins").select("id").eq("id", session.user.id).maybeSingle(),
         supabase.from("educators").select("id").eq("id", session.user.id).maybeSingle(),
+        supabase.from("guardians").select("id").eq("id", session.user.id).maybeSingle(),
+        supabase.from("students").select("id").eq("id", session.user.id).maybeSingle(),
       ]);
       if (cancelled) return;
       if (ad) {
@@ -58,6 +60,10 @@ function Start() {
       }
       if (ed) {
         navigate({ to: "/instructor/dashboard" });
+        return;
+      }
+      if (gu && !st) {
+        navigate({ to: "/family/home" });
         return;
       }
       // Student: if they've already taken (or started) the assessment, go
@@ -168,11 +174,19 @@ function Start() {
               Here for your student&apos;s passport?
             </span>
             <span className="text-sm text-ink-700">
-              No account needed. Enter the code your student made for you.
+              Use the code your student made for you, or a family account for all your children.
             </span>
           </span>
           <ChevronRight className="h-5 w-5 shrink-0 text-ink-500" strokeWidth={2.2} aria-hidden />
         </Link>
+        <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+          <Link to="/family/sign-in" className="ink-link inline-flex min-h-[44px] items-center">
+            Family sign in
+          </Link>
+          <Link to="/family/sign-up" className="ink-link inline-flex min-h-[44px] items-center">
+            Create a family account
+          </Link>
+        </p>
       </main>
       <SiteFooter className="mt-10" />
     </div>

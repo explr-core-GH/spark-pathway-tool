@@ -8,6 +8,13 @@
       "when": 1793206692982,
       "tag": "0000_rate_limit_hits",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793212096669,
+      "tag": "0001_guardian_accounts",
+      "breakpoints": true
     }
   ]
 }

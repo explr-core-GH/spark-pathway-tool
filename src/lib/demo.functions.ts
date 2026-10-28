@@ -4,7 +4,6 @@ import {
   exploreSecretHash,
   exploreTokenHash,
   familyCodeHash as familyCodeHashRaw,
-  familySessionHash,
 } from "./server/hash.server";
 import { rateLimit } from "./server/rate-limit.server";
 import { z } from "zod";
@@ -72,7 +71,7 @@ async function ensureUser(email: string, meta: Record<string, unknown>): Promise
   return data.user.id;
 }
 
-async function must(p: Promise<{ error: { message: string } | null }>, what: string) {
+async function must(p: PromiseLike<{ error: { message: string } | null }>, what: string) {
   const { error } = await p;
   if (error) throw new Error(`${what}: ${error.message}`);
 }
@@ -86,6 +85,7 @@ async function wipe() {
   await sb("opportunities").delete().in("org_id", ids);
   await sb("classes").delete().in("educator_id", ids);
   await sb("organizations").delete().in("id", ids);
+  await supabaseAdmin.from("guardians").delete().in("id", ids);
   await sb("educators").delete().in("id", ids);
   await sb("students").delete().in("id", ids);
   for (const id of ids) await supabaseAdmin.auth.admin.deleteUser(id);
@@ -325,6 +325,42 @@ export const seedDemo = createServerFn({ method: "POST" })
           expires_at: iso(new Date(now.getTime() + 365 * 86400000)),
         }),
         "family_links",
+      );
+    }
+
+    // ── guardian account (one account, two children) ────────────────────
+    const guardianId = await ensureUser(DEMO.family.email, { full_name: DEMO.family.name });
+    await must(
+      supabaseAdmin.from("guardians").upsert({
+        id: guardianId,
+        full_name: DEMO.family.name,
+        email: DEMO.family.email,
+      }),
+      "guardians",
+    );
+    for (const sid of [studentId, explorerId]) {
+      await must(
+        supabaseAdmin.from("guardian_students").upsert({
+          guardian_id: guardianId,
+          student_id: sid,
+          relationship: "parent",
+          revoked_at: null,
+          revoked_by: null,
+        }),
+        "guardian_students",
+      );
+      await supabaseAdmin
+        .from("guardian_consents")
+        .delete()
+        .eq("guardian_id", guardianId)
+        .eq("student_id", sid);
+      await must(
+        supabaseAdmin.from("guardian_consents").insert({
+          guardian_id: guardianId,
+          student_id: sid,
+          text_version: "2026-10",
+        }),
+        "guardian_consents",
       );
     }
 
@@ -970,31 +1006,6 @@ export const demoLogin = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ role: z.enum(DEMO_ROLES) }).parse(input))
   .handler(async ({ data }) => {
     await rateLimit("demo", 30, 600);
-    if (data.role === "family") {
-      // Look the link up by the demo student rather than by code hash, so the
-      // one-click family demo works even when the rows were seeded outside
-      // this server (the typed-in code still needs the server's hash).
-      const student = (await listDemoUsers()).find((u) => u.email === DEMO.student.email);
-      const { data: link } = student
-        ? await sb("family_links")
-            .select("id")
-            .eq("student_id", student.id)
-            .is("revoked_at", null)
-            .order("created_at", { ascending: false })
-            .limit(1)
-            .maybeSingle()
-        : { data: null };
-      if (!link) throw new Error("The demo isn't seeded yet. Ask an EXPLR admin to seed it.");
-      const token = randomBytes(32).toString("base64url");
-      await must(
-        sb("family_sessions").insert({
-          family_link_id: (link as { id: string }).id,
-          token_hash: familySessionHash(token),
-        }),
-        "family_sessions",
-      );
-      return { kind: "family" as const, token, to: "/family/view" };
-    }
     if (data.role === "applicant") {
       const { ensureApplicationDemo } = await import("./demo-application.server");
       await ensureApplicationDemo();
@@ -1011,10 +1022,12 @@ export const demoLogin = createServerFn({ method: "POST" })
     const to =
       data.role === "instructor"
         ? "/instructor/dashboard"
-        : data.role === "partner"
-          ? "/org"
-          : data.role === "applicant"
-            ? "/student/apply"
-            : "/student";
+        : data.role === "family"
+          ? "/family/home"
+          : data.role === "partner"
+            ? "/org"
+            : data.role === "applicant"
+              ? "/student/apply"
+              : "/student";
     return { kind: "magic" as const, tokenHash: linkData.properties.hashed_token, to };
   });
