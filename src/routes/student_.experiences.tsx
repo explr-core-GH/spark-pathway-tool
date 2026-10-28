@@ -106,13 +106,10 @@ function ExperienceItem({
   const [name, setName] = useState(e.supervisor_name ?? "");
   const [email, setEmail] = useState(e.supervisor_email ?? "");
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<{
-    link: string;
-    emailed: boolean;
-    emailError: string | null;
-  } | null>(null);
+  const [result, setResult] = useState<{ ok: true; sent: boolean; error?: string } | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
   const exposure = isExposure(e.stage);
   const canAsk =
     !exposure &&
@@ -128,7 +125,6 @@ function ExperienceItem({
           experienceId: e.id,
           supervisorName: name.trim(),
           supervisorEmail: email.trim(),
-          origin: window.location.origin,
         },
       });
       setResult(r);
@@ -263,25 +259,15 @@ function ExperienceItem({
           className="mt-4 rounded-[var(--radius-control)] bg-mint-tint p-4 text-sm"
         >
           <p className="font-medium">
-            {result.emailed ? `Sent to ${name}.` : "Email didn't go out, but the link works."}
-            {result.emailError && !result.emailed ? ` (${result.emailError})` : ""}
+            {result.sent
+              ? "We emailed your supervisor."
+              : "We saved your request, but the email didn't go out. Ask your instructor for help."}
           </p>
-          <p className="mt-1 text-ink-700">
-            Share this link if they'd rather get it by text or in person. It works for 30 days.
-          </p>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <code className="rounded bg-paper-raised px-2 py-1 text-xs">{result.link}</code>
-            <button
-              type="button"
-              className="btn-ghost text-xs"
-              onClick={() => {
-                navigator.clipboard?.writeText(result.link);
-                setCopied(true);
-              }}
-            >
-              {copied ? "Copied" : "Copy link"}
-            </button>
-          </div>
+          {result.sent && (
+            <p className="mt-1 text-ink-700">
+              Their link works for 30 days. Let them know to look for an email from EXPLR Pathways.
+            </p>
+          )}
         </div>
       )}
     </li>
