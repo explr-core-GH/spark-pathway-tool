@@ -51,6 +51,22 @@ function EducatorSignIn() {
     navigate({ to: "/instructor/dashboard" });
   }
 
+  async function finishMicrosoft() {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) {
+      setError("Could not confirm your Microsoft account. Please try again.");
+      return;
+    }
+    // Instructors and admins live in separate tables (no overlap) — same
+    // routing as the password flow above.
+    const { data: adminRow } = await (supabase as any)
+      .from("admins")
+      .select("id")
+      .eq("id", data.user.id)
+      .maybeSingle();
+    navigate({ to: adminRow ? "/instructor/admin" : "/instructor/dashboard" });
+  }
+
   return (
     <main className="mx-auto w-full max-w-[1312px] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
       <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,520px)] lg:gap-16">
@@ -111,6 +127,8 @@ function EducatorSignIn() {
                 {loading ? "Signing in…" : "Sign in"}
               </button>
             </form>
+            <OrDivider />
+            <MicrosoftSignIn onError={setError} onSignedIn={finishMicrosoft} />
           </div>
           <p className="mt-6 text-sm text-ink-500">
             No account?{" "}

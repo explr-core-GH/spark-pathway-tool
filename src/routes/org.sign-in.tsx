@@ -106,6 +106,8 @@ function OrgSignIn() {
           {loading ? "Signing in…" : "Sign in"}
         </button>
       </form>
+      <OrDivider />
+      <MicrosoftSignIn onError={setError} onSignedIn={() => navigate({ to: "/org" })} />
     </AuthShell>
   );
 }
