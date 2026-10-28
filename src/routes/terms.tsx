@@ -22,7 +22,7 @@ function TermsPage() {
   return (
     <LegalPage eyebrow="Terms" title="Terms of Service" effective="October 2, 2026">
       <p className="lead">
-        EXPLR Pathways (spark-pathway-tool.lovable.app and any EXPLR domain that points here) is run
+        EXPLR Pathways (explrpathways.org and any EXPLR domain that points here) is run
         by EXPLR, a partnership of Cleveland State University and MAGNET. By using it you agree to
         these terms.
       </p>
