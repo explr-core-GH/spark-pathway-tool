@@ -3,8 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { z } from "zod";
 
-const EXPLR_ENDPOINT =
-  "https://ovmmlbpaaadzgxxrbmdl.supabase.co/functions/v1/external-data";
+const EXPLR_ENDPOINT = "https://ovmmlbpaaadzgxxrbmdl.supabase.co/functions/v1/external-data";
 
 const ALLOWED_ACTIONS = ["camps", "roster", "waitlist", "all_rosters"] as const;
 type Action = (typeof ALLOWED_ACTIONS)[number];
