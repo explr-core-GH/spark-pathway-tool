@@ -13,6 +13,11 @@ export const Route = createFileRoute("/sign-out")({
 function SignOut() {
   const navigate = useNavigate();
   useEffect(() => {
+    try {
+      localStorage.removeItem("explr.family.token");
+    } catch {
+      // private mode
+    }
     supabase.auth.signOut().then(() => navigate({ to: "/" }));
   }, [navigate]);
   return (
