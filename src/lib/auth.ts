@@ -67,20 +67,23 @@ export function useSession() {
       apply(session.user ?? null);
     });
 
-    supabase.auth.getSession().then(({ data }) => {
-      // Initial bootstrap: this is the only legitimate place we may
-      // transition from "unknown" → null (the page loaded and there's no
-      // session). After this call, `apply` will only ever go null on a
-      // genuine SIGNED_OUT event.
-      apply(data.session?.user ?? null);
-    }).catch(() => {
-      // Network/CORS error fetching the session — only clear loading
-      // if we haven't already resolved. Don't overwrite a known user.
-      if (!resolved) {
-        resolved = true;
-        setLoading(false);
-      }
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        // Initial bootstrap: this is the only legitimate place we may
+        // transition from "unknown" → null (the page loaded and there's no
+        // session). After this call, `apply` will only ever go null on a
+        // genuine SIGNED_OUT event.
+        apply(data.session?.user ?? null);
+      })
+      .catch(() => {
+        // Network/CORS error fetching the session — only clear loading
+        // if we haven't already resolved. Don't overwrite a known user.
+        if (!resolved) {
+          resolved = true;
+          setLoading(false);
+        }
+      });
 
     // Hard timeout — never leave the UI spinning forever. Only kicks in
     // if neither the listener nor getSession() has resolved by now;
@@ -130,15 +133,11 @@ export function useEducator() {
       supabase.from("educators").select("*").eq("id", userId).maybeSingle(),
       // public.admins is added in migration 20260518053900. Cast for typings
       // until the Database type regenerates.
-      supabase
-        .from("admins")
-        .select("*")
-        .eq("id", userId)
-        .maybeSingle(),
+      supabase.from("admins").select("*").eq("id", userId).maybeSingle(),
     ]).then(([ed, ad]) => {
       if (cancelled) return;
       setEducator((ed.data as EducatorRow) ?? null);
-      setAdmin(((ad.data as unknown) as AdminRow) ?? null);
+      setAdmin((ad.data as unknown as AdminRow) ?? null);
       setLoading(false);
     });
     return () => {
@@ -161,8 +160,7 @@ export type OrgRow = {
 };
 
 // organizations is newer than the generated Database types.
-const orgTable = (): any =>
-  (supabase.from as unknown as (n: string) => any)("organizations");
+const orgTable = (): any => (supabase.from as unknown as (n: string) => any)("organizations");
 
 /**
  * useOrg — resolves the signed-in user's organization row (the org portal's

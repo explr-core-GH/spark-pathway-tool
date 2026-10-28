@@ -165,7 +165,10 @@ export function FamilyCodePanel() {
       ) : (
         <ul className="mt-2 divide-y divide-line text-sm">
           {guardians.map((g) => (
-            <li key={g.guardianId} className="flex flex-wrap items-center justify-between gap-2 py-2">
+            <li
+              key={g.guardianId}
+              className="flex flex-wrap items-center justify-between gap-2 py-2"
+            >
               <span>
                 <span className="font-medium">{g.fullName}</span>
                 <span className="text-ink-500">

@@ -117,8 +117,8 @@ function Family() {
                 <h2 className="font-display text-xl font-semibold">Create a family account</h2>
               </div>
               <p className="text-sm text-ink-700">
-                Have more than one child, or don't want to keep track of codes? Make an account
-                with your email, then add each child with their family code once.
+                Have more than one child, or don't want to keep track of codes? Make an account with
+                your email, then add each child with their family code once.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link to="/family/sign-up" className="btn-ink">

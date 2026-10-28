@@ -4,10 +4,7 @@ import { PortalHeader } from "@/components/passport";
 import { SiteFooter } from "@/components/SiteFooter";
 import { RoleGuard } from "@/components/RoleGuard";
 import { FamilyViewBody } from "@/components/FamilyViewBody";
-import {
-  getGuardianStudentView,
-  guardianAckPlanForStudent,
-} from "@/lib/family-account.functions";
+import { getGuardianStudentView, guardianAckPlanForStudent } from "@/lib/family-account.functions";
 import type { FamilyView } from "@/lib/family.functions";
 
 export const Route = createFileRoute("/family_/student/$studentId")({

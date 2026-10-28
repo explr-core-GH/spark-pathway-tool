@@ -105,7 +105,9 @@ function View() {
               intro={
                 <>
                   This link works until{" "}
-                  {view.expiresAt ? new Date(view.expiresAt).toLocaleDateString() : "it is turned off"}
+                  {view.expiresAt
+                    ? new Date(view.expiresAt).toLocaleDateString()
+                    : "it is turned off"}
                   . Your student can turn it off at any time from their dashboard.
                 </>
               }

@@ -35,7 +35,6 @@ export const Route = createFileRoute("/demo")({
   component: DemoPage,
 });
 
-
 type Card = {
   role: DemoRole;
   eyebrow: string;

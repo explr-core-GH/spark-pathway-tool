@@ -1024,10 +1024,10 @@ export const demoLogin = createServerFn({ method: "POST" })
         ? "/instructor/dashboard"
         : data.role === "family"
           ? "/family/home"
-        : data.role === "partner"
-          ? "/org"
-          : data.role === "applicant"
-            ? "/student/apply"
-            : "/student";
+          : data.role === "partner"
+            ? "/org"
+            : data.role === "applicant"
+              ? "/student/apply"
+              : "/student";
     return { kind: "magic" as const, tokenHash: linkData.properties.hashed_token, to };
   });

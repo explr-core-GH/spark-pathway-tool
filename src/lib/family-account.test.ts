@@ -53,8 +53,7 @@ function mockDb(fixtures: Record<string, unknown>): Db {
   const from = (table: string) => {
     const result = { data: fixtures[table] ?? null, error: null };
     const chain: Record<string, unknown> = {};
-    for (const m of ["select", "eq", "not", "order", "limit", "in", "is"])
-      chain[m] = () => chain;
+    for (const m of ["select", "eq", "not", "order", "limit", "in", "is"]) chain[m] = () => chain;
     chain.maybeSingle = () => Promise.resolve(result);
     chain.then = (res: (v: typeof result) => unknown) => Promise.resolve(result).then(res);
     return chain;

@@ -127,9 +127,9 @@ function FamilyHome() {
           <div className="mt-6 rounded-[var(--radius-card)] border border-line bg-paper-raised p-6">
             <h2 className="font-display text-xl font-semibold">No children linked yet</h2>
             <p className="mt-2 text-sm text-ink-700">
-              Ask your student to sign in and open <strong>For families</strong> on their
-              dashboard, then tap <strong>Make a code</strong>. Enter that code below. You only
-              need to do this once per child.
+              Ask your student to sign in and open <strong>For families</strong> on their dashboard,
+              then tap <strong>Make a code</strong>. Enter that code below. You only need to do this
+              once per child.
             </p>
           </div>
         )}
@@ -161,8 +161,8 @@ function FamilyHome() {
                     onClick={() => consent(c.studentId)}
                     className="rounded-[var(--radius-control)] border-2 border-emerald bg-mint-tint px-4 py-3 text-left text-sm font-medium hover:bg-mint-soft"
                   >
-                    Confirm you are the parent or legal guardian of {c.firstName} and agree to
-                    their participation in EXPLR Pathways
+                    Confirm you are the parent or legal guardian of {c.firstName} and agree to their
+                    participation in EXPLR Pathways
                   </button>
                 )}
                 <div className="flex flex-wrap items-center gap-3">
