@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthShell } from "@/components/passport/AuthShell";
+import { MicrosoftSignIn, OrDivider } from "@/components/passport/MicrosoftSignIn";
 
 export const Route = createFileRoute("/family_/sign-in")({
   head: () => ({
@@ -61,6 +62,42 @@ function FamilySignIn() {
       return;
     }
     navigate({ to: "/family/home" });
+  }
+
+  async function finishMicrosoft() {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) {
+      setError("Could not confirm your Microsoft account. Please try again.");
+      return;
+    }
+    const { data: g } = await supabase
+      .from("guardians")
+      .select("id")
+      .eq("id", data.user.id)
+      .maybeSingle();
+    if (g) {
+      navigate({ to: "/family/home" });
+      return;
+    }
+    // Finish a family sign-up that had to wait for email confirmation. The
+    // Microsoft path normally has no pending sign-up; the metadata check
+    // keeps behavior identical to the password flow above.
+    const meta = data.user.user_metadata as Record<string, unknown>;
+    if (meta.account === "guardian" && typeof meta.full_name === "string") {
+      const { error: gErr } = await supabase.from("guardians").insert({
+        id: data.user.id,
+        full_name: meta.full_name,
+        email: data.user.email ?? "",
+        phone: typeof meta.phone === "string" ? meta.phone : null,
+      });
+      if (gErr) {
+        setError(gErr.message);
+        return;
+      }
+      navigate({ to: "/family/home" });
+      return;
+    }
+    setNotFamily(true);
   }
 
   return (
@@ -153,6 +190,12 @@ function FamilySignIn() {
             {loading ? "Signing in…" : "Sign in"}
           </button>
         </form>
+      )}
+      {notFamily ? null : (
+        <>
+          <OrDivider />
+          <MicrosoftSignIn onError={setError} onSignedIn={finishMicrosoft} />
+        </>
       )}
     </AuthShell>
   );

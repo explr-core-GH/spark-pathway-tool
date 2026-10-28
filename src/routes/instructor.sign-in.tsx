@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { MicrosoftSignIn, OrDivider } from "@/components/passport/MicrosoftSignIn";
 
 export const Route = createFileRoute("/instructor/sign-in")({
   head: () => ({ meta: [{ title: "Instructor sign in — EXPLR" }] }),
@@ -48,6 +49,22 @@ function EducatorSignIn() {
     }
     setLoading(false);
     navigate({ to: "/instructor/dashboard" });
+  }
+
+  async function finishMicrosoft() {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) {
+      setError("Could not confirm your Microsoft account. Please try again.");
+      return;
+    }
+    // Instructors and admins live in separate tables (no overlap) — same
+    // routing as the password flow above.
+    const { data: adminRow } = await (supabase as any)
+      .from("admins")
+      .select("id")
+      .eq("id", data.user.id)
+      .maybeSingle();
+    navigate({ to: adminRow ? "/instructor/admin" : "/instructor/dashboard" });
   }
 
   return (
@@ -110,6 +127,8 @@ function EducatorSignIn() {
                 {loading ? "Signing in…" : "Sign in"}
               </button>
             </form>
+            <OrDivider />
+            <MicrosoftSignIn onError={setError} onSignedIn={finishMicrosoft} />
           </div>
           <p className="mt-6 text-sm text-ink-500">
             No account?{" "}
