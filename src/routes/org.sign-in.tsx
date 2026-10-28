@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthShell } from "@/components/passport/AuthShell";
-import { MicrosoftSignIn, OrDivider } from "@/components/passport/MicrosoftSignIn";
+import { SocialSignInButton, OrDivider } from "@/components/passport/SocialSignIn";
 
 export const Route = createFileRoute("/org/sign-in")({
   head: () => ({ meta: [{ title: "Partner sign in — EXPLR" }] }),
@@ -107,7 +107,17 @@ function OrgSignIn() {
         </button>
       </form>
       <OrDivider />
-      <MicrosoftSignIn onError={setError} onSignedIn={() => navigate({ to: "/org" })} />
+      <SocialSignInButton
+        provider="microsoft"
+        onError={setError}
+        onSignedIn={() => navigate({ to: "/org" })}
+      />
+      <SocialSignInButton
+        provider="google"
+        className="mt-2"
+        onError={setError}
+        onSignedIn={() => navigate({ to: "/org" })}
+      />
     </AuthShell>
   );
 }

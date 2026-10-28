@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthShell } from "@/components/passport/AuthShell";
-import { MicrosoftSignIn, OrDivider } from "@/components/passport/MicrosoftSignIn";
+import { SocialSignInButton, OrDivider } from "@/components/passport/SocialSignIn";
 
 export const Route = createFileRoute("/family_/sign-in")({
   head: () => ({
@@ -64,7 +64,7 @@ function FamilySignIn() {
     navigate({ to: "/family/home" });
   }
 
-  async function finishMicrosoft() {
+  async function finishSocialSignIn() {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) {
       setError("Could not confirm your Microsoft account. Please try again.");
@@ -194,7 +194,17 @@ function FamilySignIn() {
       {notFamily ? null : (
         <>
           <OrDivider />
-          <MicrosoftSignIn onError={setError} onSignedIn={finishMicrosoft} />
+          <SocialSignInButton
+            provider="microsoft"
+            onError={setError}
+            onSignedIn={finishSocialSignIn}
+          />
+          <SocialSignInButton
+            provider="google"
+            className="mt-2"
+            onError={setError}
+            onSignedIn={finishSocialSignIn}
+          />
         </>
       )}
     </AuthShell>
