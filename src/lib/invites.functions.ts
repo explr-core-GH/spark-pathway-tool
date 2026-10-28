@@ -6,7 +6,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 // educator_invites table is not publicly readable. The token itself is
 // the secret — knowing it is the proof you were invited.
 export const getInviteByToken = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ token: z.string().min(8).max(128) }).parse(input))
+  .validator((input) => z.object({ token: z.string().min(8).max(128) }).parse(input))
   .handler(async ({ data }) => {
     const { rateLimit } = await import("./server/rate-limit.server");
     await rateLimit("getInviteByToken", 20, 600);
@@ -37,7 +37,7 @@ export const getInviteByToken = createServerFn({ method: "POST" })
  */
 export const acceptInvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({ token: z.string().min(8).max(128), fullName: z.string().trim().min(1).max(120) })
       .parse(input),

@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { SchoolSearch, type SchoolPick } from "@/components/SchoolSearch";
 import { GradeLevelPicker } from "@/components/GradeLevelPicker";
@@ -27,6 +28,17 @@ function EducatorSignUp() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  // A user who signed in with Google/Microsoft but has no instructor row yet
+  // lands here to finish their profile; no second account is created.
+  const [existing, setExisting] = useState<User | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        setExisting(data.user);
+        setEmail(data.user.email ?? "");
+      }
+    });
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,6 +46,27 @@ function EducatorSignUp() {
     setLoading(true);
 
     const sc = studentCount.trim() === "" ? null : Math.max(0, parseInt(studentCount, 10) || 0);
+    if (existing) {
+      const { error: eErr } = await supabase.from("educators").insert({
+        id: existing.id,
+        full_name: fullName,
+        email: existing.email ?? email,
+        organization: organization || null,
+        program_type: null,
+        approved: false,
+        school_irn: school?.irn ?? null,
+        school_name: school?.name ?? null,
+        student_count: sc,
+        grade_levels: gradeLevels.length > 0 ? gradeLevels : null,
+      });
+      setLoading(false);
+      if (eErr) {
+        setError(eErr.message);
+        return;
+      }
+      navigate({ to: "/instructor/dashboard" });
+      return;
+    }
     // Everything the educators row needs is also saved in the auth metadata,
     // so a sign-up that must wait for email confirmation can finish on first sign-in.
     const { data, error: suErr } = await supabase.auth.signUp({
@@ -141,39 +174,43 @@ function EducatorSignUp() {
                   placeholder="School or program (optional)"
                 />
               </div>
-              <div>
-                <label className="label" htmlFor="edu-email">
-                  Email
-                </label>
-                <input
-                  id="edu-email"
-                  className="field"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="label" htmlFor="edu-password">
-                  Passphrase
-                </label>
-                <input
-                  id="edu-password"
-                  className="field"
-                  type="password"
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                  aria-describedby="edu-password-hint"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <p id="edu-password-hint" className="mt-1.5 text-xs text-ink-500">
-                  At least 8 characters.
-                </p>
-              </div>
+              {!existing && (
+                <>
+                  <div>
+                    <label className="label" htmlFor="edu-email">
+                      Email
+                    </label>
+                    <input
+                      id="edu-email"
+                      className="field"
+                      type="email"
+                      required
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="label" htmlFor="edu-password">
+                      Passphrase
+                    </label>
+                    <input
+                      id="edu-password"
+                      className="field"
+                      type="password"
+                      required={!existing}
+                      minLength={8}
+                      autoComplete="new-password"
+                      aria-describedby="edu-password-hint"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <p id="edu-password-hint" className="mt-1.5 text-xs text-ink-500">
+                      At least 8 characters.
+                    </p>
+                  </div>
+                </>
+              )}
               <div>
                 <span className="label">
                   Your school <span className="text-ink-500">(optional)</span>

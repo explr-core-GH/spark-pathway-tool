@@ -161,7 +161,7 @@ const GATE_PASS = {
 /** Admin: create (or recreate) the demo accounts and their fake data. */
 export const seedDemo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ reset: z.boolean().optional() }).parse(input ?? {}))
+  .validator((input) => z.object({ reset: z.boolean().optional() }).parse(input ?? {}))
   .handler(async ({ data, context }) => {
     await requireAdmin(context.userId);
     if (data.reset) await wipe();
@@ -1003,7 +1003,7 @@ export const demoStatus = createServerFn({ method: "POST" }).handler(async () =>
  * family gets a family-session token for the demo student.
  */
 export const demoLogin = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ role: z.enum(DEMO_ROLES) }).parse(input))
+  .validator((input) => z.object({ role: z.enum(DEMO_ROLES) }).parse(input))
   .handler(async ({ data }) => {
     await rateLimit("demo", 30, 600);
     if (data.role === "applicant") {

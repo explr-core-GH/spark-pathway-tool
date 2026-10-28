@@ -19,14 +19,10 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-const EXPLR_EXTERNAL_DATA =
-  "https://ovmmlbpaaadzgxxrbmdl.supabase.co/functions/v1/external-data";
+const EXPLR_EXTERNAL_DATA = "https://ovmmlbpaaadzgxxrbmdl.supabase.co/functions/v1/external-data";
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+// No browser ever calls this function (pg_cron does), so no CORS allowances.
+const CORS: Record<string, string> = {};
 function json(body: unknown, init: ResponseInit = {}) {
   return new Response(JSON.stringify(body), {
     ...init,
@@ -68,7 +64,8 @@ function mapRosterRow(row: Row, campId: string) {
   const first = pickStr(child, "first_name") ?? pickStr(row, "first_name");
   const last = pickStr(child, "last_name") ?? pickStr(row, "last_name");
   const composed = [first, last].filter(Boolean).join(" ").trim();
-  const childName = pickStr(row, "child_name", "student_name", "name", "full_name") ?? (composed || null);
+  const childName =
+    pickStr(row, "child_name", "student_name", "name", "full_name") ?? (composed || null);
   if (!id || !childName) return null;
   let age = pickNum(row, "child_age", "age", "student_age") ?? pickNum(child, "age");
   const dob = pickStr(child, "date_of_birth");
@@ -101,25 +98,40 @@ async function callExplrExternal(action: string, campId?: string): Promise<unkno
   const url = new URL(EXPLR_EXTERNAL_DATA);
   url.searchParams.set("action", action);
   if (campId) url.searchParams.set("camp_id", campId);
-  const res = await fetch(url.toString(), { headers: { "x-api-key": apiKey, Accept: "application/json" } });
+  const res = await fetch(url.toString(), {
+    headers: { "x-api-key": apiKey, Accept: "application/json" },
+  });
   const text = await res.text();
   if (!res.ok) throw new Error(`EXPLR ${action} failed [${res.status}]: ${text.slice(0, 200)}`);
-  try { return JSON.parse(text); } catch { return text; }
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
 }
 
 async function fetchCamps(): Promise<Row[]> {
   const url = Deno.env.get("EXPLR_SUPABASE_URL");
   const key = Deno.env.get("EXPLR_SERVICE_ROLE_KEY");
   if (!url || !key) throw new Error("ExplrMore camps credentials not configured");
-  const cols = "id,title,description,date,end_date,time,location,age_range,capacity,image,category,updated_at";
+  const cols =
+    "id,title,description,date,end_date,time,location,age_range,capacity,image,category,updated_at";
   const out: Row[] = [];
   let from = 0;
   const size = 1000;
   while (true) {
     const res = await fetch(`${url.replace(/\/$/, "")}/rest/v1/camps?select=${cols}`, {
-      headers: { apikey: key, Authorization: `Bearer ${key}`, Range: `${from}-${from + size - 1}`, "Range-Unit": "items" },
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        Range: `${from}-${from + size - 1}`,
+        "Range-Unit": "items",
+      },
     });
-    if (!res.ok) throw new Error(`ExplrMore camps fetch failed [${res.status}]: ${(await res.text()).slice(0, 200)}`);
+    if (!res.ok)
+      throw new Error(
+        `ExplrMore camps fetch failed [${res.status}]: ${(await res.text()).slice(0, 200)}`,
+      );
     const batch = (await res.json()) as Row[];
     out.push(...batch);
     if (batch.length < size) break;
@@ -130,23 +142,53 @@ async function fetchCamps(): Promise<Row[]> {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
+  if (req.method !== "POST") return json({ ok: false, error: "POST only" }, { status: 405 });
+
+  // Only the pg_cron job (which reads the same value from Vault) may trigger
+  // a sync. Without the secret configured the function refuses everything.
+  const expected = Deno.env.get("SYNC_SECRET");
+  if (!expected)
+    return json({ ok: false, error: "SYNC_SECRET is not configured" }, { status: 503 });
+  if (req.headers.get("x-sync-key") !== expected)
+    return json({ ok: false, error: "Unauthorized" }, { status: 401 });
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!supabaseUrl || !serviceRole) return json({ ok: false, error: "Supabase server env missing" }, { status: 500 });
+  if (!supabaseUrl || !serviceRole)
+    return json({ ok: false, error: "Supabase server env missing" }, { status: 500 });
   const db = createClient(supabaseUrl, serviceRole, { auth: { persistSession: false } });
 
-  const { data: runRow } = await db.from("sync_runs").insert({ kind: "explr_roster" }).select("id").single();
+  // One sync at a time: a run started in the last 10 minutes that has not
+  // finished blocks a second run, so two overlapping reconciles can't delete
+  // each other's rows.
+  const { data: running } = await db
+    .from("sync_runs")
+    .select("id")
+    .eq("kind", "explr_roster")
+    .is("finished_at", null)
+    .gte("started_at", new Date(Date.now() - 10 * 60 * 1000).toISOString())
+    .limit(1);
+  if (running && running.length > 0)
+    return json({ ok: false, error: "A sync is already running" }, { status: 409 });
+
+  const { data: runRow } = await db
+    .from("sync_runs")
+    .insert({ kind: "explr_roster" })
+    .select("id")
+    .single();
   const runId = runRow?.id as string | undefined;
   async function finish(p: { ok: boolean; camps?: number; regs?: number; error?: string }) {
     if (!runId) return;
-    await db.from("sync_runs").update({
-      finished_at: new Date().toISOString(),
-      ok: p.ok,
-      worksites_synced: p.camps ?? 0,
-      students_synced: p.regs ?? 0,
-      error: p.error ?? null,
-    }).eq("id", runId);
+    await db
+      .from("sync_runs")
+      .update({
+        finished_at: new Date().toISOString(),
+        ok: p.ok,
+        worksites_synced: p.camps ?? 0,
+        students_synced: p.regs ?? 0,
+        error: p.error ?? null,
+      })
+      .eq("id", runId);
   }
 
   try {
@@ -160,8 +202,10 @@ Deno.serve(async (req) => {
     const authoritative = new Set<string>();
     try {
       const all = await callExplrExternal("all_rosters");
-      const campsArr: Row[] = all && typeof all === "object" && Array.isArray((all as Row).camps)
-        ? ((all as Row).camps as Row[]) : [];
+      const campsArr: Row[] =
+        all && typeof all === "object" && Array.isArray((all as Row).camps)
+          ? ((all as Row).camps as Row[])
+          : [];
       for (const c of campsArr) {
         const cid = pickStr(c, "id", "camp_id") ?? "";
         if (!cid) continue;
@@ -178,10 +222,15 @@ Deno.serve(async (req) => {
           const cid = pickStr(row, "camp_id", "campId") ?? "";
           if (!cid) continue;
           const m = mapRosterRow(row, cid);
-          if (m) { regs.push(m); authoritative.add(cid); }
+          if (m) {
+            regs.push(m);
+            authoritative.add(cid);
+          }
         }
       }
-    } catch { /* fall through to per-camp */ }
+    } catch {
+      /* fall through to per-camp */
+    }
     for (const c of camps) {
       const cid = pickStr(c, "id") ?? "";
       if (!cid || authoritative.has(cid)) continue;
@@ -191,16 +240,28 @@ Deno.serve(async (req) => {
         const mapped = rows.map((row) => mapRosterRow(row, cid)).filter((m) => !!m);
         for (const m of mapped) regs.push(m);
         if (rows.length === 0 || mapped.length > 0) authoritative.add(cid);
-      } catch { /* skip this camp — stays non-authoritative */ }
+      } catch {
+        /* skip this camp — stays non-authoritative */
+      }
     }
 
     const nowIso = new Date().toISOString();
     if (camps.length > 0) {
       const { error } = await db.from("explr_camps").upsert(
         camps.map((c) => ({
-          id: c.id, title: c.title, description: c.description, date: c.date, end_date: c.end_date,
-          time: c.time, location: c.location, age_range: c.age_range, capacity: c.capacity,
-          image: c.image, category: c.category, imported_at: nowIso, source_updated_at: c.updated_at,
+          id: c.id,
+          title: c.title,
+          description: c.description,
+          date: c.date,
+          end_date: c.end_date,
+          time: c.time,
+          location: c.location,
+          age_range: c.age_range,
+          capacity: c.capacity,
+          image: c.image,
+          category: c.category,
+          imported_at: nowIso,
+          source_updated_at: c.updated_at,
         })),
         { onConflict: "id" },
       );
@@ -212,9 +273,16 @@ Deno.serve(async (req) => {
     if (matched.length > 0) {
       const { error } = await db.from("explr_registrations").upsert(
         matched.map((r) => ({
-          id: r.id, camp_id: r.camp_id, child_name: r.child_name, child_age: r.child_age,
-          parent_name: r.parent_name, parent_email: r.parent_email, parent_phone: r.parent_phone,
-          status: r.status, imported_at: nowIso, source_created_at: r.created_at,
+          id: r.id,
+          camp_id: r.camp_id,
+          child_name: r.child_name,
+          child_age: r.child_age,
+          parent_name: r.parent_name,
+          parent_email: r.parent_email,
+          parent_phone: r.parent_phone,
+          status: r.status,
+          imported_at: nowIso,
+          source_created_at: r.created_at,
         })),
         { onConflict: "id" },
       );
@@ -241,7 +309,13 @@ Deno.serve(async (req) => {
     }
 
     await finish({ ok: true, camps: camps.length, regs: matched.length });
-    return json({ ok: true, campsImported: camps.length, registrationsImported: matched.length, registrationsRemoved: removed, syncedAt: nowIso });
+    return json({
+      ok: true,
+      campsImported: camps.length,
+      registrationsImported: matched.length,
+      registrationsRemoved: removed,
+      syncedAt: nowIso,
+    });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     await finish({ ok: false, error: msg });

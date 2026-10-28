@@ -28,6 +28,7 @@ import { Route as StudentRouteImport } from './routes/student'
 import { Route as StudentDataRouteImport } from './routes/student-data'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TryRiasecRouteImport } from './routes/try-riasec'
+import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as AssessmentIndexRouteImport } from './routes/assessment.index'
 import { Route as AssessmentSessionIdRouteImport } from './routes/assessment.$sessionId'
 import { Route as CareersIndexRouteImport } from './routes/careers.index'
@@ -196,6 +197,11 @@ const TermsRoute = TermsRouteImport.update({
 const TryRiasecRoute = TryRiasecRouteImport.update({
   id: '/try-riasec',
   path: '/try-riasec',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WelcomeRoute = WelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AssessmentIndexRoute = AssessmentIndexRouteImport.update({
@@ -612,6 +618,7 @@ export interface FileRoutesByFullPath {
   '/student-data': typeof StudentDataRoute
   '/terms': typeof TermsRoute
   '/try-riasec': typeof TryRiasecRoute
+  '/welcome': typeof WelcomeRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/careers/$soc': typeof CareersSocRoute
   '/educator/$': typeof EducatorSplatRoute
@@ -706,6 +713,7 @@ export interface FileRoutesByTo {
   '/student-data': typeof StudentDataRoute
   '/terms': typeof TermsRoute
   '/try-riasec': typeof TryRiasecRoute
+  '/welcome': typeof WelcomeRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/careers/$soc': typeof CareersSocRoute
   '/educator/$': typeof EducatorSplatRoute
@@ -801,6 +809,7 @@ export interface FileRoutesById {
   '/student-data': typeof StudentDataRoute
   '/terms': typeof TermsRoute
   '/try-riasec': typeof TryRiasecRoute
+  '/welcome': typeof WelcomeRoute
   '/assessment/$sessionId': typeof AssessmentSessionIdRoute
   '/careers/$soc': typeof CareersSocRoute
   '/educator/$': typeof EducatorSplatRoute
@@ -898,6 +907,7 @@ export interface FileRouteTypes {
     | '/student-data'
     | '/terms'
     | '/try-riasec'
+    | '/welcome'
     | '/assessment/$sessionId'
     | '/careers/$soc'
     | '/educator/$'
@@ -992,6 +1002,7 @@ export interface FileRouteTypes {
     | '/student-data'
     | '/terms'
     | '/try-riasec'
+    | '/welcome'
     | '/assessment/$sessionId'
     | '/careers/$soc'
     | '/educator/$'
@@ -1086,6 +1097,7 @@ export interface FileRouteTypes {
     | '/student-data'
     | '/terms'
     | '/try-riasec'
+    | '/welcome'
     | '/assessment/$sessionId'
     | '/careers/$soc'
     | '/educator/$'
@@ -1182,6 +1194,7 @@ export interface RootRouteChildren {
   StudentDataRoute: typeof StudentDataRoute
   TermsRoute: typeof TermsRoute
   TryRiasecRoute: typeof TryRiasecRoute
+  WelcomeRoute: typeof WelcomeRoute
   AssessmentSessionIdRoute: typeof AssessmentSessionIdRoute
   CareersSocRoute: typeof CareersSocRoute
   EducatorSplatRoute: typeof EducatorSplatRoute
@@ -1355,6 +1368,13 @@ declare module '@tanstack/react-router' {
       path: '/try-riasec'
       fullPath: '/try-riasec'
       preLoaderRoute: typeof TryRiasecRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/assessment/': {
@@ -1990,6 +2010,7 @@ const rootRouteChildren: RootRouteChildren = {
   StudentDataRoute: StudentDataRoute,
   TermsRoute: TermsRoute,
   TryRiasecRoute: TryRiasecRoute,
+  WelcomeRoute: WelcomeRoute,
   AssessmentSessionIdRoute: AssessmentSessionIdRoute,
   CareersSocRoute: CareersSocRoute,
   EducatorSplatRoute: EducatorSplatRoute,

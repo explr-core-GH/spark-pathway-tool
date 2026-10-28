@@ -97,7 +97,7 @@ type RegistrationRow = {
 
 export const generateCampLogins = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { explrCampId: string }) => input)
+  .validator((input: { explrCampId: string }) => input)
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
     const { explrCampId } = data;
@@ -242,7 +242,7 @@ export const generateCampLogins = createServerFn({ method: "POST" })
  */
 export const generateWalkInCampLogin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: { explrCampId: string; childName?: string; childAge?: number | null }) => input,
   )
   .handler(async ({ data, context }) => {
@@ -316,9 +316,7 @@ export const generateWalkInCampLogin = createServerFn({ method: "POST" })
  */
 export const updateCampLoginName = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (input: { loginId: string; childName: string; childAge?: number | null }) => input,
-  )
+  .validator((input: { loginId: string; childName: string; childAge?: number | null }) => input)
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
     const trimmed = data.childName.trim();

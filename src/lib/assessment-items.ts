@@ -14,75 +14,270 @@
 import type { RIASECCode } from "./riasec";
 
 export type AssessmentItem = {
-  id: string;          // stable item id, persisted in responses
-  scale: RIASECCode;   // which RIASEC dimension this item loads on
-  ms: string;          // middle-school prompt
-  hs: string;          // high-school prompt
-  image?: string;      // optional context photo URL
+  id: string; // stable item id, persisted in responses
+  scale: RIASECCode; // which RIASEC dimension this item loads on
+  ms: string; // middle-school prompt
+  hs: string; // high-school prompt
+  image?: string; // optional context photo URL
 };
 
 export const FORM_VERSION = "explr-mini-ip-v2";
 
 export const ITEMS: AssessmentItem[] = [
   // R — Realistic
-  { id: "R1", scale: "R", ms: "Fix something that is broken.", hs: "Repair a piece of equipment that's broken." },
-  { id: "R2", scale: "R", ms: "Build something out of wood or metal.", hs: "Build a structure out of wood, metal, or other materials." },
-  { id: "R3", scale: "R", ms: "Take care of animals.", hs: "Work outdoors with animals or plants." },
-  { id: "R4", scale: "R", ms: "Drive a tractor or a forklift.", hs: "Operate heavy machinery or vehicles." },
-  { id: "R5", scale: "R", ms: "Put together a model or kit.", hs: "Assemble electronic components from a kit." },
+  {
+    id: "R1",
+    scale: "R",
+    ms: "Fix something that is broken.",
+    hs: "Repair a piece of equipment that's broken.",
+  },
+  {
+    id: "R2",
+    scale: "R",
+    ms: "Build something out of wood or metal.",
+    hs: "Build a structure out of wood, metal, or other materials.",
+  },
+  {
+    id: "R3",
+    scale: "R",
+    ms: "Take care of animals.",
+    hs: "Work outdoors with animals or plants.",
+  },
+  {
+    id: "R4",
+    scale: "R",
+    ms: "Drive a tractor or a forklift.",
+    hs: "Operate heavy machinery or vehicles.",
+  },
+  {
+    id: "R5",
+    scale: "R",
+    ms: "Put together a model or kit.",
+    hs: "Assemble electronic components from a kit.",
+  },
   { id: "R6", scale: "R", ms: "Grow plants in a garden.", hs: "Grow and tend plants or crops." },
-  { id: "R7", scale: "R", ms: "Set up a tent or build a fort.", hs: "Set up gear for a camping or field trip." },
-  { id: "R8", scale: "R", ms: "Ride and fix up a bike.", hs: "Maintain and tune up a bike or small engine." },
+  {
+    id: "R7",
+    scale: "R",
+    ms: "Set up a tent or build a fort.",
+    hs: "Set up gear for a camping or field trip.",
+  },
+  {
+    id: "R8",
+    scale: "R",
+    ms: "Ride and fix up a bike.",
+    hs: "Maintain and tune up a bike or small engine.",
+  },
 
   // I — Investigative
-  { id: "I1", scale: "I", ms: "Do a science experiment.", hs: "Design and run a science experiment." },
+  {
+    id: "I1",
+    scale: "I",
+    ms: "Do a science experiment.",
+    hs: "Design and run a science experiment.",
+  },
   { id: "I2", scale: "I", ms: "Solve a hard puzzle.", hs: "Solve complex logic or math puzzles." },
-  { id: "I3", scale: "I", ms: "Read about how the body works.", hs: "Study how the human body or diseases work." },
-  { id: "I4", scale: "I", ms: "Look at things under a microscope.", hs: "Analyze samples in a lab." },
-  { id: "I5", scale: "I", ms: "Figure out why something works.", hs: "Investigate why something behaves the way it does." },
-  { id: "I6", scale: "I", ms: "Find out how computers work.", hs: "Explore how computers or software work." },
-  { id: "I7", scale: "I", ms: "Watch the stars and planets.", hs: "Study space, stars, and planets." },
-  { id: "I8", scale: "I", ms: "Collect rocks or bugs to study.", hs: "Collect and classify samples from nature." },
+  {
+    id: "I3",
+    scale: "I",
+    ms: "Read about how the body works.",
+    hs: "Study how the human body or diseases work.",
+  },
+  {
+    id: "I4",
+    scale: "I",
+    ms: "Look at things under a microscope.",
+    hs: "Analyze samples in a lab.",
+  },
+  {
+    id: "I5",
+    scale: "I",
+    ms: "Figure out why something works.",
+    hs: "Investigate why something behaves the way it does.",
+  },
+  {
+    id: "I6",
+    scale: "I",
+    ms: "Find out how computers work.",
+    hs: "Explore how computers or software work.",
+  },
+  {
+    id: "I7",
+    scale: "I",
+    ms: "Watch the stars and planets.",
+    hs: "Study space, stars, and planets.",
+  },
+  {
+    id: "I8",
+    scale: "I",
+    ms: "Collect rocks or bugs to study.",
+    hs: "Collect and classify samples from nature.",
+  },
 
   // A — Artistic
   { id: "A1", scale: "A", ms: "Draw or paint a picture.", hs: "Create original visual art." },
   { id: "A2", scale: "A", ms: "Play a musical instrument.", hs: "Compose or perform music." },
-  { id: "A3", scale: "A", ms: "Write a story or a poem.", hs: "Write fiction, poetry, or scripts." },
+  {
+    id: "A3",
+    scale: "A",
+    ms: "Write a story or a poem.",
+    hs: "Write fiction, poetry, or scripts.",
+  },
   { id: "A4", scale: "A", ms: "Take and edit photos.", hs: "Shoot and edit photos or video." },
-  { id: "A5", scale: "A", ms: "Design a logo or poster.", hs: "Design graphics, logos, or layouts." },
+  {
+    id: "A5",
+    scale: "A",
+    ms: "Design a logo or poster.",
+    hs: "Design graphics, logos, or layouts.",
+  },
   { id: "A6", scale: "A", ms: "Act in a play or skit.", hs: "Act or perform in theater or film." },
-  { id: "A7", scale: "A", ms: "Make a video or animation.", hs: "Create animation or motion graphics." },
-  { id: "A8", scale: "A", ms: "Decorate a room or space.", hs: "Design the look and feel of a space." },
+  {
+    id: "A7",
+    scale: "A",
+    ms: "Make a video or animation.",
+    hs: "Create animation or motion graphics.",
+  },
+  {
+    id: "A8",
+    scale: "A",
+    ms: "Decorate a room or space.",
+    hs: "Design the look and feel of a space.",
+  },
 
   // S — Social
-  { id: "S1", scale: "S", ms: "Help a younger student with homework.", hs: "Tutor someone in a subject you're good at." },
-  { id: "S2", scale: "S", ms: "Listen to a friend who is upset.", hs: "Counsel a friend through a hard time." },
-  { id: "S3", scale: "S", ms: "Take care of someone who is sick.", hs: "Care for patients in a healthcare setting." },
-  { id: "S4", scale: "S", ms: "Teach kids a new game.", hs: "Lead a workshop or class for younger students." },
-  { id: "S5", scale: "S", ms: "Volunteer in your neighborhood.", hs: "Organize a community service project." },
+  {
+    id: "S1",
+    scale: "S",
+    ms: "Help a younger student with homework.",
+    hs: "Tutor someone in a subject you're good at.",
+  },
+  {
+    id: "S2",
+    scale: "S",
+    ms: "Listen to a friend who is upset.",
+    hs: "Counsel a friend through a hard time.",
+  },
+  {
+    id: "S3",
+    scale: "S",
+    ms: "Take care of someone who is sick.",
+    hs: "Care for patients in a healthcare setting.",
+  },
+  {
+    id: "S4",
+    scale: "S",
+    ms: "Teach kids a new game.",
+    hs: "Lead a workshop or class for younger students.",
+  },
+  {
+    id: "S5",
+    scale: "S",
+    ms: "Volunteer in your neighborhood.",
+    hs: "Organize a community service project.",
+  },
   { id: "S6", scale: "S", ms: "Coach a younger team.", hs: "Coach or mentor a younger group." },
-  { id: "S7", scale: "S", ms: "Help new students feel welcome.", hs: "Help new people feel included and supported." },
-  { id: "S8", scale: "S", ms: "Raise money for a good cause.", hs: "Lead a fundraiser for a cause you care about." },
+  {
+    id: "S7",
+    scale: "S",
+    ms: "Help new students feel welcome.",
+    hs: "Help new people feel included and supported.",
+  },
+  {
+    id: "S8",
+    scale: "S",
+    ms: "Raise money for a good cause.",
+    hs: "Lead a fundraiser for a cause you care about.",
+  },
 
   // E — Enterprising
   { id: "E1", scale: "E", ms: "Be the captain of a team.", hs: "Lead a team toward a goal." },
-  { id: "E2", scale: "E", ms: "Sell things at a school fundraiser.", hs: "Sell a product or service to customers." },
-  { id: "E3", scale: "E", ms: "Start a small business of your own.", hs: "Launch and run your own business." },
-  { id: "E4", scale: "E", ms: "Convince people to vote for your idea.", hs: "Persuade people to support a cause or proposal." },
-  { id: "E5", scale: "E", ms: "Run a meeting and keep it moving.", hs: "Manage projects and direct other people's work." },
+  {
+    id: "E2",
+    scale: "E",
+    ms: "Sell things at a school fundraiser.",
+    hs: "Sell a product or service to customers.",
+  },
+  {
+    id: "E3",
+    scale: "E",
+    ms: "Start a small business of your own.",
+    hs: "Launch and run your own business.",
+  },
+  {
+    id: "E4",
+    scale: "E",
+    ms: "Convince people to vote for your idea.",
+    hs: "Persuade people to support a cause or proposal.",
+  },
+  {
+    id: "E5",
+    scale: "E",
+    ms: "Run a meeting and keep it moving.",
+    hs: "Manage projects and direct other people's work.",
+  },
   { id: "E6", scale: "E", ms: "Plan an event for your class.", hs: "Plan and run an event." },
-  { id: "E7", scale: "E", ms: "Make a plan to reach a big goal.", hs: "Set goals and rally people to reach them." },
-  { id: "E8", scale: "E", ms: "Speak in front of a group.", hs: "Pitch an idea to a group or audience." },
+  {
+    id: "E7",
+    scale: "E",
+    ms: "Make a plan to reach a big goal.",
+    hs: "Set goals and rally people to reach them.",
+  },
+  {
+    id: "E8",
+    scale: "E",
+    ms: "Speak in front of a group.",
+    hs: "Pitch an idea to a group or audience.",
+  },
 
   // C — Conventional
-  { id: "C1", scale: "C", ms: "Keep things neat and in order.", hs: "Organize records and files so they're easy to find." },
-  { id: "C2", scale: "C", ms: "Work with numbers and money.", hs: "Track budgets, invoices, or accounting records." },
-  { id: "C3", scale: "C", ms: "Follow a checklist exactly.", hs: "Follow detailed procedures precisely." },
-  { id: "C4", scale: "C", ms: "Make a chart or a spreadsheet.", hs: "Build spreadsheets and data tables." },
-  { id: "C5", scale: "C", ms: "Plan out a schedule.", hs: "Plan logistics and schedules for a team or event." },
-  { id: "C6", scale: "C", ms: "Sort and label your collection.", hs: "Catalog and label an inventory or collection." },
-  { id: "C7", scale: "C", ms: "Double-check work for mistakes.", hs: "Review work carefully to catch errors." },
-  { id: "C8", scale: "C", ms: "Keep score and track stats.", hs: "Track data, scores, or statistics." },
+  {
+    id: "C1",
+    scale: "C",
+    ms: "Keep things neat and in order.",
+    hs: "Organize records and files so they're easy to find.",
+  },
+  {
+    id: "C2",
+    scale: "C",
+    ms: "Work with numbers and money.",
+    hs: "Track budgets, invoices, or accounting records.",
+  },
+  {
+    id: "C3",
+    scale: "C",
+    ms: "Follow a checklist exactly.",
+    hs: "Follow detailed procedures precisely.",
+  },
+  {
+    id: "C4",
+    scale: "C",
+    ms: "Make a chart or a spreadsheet.",
+    hs: "Build spreadsheets and data tables.",
+  },
+  {
+    id: "C5",
+    scale: "C",
+    ms: "Plan out a schedule.",
+    hs: "Plan logistics and schedules for a team or event.",
+  },
+  {
+    id: "C6",
+    scale: "C",
+    ms: "Sort and label your collection.",
+    hs: "Catalog and label an inventory or collection.",
+  },
+  {
+    id: "C7",
+    scale: "C",
+    ms: "Double-check work for mistakes.",
+    hs: "Review work carefully to catch errors.",
+  },
+  {
+    id: "C8",
+    scale: "C",
+    ms: "Keep score and track stats.",
+    hs: "Track data, scores, or statistics.",
+  },
 ];
 
 export type LikertValue = 1 | 2 | 3 | 4 | 5;
@@ -116,7 +311,12 @@ export type ScaleScores = Record<RIASECCode, number>;
 
 export function scoreResponses(
   responses: Array<{ item_id: string; value: number; response_time_ms: number }>,
-): { scale_scores: ScaleScores; holland_code: string; flag_uniform: boolean; flag_speeding: boolean } {
+): {
+  scale_scores: ScaleScores;
+  holland_code: string;
+  flag_uniform: boolean;
+  flag_speeding: boolean;
+} {
   const byScale: Record<RIASECCode, number[]> = { R: [], I: [], A: [], S: [], E: [], C: [] };
   const itemMap = new Map(ITEMS.map((i) => [i.id, i]));
   for (const r of responses) {

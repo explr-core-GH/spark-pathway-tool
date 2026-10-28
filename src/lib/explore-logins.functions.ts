@@ -185,7 +185,7 @@ export type ExploreCard = {
 
 /** Resolve a class/camp join code to its picture roster. Names and avatars only. */
 export const getExploreGroup = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ code: z.string().min(3).max(24) }).parse(input))
+  .validator((input) => z.object({ code: z.string().min(3).max(24) }).parse(input))
   .handler(async ({ data }) => {
     await rateLimit("getExploreGroup", 60, 600);
     const g = await groupByCode(data.code);
@@ -225,7 +225,7 @@ export const getExploreGroup = createServerFn({ method: "POST" })
 
 /** Picture sign-in: verify the three-shape secret and mint a session. */
 export const exploreSignIn = createServerFn({ method: "POST" })
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({
         loginId: z.string().uuid(),
@@ -280,7 +280,7 @@ export const exploreSignIn = createServerFn({ method: "POST" })
 
 /** Passport-card QR: redeem the card token and mint a session. */
 export const redeemExploreToken = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ token: z.string().min(16).max(64) }).parse(input))
+  .validator((input) => z.object({ token: z.string().min(16).max(64) }).parse(input))
   .handler(async ({ data }) => {
     await rateLimit("redeemExploreToken", 20, 600);
     const { data: row } = await sb("explore_logins")
@@ -300,7 +300,7 @@ export const redeemExploreToken = createServerFn({ method: "POST" })
 /** Return the group's join code, creating one if missing. */
 export const ensureJoinCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => GroupRef.parse(input))
+  .validator((input) => GroupRef.parse(input))
   .handler(async ({ data, context }) => {
     await assertCanManageGroup(await whoIs(context.userId), data);
     const table = data.kind === "class" ? "classes" : "explr_camps";
@@ -323,7 +323,7 @@ export const ensureJoinCode = createServerFn({ method: "POST" })
  */
 export const provisionExploreLogins = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => GroupRef.extend({ reissue: z.boolean().optional() }).parse(input))
+  .validator((input) => GroupRef.extend({ reissue: z.boolean().optional() }).parse(input))
   .handler(async ({ data, context }) => {
     const staff = await whoIs(context.userId);
     await assertCanManageGroup(staff, data);
@@ -422,7 +422,7 @@ export const provisionExploreLogins = createServerFn({ method: "POST" })
  */
 export const addExploreStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
+  .validator((input) =>
     GroupRef.extend({
       firstName: z.string().trim().min(1).max(40),
       grade: z.number().int().min(4).max(8),

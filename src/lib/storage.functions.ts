@@ -14,7 +14,7 @@ const SIGNED_URL_SECONDS = 600;
  */
 export const signedFileUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({
         bucket: z.enum(PRIVATE_BUCKETS),

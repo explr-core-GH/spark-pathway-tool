@@ -44,7 +44,7 @@ async function requireLinked(guardianId: string, studentId: string) {
 /** Guardian: link a child by entering the child's family code. */
 export const linkChildWithCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => linkChildInput.parse(input))
+  .validator((input) => linkChildInput.parse(input))
   .handler(async ({ data, context }) => {
     const { rateLimit } = await import("./server/rate-limit.server");
     await rateLimit("linkChildWithCode", 20, 600);
@@ -106,7 +106,7 @@ export const linkChildWithCode = createServerFn({ method: "POST" })
 /** Guardian: confirm they are the parent/legal guardian and consent to participation. */
 export const recordGuardianConsent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => consentInput.parse(input))
+  .validator((input) => consentInput.parse(input))
   .handler(async ({ data, context }) => {
     await requireLinked(context.userId, data.studentId);
     const { clientIp } = await import("./server/rate-limit.server");
@@ -188,7 +188,7 @@ export const getGuardianHome = createServerFn({ method: "POST" })
 /** Guardian: the same family view the code path shows, for a linked child. */
 export const getGuardianStudentView = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => studentIdInput.parse(input))
+  .validator((input) => studentIdInput.parse(input))
   .handler(async ({ data, context }) => {
     await requireLinked(context.userId, data.studentId);
     const { buildFamilyView } = await import("./server/family-view.server");
@@ -198,7 +198,7 @@ export const getGuardianStudentView = createServerFn({ method: "POST" })
 /** Guardian: sign off on this year's plan; records who signed. */
 export const guardianAckPlanForStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => studentIdInput.parse(input))
+  .validator((input) => studentIdInput.parse(input))
   .handler(async ({ data, context }) => {
     const g = await requireGuardianRow(context.userId);
     await requireLinked(context.userId, data.studentId);
@@ -220,7 +220,7 @@ export const guardianAckPlanForStudent = createServerFn({ method: "POST" })
 /** Guardian: remove their own link to a child. */
 export const unlinkChild = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => studentIdInput.parse(input))
+  .validator((input) => studentIdInput.parse(input))
   .handler(async ({ data, context }) => {
     const { error } = await (await admin())
       .from("guardian_students")
@@ -266,7 +266,7 @@ export const listMyGuardians = createServerFn({ method: "POST" })
 /** Student: remove a guardian's access (RLS: student may update only their own rows). */
 export const removeMyGuardian = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => guardianIdInput.parse(input))
+  .validator((input) => guardianIdInput.parse(input))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("guardian_students")

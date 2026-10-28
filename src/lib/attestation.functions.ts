@@ -56,7 +56,7 @@ function escapeHtml(s: string): string {
 /** Student: ask the named supervisor to stamp an experience. The link only goes out by email. */
 export const requestAttestation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({
         experienceId: z.string().uuid(),
@@ -166,7 +166,7 @@ export type AttestationView = {
 
 /** Supervisor: load the request behind a link. */
 export const getAttestation = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ token: z.string().min(16).max(64) }).parse(input))
+  .validator((input) => z.object({ token: z.string().min(16).max(64) }).parse(input))
   .handler(async ({ data }): Promise<AttestationView> => {
     const { data: req } = await sb("attestation_requests")
       .select("id, status, expires_at, supervisor_name, experience_id, student_id, opened_at")
@@ -223,7 +223,7 @@ const Rating = z.object({
 
 /** Supervisor: stamp it. Writes ratings, freezes the experience as verified. */
 export const submitAttestation = createServerFn({ method: "POST" })
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({
         token: z.string().min(16).max(64),
@@ -307,7 +307,7 @@ export const submitAttestation = createServerFn({ method: "POST" })
 
 /** Supervisor: I didn't supervise this, or it's not accurate. */
 export const declineAttestation = createServerFn({ method: "POST" })
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({ token: z.string().min(16).max(64), reason: z.string().trim().min(3).max(600) })
       .parse(input),

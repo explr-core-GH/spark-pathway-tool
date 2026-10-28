@@ -292,7 +292,13 @@ export const TOP_MATCHES = 5;
 
 // ── D. Partner builder ──────────────────────────────────────────────────
 export type QuestionKind =
-  "text" | "choice" | "checklist_valence" | "upload" | "media" | "yes_no_text" | "settings";
+  | "text"
+  | "choice"
+  | "checklist_valence"
+  | "upload"
+  | "media"
+  | "yes_no_text"
+  | "settings";
 
 export type BankQuestion = {
   id: string;

@@ -109,11 +109,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<Ctx>(() => ({ state, set, reset }), [state, set, reset]);
 
-  return (
-    <AccessibilityContext.Provider value={value}>
-      {children}
-    </AccessibilityContext.Provider>
-  );
+  return <AccessibilityContext.Provider value={value}>{children}</AccessibilityContext.Provider>;
 }
 
 export function useAccessibility(): Ctx {

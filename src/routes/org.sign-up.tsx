@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthShell } from "@/components/passport/AuthShell";
 import { CONFIRM_EMAIL_NOTICE } from "@/lib/profile-completion";
@@ -21,11 +22,39 @@ function OrgSignUp() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  // A partner who signed in with Google/Microsoft but has no organization row
+  // yet finishes here without creating a second account.
+  const [existing, setExisting] = useState<User | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        setExisting(data.user);
+        setEmail(data.user.email ?? "");
+      }
+    });
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
+
+    if (existing) {
+      const { error: oErr } = await sb("organizations").insert({
+        id: existing.id,
+        name: name.trim(),
+        contact_name: contactName.trim() || null,
+        contact_email: existing.email ?? email,
+        website: website.trim() || null,
+      });
+      setLoading(false);
+      if (oErr) {
+        setError(oErr.message);
+        return;
+      }
+      navigate({ to: "/org" });
+      return;
+    }
 
     const { data, error: suErr } = await supabase.auth.signUp({
       email,
@@ -123,20 +152,22 @@ function OrgSignUp() {
             onChange={(e) => setContactName(e.target.value)}
           />
         </div>
-        <div>
-          <label className="label" htmlFor="org-email">
-            Email
-          </label>
-          <input
-            id="org-email"
-            className="field"
-            type="email"
-            required
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
+        {!existing && (
+          <div>
+            <label className="label" htmlFor="org-email">
+              Email
+            </label>
+            <input
+              id="org-email"
+              className="field"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+        )}
         <div>
           <label className="label" htmlFor="org-website">
             Website <span className="text-ink-500">(optional)</span>
@@ -151,25 +182,27 @@ function OrgSignUp() {
             placeholder="https://"
           />
         </div>
-        <div>
-          <label className="label" htmlFor="org-password">
-            Passphrase
-          </label>
-          <input
-            id="org-password"
-            className="field"
-            type="password"
-            required
-            minLength={8}
-            autoComplete="new-password"
-            aria-describedby="org-password-hint"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <p id="org-password-hint" className="mt-1.5 text-xs text-ink-500">
-            At least 8 characters.
-          </p>
-        </div>
+        {!existing && (
+          <div>
+            <label className="label" htmlFor="org-password">
+              Passphrase
+            </label>
+            <input
+              id="org-password"
+              className="field"
+              type="password"
+              required={!existing}
+              minLength={8}
+              autoComplete="new-password"
+              aria-describedby="org-password-hint"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <p id="org-password-hint" className="mt-1.5 text-xs text-ink-500">
+              At least 8 characters.
+            </p>
+          </div>
+        )}
         {error && (
           <p
             className="rounded-[var(--radius-control)] bg-gold-tint px-3 py-2 text-sm text-ink-900"

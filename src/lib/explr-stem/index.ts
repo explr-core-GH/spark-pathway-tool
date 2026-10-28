@@ -55,11 +55,7 @@ export type Construct = {
 };
 
 // The app-facing survey type keys.
-export type SurveyType =
-  | "retrospective"
-  | "middle_school"
-  | "high_school"
-  | "internship_exit";
+export type SurveyType = "retrospective" | "middle_school" | "high_school" | "internship_exit";
 export type Administration = "pre" | "post" | "retrospective";
 
 type RawConstructs = Record<string, Construct>;

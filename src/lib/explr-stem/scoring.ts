@@ -43,11 +43,7 @@ export function scoreConstruct(
   for (const item of items) {
     const r = responses[item.id];
     if (!r || r.skipped || r.value == null) continue;
-    answered.push(
-      item.reverse_coded
-        ? reverseCode(r.value, scaleMin, scaleMax)
-        : r.value,
-    );
+    answered.push(item.reverse_coded ? reverseCode(r.value, scaleMin, scaleMax) : r.value);
   }
   if (items.length === 0) return null;
   if (answered.length / items.length < 0.5) return null;
@@ -86,8 +82,7 @@ export function pairedChange(pre: number[], post: number[]): PairedChange | null
     sumPost += post[i];
   }
   const meanChange = diffs.reduce((a, b) => a + b, 0) / n;
-  const variance =
-    diffs.reduce((a, d) => a + (d - meanChange) ** 2, 0) / (n - 1);
+  const variance = diffs.reduce((a, d) => a + (d - meanChange) ** 2, 0) / (n - 1);
   const sdChange = Math.sqrt(variance);
 
   const se = sdChange / Math.sqrt(n);
@@ -140,10 +135,7 @@ export type WilcoxonResult = {
  *
  * Returns null when fewer than 2 non-zero pairs remain.
  */
-export function wilcoxonSignedRank(
-  pre: number[],
-  post: number[],
-): WilcoxonResult | null {
+export function wilcoxonSignedRank(pre: number[], post: number[]): WilcoxonResult | null {
   const n0 = Math.min(pre.length, post.length);
   // Non-zero differences only — exact-tie pairs are dropped (standard).
   const diffs: number[] = [];
@@ -209,10 +201,7 @@ function erf(x: number): number {
   const t = 1 / (1 + 0.3275911 * ax);
   const y =
     1 -
-    ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t -
-      0.284496736) *
-      t +
-      0.254829592) *
+    ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) *
       t *
       Math.exp(-ax * ax);
   return sign * y;
@@ -234,11 +223,7 @@ function regIncompleteBeta(x: number, a: number, b: number): number {
   if (x <= 0) return 0;
   if (x >= 1) return 1;
   const bt = Math.exp(
-    logGamma(a + b) -
-      logGamma(a) -
-      logGamma(b) +
-      a * Math.log(x) +
-      b * Math.log(1 - x),
+    logGamma(a + b) - logGamma(a) - logGamma(b) + a * Math.log(x) + b * Math.log(1 - x),
   );
   if (x < (a + 1) / (a + b + 2)) {
     return (bt * betacf(a, b, x)) / a;
@@ -285,24 +270,17 @@ function betacf(a: number, b: number, x: number): number {
 function logGamma(z: number): number {
   const g = 7;
   const c = [
-    0.99999999999980993, 676.5203681218851, -1259.1392167224028,
-    771.32342877765313, -176.61502916214059, 12.507343278686905,
-    -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7,
+    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
+    1.5056327351493116e-7,
   ];
   if (z < 0.5) {
     // reflection formula
-    return (
-      Math.log(Math.PI / Math.sin(Math.PI * z)) - logGamma(1 - z)
-    );
+    return Math.log(Math.PI / Math.sin(Math.PI * z)) - logGamma(1 - z);
   }
   z -= 1;
   let a = c[0];
   const tt = z + g + 0.5;
   for (let i = 1; i < g + 2; i++) a += c[i] / (z + i);
-  return (
-    0.5 * Math.log(2 * Math.PI) +
-    (z + 0.5) * Math.log(tt) -
-    tt +
-    Math.log(a)
-  );
+  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(tt) - tt + Math.log(a);
 }

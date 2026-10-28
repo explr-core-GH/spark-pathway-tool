@@ -68,7 +68,7 @@ async function callExplr(action: Action, campId?: string) {
 
 export const explrProxy = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => inputSchema.parse(input))
+  .validator((input: unknown) => inputSchema.parse(input))
   .handler(async ({ data, context }) => {
     // Rosters and waitlists carry PII / medical info — admin-gate them.
     // Camp listings are admin-only here too since this is an admin tool;

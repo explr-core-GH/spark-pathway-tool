@@ -54,7 +54,7 @@ async function sendSms(to: string, body: string): Promise<Delivery> {
 
 export const recordApplicationStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({
         generalId: z.string().uuid(),
@@ -205,7 +205,7 @@ export const recordApplicationStatus = createServerFn({ method: "POST" })
 /** Staff: clear an "I'd need help" answer once help is arranged (restores the score). */
 export const clearNeedHelp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({
         partnerAppId: z.string().uuid(),

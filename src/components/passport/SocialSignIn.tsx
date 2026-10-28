@@ -83,9 +83,7 @@ export function SocialSignInButton({
       // Tokens came back and the session is set — send the user onward.
       await onSignedIn?.();
     } catch (e) {
-      onError(
-        e instanceof Error ? e.message : "Sign-in failed. Please try again.",
-      );
+      onError(e instanceof Error ? e.message : "Sign-in failed. Please try again.");
     } finally {
       setBusy(false);
     }

@@ -87,7 +87,7 @@ const FetchInput = z
  */
 export const fetchArchiveRows = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => FetchInput.parse(input))
+  .validator((input) => FetchInput.parse(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context.userId);
     const { table, from, to } = data;

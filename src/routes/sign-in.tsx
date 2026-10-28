@@ -60,8 +60,19 @@ function SignIn() {
 
   async function landStudent() {
     const { data } = await supabase.auth.getUser();
-    if (data.user) await completeProfileFromMetadata(data.user);
-    navigate({ to: "/student" });
+    if (!data.user) {
+      navigate({ to: "/student" });
+      return;
+    }
+    await completeProfileFromMetadata(data.user);
+    // A first Google/Microsoft sign-in has no profile row yet: ask for first
+    // name and grade before opening the passport.
+    const { data: row } = await supabase
+      .from("students")
+      .select("id")
+      .eq("id", data.user.id)
+      .maybeSingle();
+    navigate({ to: row ? "/student" : "/welcome" });
   }
 
   const eyebrow =

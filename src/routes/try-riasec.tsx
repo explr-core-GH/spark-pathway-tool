@@ -265,7 +265,6 @@ function TryRiasec() {
                 type="button"
                 role="radio"
                 aria-checked={false}
-
                 onClick={() => answer(v)}
                 aria-label={LIKERT_LABELS[v]}
                 className="group flex min-h-[44px] flex-col items-center gap-2 rounded-[var(--radius-card)] border border-line bg-paper-raised px-1 py-4 transition-colors hover:border-emerald hover:bg-mint-tint/50 focus-visible:border-emerald"

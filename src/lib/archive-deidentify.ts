@@ -101,7 +101,12 @@ export type ArchiveTable = (typeof ALL_ARCHIVE_TABLES)[number];
 
 /** JSON-serializable cell value — what PostgREST returns and what server functions may carry. */
 export type JsonValue =
-  string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [key: string]: JsonValue };
 export type ArchiveRow = Record<string, JsonValue>;
 
 // ── column rules ────────────────────────────────────────────────────────

@@ -37,18 +37,12 @@ export type InternshipOccupationLink = {
 };
 
 export async function loadClusters(): Promise<Cluster[]> {
-  const { data } = await supabase
-    .from("career_clusters")
-    .select("*")
-    .order("sort_order");
+  const { data } = await supabase.from("career_clusters").select("*").order("sort_order");
   return (data as Cluster[]) ?? [];
 }
 
 export async function loadOccupations(): Promise<Occupation[]> {
-  const { data } = await supabase
-    .from("occupations")
-    .select("*")
-    .order("sort_order");
+  const { data } = await supabase.from("occupations").select("*").order("sort_order");
   return (data as Occupation[]) ?? [];
 }
 

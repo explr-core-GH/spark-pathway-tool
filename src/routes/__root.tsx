@@ -15,6 +15,7 @@ import { AccessibilityProvider } from "@/components/AccessibilityProvider";
 import { AccessibilityToolbar } from "@/components/AccessibilityToolbar";
 import { AssignmentNudge } from "@/components/AssignmentNudge";
 import { usePresenceHeartbeat } from "@/lib/use-presence";
+import { installGlobalErrorReporting, reportError } from "@/lib/error-report";
 
 import appCss from "../styles.css?url";
 
@@ -34,6 +35,9 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
   const message = error instanceof Error ? error.message : String(error);
+  useEffect(() => {
+    reportError(error, "render");
+  }, [error]);
   return (
     <div className="mx-auto max-w-xl px-6 py-32 text-center">
       <p className="eyebrow text-destructive">Error</p>
@@ -132,6 +136,9 @@ function RootComponent() {
 
   // Heartbeat the signed-in user's location for the admin Live Monitor.
   usePresenceHeartbeat();
+
+  // Uncaught browser errors go to the Worker log (Lovable Cloud → Logs).
+  useEffect(() => installGlobalErrorReporting(), []);
 
   useEffect(() => {
     // Only invalidate route loaders when the *identity* actually changes —

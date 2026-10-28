@@ -41,8 +41,17 @@ function OrgSignIn() {
 
   async function landOrg() {
     const { data } = await supabase.auth.getUser();
-    if (data.user) await completeProfileFromMetadata(data.user);
-    navigate({ to: "/org" });
+    if (!data.user) {
+      navigate({ to: "/org" });
+      return;
+    }
+    await completeProfileFromMetadata(data.user);
+    const { data: row } = await supabase
+      .from("organizations")
+      .select("id")
+      .eq("id", data.user.id)
+      .maybeSingle();
+    navigate({ to: row ? "/org" : "/org/sign-up" });
   }
 
   return (

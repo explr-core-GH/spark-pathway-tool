@@ -17,12 +17,7 @@ export const FORMAT_TYPES = [
 ] as const;
 export type FormatType = (typeof FORMAT_TYPES)[number];
 
-export const DIFFICULTIES = [
-  "Intro",
-  "Intermediate",
-  "Intermediate-Advanced",
-  "Advanced",
-] as const;
+export const DIFFICULTIES = ["Intro", "Intermediate", "Intermediate-Advanced", "Advanced"] as const;
 export type Difficulty = (typeof DIFFICULTIES)[number];
 
 export const SOCIAL_STRUCTURES = [
@@ -119,7 +114,7 @@ export type ActivityScore = Record<RIASECCode, number>; // each 0-3
 export type Activity = {
   id: string;
   name: string;
-  timePct: number;   // 0-100; relative weight
+  timePct: number; // 0-100; relative weight
   scores: ActivityScore;
   notes?: string;
 };
@@ -149,7 +144,12 @@ export const RIASEC_LETTERS: RIASECCode[] = ["R", "I", "A", "S", "E", "C"];
 // that sum to 100. Returns zeros if there are no activities or no time.
 export function computeRiasecProfile(p: Program): Record<RIASECCode, number> {
   const totals: Record<RIASECCode, number> = {
-    R: 0, I: 0, A: 0, S: 0, E: 0, C: 0,
+    R: 0,
+    I: 0,
+    A: 0,
+    S: 0,
+    E: 0,
+    C: 0,
   };
   let timeSum = 0;
   for (const a of p.activities) {
@@ -161,11 +161,15 @@ export function computeRiasecProfile(p: Program): Record<RIASECCode, number> {
     }
   }
   if (timeSum === 0) return totals;
-  const grand =
-    totals.R + totals.I + totals.A + totals.S + totals.E + totals.C;
+  const grand = totals.R + totals.I + totals.A + totals.S + totals.E + totals.C;
   if (grand === 0) return totals;
   const out: Record<RIASECCode, number> = {
-    R: 0, I: 0, A: 0, S: 0, E: 0, C: 0,
+    R: 0,
+    I: 0,
+    A: 0,
+    S: 0,
+    E: 0,
+    C: 0,
   };
   for (const letter of RIASEC_LETTERS) {
     out[letter] = (totals[letter] / grand) * 100;
@@ -220,10 +224,7 @@ export function exampleSeed(): Program[] {
   ff.notes =
     "Stealth Realistic program with Artistic on-ramp. Sewing, jewelry design, 3D-printed accessories.";
   ff.primaryCluster = "Arts, A/V Technology & Communications";
-  ff.secondaryClusters = [
-    "Manufacturing",
-    "Science, Technology, Engineering & Mathematics (STEM)",
-  ];
+  ff.secondaryClusters = ["Manufacturing", "Science, Technology, Engineering & Mathematics (STEM)"];
   ff.topSkills = [
     "Visualization",
     "Critical Thinking",
@@ -280,8 +281,7 @@ export function exampleSeed(): Program[] {
   sp.culminatingEvent = "Mission run";
   sp.notes =
     "Underwater ROV build. Strong Realistic + Investigative; team coordination drives Social/Enterprising.";
-  sp.primaryCluster =
-    "Science, Technology, Engineering & Mathematics (STEM)";
+  sp.primaryCluster = "Science, Technology, Engineering & Mathematics (STEM)";
   sp.secondaryClusters = ["Manufacturing", "Information Technology"];
   sp.topSkills = [
     "Complex Problem Solving",
@@ -335,9 +335,7 @@ export function exampleSeed(): Program[] {
   ai.notes =
     "Investigative-heavy with Conventional structure for ML pipelines. Real LLM project work.";
   ai.primaryCluster = "Information Technology";
-  ai.secondaryClusters = [
-    "Science, Technology, Engineering & Mathematics (STEM)",
-  ];
+  ai.secondaryClusters = ["Science, Technology, Engineering & Mathematics (STEM)"];
   ai.topSkills = [
     "Programming",
     "Complex Problem Solving",

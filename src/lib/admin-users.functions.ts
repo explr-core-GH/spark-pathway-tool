@@ -36,7 +36,7 @@ import { makeStaffPassword as makePassword } from "./server/credentials.server";
  */
 export const adminCreateEducator = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: { fullName: string; email: string; password?: string; internshipSlugs?: string[] }) =>
       input,
   )
@@ -99,7 +99,7 @@ export const adminCreateEducator = createServerFn({ method: "POST" })
 
 export const adminResetPassword = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { email?: string; userId?: string; newPassword: string }) => input)
+  .validator((input: { email?: string; userId?: string; newPassword: string }) => input)
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
 

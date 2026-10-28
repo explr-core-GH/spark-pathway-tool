@@ -37,9 +37,7 @@ function PlacedWithYou() {
     // Call rpc as a method on the client so `this` stays bound.
     (
       supabase as unknown as {
-        rpc: (
-          fn: string,
-        ) => Promise<{ data: Placed[] | null; error: { message: string } | null }>;
+        rpc: (fn: string) => Promise<{ data: Placed[] | null; error: { message: string } | null }>;
       }
     )
       .rpc("org_placed_students")

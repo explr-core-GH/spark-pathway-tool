@@ -47,7 +47,7 @@ export type FamilyCodeRow = {
 /** Student: create a new family code. Returned in plaintext exactly once. */
 export const createFamilyCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
+  .validator((input) =>
     z.object({ label: z.string().trim().max(40).optional() }).parse(input ?? {}),
   )
   .handler(async ({ data, context }) => {
@@ -99,7 +99,7 @@ export const listFamilyCodes = createServerFn({ method: "POST" })
 /** Student: revoke a code and every session that came from it. */
 export const revokeFamilyCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { error } = await sb("family_links")
       .update({ revoked_at: new Date().toISOString() })
@@ -112,7 +112,7 @@ export const revokeFamilyCode = createServerFn({ method: "POST" })
 
 /** Caregiver: exchange a code for a 30-day family session token. */
 export const redeemFamilyCode = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ code: z.string().min(4).max(20) }).parse(input))
+  .validator((input) => z.object({ code: z.string().min(4).max(20) }).parse(input))
   .handler(async ({ data }) => {
     await rateLimit("redeemFamilyCode", 20, 600);
     if (normalize(data.code).length !== CODE_LEN)
@@ -164,7 +164,7 @@ async function sessionFor(token: string) {
 
 /** Caregiver: sign off on this year's plan (Ohio's guardian signature on the Student Success Plan). */
 export const guardianAckPlan = createServerFn({ method: "POST" })
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({ token: z.string().min(16).max(128), name: z.string().trim().min(1).max(120) })
       .parse(input),
@@ -188,7 +188,7 @@ export const guardianAckPlan = createServerFn({ method: "POST" })
 
 /** Caregiver: the student's completed results for a valid family session. */
 export const getFamilyView = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ token: z.string().min(16).max(128) }).parse(input))
+  .validator((input) => z.object({ token: z.string().min(16).max(128) }).parse(input))
   .handler(async ({ data }) => {
     const s = await sessionFor(data.token);
     const { buildFamilyView } = await import("./server/family-view.server");
@@ -199,7 +199,7 @@ export const getFamilyView = createServerFn({ method: "POST" })
 
 /** Caregiver: end this device's family session (the code itself keeps working). */
 export const endFamilySession = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ token: z.string().min(16).max(128) }).parse(input))
+  .validator((input) => z.object({ token: z.string().min(16).max(128) }).parse(input))
   .handler(async ({ data }) => {
     await sb("family_sessions").delete().eq("token_hash", hashToken(data.token));
     return { ok: true };

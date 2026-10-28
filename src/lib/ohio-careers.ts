@@ -256,7 +256,9 @@ export const TAG_LABEL: Record<OhioCareer["tags"][number], string> = {
 // ── Matching ───────────────────────────────────────────────────────────────
 
 export type MatchInput =
-  { scores: Partial<Record<RIASECCode, number>> } | { code: string } | { letters: RIASECCode[] };
+  | { scores: Partial<Record<RIASECCode, number>> }
+  | { code: string }
+  | { letters: RIASECCode[] };
 
 function vectorFrom(input: MatchInput): Record<RIASECCode, number> | null {
   const v: Record<RIASECCode, number> = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };

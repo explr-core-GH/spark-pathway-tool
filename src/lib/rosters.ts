@@ -49,10 +49,6 @@ export function parseRosterText(input: string): RosterStudent[] {
 
 export function stringifyRoster(students: RosterStudent[]): string {
   return students
-    .map((s) =>
-      [s.name, s.grade ?? "", s.email ?? "", s.notes ?? ""]
-        .filter(Boolean)
-        .join(", "),
-    )
+    .map((s) => [s.name, s.grade ?? "", s.email ?? "", s.notes ?? ""].filter(Boolean).join(", "))
     .join("\n");
 }

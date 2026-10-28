@@ -69,13 +69,15 @@ function EducatorSignIn() {
     }
     await completeProfileFromMetadata(data.user);
     // Instructors and admins live in separate tables (no overlap) — same
-    // routing as the password flow above.
-    const { data: adminRow } = await (supabase as any)
-      .from("admins")
-      .select("id")
-      .eq("id", data.user.id)
-      .maybeSingle();
-    navigate({ to: adminRow ? "/instructor/admin" : "/instructor/dashboard" });
+    // routing as the password flow above. A social login with neither row
+    // finishes its instructor profile on the sign-up page.
+    const [{ data: adminRow }, { data: eduRow }] = await Promise.all([
+      supabase.from("admins").select("id").eq("id", data.user.id).maybeSingle(),
+      supabase.from("educators").select("id").eq("id", data.user.id).maybeSingle(),
+    ]);
+    if (adminRow) navigate({ to: "/instructor/admin" });
+    else if (eduRow) navigate({ to: "/instructor/dashboard" });
+    else navigate({ to: "/instructor/sign-up" });
   }
 
   return (

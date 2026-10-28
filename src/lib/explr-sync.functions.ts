@@ -361,7 +361,7 @@ export const syncExplrMore = createServerFn({ method: "POST" })
 // Toggle an educator's assignment to an ExplrMore camp instance. Idempotent.
 export const setExplrCampEducator = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { explrCampId: string; educatorId: string; on: boolean }) => input)
+  .validator((input: { explrCampId: string; educatorId: string; on: boolean }) => input)
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
     const ece = supabaseAdmin.from("explr_camp_educators");
