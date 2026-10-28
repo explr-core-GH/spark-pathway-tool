@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { MicrosoftSignIn, OrDivider } from "@/components/passport/MicrosoftSignIn";
 
 export const Route = createFileRoute("/instructor/sign-in")({
   head: () => ({ meta: [{ title: "Instructor sign in — EXPLR" }] }),
