@@ -41,9 +41,12 @@ export const signedFileUrl = createServerFn({ method: "POST" })
       const owner = path.split("/")[0] ?? "";
       if (owner === uid) allowed = true;
       else if (/^[0-9a-f-]{36}$/i.test(owner)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const rpc = supabaseAdmin.rpc as unknown as (f: string, a: object) => Promise<any>;
-        const { data: ok } = await rpc("staff_can_see_student", { _uid: uid, _student_id: owner });
+        // Call rpc as a method on the client so `this` stays bound.
+        const { data: ok } = await (
+          supabaseAdmin as unknown as {
+            rpc: (f: string, a: Record<string, unknown>) => Promise<{ data: unknown }>;
+          }
+        ).rpc("staff_can_see_student", { _uid: uid, _student_id: owner });
         allowed = ok === true || (await isAdmin());
       } else allowed = await isAdmin();
     } else if (data.bucket === "form-uploads") {

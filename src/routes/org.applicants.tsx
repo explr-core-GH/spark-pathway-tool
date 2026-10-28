@@ -34,14 +34,19 @@ function PlacedWithYou() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Call rpc as a method on the client so `this` stays bound.
     (
-      supabase.rpc as unknown as (
-        fn: string,
-      ) => Promise<{ data: Placed[] | null; error: { message: string } | null }>
-    )("org_placed_students").then(({ data, error: e }) => {
-      if (e) setError(e.message);
-      setRows(data ?? []);
-    });
+      supabase as unknown as {
+        rpc: (
+          fn: string,
+        ) => Promise<{ data: Placed[] | null; error: { message: string } | null }>;
+      }
+    )
+      .rpc("org_placed_students")
+      .then(({ data, error: e }) => {
+        if (e) setError(e.message);
+        setRows(data ?? []);
+      });
   }, []);
 
   const byInternship = new Map<string, Placed[]>();
