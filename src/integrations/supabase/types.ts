@@ -2985,6 +2985,24 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_hits: {
+        Row: {
+          hits: number
+          key: string
+          window_start: string
+        }
+        Insert: {
+          hits?: number
+          key: string
+          window_start: string
+        }
+        Update: {
+          hits?: number
+          key?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       responses: {
         Row: {
           completed_at: string
@@ -3343,6 +3361,10 @@ export type Database = {
     }
     Functions: {
       advance_session: { Args: { p_session_id: string }; Returns: undefined }
+      check_rate_limit: {
+        Args: { _key: string; _max: number; _window_seconds: number }
+        Returns: boolean
+      }
       daily_explr_sync_enabled: { Args: never; Returns: boolean }
       educator_can_access_camp: {
         Args: { _educator_id: string; _explr_camp_id: string }
