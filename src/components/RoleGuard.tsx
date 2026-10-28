@@ -95,7 +95,6 @@ export function RoleGuard({ requires, children }: Props) {
     );
   }
 
-  const isEducator = !!educator;
   // An instructor is approved once an admin sets approved=true. Program-type
   // tagging (STEM / FTC / etc.) was removed — we no longer require it.
   const isApprovedEducator = !!educator && educator.approved;
