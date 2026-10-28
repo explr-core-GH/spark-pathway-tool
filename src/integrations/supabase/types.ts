@@ -3432,6 +3432,39 @@ export type Database = {
           },
         ]
       }
+      sync_runs: {
+        Row: {
+          error: string | null
+          finished_at: string | null
+          id: string
+          kind: string
+          ok: boolean
+          started_at: string
+          students_synced: number | null
+          worksites_synced: number | null
+        }
+        Insert: {
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          kind: string
+          ok?: boolean
+          started_at?: string
+          students_synced?: number | null
+          worksites_synced?: number | null
+        }
+        Update: {
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          kind?: string
+          ok?: boolean
+          started_at?: string
+          students_synced?: number | null
+          worksites_synced?: number | null
+        }
+        Relationships: []
+      }
       unit_rosters: {
         Row: {
           students: Json
