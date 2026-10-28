@@ -198,3 +198,75 @@ export function useOrg() {
 
   return { user, org, loading };
 }
+
+export type GuardianRow = {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string | null;
+};
+
+/** useGuardian — the signed-in user's guardians row (family account), or null. */
+export function useGuardian() {
+  const { user, loading: authLoading } = useSession();
+  const [guardian, setGuardian] = useState<GuardianRow | null>(null);
+  const [loading, setLoading] = useState(true);
+  const userId = user?.id ?? null;
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!userId) {
+      setGuardian(null);
+      setLoading(authLoading);
+      return;
+    }
+    setLoading(true);
+    supabase
+      .from("guardians")
+      .select("id, full_name, email, phone")
+      .eq("id", userId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled) return;
+        setGuardian(data ?? null);
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, authLoading]);
+
+  return { user, guardian, loading };
+}
+
+/** Which non-staff account rows the signed-in user has (student / guardian / organization). */
+export function useAccountKinds() {
+  const { user, loading: authLoading } = useSession();
+  const [kinds, setKinds] = useState({ isStudent: false, isGuardian: false, isOrg: false });
+  const [loading, setLoading] = useState(true);
+  const userId = user?.id ?? null;
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!userId) {
+      setKinds({ isStudent: false, isGuardian: false, isOrg: false });
+      setLoading(authLoading);
+      return;
+    }
+    setLoading(true);
+    Promise.all([
+      supabase.from("students").select("id").eq("id", userId).maybeSingle(),
+      supabase.from("guardians").select("id").eq("id", userId).maybeSingle(),
+      supabase.from("organizations").select("id").eq("id", userId).maybeSingle(),
+    ]).then(([s, g, o]) => {
+      if (cancelled) return;
+      setKinds({ isStudent: !!s.data, isGuardian: !!g.data, isOrg: !!o.data });
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, authLoading]);
+
+  return { ...kinds, loading };
+}
