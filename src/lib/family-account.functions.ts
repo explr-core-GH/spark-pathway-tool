@@ -7,6 +7,7 @@ import {
   studentIdInput,
   type Relationship,
 } from "./family-account.schemas";
+import { normalize } from "./family-code";
 
 /**
  * Guardian (family) accounts. A signed-in guardian links to any number of
@@ -58,7 +59,6 @@ export const linkChildWithCode = createServerFn({ method: "POST" })
     if ((count ?? 0) >= 10)
       throw new Error("You've added the most children allowed today. Try again tomorrow.");
 
-    const { normalize } = await import("./family.functions");
     const { familyCodeHash } = await import("./server/hash.server");
     const norm = normalize(data.code);
     if (norm.length !== 6) throw new Error(BAD_CODE);

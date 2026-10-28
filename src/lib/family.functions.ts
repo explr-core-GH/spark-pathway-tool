@@ -3,6 +3,7 @@ import { randomBytes, randomInt } from "node:crypto";
 import { familyCodeHash, familySessionHash } from "./server/hash.server";
 import { rateLimit } from "./server/rate-limit.server";
 import { z } from "zod";
+import { normalize } from "./family-code";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
@@ -27,12 +28,7 @@ const CODE_LEN = 6;
 const hashCode = (code: string) => familyCodeHash(normalize(code));
 const hashToken = (t: string) => familySessionHash(t);
 
-export function normalize(code: string): string {
-  return code
-    .toUpperCase()
-    .replace(/^EXPLR[-\s]*/, "")
-    .replace(/[^A-Z0-9]/g, "");
-}
+export { normalize };
 function makeCode(): string {
   let s = "";
   for (let i = 0; i < CODE_LEN; i++) s += ALPHABET[randomInt(ALPHABET.length)];
