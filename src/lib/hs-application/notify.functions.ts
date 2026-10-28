@@ -6,6 +6,7 @@ import { DEMO_DOMAIN } from "@/lib/demo";
 import { APP_STATUS_LABEL, REQUIREMENT_BY_KEY } from "./content";
 import { buildStatusMessage, type StatusContext } from "./notify-messages";
 import { hydrateBuilder } from "./types";
+import { getPublicOrigin } from "../server/origin.server";
 
 /**
  * Application status changes and the notifications they send.
@@ -71,7 +72,8 @@ export const recordApplicationStatus = createServerFn({ method: "POST" })
         status: z.enum(STATUSES),
         note: z.string().trim().max(1000).optional(),
         placedOpportunityId: z.string().uuid().optional(),
-        origin: z.string().url().max(200).optional(),
+        // Ignored: email links use the server-derived origin.
+        origin: z.string().max(200).optional(),
       })
       .parse(input),
   )
@@ -127,7 +129,7 @@ export const recordApplicationStatus = createServerFn({ method: "POST" })
       firstName: String(core.preferredName || core.legalFirst || "there"),
       status: data.status,
       note: data.note ?? null,
-      origin: data.origin ?? "https://explrpathways.org",
+      origin: getPublicOrigin(),
       core,
       placed: null,
       suggestions: [],

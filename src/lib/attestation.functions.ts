@@ -1,5 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createHash, randomBytes } from "node:crypto";
+import { randomBytes } from "node:crypto";
+import { attestationTokenHash } from "./server/hash.server";
+import { getPublicOrigin } from "./server/origin.server";
+import { rateLimit } from "./server/rate-limit.server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -19,10 +22,8 @@ import { OMJ_SKILLS, COMPETENCIES } from "@/lib/competencies";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sb = (table: string): any => (supabaseAdmin.from as unknown as (n: string) => any)(table);
 
-const pepper = () =>
-  process.env.ATTESTATION_PEPPER ?? process.env.SUPABASE_SERVICE_ROLE_KEY ?? "explr";
-const hashToken = (t: string) =>
-  createHash("sha256").update(`attest:${t}:${pepper()}`).digest("hex");
+const hashToken = attestationTokenHash;
+const MAX_REQUESTS_PER_DAY = 5;
 
 const skillToCompetency = new Map<string, string>();
 for (const c of COMPETENCIES) for (const s of c.omjSkills) skillToCompetency.set(s, c.key);
@@ -73,7 +74,7 @@ function escapeHtml(s: string): string {
   );
 }
 
-/** Student: ask the named supervisor to stamp an experience. Returns the link too, so it can be shared by hand. */
+/** Student: ask the named supervisor to stamp an experience. The link only goes out by email. */
 export const requestAttestation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -82,11 +83,26 @@ export const requestAttestation = createServerFn({ method: "POST" })
         experienceId: z.string().uuid(),
         supervisorName: z.string().trim().min(1).max(120),
         supervisorEmail: z.string().trim().email().max(160),
-        origin: z.string().url().max(200),
+        // Ignored: links are built from the server's own host. Kept so old callers don't break.
+        origin: z.string().max(200).optional(),
       })
       .parse(input),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }): Promise<{ ok: true; sent: boolean; error?: string }> => {
+    await rateLimit("requestAttestation", 10, 600);
+    const claimsEmail = (context.claims as { email?: string } | undefined)?.email;
+    const ownEmail =
+      claimsEmail ?? (await supabaseAdmin.auth.admin.getUserById(context.userId)).data.user?.email;
+    if (ownEmail && ownEmail.trim().toLowerCase() === data.supervisorEmail.toLowerCase())
+      throw new Error(
+        "That's your own email. Enter the email of the supervisor who saw your work.",
+      );
+    const { count: recent } = await sb("attestation_requests")
+      .select("id", { count: "exact", head: true })
+      .eq("student_id", context.userId)
+      .gte("created_at", new Date(Date.now() - 24 * 3600_000).toISOString());
+    if ((recent ?? 0) >= MAX_REQUESTS_PER_DAY)
+      throw new Error("You've sent the most requests allowed today. Try again tomorrow.");
     const { data: exp } = await sb("experiences")
       .select("*")
       .eq("id", data.experienceId)
@@ -129,7 +145,7 @@ export const requestAttestation = createServerFn({ method: "POST" })
       })
       .eq("id", e.id);
 
-    const link = `${data.origin.replace(/\/$/, "")}/stamp/${token}`;
+    const link = `${getPublicOrigin()}/stamp/${token}`;
     const subject = `${firstName} asked you to verify an experience on EXPLR Pathways`;
     const html = `
       <p>Hi ${escapeHtml(data.supervisorName)},</p>
@@ -145,7 +161,7 @@ export const requestAttestation = createServerFn({ method: "POST" })
         email_error: mail.error ?? null,
       })
       .eq("id", (req as { id: string }).id);
-    return { link, emailed: mail.sent, emailError: mail.error ?? null };
+    return mail.error ? { ok: true, sent: mail.sent, error: mail.error } : { ok: true, sent: mail.sent };
   });
 
 export type AttestationView = {
