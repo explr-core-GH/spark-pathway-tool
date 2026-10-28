@@ -71,7 +71,7 @@ async function ensureUser(email: string, meta: Record<string, unknown>): Promise
   return data.user.id;
 }
 
-async function must(p: Promise<{ error: { message: string } | null }>, what: string) {
+async function must(p: PromiseLike<{ error: { message: string } | null }>, what: string) {
   const { error } = await p;
   if (error) throw new Error(`${what}: ${error.message}`);
 }
