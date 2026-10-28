@@ -38,6 +38,23 @@ function FamilySignIn() {
       .select("id")
       .eq("id", data.user.id)
       .maybeSingle();
+    const meta = data.user.user_metadata as Record<string, unknown>;
+    if (!g && meta.account === "guardian" && typeof meta.full_name === "string") {
+      // Finish a sign-up that had to wait for email confirmation.
+      const { error: gErr } = await supabase.from("guardians").insert({
+        id: data.user.id,
+        full_name: meta.full_name,
+        email: data.user.email ?? email.trim(),
+        phone: typeof meta.phone === "string" ? meta.phone : null,
+      });
+      setLoading(false);
+      if (gErr) {
+        setError(gErr.message);
+        return;
+      }
+      navigate({ to: "/family/home" });
+      return;
+    }
     setLoading(false);
     if (!g) {
       setNotFamily(true);

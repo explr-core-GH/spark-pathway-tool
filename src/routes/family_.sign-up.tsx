@@ -39,7 +39,12 @@ function FamilySignUp() {
     const { data, error: suErr } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/family/home` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/family/sign-in`,
+        // Kept so the guardians row can be created on first sign-in when
+        // email confirmation is on (no session yet at sign-up).
+        data: { account: "guardian", full_name: fullName.trim(), phone: phone.trim() || null },
+      },
     });
     if (suErr || !data.user) {
       setError(suErr?.message ?? "Could not create the account.");

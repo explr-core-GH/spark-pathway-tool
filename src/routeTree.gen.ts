@@ -37,6 +37,8 @@ import { Route as EducatorSplatRouteImport } from './routes/educator.$'
 import { Route as ExploreIndexRouteImport } from './routes/explore.index'
 import { Route as ExploreCodeRouteImport } from './routes/explore.$code'
 import { Route as ExploreScanRouteImport } from './routes/explore.scan'
+import { Route as FamilySignInRouteImport } from './routes/family_.sign-in'
+import { Route as FamilySignUpRouteImport } from './routes/family_.sign-up'
 import { Route as FamilyViewRouteImport } from './routes/family_.view'
 import { Route as GoTokenRouteImport } from './routes/go.$token'
 import { Route as InstructorIndexRouteImport } from './routes/instructor.index'
@@ -237,6 +239,16 @@ const ExploreCodeRoute = ExploreCodeRouteImport.update({
 const ExploreScanRoute = ExploreScanRouteImport.update({
   id: '/explore/scan',
   path: '/explore/scan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FamilySignInRoute = FamilySignInRouteImport.update({
+  id: '/family_/sign-in',
+  path: '/family/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FamilySignUpRoute = FamilySignUpRouteImport.update({
+  id: '/family_/sign-up',
+  path: '/family/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FamilyViewRoute = FamilyViewRouteImport.update({
@@ -593,6 +605,8 @@ export interface FileRoutesByFullPath {
   '/educator/$': typeof EducatorSplatRoute
   '/explore/$code': typeof ExploreCodeRoute
   '/explore/scan': typeof ExploreScanRoute
+  '/family/sign-in': typeof FamilySignInRoute
+  '/family/sign-up': typeof FamilySignUpRoute
   '/family/view': typeof FamilyViewRoute
   '/go/$token': typeof GoTokenRoute
   '/instructor/admin': typeof InstructorAdminRouteWithChildren
@@ -683,6 +697,8 @@ export interface FileRoutesByTo {
   '/educator/$': typeof EducatorSplatRoute
   '/explore/$code': typeof ExploreCodeRoute
   '/explore/scan': typeof ExploreScanRoute
+  '/family/sign-in': typeof FamilySignInRoute
+  '/family/sign-up': typeof FamilySignUpRoute
   '/family/view': typeof FamilyViewRoute
   '/go/$token': typeof GoTokenRoute
   '/instructor/dashboard': typeof InstructorDashboardRoute
@@ -774,6 +790,8 @@ export interface FileRoutesById {
   '/educator/$': typeof EducatorSplatRoute
   '/explore/$code': typeof ExploreCodeRoute
   '/explore/scan': typeof ExploreScanRoute
+  '/family_/sign-in': typeof FamilySignInRoute
+  '/family_/sign-up': typeof FamilySignUpRoute
   '/family_/view': typeof FamilyViewRoute
   '/go/$token': typeof GoTokenRoute
   '/instructor/admin': typeof InstructorAdminRouteWithChildren
@@ -867,6 +885,8 @@ export interface FileRouteTypes {
     | '/educator/$'
     | '/explore/$code'
     | '/explore/scan'
+    | '/family/sign-in'
+    | '/family/sign-up'
     | '/family/view'
     | '/go/$token'
     | '/instructor/admin'
@@ -957,6 +977,8 @@ export interface FileRouteTypes {
     | '/educator/$'
     | '/explore/$code'
     | '/explore/scan'
+    | '/family/sign-in'
+    | '/family/sign-up'
     | '/family/view'
     | '/go/$token'
     | '/instructor/dashboard'
@@ -1047,6 +1069,8 @@ export interface FileRouteTypes {
     | '/educator/$'
     | '/explore/$code'
     | '/explore/scan'
+    | '/family_/sign-in'
+    | '/family_/sign-up'
     | '/family_/view'
     | '/go/$token'
     | '/instructor/admin'
@@ -1139,6 +1163,8 @@ export interface RootRouteChildren {
   EducatorSplatRoute: typeof EducatorSplatRoute
   ExploreCodeRoute: typeof ExploreCodeRoute
   ExploreScanRoute: typeof ExploreScanRoute
+  FamilySignInRoute: typeof FamilySignInRoute
+  FamilySignUpRoute: typeof FamilySignUpRoute
   FamilyViewRoute: typeof FamilyViewRoute
   GoTokenRoute: typeof GoTokenRoute
   OpportunityIdRoute: typeof OpportunityIdRoute
@@ -1366,6 +1392,20 @@ declare module '@tanstack/react-router' {
       path: '/explore/scan'
       fullPath: '/explore/scan'
       preLoaderRoute: typeof ExploreScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/family_/sign-in': {
+      id: '/family_/sign-in'
+      path: '/family/sign-in'
+      fullPath: '/family/sign-in'
+      preLoaderRoute: typeof FamilySignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/family_/sign-up': {
+      id: '/family_/sign-up'
+      path: '/family/sign-up'
+      fullPath: '/family/sign-up'
+      preLoaderRoute: typeof FamilySignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/family_/view': {
@@ -1915,6 +1955,8 @@ const rootRouteChildren: RootRouteChildren = {
   EducatorSplatRoute: EducatorSplatRoute,
   ExploreCodeRoute: ExploreCodeRoute,
   ExploreScanRoute: ExploreScanRoute,
+  FamilySignInRoute: FamilySignInRoute,
+  FamilySignUpRoute: FamilySignUpRoute,
   FamilyViewRoute: FamilyViewRoute,
   GoTokenRoute: GoTokenRoute,
   OpportunityIdRoute: OpportunityIdRoute,
