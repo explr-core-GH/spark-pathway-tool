@@ -3,8 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { z } from "zod";
 
-const EXPLR_ENDPOINT =
-  "https://ovmmlbpaaadzgxxrbmdl.supabase.co/functions/v1/external-data";
+const EXPLR_ENDPOINT = "https://ovmmlbpaaadzgxxrbmdl.supabase.co/functions/v1/external-data";
 
 const ALLOWED_ACTIONS = ["camps", "roster", "waitlist", "all_rosters"] as const;
 type Action = (typeof ALLOWED_ACTIONS)[number];
@@ -15,13 +14,14 @@ const inputSchema = z.object({
 });
 
 async function assertAdmin(userId: string) {
+  // Admin status is membership in public.admins (same as explr-sync).
   const { data, error } = await supabaseAdmin
-    .from("educators")
-    .select("role")
+    .from("admins")
+    .select("id")
     .eq("id", userId)
     .maybeSingle();
   if (error) throw new Error(`Role lookup failed: ${error.message}`);
-  if (!data || data.role !== "admin") throw new Error("Admin access required");
+  if (!data) throw new Error("Admin access required");
 }
 
 function getExplrApiKey(): string {

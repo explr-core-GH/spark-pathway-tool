@@ -303,7 +303,7 @@ function ApplyPage() {
     }
     try {
       await recordApplicationStatus({
-        data: { generalId: app.id, status: "received", origin: window.location.origin },
+        data: { generalId: app.id, status: "received" },
       });
     } catch {
       /* the application is saved even if the email fails */

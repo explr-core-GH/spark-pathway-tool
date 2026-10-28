@@ -264,21 +264,28 @@ function DemoPage() {
               </button>
             </div>
           </div>
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={resetWalkthrough}
-              disabled={busy !== null}
-              className="btn-ghost bg-paper-raised disabled:opacity-50"
-            >
-              <RefreshCw className="h-4 w-4" aria-hidden />
-              {busy === "walkthrough" ? "Resetting…" : "Reset the walkthrough"}
-            </button>
-            <p className="text-sm text-ink-700">
-              Run before each demo. Demo internships only appear to demo accounts, never to real
-              students.
+          {isAdmin ? (
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={resetWalkthrough}
+                disabled={busy !== null}
+                className="btn-ghost bg-paper-raised disabled:opacity-50"
+              >
+                <RefreshCw className="h-4 w-4" aria-hidden />
+                {busy === "walkthrough" ? "Resetting…" : "Reset the walkthrough"}
+              </button>
+              <p className="text-sm text-ink-700">
+                Admins only. Run before each demo. Demo internships only appear to demo accounts,
+                never to real students.
+              </p>
+            </div>
+          ) : (
+            <p className="mt-5 text-sm text-ink-700">
+              Only EXPLR admins can reset the walkthrough. Sign in with your admin account to see
+              the reset button.
             </p>
-          </div>
+          )}
           {walkMsg && (
             <p role="status" className="mt-3 text-sm text-green-deep">
               {walkMsg}

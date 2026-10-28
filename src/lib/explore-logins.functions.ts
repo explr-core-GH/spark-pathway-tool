@@ -1,5 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createHash, randomBytes, randomInt } from "node:crypto";
+import { randomBytes, randomInt } from "node:crypto";
+import { exploreSecretHash, exploreTokenHash } from "./server/hash.server";
+import { rateLimit } from "./server/rate-limit.server";
+import { lockMinutesFor, MAX_FAILED_ATTEMPTS } from "./explore-lockout";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -46,8 +49,6 @@ export type SecretShape = (typeof SECRET_SHAPES)[number];
 export type AvatarColor = (typeof AVATAR_COLORS)[number];
 
 export const SECRET_LENGTH = 3;
-const MAX_FAILED_ATTEMPTS = 5;
-const LOCK_MINUTES = 15;
 const EXPLORE_DOMAIN = "@explore.explr.local";
 
 // Join codes read aloud and typed by an instructor: ANIMAL-NN.
@@ -78,12 +79,8 @@ const CODE_ANIMALS = [
   "WHALE",
 ];
 
-const pepper = () =>
-  process.env.EXPLORE_LOGIN_PEPPER ?? process.env.SUPABASE_SERVICE_ROLE_KEY ?? "explr";
-const sha = (s: string) => createHash("sha256").update(s).digest("hex");
-const hashSecret = (loginId: string, seq: readonly string[]) =>
-  sha(`secret:${loginId}:${seq.join(",")}:${pepper()}`);
-const hashToken = (token: string) => sha(`token:${token}:${pepper()}`);
+const hashSecret = exploreSecretHash;
+const hashToken = exploreTokenHash;
 const pick = <T>(arr: readonly T[]): T => arr[randomInt(arr.length)];
 const randomSecret = (): SecretShape[] =>
   Array.from({ length: SECRET_LENGTH }, () => pick(SECRET_SHAPES));
@@ -190,6 +187,7 @@ export type ExploreCard = {
 export const getExploreGroup = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ code: z.string().min(3).max(24) }).parse(input))
   .handler(async ({ data }) => {
+    await rateLimit("getExploreGroup", 60, 600);
     const g = await groupByCode(data.code);
     if (!g) throw new Error("No class with that code. Check with your instructor.");
     const ids = await rosterStudentIds(g);
@@ -236,6 +234,7 @@ export const exploreSignIn = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }) => {
+    await rateLimit("exploreSignIn", 20, 600);
     const { data: row } = await sb("explore_logins")
       .select("id, student_id, secret_hash, failed_attempts, locked_until")
       .eq("id", data.loginId)
@@ -253,11 +252,14 @@ export const exploreSignIn = createServerFn({ method: "POST" })
     }
     if (hashSecret(login.id, data.sequence) !== login.secret_hash) {
       const attempts = login.failed_attempts + 1;
-      const lock = attempts >= MAX_FAILED_ATTEMPTS;
+      // Lock on every 5th failure; keep counting so each re-lock doubles.
+      const lock = attempts % MAX_FAILED_ATTEMPTS === 0;
       await sb("explore_logins")
         .update({
-          failed_attempts: lock ? 0 : attempts,
-          locked_until: lock ? new Date(Date.now() + LOCK_MINUTES * 60_000).toISOString() : null,
+          failed_attempts: attempts,
+          locked_until: lock
+            ? new Date(Date.now() + lockMinutesFor(attempts) * 60_000).toISOString()
+            : null,
         })
         .eq("id", login.id);
       throw new Error(
@@ -280,6 +282,7 @@ export const exploreSignIn = createServerFn({ method: "POST" })
 export const redeemExploreToken = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ token: z.string().min(16).max(64) }).parse(input))
   .handler(async ({ data }) => {
+    await rateLimit("redeemExploreToken", 20, 600);
     const { data: row } = await sb("explore_logins")
       .select("id, student_id")
       .eq("token_hash", hashToken(data.token))

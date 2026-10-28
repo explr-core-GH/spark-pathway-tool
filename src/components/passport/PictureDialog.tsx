@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ImageUp, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { storagePath } from "@/lib/storage-paths";
 
 /** Emoji a student can pick as their passport picture. */
 export const PASSPORT_EMOJI = [
@@ -48,12 +49,8 @@ const sb = (table: string): any => (supabase.from as unknown as (n: string) => a
 
 const BUCKET = "student-photos";
 
-/** Object path inside the bucket for a public URL this dialog produced, or null. */
-function photoPathFromUrl(url: string | null): string | null {
-  if (!url) return null;
-  const m = url.match(new RegExp(`/storage/v1/object/public/${BUCKET}/([^?#]+)`));
-  return m ? decodeURIComponent(m[1]) : null;
-}
+/** Object path for a stored value (bare path, or a legacy public URL). */
+const photoPathFromUrl = (v: string | null) => storagePath(BUCKET, v);
 
 /**
  * PictureDialog — set the passport picture: pick an emoji (any grade) or
@@ -115,8 +112,8 @@ export function PictureDialog({ studentId, explore, emoji, photoUrl, onClose, on
       setError(upErr.message);
       return;
     }
-    const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
-    await save({ avatar_emoji: null, photo_url: data.publicUrl });
+    // The bucket is private: store the object path and sign it when shown.
+    await save({ avatar_emoji: null, photo_url: path });
   }
 
   return (

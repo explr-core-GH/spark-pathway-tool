@@ -484,7 +484,6 @@ function Detail(props: {
           status,
           note: note.trim() || undefined,
           placedOpportunityId: placeId || undefined,
-          origin: window.location.origin,
         },
       });
       const sent = Object.values(r.delivery as Record<string, { sent?: boolean }>).filter(

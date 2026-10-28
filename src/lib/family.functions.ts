@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createHash, randomBytes, randomInt } from "node:crypto";
+import { randomBytes, randomInt } from "node:crypto";
+import { familyCodeHash, familySessionHash } from "./server/hash.server";
+import { rateLimit } from "./server/rate-limit.server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -22,11 +24,8 @@ const sb = (table: string): any => (supabaseAdmin.from as unknown as (n: string)
 
 const ALPHABET = "23456789ABCDEFGHJKMNPQRSTUVWXYZ"; // no 0/O/1/I/L
 const CODE_LEN = 6;
-const pepper = () =>
-  process.env.FAMILY_CODE_PEPPER ?? process.env.SUPABASE_SERVICE_ROLE_KEY ?? "explr";
-const sha = (s: string) => createHash("sha256").update(s).digest("hex");
-const hashCode = (code: string) => sha(`family-code:${normalize(code)}:${pepper()}`);
-const hashToken = (t: string) => sha(`family-session:${t}:${pepper()}`);
+const hashCode = (code: string) => familyCodeHash(normalize(code));
+const hashToken = (t: string) => familySessionHash(t);
 
 export function normalize(code: string): string {
   return code
@@ -119,6 +118,7 @@ export const revokeFamilyCode = createServerFn({ method: "POST" })
 export const redeemFamilyCode = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ code: z.string().min(4).max(20) }).parse(input))
   .handler(async ({ data }) => {
+    await rateLimit("redeemFamilyCode", 20, 600);
     if (normalize(data.code).length !== CODE_LEN)
       throw new Error(
         "That code doesn't look right. It's EXPLR- followed by 6 letters and numbers.",

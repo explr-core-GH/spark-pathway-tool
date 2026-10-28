@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Building2, Check, ExternalLink, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { signedFileUrl } from "@/lib/storage.functions";
+import { storagePath } from "@/lib/storage-paths";
 import type { AppLink, OpportunityForm, FormCompletion } from "@/lib/opportunities";
 
 const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
@@ -77,9 +79,9 @@ export function OrgInternshipExtras({
       alert(upErr.message);
       return;
     }
-    const url = supabase.storage.from("form-uploads").getPublicUrl(path).data.publicUrl;
+    // Private bucket: store the object path; it's opened through a signed URL.
     const { error } = await sb("form_completions").upsert(
-      { form_id: form.id, student_id: studentId, completed_file_url: url },
+      { form_id: form.id, student_id: studentId, completed_file_url: path },
       { onConflict: "form_id,student_id" },
     );
     if (error) {
@@ -196,6 +198,21 @@ export function OrgInternshipExtras({
   );
 }
 
+/** Open a completed form from the private bucket through a short-lived signed link. */
+async function openFormUpload(value: string | null) {
+  const path = storagePath("form-uploads", value);
+  if (!path) return;
+  const win = window.open("", "_blank");
+  try {
+    const { url } = await signedFileUrl({ data: { bucket: "form-uploads", path } });
+    if (win) win.location.href = url;
+    else window.location.href = url;
+  } catch (e) {
+    win?.close();
+    alert(e instanceof Error ? e.message : String(e));
+  }
+}
+
 function isFormFor(f: OpportunityForm, oppId: string): boolean {
   return (f as unknown as { opportunity_id: string }).opportunity_id === oppId;
 }
@@ -277,6 +294,13 @@ function FormRow({
           className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-green-deep"
         >
           <Check className="h-3.5 w-3.5" aria-hidden /> Uploaded
+          <button
+            type="button"
+            className="ml-2 underline"
+            onClick={() => openFormUpload(completion.completed_file_url)}
+          >
+            View
+          </button>
         </p>
       )}
     </li>
