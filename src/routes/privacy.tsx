@@ -45,7 +45,9 @@ function PrivacyPage() {
       <p>
         <strong>Parents and guardians.</strong> When you register a child for an EXPLR camp, we
         receive your child's name and age and your name, email, and phone number so we can set up
-        the camp roster and student sign-in.
+        the camp roster and student sign-in. A parent or guardian may also create a family
+        account; it stores only their name, email, optional phone, which students they linked to,
+        and when they confirmed consent.
       </p>
       <p>
         <strong>Instructors and program leaders.</strong> Your name, email, school or organization,
