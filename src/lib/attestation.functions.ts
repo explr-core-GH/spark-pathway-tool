@@ -46,7 +46,6 @@ type ExperienceRow = {
   supervisor_email: string | null;
 };
 
-
 function escapeHtml(s: string): string {
   return s.replace(
     /[&<>"']/g,
