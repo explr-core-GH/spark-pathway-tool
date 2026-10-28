@@ -7,6 +7,7 @@ import { APP_STATUS_LABEL, REQUIREMENT_BY_KEY } from "./content";
 import { buildStatusMessage, type StatusContext } from "./notify-messages";
 import { hydrateBuilder } from "./types";
 import { getPublicOrigin } from "../server/origin.server";
+import { sendEmail as sendGatewayEmail } from "../server/email.server";
 
 /**
  * Application status changes and the notifications they send.
@@ -39,20 +40,8 @@ type Delivery = { to: string; sent: boolean; skipped?: string; error?: string; p
 async function sendEmail(to: string, subject: string, html: string): Promise<Delivery> {
   if (to.endsWith(DEMO_DOMAIN) || to.endsWith("@example.org") || to.endsWith("@example.com"))
     return { to, sent: false, skipped: "demo address" };
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return { to, sent: false, error: "Email is not configured (RESEND_API_KEY)" };
-  const from = process.env.RESEND_FROM ?? "EXPLR Pathways <noreply@explrpathways.org>";
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from, to: [to], subject, html }),
-    });
-    if (!res.ok) return { to, sent: false, error: `Resend ${res.status}` };
-    return { to, sent: true };
-  } catch (e) {
-    return { to, sent: false, error: e instanceof Error ? e.message : String(e) };
-  }
+  const mail = await sendGatewayEmail(to, subject, html);
+  return { to, ...mail };
 }
 
 /**

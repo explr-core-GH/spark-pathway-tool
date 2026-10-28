@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { randomBytes } from "node:crypto";
 import { attestationTokenHash } from "./server/hash.server";
 import { getPublicOrigin } from "./server/origin.server";
+import { sendEmail } from "./server/email.server";
 import { rateLimit } from "./server/rate-limit.server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -44,28 +45,6 @@ type ExperienceRow = {
   supervisor_name: string | null;
   supervisor_email: string | null;
 };
-
-async function sendEmail(
-  to: string,
-  subject: string,
-  html: string,
-): Promise<{ sent: boolean; error?: string }> {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return { sent: false, error: "Email is not configured (RESEND_API_KEY)" };
-  const from = process.env.RESEND_FROM ?? "EXPLR Pathways <noreply@explrpathways.org>";
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from, to: [to], subject, html }),
-    });
-    if (!res.ok)
-      return { sent: false, error: `Resend ${res.status}: ${(await res.text()).slice(0, 200)}` };
-    return { sent: true };
-  } catch (e) {
-    return { sent: false, error: e instanceof Error ? e.message : String(e) };
-  }
-}
 
 function escapeHtml(s: string): string {
   return s.replace(
