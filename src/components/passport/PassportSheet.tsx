@@ -219,6 +219,7 @@ export function PassportSheet({
   onEditAbout?: () => void;
   onEditPicture?: () => void;
 }) {
+  const photoSrc = useSignedFileUrl("student-photos", p.photoUrl);
   const explore = p.band === "explore";
   const topInterests =
     (

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Building2, Check, ExternalLink, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { signedFileUrl } from "@/lib/storage.functions";
+import { storagePath } from "@/lib/storage-paths";
 import type { AppLink, OpportunityForm, FormCompletion } from "@/lib/opportunities";
 
 const sb = (t: string): any => (supabase.from as unknown as (n: string) => any)(t);
@@ -194,6 +196,21 @@ export function OrgInternshipExtras({
       </div>
     </section>
   );
+}
+
+/** Open a completed form from the private bucket through a short-lived signed link. */
+async function openFormUpload(value: string | null) {
+  const path = storagePath("form-uploads", value);
+  if (!path) return;
+  const win = window.open("", "_blank");
+  try {
+    const { url } = await signedFileUrl({ data: { bucket: "form-uploads", path } });
+    if (win) win.location.href = url;
+    else window.location.href = url;
+  } catch (e) {
+    win?.close();
+    alert(e instanceof Error ? e.message : String(e));
+  }
 }
 
 function isFormFor(f: OpportunityForm, oppId: string): boolean {
